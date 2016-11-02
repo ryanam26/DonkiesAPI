@@ -15,13 +15,23 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.conf.urls.static import static
+from django.conf import settings
 
+from donkiesoauth2 import urls as donkies_auth_urls
 from restapi import api_v1
+
+admin.autodiscover()
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    url(r'^o/', include('donkiesoauth2.urls')),
+    url(r'^auth/', include('rest_framework_social_oauth2.urls')),
+    # url('', include('social.apps.django_app.urls', namespace='social')),
+    # url('', include('django.contrib.auth.urls', namespace='auth')),
     url(r'^api/v1/', include(api_v1)),
-
+    url(r'', include(donkies_auth_urls))
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

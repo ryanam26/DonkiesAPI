@@ -1,40 +1,25 @@
-from rest_framework import generics, viewsets, views
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.contrib import auth
-from donkiesoauth2.permissions import IsAuthenticatedOrCreate
-from donkiesoauth2.serializers import SignUpSerializer
+from rest_framework import viewsets
 from donkiesoauth2.models import DonkiesUser
-from donkiesoauth2.forms import DevUserRegForm
+from django.http import JsonResponse
 
 
-class DevSignUp(viewsets.GenericViewSet):
+class DjangoUserViewSet(viewsets.ModelViewSet):
     queryset = DonkiesUser.objects.all()
-    serializer_class = SignUpSerializer
-    permission_classes = (IsAuthenticatedOrCreate, )
+    serializer_class = DonkiesUser
 
 
-def register_user(request):
-    next = request.POST.get('next', request.GET.get('next', ''))
-    if request.method == "POST":
-        user_form = DevUserRegForm(request.POST)
-        if user_form.is_valid():
-            user = user_form.save(commit=False)
-            user.save()
-            if next:
-                return HttpResponseRedirect(next)
-            return HttpResponseRedirect('/api/v1/')
+def api_auth_success(request):
+    user = request.user
+    if user.is_authenticated():
+        try:
+            access_token = user.accesstoken_set.get().token
+            expires = user.accesstoken_set.get().expires
+            refresh_token = user.refreshtoken_set.get().token
+        except DonkiesUser.DoesNotExist:
+            return JsonResponse({'error': 'not authorized to access api'})
+
+        return JsonResponse({'access_token': access_token,
+                             'expires': expires,
+                             'refresh_token': refresh_token})
     else:
-        user_form = DevUserRegForm()
-
-    context = {
-        "user_form": user_form,
-    }
-
-    return render(request, 'registration/register.html', context)
-
-
-# def logout(request):
-#     auth.logout(request)
-#     # Redirect back to login page
-#     return HttpResponseRedirect(settings.LOGIN_URL)
+        return JsonResponse({'error': 'not logged in'})

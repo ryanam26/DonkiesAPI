@@ -1,7 +1,6 @@
 from django.conf.urls import url
-from donkiesoauth2.views import register_user
-
+from donkiesoauth2.views import api_auth_success
 
 urlpatterns = [
-    url(r'^developers/sign_up/$', register_user, name="dev_sign_up"),
+    url(r'^api/v1/logged_in/.*', api_auth_success),
 ]

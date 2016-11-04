@@ -18,19 +18,20 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 
-from donkiesoauth2 import urls as donkies_auth_urls
 from restapi import api_v1
+from donkiesapp import urls as donkies_urls
 
 admin.autodiscover()
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url('', include('django.contrib.auth.urls', namespace='auth')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    url(r'^auth/', include('rest_framework_social_oauth2.urls')),
-    # url('', include('social.apps.django_app.urls', namespace='social')),
-    # url('', include('django.contrib.auth.urls', namespace='auth')),
+    url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^api/v1/', include(api_v1)),
-    url(r'', include(donkies_auth_urls))
+    url(r'', include(donkies_urls)),
+    # url(r'^auth/', include('rest_framework_social_oauth2.urls')),
+    # url('', include('django.contrib.auth.urls', namespace='auth')),
 ]
 
 if settings.DEBUG:

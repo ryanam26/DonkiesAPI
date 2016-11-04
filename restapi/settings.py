@@ -28,6 +28,9 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+LOGIN_URL = '/auth/login/'
+# LOGIN_REDIRECT_URL = '/api/v1/'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,25 +40,26 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'oauth2_provider',
     'social.apps.django_app.default',
-    'rest_framework_social_oauth2',
-    'donkiesoauth2',
+    # 'rest_framework_social_oauth2',
+    # 'donkiesoauth2',
     'donkiesapp',
     'rest_framework',
     'corsheaders',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-]
 
-CORS_ORIGIN_ALLOW_ALL = True
+]
 
 ROOT_URLCONF = 'restapi.urls'
 
@@ -87,16 +91,15 @@ WSGI_APPLICATION = 'restapi.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'donkies',
-        'USER': 'aeria',
-        'PASSWORD': 'Suilsai89',
+
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'work',
+        'USER': 'work',
+        'PASSWORD': '',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }
-
-AUTH_USER_MODEL = 'donkiesoauth2.DonkiesUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -134,7 +137,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-LOGIN_REDIRECT_URL = '/api/v1/logged_in/'
+# LOGIN_REDIRECT_URL = '/api/v1/logged_in/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+    )
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -142,44 +151,49 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
-        'rest_framework_social_oauth2.authentication.SocialAuthentication',
     ),
+}
+
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'}
 }
 
 AUTHENTICATION_BACKENDS = (
 
-    # Facebook OAuth2
-    'social.backends.facebook.FacebookAppOAuth2',
     'social.backends.facebook.FacebookOAuth2',
-
-    # django-rest-framework-social-oauth2
-    'rest_framework_social_oauth2.backends.DjangoOAuth2',
-
-    # Django
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.twitter.TwitterOAuth',
     'django.contrib.auth.backends.ModelBackend',
+
 )
 
-SOCIAL_AUTH_USER_MODEL = 'donkiesoauth2.DonkiesUser'
+# SOCIAL_AUTH_USER_MODEL = 'donkiesoauth2.DonkiesUser'
 SOCIAL_AUTH_FACEBOOK_KEY = '234088733673357'
 SOCIAL_AUTH_FACEBOOK_SECRET = 'da3c9d95148e071f0b97cc506910487b'
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'public_profile']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'locale': 'en_US',
-    'fields': 'id, first_name, last_name, name, email, age_range, birthday, link, gender, locale, timezone, updated_time, verified, picture'
-}
-# SOCIAL_AUTH_USER_FIELDS = ['email', 'first_name', 'last_name', 'name', 'age_range', 'link',
-#                            'link', 'gender', 'locale', 'picture', 'updated_time', 'verified']
-SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+# SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'public_profile']
+# SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+#     'locale': 'en_US',
+#     'fields': 'id, first_name, last_name, name, email, age_range, birthday, link, gender, locale, timezone, updated_time, verified, picture'
+# }
+#
+# SOCIAL_AUTH_USER_FIELDS = ['email', 'first_name', 'last_name', 'name', ] # 'age_range', 'link',
+# #                            'link', 'gender', 'locale', 'picture', 'updated_time', 'verified']
+# # SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+#
+# SOCIAL_AUTH_PIPELINE = (
+#     'social.pipeline.social_auth.social_details',
+#     'social.pipeline.social_auth.social_uid',
+#     'social.pipeline.social_auth.auth_allowed',
+#     'social.pipeline.social_auth.social_user',
+#     'social.pipeline.user.get_username',
+#     'social.pipeline.user.create_user',
+#     'social.pipeline.social_auth.associate_user',
+#     'social.pipeline.social_auth.load_extra_data',
+#     'social.pipeline.user.user_details',
+# )
 
-SOCIAL_AUTH_PIPELINE = (
-    'social.pipeline.social_auth.social_details',
-    'social.pipeline.social_auth.social_uid',
-    'social.pipeline.social_auth.auth_allowed',
-    'social.pipeline.social_auth.social_user',
-    # 'social.pipeline.user.get_username',
-    # 'social.pipeline.user.create_user',
-    'donkiesoauth2.socialsave.create_or_update_user',
-    'social.pipeline.social_auth.associate_user',
-    'social.pipeline.social_auth.load_extra_data',
-    'social.pipeline.user.user_details',
-)
+BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

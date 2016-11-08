@@ -43,4 +43,23 @@ This is the process flow and functionality requirements for the application:
         - failed
         - complete
 
+# Landing Page
+When user arrives to website, he will see a landing page that contains a login/register button. 
+![alt tag](https://github.com/aeria-io/DonkiesRestAPI/blob/master/readme_assets/Landing-1.png)
+
+# Login or Register
+Ideally this should appear as a modal on the main landing page. This window should provide a way to login if you already have an account and it should provide a way to register with a new account.
+![alt tag](https://github.com/aeria-io/DonkiesRestAPI/blob/master/readme_assets/CreateAccount-2.png)
+
+# Register Debit Account
+After the user logs in or creates an account, the modal should slide to the left and present the user with this form. This form takes care of registering a debit account (bank account) with the user. In order for a user to access the dashboard, he must have a debit account registered. If a user has signed up but hasn't registered an account, this should be the form he sees upon loggin in again.
+![alt tag](https://github.com/aeria-io/DonkiesRestAPI/blob/master/readme_assets/LinkBank-3.png)
+
+# Register Loan Account
+This will be fore phase 2 of the project. No need to work on this part now.
+![alt tag](https://github.com/aeria-io/DonkiesRestAPI/blob/master/readme_assets/LinkLender-4.png)
+
+# Dashboard
+Here is where all the transaction data will be viewed and summarized.
+![alt tag](https://github.com/aeria-io/DonkiesRestAPI/blob/master/readme_assets/DashBoard-5.png)
 

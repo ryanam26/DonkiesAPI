@@ -59,6 +59,7 @@ This is the process flow and functionality requirements for the application:
         - downloading
         - failed
         - complete
+
     If complete, then the backend should record the datetime of when it completed in a field called last_synced.
 
 

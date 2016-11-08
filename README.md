@@ -18,6 +18,7 @@ passwords for users that have chosen to manually register with this API.
 
 This is the process flow and functionality requirements for the application:
 
+## Phase 1:
 1. Front-End app will route users to a login page managed by this system
     1. The login page will allow users to create an account using a form, Facebook, or Gmail account.
         - For manual sing up all that will be required is:
@@ -59,13 +60,18 @@ After the user logs in or creates an account, the modal should slide to the left
 
 ![alt tag](https://github.com/aeria-io/DonkiesRestAPI/blob/master/readme_assets/LinkBank-3.png)
 
+# Dashboard
+Here is where all the transaction data will be viewed and summarized.
+
+![alt tag](https://github.com/aeria-io/DonkiesRestAPI/blob/master/readme_assets/DashBoard-5.png)
+
+
+## Phase 2:
+
 # Register Loan Account
 This will be fore phase 2 of the project. No need to work on this part now.
 
 ![alt tag](https://github.com/aeria-io/DonkiesRestAPI/blob/master/readme_assets/LinkLender-4.png)
 
-# Dashboard
-Here is where all the transaction data will be viewed and summarized.
 
-![alt tag](https://github.com/aeria-io/DonkiesRestAPI/blob/master/readme_assets/DashBoard-5.png)
 

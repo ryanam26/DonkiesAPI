@@ -1,6 +1,7 @@
 # Donkies REST API
 
 Technologies:
+- Python >= 3.5
 - Django >= 1.10
 - Django REST Framework >= 3.4.6
 - Celery >= 4.0

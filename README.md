@@ -40,12 +40,11 @@ This is the process flow and functionality requirements for the application:
     front end. The access tokens for this API are currently contained in this project.
     2. The frontend will poll the backend (once a second) to see if the bank account was linked successfully or not.
     The backend will provide the status of the link (link_status) to the front end. The possible status will be:
-    - Success
-    - Processing
-    - Wrong Username/Password
-    - Challenged
-    - Other Error (basically the server isn't working for some reason... for this case an entry for LinkedBankAccount should have even been generated)
-    
+        - Success
+        - Processing
+        - Wrong Username/Password
+        - Challenged
+        - Other Error (basically the server isn't working for some reason... for this case an entry for LinkedBankAccount should have even been generated)
     3. If "wrong username/password" there the backend should allow the front end to change the username and password
     for the user and try again.
     4. If "challenged", the backend should provide a way for the front end to access the "challenge" question and then
@@ -55,8 +54,11 @@ This is the process flow and functionality requirements for the application:
     Again, all the data can be placed into model fields or into a field as a JSON object. I leave this
     decision up to the developer. I think having some of the information as fields will help the app scale up better.
     While the backend is storing all the transaction data, it should set the "LinkedBankAccount" model's
-    transactions_status field to "downloading". The possible values for transactions_status should be,
-    downloading, failed, and complete. If complete, then the backend should record the datetime of when it completed
-    in a field called last_synced.
+    transactions_status field to "downloading". 
+    The possible values for transactions_status should be,
+        - downloading
+        - failed
+        - complete
+    If complete, then the backend should record the datetime of when it completed in a field called last_synced.
 
 

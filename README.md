@@ -4,7 +4,8 @@ Technologies:
 - Django >= 1.10
 - Django REST Framework >= 3.4.6
 - Celery >= 4.0
-- RabbitMQ
+- Posgres >= 9.6
+- RabbitMQ or Redis
 - Pytrium >= 0.1.2 (Financial Transaction API)
 
 

@@ -31,8 +31,8 @@ celery worker -A donkies -l info -B
 elif [ "$1" == "test" ]
 then
 clear
-# py.test -s donkies/tests/test_auth.py
-py.test -s donkies/tests/test_oauth.py
+py.test -s donkies/tests/test_auth.py
+# py.test -s donkies/tests/test_oauth.py
 
 else
 clear

@@ -26,10 +26,20 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     encrypted_id = models.CharField(max_length=32, default='')
+    guid = models.CharField(
+        max_length=100,
+        null=True,
+        default=None,
+        blank=True,
+        unique=True,
+        help_text='Atrium guid')
+    identifier = models.CharField(
+        max_length=50, null=True, default=None, blank=True)
     email = models.EmailField(
         max_length=255, null=True, unique=True, default=None)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50, blank=True, default='')
+    birthday = models.DateField(null=True, default=None, blank=True)
     confirmation_token = models.CharField(max_length=255, blank=True)
     confirmed_at = models.DateTimeField(blank=True, default=None, null=True)
     reset_token = models.CharField(max_length=255)

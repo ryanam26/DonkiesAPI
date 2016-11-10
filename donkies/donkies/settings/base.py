@@ -57,9 +57,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rest_framework',
     'social.apps.django_app.default',
-    'oauth2_provider',
+    # 'oauth2_provider',
     'corsheaders',
-    'web'
+    'web',
+    'finance'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -170,7 +171,7 @@ REST_FRAMEWORK = {
         'donkies.authentication.BasicAuthentication',
         'donkies.authentication.SessionAuthentication',
         'donkies.authentication.TokenAuthentication',
-        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        # 'oauth2_provider.ext.rest_framework.OAuth2Authentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S',

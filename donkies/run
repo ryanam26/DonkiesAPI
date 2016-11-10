@@ -1,0 +1,40 @@
+#!/bin/bash
+
+cd /home/vlad/dev/web/dj/d/donkies/project/donkies/
+
+. ~/.venvs/donkies/bin/activate
+
+if [ "$1" == "init" ]
+then
+clear
+python manage.py pgcreatelocal
+python manage.py initproject
+python manage.py makemigrations
+python manage.py makemigrations web
+python manage.py migrate
+
+python manage.py createemails
+python manage.py createsuperuser
+
+elif [ "$1" == "migr" ]
+then
+clear
+python manage.py makemigrations
+python manage.py migrate
+
+elif [ "$1" == "celery" ]
+then
+clear
+export DJANGO_SETTINGS_MODULE=donkies.settings.development
+celery worker -A donkies -l info -B
+
+elif [ "$1" == "test" ]
+then
+clear
+# py.test -s donkies/tests/test_auth.py
+py.test -s donkies/tests/test_oauth.py
+
+else
+clear
+python manage.py runserver localhost:8000
+fi

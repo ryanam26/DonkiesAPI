@@ -1,0 +1,373 @@
+
+#content h1{
+	font-size:24px;
+	font-weight:normal;
+	border-bottom-style:dotted;
+	border-bottom-width:thin;
+	
+}
+
+#wrapper{
+	font-size:12px;
+	margin:50px 10px 10px 10px;
+	padding:10px;
+	border:1px dashed #cccccc; 
+	color:#444444;
+}
+
+#wrapper a{
+	font-size:12px;
+	color:#444444;
+}
+
+.clear{	clear:both;}
+
+span.logic_message {
+	padding:2px 0 3px 20px;
+	color:#ff3333;
+	position:relative;
+}
+span.logic_message:before{
+	position:absolute;
+	font-family: 'FontAwesome';
+	top:0;
+	left:0;
+	content:'\f129';
+	color:#ff3333;
+	font-size:20px;
+}
+
+div.warning {
+	padding:2px 0 3px 20px;
+	color:#ff3333;
+	position:relative;
+	margin:10px 0 10px 0;
+}
+div.warning:before{
+	position:absolute;
+	font-family: 'FontAwesome';
+	top:0;
+	left:0;
+	content:'\f129';
+	color:#ff3333;
+	font-size:20px;
+}
+
+/* menu and faq */
+span.punkt {padding:2px 0 3px 15px;position:relative;}
+span.punktm {padding:2px 0 3px 15px;position:relative;}
+span.punktm:before, span.punkt a:before{
+	position:absolute;
+	font-family: 'FontAwesome';
+	top:4px;
+	left:0;
+	content:'\f054';
+	font-size:10px;
+	
+}
+
+
+/* используется для меню*/
+.tab1{
+	margin-bottom:100px;
+}
+
+.tab1 th{
+	padding-top: 5px;
+	padding-bottom: 2px;
+	padding-right: 7px;
+	border:1px solid #eceaea;
+	font-size:12px;
+}
+
+
+.tab1 td{
+	padding-top: 5px;
+	padding-bottom: 2px;
+	padding-right: 7px;
+	border:1px solid #eceaea;
+	font-size:12px;
+}
+
+
+/* используется для вывода товаров*/
+.tab2{
+	margin-bottom:100px;
+	margin-top:50px;
+	font-family:Helvetica, Arial;
+}
+
+.tab2 th{
+	padding-top: 5px;
+	padding-bottom: 2px;
+	padding-right: 7px;
+	border:1px solid #eceaea;
+	font-size:11px;
+	font-weight:bold;
+	color:#999999;
+	text-align:center;
+}
+
+
+.tab2 td{
+	padding-top: 5px;
+	padding-bottom: 2px;
+	padding-right: 7px;
+	padding-left:10px;
+	border:1px solid #eceaea;
+	font-size:11px;
+	vertical-align:middle;
+	
+}
+
+.tab2 td.center {text-align:center;}
+
+
+.tab2 tr.description td{
+	border:0;
+	padding:20px;
+	color:#444444;
+	font-size:11px;
+	
+}
+
+.tab2 tr.description td textarea{
+	width:80%;
+	height:300px;
+	border:1px solid #cccccc;
+}
+
+.tab2 tr td input.edit {display:none}
+.tab2 tr td div.ok {display:none;}
+.tab2 tr td div.error {display:none;}
+
+.tab2 tr td div.weight,
+.tab2 tr td div.brand, 
+.tab2 tr td div.color,
+.tab2 tr td div.size,
+.tab2 tr td div.description {
+	position:relative;
+}
+
+
+.tab2 tr td div.editweight,
+.tab2 tr td div.editbrand,
+.tab2 tr td div.editcolor,
+.tab2 tr td div.editsize,
+.tab2 tr td div.editdescription  {
+	z-index:1000;
+	position:absolute;
+	right:80px;
+	top:-40px;
+	width:300px;
+	border:1px solid #cccccc;
+	background-color:#f1f1f1;
+	border-radius:5px; 
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px;
+	padding:10px 20px 10px 20px;
+	display:none; 
+}
+
+.tab2 tr td div.editbrand{width:180px;}
+.tab2 tr td div.editdescription{width:430px;}
+.tab2 tr td div.editcolor{width:600px;}
+.tab2 tr td div.description{font-size:11px;padding:0;}
+
+.tabprint{
+	color:#444444;
+	border:1px solid #444444;
+	
+}
+
+.tabprint td.zag {
+	font-size:17px;
+}
+
+.tabprint td{
+	font: 62.5%/1.2 arial, Tahoma, Geneva, sans-serif;
+	padding: 5px;
+	border:1px solid #444444;
+	font-size:14px;
+}
+
+/* upload wrapper
+   used for Pic Abstract Model
+   used for File Abstract Model
+   used for Models with Photos class 		
+*/
+
+.upload_wrapper{
+	font-size:15px;
+	margin:5px 0 0 20px;
+}
+.upload_wrapper h1{
+	float:left;
+	font-size:20px;
+	font-weight:normal;
+	border-bottom: 1px dotted #999999;
+	width:400px;
+}
+.upload_wrapper .close{
+	position:relative;
+	float:right;
+	width:35px;
+	cursor:pointer;
+}
+.upload_wrapper .close .fa{color:#000;}
+
+.upload_wrapper .message{
+	font-size:15px;
+	margin:5px 0 0 0;
+	position:relative;
+	padding:2px 0 0 25px;
+}
+
+.upload_wrapper .message.ok{color:#008000;}
+.upload_wrapper .message.error{color:#ff3333;}
+
+.upload_wrapper .message.ok:after{
+	position:absolute;
+	font-family: 'FontAwesome';
+	top:0;
+	left:0;
+	content:'\f06a';
+	font-size:20px;
+	color:#008000;
+}
+
+.upload_wrapper .message.error:after{
+	position:absolute;
+	font-family: 'FontAwesome';
+	top:0;
+	left:0;
+	content:'\f06a';
+	font-size:20px;
+	color:#ff3333;
+}	
+
+.upload_wrapper form{margin-top:20px;} 
+.upload_wrapper form label{
+	margin-top:10px;
+	display:block;
+	position:relative;
+	padding-left:25px;
+}
+.upload_wrapper form label.resize:after{
+	position:absolute;
+	font-family: 'FontAwesome';
+	top:0;
+	left:0;
+	content:'\f0b2';
+	font-size:17px;
+	color:#444444;
+}
+.upload_wrapper form label.watermark:after{
+	position:absolute;
+	font-family: 'FontAwesome';
+	top:0;
+	left:0;
+	content:'\f03e';
+	font-size:17px;
+	color:#444444;
+}
+
+.upload_wrapper form input[type='text']{
+	display:block;
+	width:300px;
+	border:1px solid #999;
+	margin-top:5px;
+	font-size:17px;
+	padding:2px 0 2px 10px;
+}
+
+.upload_wrapper form select{
+	display:block;
+	width:100px;
+	border:1px solid #999;
+	margin-top:5px;
+	font-size:17px;
+	padding:2px 0 2px 10px;
+}
+
+.upload_wrapper form input[type='file']{
+	display:block;
+	width:300px;
+	border:1px solid #eaeaea;
+	margin-top:15px;
+	font-size:17px;
+	padding:2px 0 2px 10px;
+}
+
+.upload_wrapper form input[type='submit']{
+	display:block;
+	border-radius: 5px;
+	cursor:pointer;
+	margin:15px 0 0 0px;
+	text-align:center;
+	background-color:#444;
+	border:1px solid #444;
+	width:200px;
+	font-size:17px;
+	color:#f1f1f1;
+	padding:5px 0 5px 0;
+}
+
+.upload_wrapper form input[type='submit']:hover{
+	background-color:#008000;
+	border:1px solid #008000;
+}
+
+.upload_wrapper img.show_pic{
+	margin-top:30px;
+}
+
+/* photos */
+.upload_wrapper .photos{
+	margin-top:30px;
+}
+
+.upload_wrapper .photos .photo{
+	display:inline-block;
+	vertical-align: top;
+	width:200px;
+	border:1px solid #f1f1f1;
+	position:relative;
+}
+
+.upload_wrapper .photos .photo a.fa{
+	position:absolute;
+	top:5px;
+	cursor:pointer;
+	font-size:20px;
+	text-decoration: none;
+}
+
+.upload_wrapper .photos .photo a.delete{
+	right:10px;
+	color:#ff3333;
+}
+
+.upload_wrapper .photos .photo a.up{
+	color:#008000;
+	right:40px;
+}
+
+.upload_wrapper .photos .photo img{
+	width:90%;
+	margin:35px auto 10px auto;
+	display:block;
+	cursor:pointer;
+}
+
+
+.upload_wrapper .show_file{
+	margin-top:30px;
+	font-size:20px;
+	color:#417690;
+}
+
+.upload_wrapper .show_file a{
+	padding-left:5px;
+	color:#444;
+}

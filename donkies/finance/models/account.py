@@ -5,6 +5,7 @@ from django.contrib import admin
 class Account(models.Model):
     member = models.ForeignKey('Member')
     guid = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=255, null=True, default=None)
     apr = models.DecimalField(
         max_digits=10,
         decimal_places=6,
@@ -76,32 +77,35 @@ class Account(models.Model):
         help_text='Original balance.',
         null=True,
         default=None)
+    payment_due_at = models.DateTimeField(null=True, default=None)
     payoff_balance = models.DecimalField(
         max_digits=14,
         decimal_places=2,
         help_text='Payoff Balance',
         null=True,
         default=None)
+    started_on = models.DateTimeField(null=True, default=None)
+    subtype = models.CharField(max_length=255, null=True, default=None)
     total_account_value = models.DecimalField(
         max_digits=14,
         decimal_places=2,
         help_text='The total value of the account.',
         null=True,
         default=None)
-
-    
-
+    updated_at = models.DateTimeField(null=True, default=None)
 
     class Meta:
         app_label = 'finance'
-        verbose_name = ''
-        verbose_name_plural = ''
-        ordering = ['']
+        verbose_name = 'account'
+        verbose_name_plural = 'accounts'
+        ordering = ['member']
 
     def __str__(self):
-        return self.
+        if self.name:
+            return self.name
+        return self.guid
 
 
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ('',)
+    pass

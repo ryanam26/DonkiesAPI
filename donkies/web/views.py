@@ -2,7 +2,7 @@ import logging
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib.auth import logout as auth_logout
-from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -34,10 +34,7 @@ class AuthMixin:
 
 @api_view(['GET'])
 def api_root(request):
-    vd = {'version': 'v1'}
-    return Response({
-        'login': reverse('login', request=request, kwargs=vd),
-    })
+    return HttpResponseForbidden()
 
 
 class Signup(APIView):

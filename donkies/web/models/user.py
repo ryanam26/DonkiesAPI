@@ -1,6 +1,8 @@
+import datetime
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.postgres.fields import JSONField
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
@@ -22,6 +24,33 @@ class UserManager(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
+
+    def login_facebook(self, fb_response):
+        """
+        Get or create user.
+        Save updated response from facebook to database.
+        Returns dict with "message" if error.
+        Returns dict with "token" if success.
+        TODO: facebook may send response with error.
+              Process facebook error.
+        """
+        d = fb_response
+        if 'id' not in d:
+            return {'message': 'No id'}
+
+        if 'email' not in d:
+            return {'message': 'No email'}
+
+        try:
+            user = self.model.objects.get(fb_id=d['id'])
+            token = user.update_token()
+        except self.model.DoesNotExist:
+            user = self.model.objects.create_user(d['email'], uuid.uuid4().hex)
+            user.fb_id = d['id']
+            user.fb_response = fb_response
+            user.save()
+            token = user.get_token()
+        return {'token': token.key}
 
 
 class User(AbstractBaseUser):
@@ -49,6 +78,9 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True, verbose_name='active')
     is_admin = models.BooleanField(default=False, verbose_name='admin')
     is_superuser = models.BooleanField(default=False, verbose_name='superuser')
+    fb_id = models.CharField(
+        max_length=100, null=True, default=None, unique=True)
+    fb_response = JSONField(null=True, default=None)
 
     objects = UserManager()
 
@@ -85,10 +117,21 @@ class User(AbstractBaseUser):
 
     def get_token(self):
         Token = apps.get_model('web', 'Token')
-        return Token.objects.get(user=self)
+        try:
+            return Token.objects.get(user=self)
+        except Token.DoesNotExist:
+            return Token.objects.create(self)
+
+    def update_token(self):
+        now = timezone.now()
+        mins = settings.TOKEN_EXPIRE_MINUTES
+        t = self.get_token()
+        t.expire_at = now + datetime.timedelta(minutes=mins)
+        t.save()
+        return t
 
     def generate_token(self):
-        value = str(uuid.uuid4())
+        value = uuid.uuid4().hex
         return self.encrypt(value)
 
     def get_confirmation_link(self):

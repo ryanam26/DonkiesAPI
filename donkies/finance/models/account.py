@@ -38,7 +38,7 @@ class Account(models.Model):
         default=None)
     created_at = models.DateTimeField(null=True, default=None)
     day_payment_is_due = models.IntegerField(null=True, default=None)
-    is_closed = models.ForeignKey(default=False)
+    is_closed = models.BooleanField(default=False)
     credit_limit = models.DecimalField(
         max_digits=10,
         decimal_places=2,

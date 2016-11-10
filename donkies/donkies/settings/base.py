@@ -252,3 +252,7 @@ SOCIAL_AUTH_PIPELINE = (
     'web.services.social_auth.save_user_facebook',
     'web.services.social_auth.save_user_google',
 )
+
+# Return url to frontend with result after login
+FACEBOOK_SUCCESS_URL = 'http://donkies.co'
+FACEBOOK_FAIL_URL = 'http://donkies.co'

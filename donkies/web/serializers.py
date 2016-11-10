@@ -82,7 +82,8 @@ class SignupSerializer(serializers.ModelSerializer):
         fields = (
             'email',
             'password',
-            'first_name'
+            'first_name',
+            'last_name',
         )
 
     def save(self):

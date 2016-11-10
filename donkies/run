@@ -11,6 +11,7 @@ python manage.py pgcreatelocal
 python manage.py initproject
 python manage.py makemigrations
 python manage.py makemigrations web
+python manage.py makemigrations finance
 python manage.py migrate
 
 python manage.py createemails
@@ -31,8 +32,9 @@ celery worker -A donkies -l info -B
 elif [ "$1" == "test" ]
 then
 clear
-py.test -s donkies/tests/test_auth.py
-# py.test -s donkies/tests/test_oauth.py
+# py.test -s donkies/tests/test_oauth.py  # not used
+# py.test -s donkies/tests/test_auth.py
+py.test -s donkies/tests/test_facebook.py
 
 else
 clear

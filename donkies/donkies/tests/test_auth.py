@@ -53,7 +53,8 @@ class TestAuth(base.Mixin):
         dic = {
             'email': 'bob@gmail.com',
             'password': '12345678',
-            'first_name': 'Bob'
+            'first_name': 'Bob',
+            'last_name': 'Smith'
         }
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
@@ -75,7 +76,8 @@ class TestAuth(base.Mixin):
         dic = {
             'email': '!!!',
             'password': '12345678',
-            'first_name': 'Bob'
+            'first_name': 'Bob',
+            'last_name': 'Smith'
         }
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
@@ -92,7 +94,8 @@ class TestAuth(base.Mixin):
         dic = {
             'email': '',
             'password': '12345678',
-            'first_name': 'Bob'
+            'first_name': 'Bob',
+            'last_name': 'Smith'
         }
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
@@ -109,7 +112,8 @@ class TestAuth(base.Mixin):
         dic = {
             'email': 'bob@gmail.com',
             'password': '',
-            'first_name': 'Bob'
+            'first_name': 'Bob',
+            'last_name': 'Smith'
         }
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
@@ -128,7 +132,8 @@ class TestAuth(base.Mixin):
         dic = {
             'email': 'bob@gmail.com',
             'password': '12345678',
-            'first_name': 'Bob'
+            'first_name': 'Bob',
+            'last_name': 'Smith'
         }
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')

@@ -1,4 +1,4 @@
-from account import Account
+from .account import Account
 from .challenge import Challenge
 from .credentials import Credentials
 from .institution import Institution

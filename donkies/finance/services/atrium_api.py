@@ -68,9 +68,8 @@ class AtriumApi:
         })
         return member
 
-    def get_member_status(self, user_guid, member_guid):
+    def get_member(self, user_guid, member_guid):
         """
         TODO: processing errors.
         """
-        status = self.api.getMemberStatus(user_guid, member_guid)
-        return status
+        return self.api.getMemberStatus(user_guid, member_guid)

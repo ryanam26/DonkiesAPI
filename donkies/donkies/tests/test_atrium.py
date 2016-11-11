@@ -18,6 +18,26 @@ class TestAtrium(base.Mixin):
     Tests on real database (only getting).
     New results do not saved.
     """
+    TEST_CODE = 'mxbank'
+    TEST_USERNAME = 'test_atrium'
+    # Using any password:
+    # INITIATED -> AUTHENTICATED -> TRANSFERRED -> COMPLETED
+    TEST_PASSWORD = 'any'
+
+    # Passwords for particular scenario.
+    TEST_CHALLENGE = 'challenge'
+    TEST_OPTIONS = 'options'
+    TEST_IMAGE = 'image'
+    TEST_BAD_REQUEST = 'BAD_REQUEST'
+    TEST_UNAUTHORIZED = 'UNAUTHORIZED'
+    TEST_INVALID = 'INVALID'
+    TEST_LOCKED = 'LOCKED'
+    TEST_DISABLED = 'DISABLED'
+    TEST_SERVER_ERROR = 'SERVER_ERROR'
+    TEST_UNAVAILABLE = 'UNAVAILABLE'
+
+    TEST_CORRECT_ANSWER = 'correct'
+
     def init(self):
         self.email = settings.TEST_USER_EMAIL
         self.password = settings.TEST_USER_PASSWORD
@@ -30,15 +50,15 @@ class TestAtrium(base.Mixin):
 
     def get_credentials(self):
         """
-        Mock Chase Bank credentials for creating member.
+        Mock MXBank credentials for creating member.
         """
         login = Credentials.objects.get(
-            institution__code='chase', field_name='LOGIN')
+            institution__code=self.TEST_CODE, field_name='LOGIN')
         password = Credentials.objects.get(
-            institution__code='chase', field_name='PASSWORD')
+            institution__code=self.TEST_CODE, field_name='PASSWORD')
         return [
-            {'guid': login.guid, 'value': 'Bob1111'},
-            {'guid': password.guid, 'value': '11111111'},
+            {'guid': login.guid, 'value': self.TEST_USERNAME},
+            {'guid': password.guid, 'value': self.TEST_PASSWORD},
         ]
 
     def real_response(self):
@@ -60,8 +80,8 @@ class TestAtrium(base.Mixin):
     @pytest.mark.django_db
     def test_user(self, client):
         """
-        When user created in django, by celery it should register
-        in atrium.
+        When user created in django, by celery it should be
+        registered in atrium.
         """
         self.init()
         user = User.objects.get(email=self.email)
@@ -71,14 +91,14 @@ class TestAtrium(base.Mixin):
     @pytest.mark.django_db
     def test_member(self, client):
         """
-        Create member for test user and "chase" institution.
+        Create member for test user and "mxbank" institution.
         """
         self.init()
         user = User.objects.get(email=self.email)
 
         d = {
             'user_guid': user.guid,
-            'code': 'chase',
+            'code': self.TEST_CODE,
             'credentials': self.get_credentials()
         }
 

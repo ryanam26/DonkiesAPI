@@ -48,6 +48,10 @@ class MemberManager(models.Manager):
         member = a.get_member(member.user.guid, member.guid)
         return member.status
 
+    def get_members(self, user_guid):
+        a = AtriumApi()
+        return a.get_members(user_guid)
+
 
 class Member(models.Model):
     INITIATED = 'INITIATED'

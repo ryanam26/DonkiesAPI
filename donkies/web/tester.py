@@ -14,3 +14,4 @@ django.setup()
 if __name__ == '__main__':
     from finance.services.atrium_api import AtriumApi
     a = AtriumApi()
+    a.search_institutions(code='mxbank')

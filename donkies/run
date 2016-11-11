@@ -33,6 +33,15 @@ clear
 export DJANGO_SETTINGS_MODULE=donkies.settings.development
 celery worker -A donkies -l info -B
 
+elif [ "$1" == "pgupload" ]
+then
+clear
+
+pg_dump -U udonkies donkies -f db.dump --format=c
+python manage.py pgdropremote
+python manage.py pgcreateremote
+pg_restore -h 159.203.137.132 -p 5432 -d donkies -U udonkies db.dump
+
 elif [ "$1" == "test" ]
 then
 clear

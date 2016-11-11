@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from web.management.helpers import get_inet_root_connection
+from web.management.helpers import get_remote_root_connection
 
 
 class Command(BaseCommand):
@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        con, cur = get_inet_root_connection()
+        con, cur = get_remote_root_connection()
 
         cur.execute('drop database if exists {}'.format(settings.DB_NAME))
         con.close()

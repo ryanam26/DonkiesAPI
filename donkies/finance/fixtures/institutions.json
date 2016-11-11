@@ -7,5 +7,14 @@
       "name": "Chase Bank",
       "url": "https://www.chase.com"
     }
+  },
+  {
+    "model": "finance.institution",
+    "pk": 2,
+    "fields": {
+      "code": "mxbank",
+      "name": "MX Bank",
+      "url": "https://www.mx.com"
+    }
   }
 ]

@@ -6,7 +6,8 @@ from django.core.management.base import BaseCommand
 class Command(BaseCommand):
     def handle(self, *args, **options):
         l = [
-            'web'
+            'web',
+            'finance'
         ]
         for name in l:
             path = '{}/donkies/{}/migrations'.format(

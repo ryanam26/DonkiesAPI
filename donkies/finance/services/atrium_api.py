@@ -51,11 +51,23 @@ class AtriumApi:
         res = self.api.createUser(payload=d)
         return res.guid
 
+    def search_institutions(self, name=None, code=None):
+        d = {}
+        if name:
+            d['name'] = name
+        if code:
+            d['code'] = code
+        query = self.api.getInstitutions(queryParams=d)
+        print(query)
+
     def get_credentials(self, code):
         """
         Get all credentials for particular institution.
         """
         return self.api.getCredentials(code)
+
+    def get_members(self, user_guid):
+        return self.api.getMembers(user_guid)
 
     def create_member(self, user_guid, code, credentials):
         """

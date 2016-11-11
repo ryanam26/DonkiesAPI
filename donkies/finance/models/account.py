@@ -1,5 +1,56 @@
 from django.db import models
 from django.contrib import admin
+from finance.services.atrium_api import AtriumApi
+from django.apps import apps
+from django.db import transaction
+
+
+class AccountManager(models.Manager):
+    @transaction.atomic
+    def create_accounts(self, user_guid, l):
+        """
+        Input: all user accounts from atrium API.
+
+        Atrium API is source of truth.
+        Remove all user's accounts from db, before inserting all accounts.
+        It is better for performance, than update each particular
+        account.
+
+        TODO: pagination.
+              Before passing accounts, should collect
+              all of them for each user.
+        """
+        self.model.objects.filter(member__user__guid=user_guid).delete()
+        for acc in l:
+            self.create_account(acc)
+
+    def create_account(self, api_response):
+        """
+        api_response is dictionary with response result.
+        """
+        Member = apps.get_model('finance', 'Member')
+        d = api_response
+        d.pop('user_guid')
+        d.pop('institution_code')
+        d['member'] = Member.objects.get(guid=d.pop('member_guid'))
+        acc = self.model(**d)
+        acc.save()
+        return acc
+
+    def get_atrium_accounts(self, user_guid):
+        """
+        Queries atrium API for user's accounts.
+        TODO: processing errors.
+        """
+        a = AtriumApi()
+        return a.get_accounts(user_guid)
+
+    def get_accounts(self, user_guid):
+        """
+        Returns user accounts from database.
+        """
+        return self.model.objects.filter(
+            member__user__guid=user_guid)
 
 
 class Account(models.Model):
@@ -92,7 +143,10 @@ class Account(models.Model):
         help_text='The total value of the account.',
         null=True,
         default=None)
+    type = models.CharField(max_length=100, null=True, default=None)
     updated_at = models.DateTimeField(null=True, default=None)
+
+    objects = AccountManager()
 
     class Meta:
         app_label = 'finance'

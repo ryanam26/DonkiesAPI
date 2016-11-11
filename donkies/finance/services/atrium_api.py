@@ -85,3 +85,19 @@ class AtriumApi:
         TODO: processing errors.
         """
         return self.api.getMemberStatus(user_guid, member_guid)
+
+    def get_accounts(self, user_guid):
+        """
+        TODO: processing errors.
+              processing paginations.
+              add query params.
+        """
+        return self.api.getAccounts(user_guid)
+
+    def get_transactions(self, user_guid):
+        """
+        TODO: processing errors.
+              processing paginations.
+              add query params.
+        """
+        return self.api.getTransactions(user_guid)

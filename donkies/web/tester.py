@@ -1,7 +1,6 @@
 import django
 import os
 import sys
-import uuid
 
 from os.path import abspath, dirname, join
 
@@ -13,7 +12,10 @@ django.setup()
 
 
 if __name__ == '__main__':
+    from finance.models import Credentials
     from finance.services.atrium_api import AtriumApi
     a = AtriumApi()
-    res = a.create_user(uuid.uuid4().hex)
-    print(res)
+
+    Credentials.objects.update_all_credentials('chase')
+    for obj in Credentials.objects.all():
+        print(obj.__dict__)

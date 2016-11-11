@@ -30,3 +30,9 @@ class AtriumApi:
             d['metadata'] = json.dumps(metadata)
         res = self.api.createUser(payload=d)
         return res.guid
+
+    def get_credentials(self, code):
+        """
+        Get a;; credentials for particular institution.
+        """
+        return self.api.getCredentials(code)

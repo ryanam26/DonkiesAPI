@@ -33,7 +33,7 @@ elif [ "$1" == "test" ]
 then
 clear
 # py.test -s donkies/tests/test_oauth.py  # not used
-# py.test -s donkies/tests/test_auth.py
+py.test -s donkies/tests/test_auth.py
 py.test -s donkies/tests/test_facebook.py
 
 else

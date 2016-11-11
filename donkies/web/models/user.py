@@ -43,6 +43,8 @@ class UserManager(BaseUserManager):
 
         try:
             user = self.model.objects.get(fb_id=d['id'])
+            user.fb_response = fb_response
+            user.save()
             token = user.update_token()
         except self.model.DoesNotExist:
             user = self.model.objects.create_user(d['email'], uuid.uuid4().hex)
@@ -117,10 +119,11 @@ class User(AbstractBaseUser):
 
     def get_token(self):
         Token = apps.get_model('web', 'Token')
-        try:
-            return Token.objects.get(user=self)
-        except Token.DoesNotExist:
-            return Token.objects.create(self)
+        token = Token.objects.filter(
+            user=self, expire_at__gt=timezone.now()).first()
+        if token:
+            return token
+        return Token.objects.create(self)
 
     def update_token(self):
         now = timezone.now()
@@ -186,14 +189,12 @@ class User(AbstractBaseUser):
 
     def save(self, *args, **kwargs):
         Token = apps.get_model('web', 'Token')
-        if self.email is not None and self.email.strip() == '':
-            self.email = None
-
         created = True if not self.pk else False
         super().save(*args, **kwargs)
 
         if created:
             self.confirmation_token = self.generate_token()
             self.encrypted_id = self.encrypt(self.id)
+            self.identifier = uuid.uuid4().hex
             Token.objects.create(user=self)
             self.save()

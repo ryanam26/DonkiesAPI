@@ -12,10 +12,5 @@ django.setup()
 
 
 if __name__ == '__main__':
-    from finance.models import Credentials
     from finance.services.atrium_api import AtriumApi
     a = AtriumApi()
-
-    Credentials.objects.update_all_credentials('chase')
-    for obj in Credentials.objects.all():
-        print(obj.__dict__)

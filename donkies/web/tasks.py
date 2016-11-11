@@ -7,7 +7,7 @@ from django.core.mail import EmailMultiAlternatives
 from .models import Emailer, Logging
 
 
-@periodic_task(run_every=crontab())
+# @periodic_task(run_every=crontab())
 def send_email():
     """
     Runs every minute.

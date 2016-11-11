@@ -31,6 +31,13 @@ class CredentialManager(models.Manager):
         c.save()
         return c
 
+    def get_credential_guids(self, code):
+        """
+        Returns list of guids.
+        """
+        qs = self.model.objects.filter(institution__code=code)
+        return [c.guid for c in qs]
+
 
 class Credentials(models.Model):
     institution = models.ForeignKey('Institution')

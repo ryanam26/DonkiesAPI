@@ -264,3 +264,7 @@ FACEBOOK_FAIL_URL = 'http://donkies.co'
 
 # Api mode PROD/DEV
 ATRIUM_API_MODE = 'DEV'
+
+# User for real tests.
+TEST_USER_EMAIL = 'test-bob@gmail.com'
+TEST_USER_PASSWORD = '111'

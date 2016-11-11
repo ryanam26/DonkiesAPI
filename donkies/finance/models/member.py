@@ -1,5 +1,19 @@
 from django.db import models
 from django.contrib import admin
+from django.apps import apps
+
+
+class MemberManager(models.Manager):
+    def create_atrium_member(self, code, user_guid, member_guid, credentials):
+        """
+        TODO: Check that all required credentials of institution are available.
+              Processing errors.
+        """
+        Institution = apps.get_model('finance', 'Institution')
+        i = Institution.objects.get(code=code)
+
+
+
 
 
 class Member(models.Model):

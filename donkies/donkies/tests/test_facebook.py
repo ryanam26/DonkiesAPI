@@ -58,9 +58,28 @@ class TestFacebook(base.Mixin):
 
     @pytest.mark.django_db
     def test_01(self, client):
+        """
+        Try response without id and email.
+        Should get message.
+        """
+        d = self.get_pso_dic()
+        d.pop('id')
+        result = User.objects.login_facebook(d)
+        assert 'message' in result
+
+        d.pop('email')
+        result = User.objects.login_facebook(d)
+        assert 'message' in result
+
+    @pytest.mark.django_db
+    def test_02(self, client):
         d = self.get_pso_dic()
         result = User.objects.login_facebook(d)
-        print(result)
+        assert 'token' in result
 
         user = User.objects.get(fb_id=d['id'])
         assert user.fb_response is not None
+
+        # Try to login again with existing user.
+        result = User.objects.login_facebook(d)
+        assert 'token' in result

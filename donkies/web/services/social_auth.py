@@ -6,7 +6,7 @@ from web.models import User
 def save_user_facebook(backend, user, response, *args, **kwargs):
     if backend.name != 'facebook':
         return None
-    result = User.objects.login_facebook()
+    result = User.objects.login_facebook(response)
     if 'message' in result:
         url = settings.FACEBOOK_FAIL_URL + '?message={}'.format(
             result['message'])

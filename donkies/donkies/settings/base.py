@@ -33,6 +33,11 @@ DB_PASSWORD = data['DB_PASSWORD']
 DB_HOST = data['DB_HOST']
 SERVER_IP = data['SERVER_IP']
 
+ATRIUM_CLIENT_ID_PROD = data['ATRIUM_CLIENT_ID_PROD']
+ATRIUM_KEY_PROD = data['ATRIUM_KEY_PROD']
+ATRIUM_CLIENT_ID_DEV = data['ATRIUM_CLIENT_ID_DEV']
+ATRIUM_KEY_DEV = data['ATRIUM_KEY_DEV']
+
 BACKEND_DOMAIN = 'api.donkies.co'
 BACKEND_URL = 'http://api.donkies.co'
 FRONTEND_DOMAIN = 'donkies.co'
@@ -256,3 +261,6 @@ SOCIAL_AUTH_PIPELINE = (
 # Return url to frontend with result after login
 FACEBOOK_SUCCESS_URL = 'http://donkies.co'
 FACEBOOK_FAIL_URL = 'http://donkies.co'
+
+# Api mode PROD/DEV
+ATRIUM_API_MODE = 'DEV'

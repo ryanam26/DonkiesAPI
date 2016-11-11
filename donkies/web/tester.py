@@ -1,11 +1,8 @@
-"""Generate initial data"""
-
 import django
 import os
 import sys
-import string
-import random
-from django.db import transaction
+import uuid
+
 from os.path import abspath, dirname, join
 
 path = abspath(join(dirname(abspath(__file__)), ".."))
@@ -14,14 +11,9 @@ os.environ.setdefault(
     'DJANGO_SETTINGS_MODULE', 'donkies.settings.development')
 django.setup()
 
-from web import models
-
-
-class Generator:
-    def randstring(self, len):
-        s = string.ascii_lowercase
-        return ''.join(random.sample(s, len))
-
 
 if __name__ == '__main__':
-    g = Generator()
+    from finance.services.atrium_api import AtriumApi
+    a = AtriumApi()
+    res = a.create_user(uuid.uuid4().hex)
+    print(res)

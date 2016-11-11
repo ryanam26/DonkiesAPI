@@ -50,6 +50,7 @@ class MyUserAdmin(PopupMixin, UserAdmin):
         'email',
         'first_name',
         'last_name',
+        'guid',
         'is_active',
         'is_admin'
     )

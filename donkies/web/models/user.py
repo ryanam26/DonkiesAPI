@@ -7,6 +7,8 @@ from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
 from web.services.helpers import get_md5
+from finance.services.atrium_api import AtriumApi
+from finance import tasks
 
 
 class UserManager(BaseUserManager):
@@ -24,6 +26,18 @@ class UserManager(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
+
+    def create_atrium_user(self, user_id):
+        """
+        TODO: processing errors.
+        """
+        User = apps.get_model('web', 'User')
+        user = User.objects.get(id=user_id)
+
+        a = AtriumApi()
+        guid = a.create_user(user.identifier)
+        user.guid = guid
+        user.save()
 
     def login_facebook(self, fb_response):
         """
@@ -83,6 +97,7 @@ class User(AbstractBaseUser):
     fb_id = models.CharField(
         max_length=100, null=True, default=None, unique=True)
     fb_response = JSONField(null=True, default=None)
+    is_atrium_created = models.BooleanField(default=False)
 
     objects = UserManager()
 
@@ -190,6 +205,8 @@ class User(AbstractBaseUser):
     def save(self, *args, **kwargs):
         Token = apps.get_model('web', 'Token')
         created = True if not self.pk else False
+        if self.guid:
+            self.is_atrium_created = True
         super().save(*args, **kwargs)
 
         if created:
@@ -198,3 +215,6 @@ class User(AbstractBaseUser):
             self.identifier = uuid.uuid4().hex
             Token.objects.create(user=self)
             self.save()
+
+            # Create atrium user in background
+            tasks.create_atrium_user.delay(self.id)

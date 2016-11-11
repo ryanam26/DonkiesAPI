@@ -1,0 +1,11 @@
+[
+  {
+    "model": "finance.institution",
+    "pk": 1,
+    "fields": {
+      "code": "chase",
+      "name": "Chase Bank",
+      "url": "https://www.chase.com"
+    }
+  }
+]

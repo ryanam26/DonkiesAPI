@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
@@ -59,6 +60,7 @@ class TransactionManager(models.Manager):
 class Transaction(models.Model):
     account = models.ForeignKey('Account')
     guid = models.CharField(max_length=100, unique=True)
+    uid = models.CharField(max_length=50, unique=True)
     amount = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, default=None)
     check_number = models.IntegerField(null=True, default=None)
@@ -98,7 +100,12 @@ class Transaction(models.Model):
         ordering = ['account']
 
     def __str__(self):
-        return self.guid
+        return self.uid
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.uid = uuid.uuid4().hex
+        super().save(*args, **kwargs)
 
 
 @admin.register(Transaction)

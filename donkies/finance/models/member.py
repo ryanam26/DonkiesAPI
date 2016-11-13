@@ -100,6 +100,18 @@ class Member(models.Model):
 
     objects = MemberManager()
 
+    class Meta:
+        app_label = 'finance'
+        verbose_name = 'member'
+        verbose_name_plural = 'members'
+        ordering = ['user']
+        unique_together = ['user', 'institution']
+
+    def __str__(self):
+        if self.name:
+            return self.name
+        return self.guid
+
     @property
     def member_status(self):
         """
@@ -125,18 +137,6 @@ class Member(models.Model):
             return self.SUCCESS
 
         return self.OTHER_ERROR
-
-    class Meta:
-        app_label = 'finance'
-        verbose_name = 'member'
-        verbose_name_plural = 'members'
-        ordering = ['user']
-        unique_together = ['user', 'institution']
-
-    def __str__(self):
-        if self.name:
-            return self.name
-        return self.guid
 
     def save(self, *args, **kwargs):
         if not self.pk:

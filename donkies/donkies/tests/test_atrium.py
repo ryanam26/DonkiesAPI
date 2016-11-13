@@ -280,4 +280,5 @@ class TestAtrium(base.Mixin):
         data = json.dumps(dic)
 
         response = client.post(url, data, content_type='application/json')
-        print(response.content)
+        # print(response.content)
+        assert response.status_code == 201

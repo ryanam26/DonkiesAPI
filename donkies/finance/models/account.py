@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib import admin
 from finance.services.atrium_api import AtriumApi
@@ -56,6 +57,7 @@ class AccountManager(models.Manager):
 class Account(models.Model):
     member = models.ForeignKey('Member')
     guid = models.CharField(max_length=100, unique=True)
+    uid = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=255, null=True, default=None)
     apr = models.DecimalField(
         max_digits=10,
@@ -157,7 +159,12 @@ class Account(models.Model):
     def __str__(self):
         if self.name:
             return self.name
-        return self.guid
+        return self.uid
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.uid = uuid.uuid4().hex
+        super().save(*args, **kwargs)
 
 
 @admin.register(Account)

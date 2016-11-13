@@ -4,16 +4,50 @@ from finance.models import (
 
 
 class AccountSerializer(serializers.ModelSerializer):
+    member = serializers.StringRelatedField()
+
     class Meta:
         model = Account
         fields = (
+            'uid',
+            'member',
+            'name',
+            'apr',
+            'apy',
+            'available_balance',
+            'available_credit',
+            'balance',
+            'created_at',
+            'day_payment_is_due',
+            'is_closed',
+            'credit_limit',
+            'interest_rate',
+            'last_payment',
+            'last_payment_at',
+            'matures_on',
+            'minimum_balance',
+            'minimum_payment',
+            'original_balance',
+            'payment_due_at',
+            'payoff_balance',
+            'started_on',
+            'subtype',
+            'total_account_value',
+            'type',
+            'updated_at'
         )
 
 
 class CredentialsSerializer(serializers.ModelSerializer):
+    institution = serializers.StringRelatedField()
+
     class Meta:
         model = Credentials
         fields = (
+            'institution',
+            'field_name',
+            'label',
+            'type'
         )
 
 
@@ -21,13 +55,25 @@ class InstitutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institution
         fields = (
+            'code',
+            'name',
+            'url'
         )
 
 
 class MemberSerializer(serializers.ModelSerializer):
+    institution = serializers.StringRelatedField()
+
     class Meta:
         model = Member
         fields = (
+            'institution',
+            'identifier',
+            'name',
+            'status',
+            'aggregated_at',
+            'successfully_aggregated_at',
+            'metadata'
         )
 
 
@@ -73,7 +119,35 @@ class MemberCreateSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    account = serializers.CharField()
+
     class Meta:
         model = Transaction
         fields = (
+            'account',
+            'uid',
+            'amount',
+            'check_number',
+            'category',
+            'created_at',
+            'date',
+            'description',
+            'is_bill_pay',
+            'is_direct_deposit',
+            'is_expense',
+            'is_fee',
+            'is_income',
+            'is_overdraft_fee',
+            'is_payroll_advance',
+            'latitude',
+            'longitude',
+            'memo',
+            'merchant_category_code',
+            'original_description',
+            'posted_at',
+            'status',
+            'top_level_category',
+            'transacted_at',
+            'type',
+            'updated_at'
         )

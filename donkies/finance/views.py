@@ -36,7 +36,8 @@ class Members(AuthMixin, ListAPIView):
     def post(self, request, **kwargs):
         s = sers.MemberCreateSerializer(data=request.data)
         s.is_valid(raise_exception=True)
-        s.save(user=request.user)
+        member = s.save(user=request.user)
+        s = sers.MemberSerializer(member)
         return Response(s.data, status=201)
 
 

@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
@@ -24,8 +25,7 @@ class MemberManager(models.Manager):
 
     def get_or_create_member(self, user_guid, code, credentials):
         """
-        TODO: Check that all required credentials of institution are passed.
-              Processing errors.
+        TODO: Processing errors.
         """
         Member = apps.get_model('finance', 'Member')
 
@@ -54,6 +54,11 @@ class MemberManager(models.Manager):
 
 
 class Member(models.Model):
+    SUCCESS = 'SUCCESS'
+    PROCESSING = 'PROCESSING'
+    WRONG_CREDENTIALS = 'WRONG_CREDENTIALS'
+    OTHER_ERROR = 'OTHER_ERROR'
+
     INITIATED = 'INITIATED'
     REQUESTED = 'REQUESTED'
     CHALLENGED = 'CHALLENGED'
@@ -82,7 +87,7 @@ class Member(models.Model):
     institution = models.ForeignKey('Institution')
     guid = models.CharField(max_length=100, unique=True)
     identifier = models.CharField(
-        max_length=50, null=True, default=None, blank=True)
+        max_length=50, null=True, default=None, unique=True)
     name = models.CharField(
         max_length=50, null=True, default=None, blank=True)
     status = models.CharField(
@@ -95,6 +100,32 @@ class Member(models.Model):
 
     objects = MemberManager()
 
+    @property
+    def member_status(self):
+        """
+        Aggregated status.
+        """
+        processing = [
+            self.INITIATED,
+            self.REQUESTED,
+            self.RECEIVED,
+            self.TRANSFERRED,
+            self.PROCESSED
+        ]
+        if self.status in processing:
+            return self.PROCESSING
+
+        if self.status == self.CHALLENGED:
+            return self.status
+
+        if self.status == self.DENIED:
+            return self.WRONG_CREDENTIALS
+
+        if self.status == self.COMPLETED:
+            return self.SUCCESS
+
+        return self.OTHER_ERROR
+
     class Meta:
         app_label = 'finance'
         verbose_name = 'member'
@@ -106,6 +137,11 @@ class Member(models.Model):
         if self.name:
             return self.name
         return self.guid
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.identifier = uuid.uuid4().hex
+        super().save(*args, **kwargs)
 
 
 @admin.register(Member)

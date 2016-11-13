@@ -1,0 +1,36 @@
+###  List of accounts
+
+/v1/accounts     GET    
+
+### List of credentials for institution
+
+/v1/credentials/:institution_code
+
+###  List of members
+
+/v1/members     GET    
+
+### Create member
+
+/v1/members     POST    
+
+Params:
+
+institution_code
+
+Array of required credentials for institution:
+[{field_name: value}, ...]
+
+Returns: member
+
+### Get member 
+
+/v1/members/:identifier
+
+Can get status of member using this endpoint.
+Member object will contain atrium status and aggregated status.
+
+
+### List of transactions
+
+/v1/transactions

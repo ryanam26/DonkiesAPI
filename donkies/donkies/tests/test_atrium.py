@@ -1,3 +1,4 @@
+import json
 import pytest
 import time
 from django.conf import settings
@@ -57,6 +58,7 @@ class TestAtrium(base.Mixin):
     def get_credentials(self):
         """
         Mock MXBank credentials for creating member.
+        Test for models.
         """
         login = Credentials.objects.get(
             institution__code=self.TEST_CODE, field_name='LOGIN')
@@ -65,6 +67,20 @@ class TestAtrium(base.Mixin):
         return [
             {'guid': login.guid, 'value': self.TEST_USERNAME},
             {'guid': password.guid, 'value': self.TEST_PASSWORD},
+        ]
+
+    def get_credentials_for_api(self):
+        """
+        Mock MXBank credentials for creating member.
+        Test for API endpoint.
+        """
+        login = Credentials.objects.get(
+            institution__code=self.TEST_CODE, field_name='LOGIN')
+        password = Credentials.objects.get(
+            institution__code=self.TEST_CODE, field_name='PASSWORD')
+        return [
+            {'field_name': login.field_name, 'value': self.TEST_USERNAME},
+            {'field_name': password.field_name, 'value': self.TEST_PASSWORD},
         ]
 
     @pytest.mark.django_db
@@ -170,7 +186,7 @@ class TestAtrium(base.Mixin):
         }
 
     @pytest.mark.django_db
-    def test_user(self, client):
+    def notest_user(self, client):
         """
         When user created in django, by celery it should be
         registered in atrium.
@@ -181,7 +197,7 @@ class TestAtrium(base.Mixin):
         assert user.is_atrium_created is True
 
     @pytest.mark.django_db
-    def test_create_account_and_transaction(self, client):
+    def notest_create_account_and_transaction(self, client):
         """
         Test creating using example of real data from API.
         """
@@ -199,7 +215,7 @@ class TestAtrium(base.Mixin):
         assert tr.guid == d['guid']
 
     @pytest.mark.django_db
-    def test_api(self, client):
+    def notest_api(self, client):
         """
         Create member for test user and "mxbank" institution.
         After member created, fetch and create accounts and transactions.
@@ -246,3 +262,22 @@ class TestAtrium(base.Mixin):
         qs = Transaction.objects.filter(
             account__member__user__guid=user.guid)
         print('Transactions created: ', qs.count())
+
+    @pytest.mark.django_db
+    def test_create_member(self, client):
+        """
+        Test create member via API.
+        """
+        self.init()
+        user = User.objects.get(email=self.email)
+        client = self.get_auth_client(user)
+
+        url = '/v1/members'
+        dic = {
+            'institution_code': self.TEST_CODE,
+            'credentials': self.get_credentials_for_api()
+        }
+        data = json.dumps(dic)
+
+        response = client.post(url, data, content_type='application/json')
+        print(response.content)

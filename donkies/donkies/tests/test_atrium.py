@@ -4,7 +4,8 @@ import time
 from django.conf import settings
 from rest_framework.test import APIClient
 from web.models import User, Token
-from finance.models import Credentials, Member, Account, Transaction
+from finance.models import Credentials, Challenge, Member, Account, Transaction
+from finance import tasks
 from .import base
 
 
@@ -67,6 +68,19 @@ class TestAtrium(base.Mixin):
         return [
             {'guid': login.guid, 'value': self.TEST_USERNAME},
             {'guid': password.guid, 'value': self.TEST_PASSWORD},
+        ]
+
+    def get_challenge_credentials(self):
+        """
+        Test for models.
+        """
+        login = Credentials.objects.get(
+            institution__code=self.TEST_CODE, field_name='LOGIN')
+        password = Credentials.objects.get(
+            institution__code=self.TEST_CODE, field_name='PASSWORD')
+        return [
+            {'guid': login.guid, 'value': self.TEST_USERNAME},
+            {'guid': password.guid, 'value': self.TEST_CHALLENGE},
         ]
 
     def get_credentials_for_api(self):
@@ -215,7 +229,7 @@ class TestAtrium(base.Mixin):
         assert tr.guid == d['guid']
 
     @pytest.mark.django_db
-    def test_api(self, client):
+    def notest_api(self, client):
         """
         Create member for test user and "mxbank" institution.
         After member created, fetch and create accounts and transactions.
@@ -264,7 +278,7 @@ class TestAtrium(base.Mixin):
         print('Transactions created: ', qs.count())
 
     @pytest.mark.django_db
-    def test_create_member(self, client):
+    def notest_create_member(self, client):
         """
         Test create member via API.
         """
@@ -282,3 +296,33 @@ class TestAtrium(base.Mixin):
         response = client.post(url, data, content_type='application/json')
         # print(response.content)
         assert response.status_code == 201
+
+    @pytest.mark.django_db
+    def test_challenge(self, client):
+        self.init()
+        user = User.objects.get(email=self.email)
+        creds = self.get_challenge_credentials()
+        data = self.get_member_data()
+        data['credentials'] = creds
+
+        m = Member.objects.get_or_create_member(**data)
+        # guid = m.guid
+        print(m.status)
+        for _ in range(7):
+            am = Member.objects.get_atrium_member(m)
+            print(am.status)
+
+            if am.status == Member.CHALLENGED:
+                break
+            time.sleep(1)
+
+        # Simulate running task.
+        assert Challenge.objects.filter(member=m).count() == 0
+        tasks.get_member(m.id)
+        assert Challenge.objects.filter(member=m).count() > 0
+
+        # Call API for member detail, that should contain challenges.
+        client = self.get_auth_client(user)
+        url = '/v1/members/{}'.format(m.identifier)
+        response = client.get(url)
+        print(response.content)

@@ -80,8 +80,8 @@ class TestMember:
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
         rd = response.json()
-        print(rd)
         self.member = Member.objects.get(identifier=rd['identifier'])
+        print('Member created')
 
     def run(self):
         self.signup()

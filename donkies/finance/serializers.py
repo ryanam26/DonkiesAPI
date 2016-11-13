@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from finance.models import (
-    Account, Credentials, Institution, Member, Transaction)
+    Account, Challenge, Credentials, Institution, Member, Transaction)
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -38,6 +38,16 @@ class AccountSerializer(serializers.ModelSerializer):
         )
 
 
+class ChallengeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Challenge
+        fields = (
+            'field_name',
+            'label',
+            'type'
+        )
+
+
 class CredentialsSerializer(serializers.ModelSerializer):
     institution = serializers.StringRelatedField()
 
@@ -63,6 +73,7 @@ class InstitutionSerializer(serializers.ModelSerializer):
 
 class MemberSerializer(serializers.ModelSerializer):
     institution = serializers.StringRelatedField()
+    challenges = serializers.SerializerMethodField()
 
     class Meta:
         model = Member
@@ -74,8 +85,16 @@ class MemberSerializer(serializers.ModelSerializer):
             'aggregated_at',
             'successfully_aggregated_at',
             'metadata',
-            'member_status'
+            'member_status',
+            'challenges'
         )
+
+    def get_challenges(self, obj):
+        if obj.status == Member.CHALLENGED:
+            qs = Challenge.objects.filter(member=obj)
+            s = ChallengeSerializer(qs, many=True)
+            return s.data
+        return []
 
 
 class MemberCreateSerializer(serializers.ModelSerializer):

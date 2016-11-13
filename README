@@ -65,3 +65,27 @@ When I test separately respond on challenge with incorrect answer and correct an
 
 Incorrect answer produce DENIED status.
 Correct answer produce COMPLETED status.
+
+### settings/data.json (that in gitignore) looks:
+
+Instead of *** - real credentials.
+
+{
+    "ALLOWED_HOSTS": ["*"],
+    "SECRET_KEY": "***",
+    "DB_NAME": "donkies",
+    "DB_USER": "udonkies",
+    "DB_PASSWORD": "***",
+    "DB_HOST": "127.0.0.1",
+    "SERVER_IP": "159.203.137.132",
+    "SOCIAL_AUTH_FACEBOOK_KEY": "***",
+    "SOCIAL_AUTH_FACEBOOK_SECRET": "***",
+    "SOCIAL_AUTH_GOOGLE_OAUTH2_KEY": "***",
+    "SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET": "***",
+    "SOCIAL_AUTH_TWITTER_KEY": "***",
+    "SOCIAL_AUTH_TWITTER_SECRET": "***",
+    "ATRIUM_CLIENT_ID_DEV": "***",
+    "ATRIUM_KEY_DEV": "***",
+    "ATRIUM_CLIENT_ID_PROD": "***",
+    "ATRIUM_KEY_PROD": "***"
+}

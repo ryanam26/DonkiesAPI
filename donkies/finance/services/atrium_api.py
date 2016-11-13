@@ -86,6 +86,12 @@ class AtriumApi:
         """
         return self.api.getMemberStatus(user_guid, member_guid)
 
+    def resume_member(self, user_guid, member_guid, challenges=[]):
+        d = {}
+        if challenges:
+            d['challenges'] = challenges
+        return self.api.resumeMemberAgg(user_guid, member_guid, payload=d)
+
     def get_accounts(self, user_guid):
         """
         TODO: processing errors.

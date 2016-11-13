@@ -1,6 +1,8 @@
 import logging
+from django.http import Http404
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 import finance.serializers as sers
 from web.views import AuthMixin, r400
@@ -54,6 +56,20 @@ class MemberDetail(AuthMixin, RetrieveAPIView):
 
     def get_queryset(self):
         return Member.objects.filter(user=self.request.user)
+
+
+class MemberResume(AuthMixin, APIView):
+    def post(self, request, identifier, **kwargs):
+        try:
+            m = Member.objects.filter(
+                user=self.request.user, identifier=identifier)
+        except Member.DoesNotExist:
+            raise Http404()
+
+        
+
+            
+
 
 
 class Transactions(AuthMixin, ListAPIView):

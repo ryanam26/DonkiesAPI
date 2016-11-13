@@ -23,6 +23,11 @@ urlpatterns = [
         name='member'),
 
     url(
+        r'^(?P<version>(v1))/members/resume/(?P<identifier>\w+)$',
+        v.MemberResume.as_view(),
+        name='member_resume'),
+
+    url(
         r'^(?P<version>(v1))/transactions$',
         v.Transactions.as_view(),
         name='transactions'),

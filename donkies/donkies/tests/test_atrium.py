@@ -297,6 +297,30 @@ class TestAtrium(base.Mixin):
         # print(response.content)
         assert response.status_code == 201
 
+    def challenge_answer(self, user, member, answer):
+        client = self.get_auth_client(user)
+        print('Testing answer: {}'.format(answer))
+        challenges = []
+        for c in list(Challenge.objects.filter(member=member)):
+            d = {'label': c.label, 'value': answer}
+            challenges.append(d)
+
+        # Call API to resume member.
+        url = '/v1/members/resume/{}'.format(member.identifier)
+        dic = {'challenges': challenges}
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 204
+
+        # After user responded to challenges, it should get completed status
+        for _ in range(7):
+            am = Member.objects.get_atrium_member(member)
+            print(am.status)
+
+            if am.status in [Member.COMPLETED, Member.DENIED]:
+                break
+            time.sleep(1)
+
     @pytest.mark.django_db
     def test_challenge(self, client):
         self.init()
@@ -325,4 +349,13 @@ class TestAtrium(base.Mixin):
         client = self.get_auth_client(user)
         url = '/v1/members/{}'.format(m.identifier)
         response = client.get(url)
-        print(response.content)
+        assert response.status_code == 200
+
+        # Simulate filling challenges on frontend
+        # Test wrong answer
+        self.challenge_answer(user, m, 'wrong answer')
+        print('Waiting...')
+        time.sleep(10)
+
+        # test correct answer
+        self.challenge_answer(user, m, self.TEST_CORRECT_ANSWER)

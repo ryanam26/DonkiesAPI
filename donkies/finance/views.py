@@ -61,15 +61,22 @@ class MemberDetail(AuthMixin, RetrieveAPIView):
 class MemberResume(AuthMixin, APIView):
     def post(self, request, identifier, **kwargs):
         try:
-            m = Member.objects.filter(
+            m = Member.objects.get(
                 user=self.request.user, identifier=identifier)
         except Member.DoesNotExist:
             raise Http404()
 
-        
+        s = sers.MemberResumeSerializer(
+            data=request.data, context={'member': m})
+        s.is_valid(raise_exception=True)
 
-            
+        Member.objects.resume_member(
+            m.guid, challenges=s.data['challenges'])
 
+        # Call celery task, that should update member's status
+        tasks.get_member.delay(m.id)
+
+        return Response(status=204)
 
 
 class Transactions(AuthMixin, ListAPIView):

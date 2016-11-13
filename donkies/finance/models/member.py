@@ -52,7 +52,7 @@ class MemberManager(models.Manager):
         a = AtriumApi()
         return a.get_members(user_guid)
 
-    def resume_member(self, member_guid, challenges):
+    def resume_member(self, member_guid, challenges=[]):
         """
         Aggregates or resumes member.
         After that celery task for getting member should be called.

@@ -138,6 +138,35 @@ class MemberCreateSerializer(serializers.ModelSerializer):
         return m
 
 
+class MemberResumeSerializer(serializers.Serializer):
+    challenges = serializers.JSONField()
+
+    class Meta:
+        fields = (
+            'challenges',
+        )
+
+    def convert_challenges(self, challenges):
+        """
+        Frontend send challenges as list of [{label:..., value: ...},]
+        Convert them to: [{guid:..., value: ...},]
+        """
+        l = []
+        for dic in challenges:
+            try:
+                cr = Challenge.objects.get(
+                    member=self.context['member'], label=dic['label'])
+            except Challenge.DoesNotExist:
+                raise serializers.ValidationError('Incorrect challenges.')
+
+            l.append({'guid': cr.guid, 'value': dic['value']})
+        return l
+
+    def validate(self, data):
+        data['challenges'] = self.convert_challenges(data['challenges'])
+        return data
+
+
 class TransactionSerializer(serializers.ModelSerializer):
     account = serializers.CharField()
 

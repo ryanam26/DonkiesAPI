@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 import finance.serializers as sers
 from web.views import AuthMixin, r400
+from finance import tasks
 from finance.models import Member, Account, Credentials, Transaction
 
 
@@ -38,6 +39,12 @@ class Members(AuthMixin, ListAPIView):
         s.is_valid(raise_exception=True)
         member = s.save(user=request.user)
         s = sers.MemberSerializer(member)
+
+        # Call celery task, that will call Atrium API
+        # until get finished status and save updated member
+        # to database
+        tasks.get_member.delay(member.id)
+
         return Response(s.data, status=201)
 
 

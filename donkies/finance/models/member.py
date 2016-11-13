@@ -40,13 +40,13 @@ class MemberManager(models.Manager):
         m = self.create_member(result)
         return m
 
-    def get_status(self, member):
+    def get_atrium_member(self, member):
         """
-        Returns status of the member.
+        Returns member data from atrium response.
         """
         a = AtriumApi()
         member = a.get_member(member.user.guid, member.guid)
-        return member.status
+        return member
 
     def get_members(self, user_guid):
         a = AtriumApi()
@@ -81,6 +81,22 @@ class Member(models.Model):
         (PREVENTED, 'prevented'),
         (DENIED, 'denied'),
         (HALTED, 'halted')
+    ]
+
+    PROCESSING_STATUSES = [
+        INITIATED,
+        REQUESTED,
+        RECEIVED,
+        TRANSFERRED,
+        PROCESSED
+    ]
+
+    FINISHED_STATUSES = [
+        CHALLENGED,
+        COMPLETED,
+        PREVENTED,
+        DENIED,
+        HALTED,
     ]
 
     user = models.ForeignKey('web.User')

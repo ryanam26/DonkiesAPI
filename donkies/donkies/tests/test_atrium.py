@@ -215,7 +215,7 @@ class TestAtrium(base.Mixin):
         assert tr.guid == d['guid']
 
     @pytest.mark.django_db
-    def notest_api(self, client):
+    def test_api(self, client):
         """
         Create member for test user and "mxbank" institution.
         After member created, fetch and create accounts and transactions.
@@ -226,8 +226,8 @@ class TestAtrium(base.Mixin):
         guid = m.guid
         print(m.status)
         for _ in range(7):
-            status = Member.objects.get_status(m)
-            print(status)
+            am = Member.objects.get_atrium_member(m)
+            print(am.status)
             time.sleep(1)
 
         m = Member.objects.get(id=m.id)

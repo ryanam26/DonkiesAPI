@@ -90,6 +90,7 @@ class SignupSerializer(serializers.ModelSerializer):
         data = self.validated_data
         user = User.objects.create_user(data['email'], data['password'])
         user.first_name = data['first_name']
+        user.last_name = data['last_name']
         user.save()
 
         # Post save operations, send email e.t.c

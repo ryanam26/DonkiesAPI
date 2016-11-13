@@ -23,10 +23,21 @@ Array of required credentials for institution:
 
 Returns: member
 
-### Get member 
+#### Instruction for frontent.
+After frontend sends request to create member, member created real-time
+(not in background) and returned to frontend.
+Fronend know all member's fields.
+In the background backend tries to get member status.
+As soon as status received - it is saved to database.
+
+Frontend needs to call member detail endpoind (for example every 2 seconds)
+until it gets completed status.
+
+### Get member (Member detail endpoint) 
 
 /v1/members/:identifier
 
+Member object.
 Can get status of member using this endpoint.
 Member object will contain atrium status and aggregated status.
 

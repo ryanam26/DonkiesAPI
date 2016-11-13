@@ -73,7 +73,8 @@ class MemberSerializer(serializers.ModelSerializer):
             'status',
             'aggregated_at',
             'successfully_aggregated_at',
-            'metadata'
+            'metadata',
+            'member_status'
         )
 
 

@@ -8,7 +8,7 @@ urlpatterns = [
         name='accounts'),
 
     url(
-        r'^(?P<version>(v1))/credentials/{?P<institution_code>\w+}$',
+        r'^(?P<version>(v1))/credentials/(?P<institution_code>\w+)$',
         v.CredentialsList.as_view(),
         name='credentials'),
 

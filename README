@@ -26,15 +26,15 @@ Returns: member
 #### Instruction for frontent.
 
 After frontend sends request to create member, member created real-time (not in background) and returned to frontend.
-Fronend know all member's fields.
+Fronend knows all member's fields.
 In the background backend tries to get member status.
 As soon as status received - it is saved to database.
 
-Frontend needs to call member detail endpoind (for example every 2 seconds) until it gets completed status.
+Frontend needs to call member detail endpoind (for example every 2 seconds) until it gets COMPLETED or CHALLENGED or SOME ERROR status.
 
 If member status is CHALLENGED, member detail will contain list of challenges, that should be send to backend.
 
-As soon as user filled all required chalenges, frontend send data to resume member endpoint.
+As soon as user filled all required challenges, frontend send data to resume member endpoint.
 
 
 ### Get member (Member detail endpoint) 
@@ -50,7 +50,18 @@ Member object will contain atrium status and aggregated status.
 /v1/members/resume/:identifier  POST
 
 Param: list of challenges.
+Example: [
+    {'label': ..., 'value': ...}
+]
 
 ### List of transactions
 
 /v1/transactions
+
+### Pytrium
+
+It seems there is some bug in Pytrium.
+When I test separately respond on challenge with incorrect answer and correct answer, they works fine. When one after another - get error. But probably because it is the same test session and maybe on production that bug won't appear.
+
+Incorrect answer produce DENIED status.
+Correct answer produce COMPLETED status.

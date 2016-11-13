@@ -49,8 +49,8 @@ Member object will contain atrium status and aggregated status.
 
 /v1/members/resume/:identifier  POST
 
-Param: list of challenges.
-Example: [
+Param: "challenges": list of challenges.
+Example: challenges = [
     {'label': ..., 'value': ...}
 ]
 

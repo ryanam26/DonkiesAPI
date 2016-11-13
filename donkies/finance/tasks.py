@@ -1,5 +1,9 @@
 from django.apps import apps
+from django.conf import settings
 from donkies import capp
+from celery.decorators import periodic_task
+from celery.task.schedules import crontab
+
 
 # The number of attempts to get member  before exit.
 # In testing environment 20 is more than enought.
@@ -56,3 +60,51 @@ def get_member(member_id, attempt=0):
     member.aggregated_at = am.aggregated_at
     member.successfully_aggregated_at = am.successfully_aggregated_at
     member.save()
+
+    # Update user's accounts and transactions.
+    update_user(member.user.guid)
+
+
+def update_user(user_id):
+    """
+    Updates accounts and transactions of particular user.
+    """
+    Account = apps.get_model('finance', 'Account')
+    Transaction = apps.get_model('finance', 'Transaction')
+    User = apps.get_model('web', 'User')
+    user = User.objects.get(id=user_id)
+
+    res = Account.objects.get_atrium_accounts(user.guid)
+    l = res['accounts']
+
+    Account.objects.create_accounts(user.guid, l)
+
+    res = Transaction.objects.get_atrium_transactions(user.guid)
+    l = res['transactions']
+
+    Transaction.objects.create_transactions(user.guid, l)
+
+
+@periodic_task(run_every=crontab(minute=0, hour='*'))
+def update_users_data():
+    """
+    Runs every hour.
+    Celery task, that updates all users, who have members
+    with COMPLETED status.
+    """
+    Member = apps.get_model('finance', 'Member')
+    IS_PROCESSING = 'USER_DATA_IS_PROCESSING'
+    rs = settings.REDIS_DB
+
+    if rs.get(IS_PROCESSING):
+        return
+
+    rs.set(IS_PROCESSING, 'true')
+    rs.expire(IS_PROCESSING, 3000)
+
+    qs = Member.objects.filter(status=Member.COMPLETED)\
+        .values_list('user_id', flat=True).distinct()
+    for user_id in qs:
+        update_user(user_id)
+
+    rs.delete(IS_PROCESSING)

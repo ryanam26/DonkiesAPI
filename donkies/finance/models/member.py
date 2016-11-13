@@ -179,6 +179,7 @@ class MemberAdmin(admin.ModelAdmin):
         'aggregated_at',
         'successfully_aggregated_at'
     )
+    exclude = ('metadata',)
 
     def show_name(self, obj):
         if obj.name:

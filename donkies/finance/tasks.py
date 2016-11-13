@@ -62,9 +62,10 @@ def get_member(member_id, attempt=0):
     member.save()
 
     # Update user's accounts and transactions.
-    update_user(member.user.guid)
+    update_user.apply_async(args=[member.user.id], countdown=10)
 
 
+@capp.task
 def update_user(user_id):
     """
     Updates accounts and transactions of particular user.
@@ -78,11 +79,13 @@ def update_user(user_id):
     l = res['accounts']
 
     Account.objects.create_accounts(user.guid, l)
+    print('Accounts created.')
 
     res = Transaction.objects.get_atrium_transactions(user.guid)
     l = res['transactions']
 
     Transaction.objects.create_transactions(user.guid, l)
+    print('Transactions created.')
 
 
 @periodic_task(run_every=crontab(minute=0, hour='*'))

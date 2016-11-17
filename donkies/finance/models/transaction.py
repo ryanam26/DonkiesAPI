@@ -1,3 +1,4 @@
+import math
 import uuid
 from django.db import models
 from django.contrib import admin
@@ -84,6 +85,8 @@ class Transaction(models.Model):
     original_description = models.CharField(
         max_length=3000, null=True, default=None)
     posted_at = models.DateTimeField(null=True, default=None)
+    roundup = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, default=None)
     status = models.CharField(max_length=50)
     top_level_category = models.CharField(
         max_length=255, null=True, default=None)
@@ -102,9 +105,15 @@ class Transaction(models.Model):
     def __str__(self):
         return self.uid
 
+    def calculate_roundup(self, value):
+        top = math.ceil(value)
+        return top - value
+
     def save(self, *args, **kwargs):
         if not self.pk:
             self.uid = uuid.uuid4().hex
+
+        self.roundup = self.calculate_roundup(self.amount)
         super().save(*args, **kwargs)
 
 

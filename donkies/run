@@ -48,7 +48,8 @@ clear
 # py.test -s donkies/tests/test_oauth.py  # not used
 # py.test -s donkies/tests/test_auth.py
 # py.test -s donkies/tests/test_atrium.py --ds=donkies.settings.development
-py.test -s donkies/tests/test_institutions.py
+# py.test -s donkies/tests/test_institutions.py
+py.test -s donkies/tests/test_transactions.py
 # py.test -s donkies/tests/test_facebook.py
 
 else

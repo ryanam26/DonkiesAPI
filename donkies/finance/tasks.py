@@ -111,3 +111,13 @@ def update_users_data():
         update_user(user_id)
 
     rs.delete(IS_PROCESSING)
+
+
+@periodic_task(run_every=crontab(minute=0, hour='*/6'))
+def update_institutions():
+    """
+    Updates institutions and their credentials.
+    """
+    Institution = apps.get_model('finance', 'Institution')
+    Institution.objects.update_list()
+    Institution.objects.update_credentials()

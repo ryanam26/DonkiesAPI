@@ -151,7 +151,7 @@ class TestAtrium(base.Mixin):
             'credit_limit': None,
             'original_balance': None,
             'apy': None,
-            'type': 'CREDIT_CARD',
+            'type': 'CHECKING',
             'institution_code': 'mxbank',
             'interest_rate': None,
             'day_payment_is_due': None,
@@ -221,7 +221,8 @@ class TestAtrium(base.Mixin):
         m = Member.objects.get_or_create_member(**self.get_member_data())
         d = self.real_account
         d['member_guid'] = m.guid
-        acc = Account.objects.create_account(d)
+        acc = Account.objects.create_or_update_account(d.copy())  # create
+        acc = Account.objects.create_or_update_account(d.copy())  # update
         assert acc.guid == d['guid']
 
         d = self.real_transaction

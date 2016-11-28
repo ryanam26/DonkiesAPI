@@ -12,20 +12,15 @@ class AccountManager(models.Manager):
         """
         Input: all user accounts from atrium API.
 
-        Atrium API is source of truth.
-        Remove all user's accounts from db, before inserting all accounts.
-        It is better for performance, than update each particular
-        account.
-
         TODO: pagination.
               Before passing accounts, should collect
               all of them for each user.
         """
         self.model.objects.filter(member__user__guid=user_guid).delete()
         for acc in l:
-            self.create_account(acc)
+            self.create_or_update_account(acc)
 
-    def create_account(self, api_response):
+    def create_or_update_account(self, api_response):
         """
         api_response is dictionary with response result.
         """
@@ -34,7 +29,12 @@ class AccountManager(models.Manager):
         d.pop('user_guid')
         d.pop('institution_code')
         d['member'] = Member.objects.get(guid=d.pop('member_guid'))
-        acc = self.model(**d)
+
+        try:
+            acc = self.model.objects.get(guid=d['guid'])
+            acc.__dict__.update(d)
+        except self.model.DoesNotExist:
+            acc = self.model(**d)
         acc.save()
         return acc
 
@@ -55,6 +55,36 @@ class AccountManager(models.Manager):
 
 
 class Account(models.Model):
+    """
+    type - Atrium MX type.
+    type_ds - Donkies type.
+    """
+    CHECKING = 'CHECKING'
+    SAVINGS = 'SAVINGS'
+    CASH = 'CASH'
+    PREPAID = 'PREPAID'
+    LOAN = 'LOAN'
+    CREDIT_CARD = 'CREDIT CARD'
+    LINE_OF_CREDIT = 'LINE OF CREDIT'
+    MORTGAGE = 'MORTGAGE'
+    INVESTMENT = 'INVESTMENT'
+    PROPERTY = 'PROPERTY'
+
+    DEBIT_TYPES = (CHECKING, SAVINGS, CASH, PREPAID)
+    DEBT_TYPES = (LOAN, CREDIT_CARD, LINE_OF_CREDIT, MORTGAGE)
+    INVESTMENT_TYPES = (INVESTMENT, PROPERTY)
+
+    DEBIT = 'debit'
+    DEBT = 'dept'
+    INVESTMENT = 'investment'
+    OTHER = 'other'
+
+    TYPE_DS_CHOICES = (
+        (DEBIT, 'debit'),
+        (DEBT, 'debt'),
+        (INVESTMENT, 'investment'),
+        (OTHER, 'other'))
+
     member = models.ForeignKey('Member')
     guid = models.CharField(max_length=100, unique=True)
     uid = models.CharField(max_length=50, unique=True)
@@ -146,6 +176,11 @@ class Account(models.Model):
         null=True,
         default=None)
     type = models.CharField(max_length=100, null=True, default=None)
+    type_ds = models.CharField(
+        max_length=15,
+        help_text='Internal type',
+        choices=TYPE_DS_CHOICES,
+        default=OTHER)
     updated_at = models.DateTimeField(null=True, default=None)
 
     objects = AccountManager()
@@ -162,9 +197,24 @@ class Account(models.Model):
         return self.uid
 
     def save(self, *args, **kwargs):
+        """
+        Assume that account can not change type.
+        For example: debt account can not be debit.
+        If account can change type: TODO handle this.
+        """
         if not self.pk:
+            self.type_ds = self.get_ds_type()
             self.uid = uuid.uuid4().hex
         super().save(*args, **kwargs)
+
+    def get_ds_type(self):
+        if self.type in self.DEBIT_TYPES:
+            return self.DEBIT
+        if self.type in self.DEBT_TYPES:
+            return self.DEBT
+        if self.type in self.INVESTMENT_TYPES:
+            return self.INVESTMENT
+        return self.OTHER
 
 
 @admin.register(Account)

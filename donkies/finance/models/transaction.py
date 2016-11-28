@@ -38,8 +38,6 @@ class TransactionManager(models.Manager):
         d.pop('member_guid')
         d['account'] = Account.objects.get(guid=d.pop('account_guid'))
 
-        print(d['updated_at'], type(d['updated_at']))
-
         try:
             dt = timezone.now() - datetime.timedelta(days=14)
             tr = self.model.objects.get(guid=d['guid'])

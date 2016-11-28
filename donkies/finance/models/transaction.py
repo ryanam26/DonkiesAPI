@@ -1,8 +1,10 @@
+import datetime
 import math
 import uuid
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
+from django.utils import timezone
 from django.db import transaction
 from finance.services.atrium_api import AtriumApi
 
@@ -13,32 +15,39 @@ class TransactionManager(models.Manager):
         """
         Input: all user transactions from atrium API.
 
-        Atrium API is source of truth.
-        Remove all user's transactions from db,
-        before inserting all transactions.
+        1) Create new transactions.
+        2) Or update transactions that already exists and
+            updated_at less that 2 weeks ago.
 
-        It is better for performance, than update each particular
-        transaction.
 
         TODO: pagination.
               Before passing accounts, should collect
               all of them for each user.
         """
-        self.model.objects.filter(
-            account__member__user__guid=user_guid).delete()
         for tr in l:
-            self.create_transaction(tr)
+            self.create_or_update_transaction(tr)
 
-    def create_transaction(self, api_response):
+    def create_or_update_transaction(self, api_response):
         """
         api_response is dictionary with response result.
         """
         Account = apps.get_model('finance', 'Account')
         d = api_response
+
         d.pop('user_guid')
         d.pop('member_guid')
         d['account'] = Account.objects.get(guid=d.pop('account_guid'))
-        tr = self.model(**d)
+
+        print(d['updated_at'], type(d['updated_at']))
+
+        try:
+            dt = timezone.now() - datetime.timedelta(days=14)
+            tr = self.model.objects.get(guid=d['guid'])
+            if tr.updated_at < dt:
+                return tr
+            tr.__dict__.update(d)
+        except self.model.DoesNotExist:
+            tr = self.model(**d)
         tr.save()
         return tr
 
@@ -76,6 +85,9 @@ class Transaction(models.Model):
     is_income = models.NullBooleanField()
     is_overdraft_fee = models.NullBooleanField()
     is_payroll_advance = models.NullBooleanField()
+    is_processed = models.BooleanField(
+        default=False,
+        help_text='Internal flag. Change has been transferred to debt account')
     latitude = models.DecimalField(
         max_digits=10, decimal_places=6, null=True, default=None)
     longitude = models.DecimalField(

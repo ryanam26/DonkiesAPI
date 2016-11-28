@@ -16,6 +16,7 @@ class TransferManager(models.Manager):
 class Transfer(models.Model):
     account_from = models.ForeignKey('Account', related_name='transfers_from')
     account_to = models.ForeignKey('Account', related_name='transfers_to')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     dt = models.DateTimeField(default=timezone.now)
     is_processed = models.BooleanField(default=False)
 
@@ -37,5 +38,6 @@ class TransferAdmin(admin.ModelAdmin):
         'dt',
         'account_from',
         'account_to',
+        'amount',
         'is_processed'
     )

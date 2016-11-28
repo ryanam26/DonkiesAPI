@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.apps import apps
 
 
 class LinkDebtManager(models.Manager):
@@ -10,6 +11,11 @@ class LinkDebtManager(models.Manager):
         should be always equal 100%. When new link created,
         proportionally reduce share of existing accounts for particular user.
         """
+        Account = apps.get_model('finance', 'Account')
+        if account.type_ds != Account.DEBT:
+            raise ValidationError(
+                'Linking is possible only for debt accounts.')
+
         if share > 100:
             raise ValidationError('Share can not exceed 100%')
 

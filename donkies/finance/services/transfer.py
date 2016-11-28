@@ -15,7 +15,8 @@ class TransferService:
         [{id: ..., share: ...}, ]
 
         After processing, self.transfer contains
-        transfer data.
+        transfer data with ready data to insert
+        to Transfer model.
     """
     def __init__(self, transactions, accounts):
         # Group transactions by debit accounts

@@ -1,6 +1,5 @@
 import pytest
-from rest_framework.test import APIClient
-from web.models import User, Token
+from web.models import User
 from .import base
 
 
@@ -24,12 +23,6 @@ class TestFacebook(base.Mixin):
     If success - redirect browser to FACEBOOK_SUCCESS_URL with "token"
 
     """
-    def get_auth_client(self, user):
-        client = APIClient()
-        token = Token.objects.get(user_id=user.id)
-        client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-        return client
-
     def get_pso_dic(self):
         """
         Example from real response from facebook.

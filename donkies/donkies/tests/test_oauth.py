@@ -1,6 +1,5 @@
 import pytest
 from rest_framework.test import APIClient
-from web.models import Token
 from .factories import ApplicationFactory, UserFactory
 from .import base
 
@@ -9,12 +8,6 @@ class TestOauth(base.Mixin):
     """
     Tests for signup, signup confirm, login, password reset.
     """
-    def get_auth_client(self, user):
-        client = APIClient()
-        token = Token.objects.get(user_id=user.id)
-        client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-        return client
-
     def init(self):
         # Admin
         self.admin_user = UserFactory(email='bob@gmail.com', is_admin=True)

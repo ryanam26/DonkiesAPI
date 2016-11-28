@@ -1,13 +1,15 @@
 import logging
 from django.http import Http404
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import (
+    ListAPIView, RetrieveAPIView, ListCreateAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 import finance.serializers as sers
 from web.views import AuthMixin, r400
 from finance import tasks
-from finance.models import Member, Account, Credentials, Transaction
+from finance.models import (
+    Account, Credentials, LinkDebt, Member, Transaction)
 
 
 logger = logging.getLogger('app')
@@ -28,6 +30,26 @@ class CredentialsList(AuthMixin, ListAPIView):
     def get_queryset(self):
         return Credentials.objects.filter(
             institution__code=self.kwargs['institution__code'])
+
+
+class LinkDebts(AuthMixin, ListCreateAPIView):
+    serializer_class = sers.LinkDebtSerializer
+
+    def get_queryset(self):
+        return LinkDebt.objects.filter(user=self.request.user)
+
+    def post(self, request, **kwargs):
+        d = request.data
+        try:
+            Account.objects.get(
+                member__user=self.request.user, id=d['account'])
+        except Account.DoesNotExist:
+            r400('Incorrect account.')
+
+        s = sers.LinkDebtCreateSerializer(data=d)
+        s.is_valid(raise_exception=True)
+        s.save()
+        return Response(s.data, status=201)
 
 
 class Members(AuthMixin, ListAPIView):

@@ -1,8 +1,7 @@
 import json
 import pytest
 from django.contrib import auth
-from rest_framework.test import APIClient
-from web.models import User, Email, Emailer, Token
+from web.models import User, Email, Emailer
 from .factories import UserFactory, EmailFactory
 from .import base
 
@@ -11,12 +10,6 @@ class TestAuth(base.Mixin):
     """
     Tests for signup, signup confirm, login, password reset.
     """
-    def get_auth_client(self, user):
-        client = APIClient()
-        token = Token.objects.get(user_id=user.id)
-        client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-        return client
-
     def init(self):
         """
         Each group contains 2 users.

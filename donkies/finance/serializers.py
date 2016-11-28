@@ -1,6 +1,8 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from finance.models import (
-    Account, Challenge, Credentials, Institution, Member, Transaction)
+    Account, Challenge, Credentials, Institution, LinkDebt, Member,
+    Transaction)
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -34,6 +36,7 @@ class AccountSerializer(serializers.ModelSerializer):
             'subtype',
             'total_account_value',
             'type',
+            'type_ds',
             'updated_at'
         )
 
@@ -69,6 +72,33 @@ class InstitutionSerializer(serializers.ModelSerializer):
             'name',
             'url'
         )
+
+
+class LinkDebtSerializer(serializers.ModelSerializer):
+    account = AccountSerializer()
+
+    class Meta:
+        model = LinkDebt
+        fields = (
+            'account',
+            'share'
+        )
+
+
+class LinkDebtCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LinkDebt
+        fields = (
+            'account',
+            'share'
+        )
+
+    def create(self, data):
+        try:
+            ld = LinkDebt.objects.create_link(data['account'], data['share'])
+        except ValidationError as e:
+            raise serializers.ValidationError(e)
+        return ld
 
 
 class MemberSerializer(serializers.ModelSerializer):

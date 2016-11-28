@@ -5,13 +5,15 @@ from django.apps import apps
 
 
 class LinkDebtManager(models.Manager):
-    def create_link(self, user, account, share):
+    def create_link(self, account, share):
         """
         The sum of share of all accounts for particular user
         should be always equal 100%. When new link created,
         proportionally reduce share of existing accounts for particular user.
         """
         Account = apps.get_model('finance', 'Account')
+
+        user = account.member.user
         if account.type_ds != Account.DEBT:
             raise ValidationError(
                 'Linking is possible only for debt accounts.')

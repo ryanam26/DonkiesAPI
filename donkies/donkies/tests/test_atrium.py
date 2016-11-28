@@ -2,8 +2,7 @@ import json
 import pytest
 import time
 from django.conf import settings
-from rest_framework.test import APIClient
-from web.models import User, Token
+from web.models import User
 from finance.models import Credentials, Challenge, Member, Account, Transaction
 from finance import tasks
 from .import base
@@ -49,12 +48,6 @@ class TestAtrium(base.Mixin):
     def init(self):
         self.email = settings.TEST_USER_EMAIL
         self.password = settings.TEST_USER_PASSWORD
-
-    def get_auth_client(self, user):
-        client = APIClient()
-        token = Token.objects.get(user_id=user.id)
-        client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-        return client
 
     def get_credentials(self):
         """

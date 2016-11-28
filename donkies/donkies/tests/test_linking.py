@@ -3,6 +3,7 @@ from .import base
 from finance.models import Account, LinkDebt
 from .factories import (
     AccountFactory, InstitutionFactory, MemberFactory, UserFactory)
+from finance.services.transfer import TransferService
 
 
 class TestLinking(base.Mixin):
@@ -60,3 +61,10 @@ class TestLinking(base.Mixin):
         assert ld2.share == 0
         assert ld3.share == 15
         assert ld4.share == 60
+
+    @pytest.mark.django_db
+    def test_transafer(self, client):
+        t = TransferService(
+            TransferService.mock_transactions(),
+            TransferService.mock_accounts())
+        t.run()

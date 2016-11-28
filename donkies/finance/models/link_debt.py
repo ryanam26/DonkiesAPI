@@ -21,13 +21,17 @@ class LinkDebtManager(models.Manager):
             return ld
 
         ld_new = self.model(user=user, account=account, share=share)
+        if share == 0:
+            ld_new.save()
+            return ld_new
+
         l = list(qs)
         l.append(ld_new)
 
         working = True
         while working:
             for ld in l:
-                if not ld.pk:
+                if not ld.pk or ld.share == 0:
                     continue
                 ld.share -= 1
                 if self.get_share_sum(l) == 100:

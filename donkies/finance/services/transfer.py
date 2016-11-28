@@ -43,6 +43,8 @@ class TransferService:
             d['amount_transferred'] = 0
             self.debts.append(d)
 
+        self.transfer = []
+
     def get_total(self):
         """
         Returns sum of all transactions amount.
@@ -95,15 +97,59 @@ class TransferService:
         Returns first not yet processed debt account
         or None if all debts accounts has been processed.
         """
+        for d in self.debts:
+            if not self.is_debt_processed(d):
+                return d
+        return None
 
     def process(self):
         """
         Recursion method, that will process transfers until finish.
         """
+        debit = self.get_debit()
+        if debit is None:
+            return
+
+        debt = self.get_debt()
+        target = debt['amount_target']
+        transferred = debt['amount_transferred']
+
+        amount_to_transfer = debit['amount'] - debit['amount_transferred']
+
+        if amount_to_transfer > target - transferred:
+            amount_to_transfer = target - transferred
+
+        debit['amount_transferred'] += amount_to_transfer
+        debt['amount_transferred'] += amount_to_transfer
+
+        result = {}
+        result['account_from'] = debit['id']
+        result['account_to'] = debt['id']
+        result['amount'] = amount_to_transfer
+        self.transfer.append(result)
+
+        return self.process()
+
+    def check(self):
+        sum1 = 0
+        for d in self.debits:
+            sum1 += d['amount_transferred']
+
+        sum2 = 0
+        for d in self.debits:
+            sum2 += d['amount_transferred']
+
+        if sum1 != sum2:
+            raise ValidationError(
+                'TransferService: transferred amounts not match.')
 
     def run(self):
         self.fill_target()
         self.process()
+        self.check()
+
+        for d in self.transfer:
+            print(d)
 
     @staticmethod
     def mock_transactions():

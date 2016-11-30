@@ -7,6 +7,7 @@ cd /home/vlad/dev/web/dj/d/donkies/project/donkies/
 if [ "$1" == "init" ]
 then
 clear
+python manage.py cleanatrium
 python manage.py pgcreatelocal
 python manage.py initproject
 python manage.py makemigrations

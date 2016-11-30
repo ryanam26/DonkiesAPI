@@ -16,3 +16,4 @@ redis==2.10.5
 requests==2.11.1
 uWSGI==2.0.14
 pytrium==0.1.2
+dwollav2

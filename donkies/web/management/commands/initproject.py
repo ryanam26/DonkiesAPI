@@ -7,7 +7,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         l = [
             'web',
-            'finance'
+            'finance',
+            'transfer'
         ]
         for name in l:
             path = '{}/donkies/{}/migrations'.format(

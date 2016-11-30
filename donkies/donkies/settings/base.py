@@ -38,6 +38,11 @@ ATRIUM_KEY_PROD = data['ATRIUM_KEY_PROD']
 ATRIUM_CLIENT_ID_DEV = data['ATRIUM_CLIENT_ID_DEV']
 ATRIUM_KEY_DEV = data['ATRIUM_KEY_DEV']
 
+DWOLLA_KEY_DEV = data['DWOLLA_KEY_DEV']
+DWOLLA_SECRET_DEV = data['DWOLLA_SECRET_DEV']
+DWOLLA_KEY_PROD = data['DWOLLA_KEY_PROD']
+DWOLLA_SECRET_PROD = data['DWOLLA_SECRET_PROD']
+
 BACKEND_DOMAIN = 'api.donkies.co'
 BACKEND_URL = 'http://api.donkies.co'
 FRONTEND_DOMAIN = 'donkies.co'
@@ -65,7 +70,8 @@ INSTALLED_APPS = (
     # 'oauth2_provider',
     'corsheaders',
     'web',
-    'finance'
+    'finance',
+    'transfer'
 )
 
 MIDDLEWARE = (
@@ -262,8 +268,11 @@ SOCIAL_AUTH_PIPELINE = (
 FACEBOOK_SUCCESS_URL = 'http://donkies.co'
 FACEBOOK_FAIL_URL = 'http://donkies.co'
 
-# Api mode PROD/DEV
+# Atrium API mode PROD/DEV
 ATRIUM_API_MODE = 'DEV'
+
+# Dwolla API mode PROD/DEV
+DWOLLA_API_MODE = 'DEV'
 
 # User for real tests.
 TEST_USER_EMAIL = 'test-bob@gmail.com'

@@ -39,6 +39,23 @@ class UserManager(BaseUserManager):
         user.guid = guid
         user.save()
 
+    def delete_atrium_user(self, guid):
+        """
+        TODO: processing errors
+        """
+        a = AtriumApi()
+        a.delete_user(guid)
+
+    def clean_atrium(self):
+        """
+        Delete all users in Atrium.
+        TODO: processing errors.
+        """
+        a = AtriumApi()
+        res = a.get_users()
+        for d in res['users']:
+            a.delete_user(d['guid'])
+
     def login_facebook(self, fb_response):
         """
         Get or create user.

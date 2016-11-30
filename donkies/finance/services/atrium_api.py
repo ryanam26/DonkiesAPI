@@ -33,12 +33,20 @@ class AtriumApi:
         return d
 
     def get_users(self):
-        """
-        Resource is not available (404): How to get all users?
-        """
         url = self.get_root_url() + 'users'
         res = requests.get(url, headers=self.get_headers())
-        print(res)
+        return res.json()
+
+    def delete_user(self, guid):
+        """
+        TODO: processing errors.
+        """
+        url = '{}users/{}'.format(self.get_root_url(), guid)
+        r = requests.delete(url, headers=self.get_headers())
+        if r.status_code == 204:
+            print('Atrium user has been deleted')
+        else:
+            print('Error in deleting atrium user')
 
     def create_user(self, identifier, metadata=None):
         """

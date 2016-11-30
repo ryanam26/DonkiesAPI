@@ -6,7 +6,7 @@ import time
 
 class ManualMember:
     """
-    Currently works for Weels Fargo, but can be adjusted for other banks.
+    Currently works for Wells Fargo, but can be adjusted for other banks.
     """
     API_URL = 'http://localhost:8000'
     USER_EMAIL = 'alex@donkies.co'

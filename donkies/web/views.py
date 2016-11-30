@@ -64,8 +64,8 @@ class Login(APIView):
 
         d = serializer.data
         user = User.objects.get(email=d['email'])
-        if not user.is_confirmed:
-            return r400('Your email is not confirmed.')
+        # if not user.is_confirmed:
+        #     return r400('Your email is not confirmed.')
 
         data = {'token': user.get_token().key}
 

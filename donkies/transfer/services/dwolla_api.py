@@ -10,7 +10,7 @@ class DwollaApi:
         if mode not in ['PROD', 'DEV']:
             raise ValueError('Dwolla API mode should be "PROD" or "DEV"')
 
-        environment = 'sandbox' if mode == 'DEV' else 'live'
+        environment = 'sandbox' if mode == 'DEV' else 'production'
 
         api_key = getattr(settings, 'DWOLLA_KEY_{}'.format(mode))
         api_secret = getattr(settings, 'DWOLLA_SECRET_{}'.format(mode))

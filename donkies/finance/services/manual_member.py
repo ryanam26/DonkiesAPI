@@ -7,8 +7,11 @@ import time
 class ManualMember:
     """
     Currently works for Wells Fargo, but can be adjusted for other banks.
+
+    Usage:
+    > python manual_member.py -u your_username -p your_password
     """
-    API_URL = 'http://localhost:8000'
+    API_URL = 'http://api.donkies.co'
     USER_EMAIL = 'alex@donkies.co'
     USER_PASSWORD = '111'
     USER_FIRST_NAME = 'Alex'
@@ -99,10 +102,10 @@ class ManualMember:
 
         url = self.API_URL + '/v1/members'
         dic = {
-            'user_guid': guid,
-            'code': self.institution_code,
+            'institution_code': self.institution_code,
             'credentials': self.get_credentials_wells_fargo()
         }
+
         r = requests.post(url, json=dic, headers=self.get_headers())
         if r.status_code != 201:
             print('Error on creating member.')

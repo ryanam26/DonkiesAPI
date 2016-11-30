@@ -99,6 +99,12 @@ class PasswordReset(APIView):
         return Response({}, status=204)
 
 
+class UserDetail(AuthMixin, APIView):
+    def get(self, request, **kwargs):
+        s = sers.UserSerializer(self.request.user)
+        return Response(s.data)
+
+
 class OauthTest(AuthMixin, APIView):
     def get(self, request, **kwargs):
         return Response({'hello': request.user.email})

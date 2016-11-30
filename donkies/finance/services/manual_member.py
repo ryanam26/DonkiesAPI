@@ -32,6 +32,7 @@ class ManualMember:
 
         self.institution_code = getattr(p, 'c')
         self.token = None
+        self.user_detail = {}
 
     def get_headers(self):
         if self.token is None:
@@ -78,6 +79,13 @@ class ManualMember:
             self.credentials = r.json()
         sys.exit('Can not get credentials')
 
+    def get_user_detail(self):
+        url = self.API_URL + '/v1/user'
+        r = requests.get(url, headers=self.get_headers())
+        if r.status_code != 200:
+            sys.exit()('Can not get user detail')
+        self.user_detail = r.json()
+
     def get_credentials_wells_fargo(self):
         return [
             {'field_name': 'userid', 'value': self.username},
@@ -85,17 +93,28 @@ class ManualMember:
         ]
 
     def create_member(self):
+        guid = self.user_detail['guid']
+        if guid is None:
+            sys.exit('User is not registered in Atrium.')
+
         url = self.API_URL + '/v1/members'
         dic = {
-            'institution_code': self.institution_code,
+            'user_guid': guid,
+            'code': self.institution_code,
             'credentials': self.get_credentials_wells_fargo()
         }
         r = requests.post(url, json=dic, headers=self.get_headers())
-        print(r.text)
+        if r.status_code != 201:
+            print('Error on creating member.')
+            print(r.text)
+            return
+
+        print('Member has been created!')
 
     def run(self):
         self.registration()
         self.login()
+        self.get_user_detail()
         self.create_member()
 
 

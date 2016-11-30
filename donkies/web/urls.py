@@ -44,5 +44,10 @@ urlpatterns = [
         v.PasswordReset.as_view(),
         name='password_reset'),
 
+    url(
+        r'^(?P<version>(v1))/user$',
+        v.UserDetail.as_view(),
+        name='user_detail'),
+
     url(r'^$', v.api_root, name='api_root'),
 ]

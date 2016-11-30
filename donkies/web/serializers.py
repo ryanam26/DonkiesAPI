@@ -102,7 +102,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id',
+            'guid',
+            'identifier',
             'email',
             'encrypted_id',
-            'is_confirmed'
+            'is_confirmed',
+            'first_name',
+            'last_name'
         )

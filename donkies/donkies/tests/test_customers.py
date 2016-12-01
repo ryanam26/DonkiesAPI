@@ -15,9 +15,6 @@ class TestCustomer(base.Mixin):
 
         url = '/v1/customer'
         dic = {
-            'firstName': 'Bob',
-            'lastName': 'Smith',
-            'email': 'bob@gmail.com',
             'type': 'personal',
             'address1': '99-99 33rd St',
             'address2': '99-99 33rd St',
@@ -31,4 +28,3 @@ class TestCustomer(base.Mixin):
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
         assert response.status_code == 201
-        print(response.content)

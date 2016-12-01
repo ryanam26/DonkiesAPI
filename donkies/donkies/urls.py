@@ -6,6 +6,7 @@ urlpatterns = [
 
     url('', include('social.apps.django_app.urls', namespace='social')),
     # url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    url(r'^', include('bank.urls')),
     url(r'^', include('finance.urls')),
     url(r'^', include('web.urls')),
 ]

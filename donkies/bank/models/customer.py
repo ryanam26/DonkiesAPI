@@ -4,7 +4,31 @@ from django.core.validators import RegexValidator
 
 
 class CustomerManager(models.Manager):
-    pass
+    def create_customer(
+            self, user, address1, city, state, postal_code,
+            date_of_birth, ssn, type=None, address2=None, phone=None):
+        """
+        Customer is created by API from frontend.
+        Then periodic celery task will create customer in Dwolla.
+        """
+        if type is None:
+            type = self.model.PERSONAL
+
+        c = self.model(
+            user=user, address1=address1, city=city, state=state,
+            postal_code=postal_code, date_of_birth=date_of_birth,
+            ssn=ssn, type=type, address2=address2, phone=phone)
+        c.save()
+        return c
+
+    def create_dwolla_customer(self):
+        """
+        1) Celery task POST call to dwolla to create customer.
+        2) Should get 201. (Body is empty)
+        3) Set is_created=True
+        4) Other Celery task will fetch other info later.
+        """
+        pass
 
 
 class Customer(models.Model):
@@ -55,24 +79,29 @@ class Customer(models.Model):
     date_of_birth = models.DateField(help_text='YYYY-MM-DD')
     ssn = models.CharField(
         help_text='Last 4 digits',
-        max_length=4,
+        max_length=11,
         validators=[
             RegexValidator(
-                regex='^\d{4}$',
-                message='Should be 4 digits')]
+                regex='^\d{3}\-\d{2}\-\d{4}$',
+                message='Should be XXX-XX-XXXX')]
     )
     phone = models.CharField(
         max_length=10,
         validators=[
             RegexValidator(
                 regex='^\d{10}$',
-                message='Should be 10 digits')]
+                message='Should be 10 digits')],
+        null=True,
+        default=None,
+        blank=True
     )
     dwolla_id = models.CharField(
         max_length=50, null=True, default=None, blank=True, unique=True)
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default=UNVERIFIED)
     created_at = models.DateTimeField(null=True, default=None, blank=True)
+    is_created = models.BooleanField(
+        default=False, help_text='Created in dwolla')
 
     objects = CustomerManager()
 

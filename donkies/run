@@ -13,11 +13,13 @@ python manage.py initproject
 python manage.py makemigrations
 python manage.py makemigrations web
 python manage.py makemigrations finance
+python manage.py makemigrations bank
 python manage.py migrate
 
 python manage.py createemails
 python manage.py createsuperuser
 python manage.py createtestuser
+python manage.py createcustomers
 
 python manage.py loaddata institutions
 python manage.py loaddata credentials
@@ -49,8 +51,9 @@ clear
 # py.test -s donkies/tests/test_oauth.py  # not used
 # py.test -s donkies/tests/test_auth.py
 # py.test -s donkies/tests/test_atrium.py --ds=donkies.settings.development
+py.test -s donkies/tests/test_customers.py
 # py.test -s donkies/tests/test_institutions.py
-py.test -s donkies/tests/test_linking.py
+# py.test -s donkies/tests/test_linking.py
 # py.test -s donkies/tests/test_transactions.py
 # py.test -s donkies/tests/test_facebook.py
 

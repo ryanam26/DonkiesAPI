@@ -62,7 +62,7 @@ class DwollaApi:
         #     account_id='0a2ea230-5dc7-46e5-815c-98c03de64ec9')
         self.token = self.client.Auth.client()  # app token
 
-    def get_cutomers(self):
+    def get_customers(self):
         r = self.token.get('customers')
         return r.body['_embedded']['customers']
 
@@ -70,7 +70,7 @@ class DwollaApi:
         dic = {
             'firstName': 'John',
             'lastName': 'Doe',
-            'email': 'jdoe2@nomail.com',
+            'email': 'jdoe4@nomail.com',
             'ipAddress': '10.10.10.10',
             'type': 'personal',
             'address1': '221 Corrected Address St..',
@@ -86,6 +86,7 @@ class DwollaApi:
         # status should be 201
         print(r.status)
         print(r.body)
+        print(dir(r))
 
     def update_customer(self):
         pass
@@ -95,8 +96,14 @@ class DwollaApi:
         # res = self.token.get('/')
         # print(res.body)
         # self.create_cutomer()
-        for c in self.get_cutomers():
-            c.pop('_links')
+        # return
+        r = self.token.get('customers', search='jd2@doe.com')
+        print(r.body)
+
+        return
+
+        for c in self.get_customers():
+            # c.pop('_links')
             print(c)
             print('---')
 

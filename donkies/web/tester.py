@@ -95,10 +95,11 @@ if __name__ == '__main__':
 
     # tm = TestMember()
     # tm.run()
+
     # user = User.objects.get(email='alex@donkies.co')
     # User.objects.create_atrium_user(user.id)
 
-    from transfer.services.dwolla_api import DwollaApi
+    from bank.services.dwolla_api import DwollaApi
 
     d = DwollaApi()
     d.test()

@@ -71,7 +71,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'web',
     'finance',
-    'transfer'
+    'bank'
 )
 
 MIDDLEWARE = (

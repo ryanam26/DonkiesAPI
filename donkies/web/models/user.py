@@ -101,7 +101,6 @@ class User(AbstractBaseUser):
         max_length=255, null=True, unique=True, default=None)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50, blank=True, default='')
-    birthday = models.DateField(null=True, default=None, blank=True)
     confirmation_token = models.CharField(max_length=255, blank=True)
     confirmed_at = models.DateTimeField(blank=True, default=None, null=True)
     reset_token = models.CharField(max_length=255)

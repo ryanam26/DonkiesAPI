@@ -58,7 +58,7 @@ class TestLinking(base.Mixin):
         assert ld4.share == 60
 
     @pytest.mark.django_db
-    def test_transafer(self, client):
+    def test_transfer(self, client):
         t = TransferService(
             TransferService.mock_transactions(),
             TransferService.mock_accounts())

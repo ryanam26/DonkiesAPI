@@ -1,5 +1,6 @@
 import dwollav2
-import requests
+import json
+import logging
 import uuid
 from django.conf import settings
 
@@ -37,6 +38,11 @@ class DwollaApi:
     def refresh_token(self):
         return self.rs.get('DONKIES_REFRESH_TOKEN')
 
+    def set_logs(self, *args):
+        logger = logging.getLogger('dwolla')
+        s = '-------\n'.join(args)
+        logger.error(s)
+
     def get_api_url(self):
         """
         For RAW requests.
@@ -65,25 +71,26 @@ class DwollaApi:
     #         refresh_token=self.refresh_token,
     #         account_id='0a2ea230-5dc7-46e5-815c-98c03de64ec9')
 
+    def create_customer(self, data):
+        try:
+            self.token.post('customers', data)
+        except dwollav2.ValidationError as e:
+            self.set_logs(
+                'Create customer', json.dumps(data), str(e))
+
     def get_customers(self):
         r = self.token.get('customers')
         return r.body['_embedded']['customers']
 
     def get_customer_by_email(self, email):
         """
-        Returns customer or None
+        Returns customer or None.
         """
         r = self.token.get('customers', search=email)
         try:
             return r.body['_embedded']['customers'][0]
         except:
             return None
-
-    def create_customer(self, data):
-        r = self.token.post('customers', data)
-        if r.status == 201:
-            return True
-        return False
 
     def update_customer(self):
         pass
@@ -93,7 +100,8 @@ class DwollaApi:
         # print(res.body)
         # self.create_cutomer()
         # return
-        self.get_customer_by_email('jd2@doe.com')
+        d = self.get_customer_by_email('jd2@doe.com')
+        print(d)
         return
 
         for c in self.get_customers():

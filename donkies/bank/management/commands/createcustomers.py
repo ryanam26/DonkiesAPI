@@ -15,7 +15,7 @@ class Command(BaseCommand):
         c = Customer(user=user)
         c.address1 = fake.address()[:50]
         c.city = fake.city()
-        c.date_of_birth = fake.date()
+        c.date_of_birth = '1980-01-01'
         c.state = fake.state_abbr()
         c.postal_code = fake.postalcode()
         c.ssn = fake.ssn()

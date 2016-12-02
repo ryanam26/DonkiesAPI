@@ -20,8 +20,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             'dwolla_type',
             'dwolla_id',
             'status',
-            'created_at',
-            'is_created'
+            'created_at'
         )
 
         read_only_fields = (
@@ -29,8 +28,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             'dwolla_type',
             'dwolla_id',
             'status',
-            'created_at',
-            'is_created'
+            'created_at'
         )
 
     def save(self, user):

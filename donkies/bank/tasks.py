@@ -14,19 +14,6 @@ def create_customers():
     Task that creates customers in Dwolla.
     """
     Customer = apps.get_model('bank', 'Customer')
-    for c in Customer.objects.filter(is_created=False):
+    for c in Customer.objects.filter(created_at=None, user__is_admin=False):
         Customer.objects.create_dwolla_customer(c.id)
-
-
-@periodic_task(run_every=crontab(minute='*'))
-@rs_singleton(rs, 'INIT_CUSTOMERS_IS_PROCESSING')
-def init_customers():
-    """
-    Task that looks for created customers, but data about
-    these customers hasn't been received yet.
-    (When customer is created in Dwolla, there is no info about it.
-    Info is available a bit later)
-    """
-    Customer = apps.get_model('bank', 'Customer')
-    for c in Customer.objects.filter(is_created=True, dwolla_id=None):
         Customer.objects.init_dwolla_customer(c.id)

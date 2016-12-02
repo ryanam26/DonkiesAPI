@@ -26,13 +26,10 @@ class CustomerManager(models.Manager):
 
     def create_dwolla_customer(self, id):
         """
-        1) Celery task POST call to dwolla to create customer.
-        2) Should get 201. (Body is empty)
-        3) Set is_created=True
-        4) Other Celery task will fetch other info later.
+        Celery task POST call to dwolla to create customer.
         """
         c = self.model.objects.get(id=id)
-        if c.is_created:
+        if c.created_at is not None:
             return
         fields = [
             'first_name', 'last_name', 'email', 'type', 'address1',
@@ -42,16 +39,13 @@ class CustomerManager(models.Manager):
         d = {}
         for field in fields:
             value = getattr(c, field)
-            if value is not None:
+            if value:
                 if isinstance(value, datetime.date):
                     value = value.strftime('%Y-%m-%d')
                 d[to_camel(field)] = value
 
         dw = DwollaApi()
-        result = dw.create_customer(d)
-        if result:
-            c.is_created = True
-            c.save()
+        dw.create_customer(d)
 
     def init_dwolla_customer(self, id):
         """
@@ -139,9 +133,8 @@ class Customer(models.Model):
         max_length=50, null=True, default=None, blank=True, unique=True)
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default=UNVERIFIED)
-    created_at = models.DateTimeField(null=True, default=None, blank=True)
-    is_created = models.BooleanField(
-        default=False, help_text='Created in dwolla')
+    created_at = models.DateTimeField(
+        null=True, default=None, blank=True, help_text='Created at dwolla.')
 
     objects = CustomerManager()
 
@@ -183,5 +176,10 @@ class CustomerAdmin(admin.ModelAdmin):
         'date_of_birth',
         'ssn',
         'phone',
+        'created_at'
+    )
+    readonly_fields = (
+        'dwolla_id',
+        'status',
         'created_at'
     )

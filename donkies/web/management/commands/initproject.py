@@ -8,7 +8,7 @@ class Command(BaseCommand):
         l = [
             'web',
             'finance',
-            'transfer'
+            'bank'
         ]
         for name in l:
             path = '{}/donkies/{}/migrations'.format(

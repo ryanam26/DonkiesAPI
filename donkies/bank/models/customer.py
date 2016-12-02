@@ -142,7 +142,7 @@ class Customer(models.Model):
         app_label = 'bank'
         verbose_name = 'customer'
         verbose_name_plural = 'customers'
-        ordering = ['created_at']
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.email

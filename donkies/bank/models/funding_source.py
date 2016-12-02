@@ -22,7 +22,7 @@ class FundingSourceManager(models.Manager):
             'name': fs.name
         }
         dw = DwollaApi()
-        dw.create_funding_source(fs.customer.id, data)
+        dw.create_funding_source(fs.customer.dwolla_id, data)
 
     def init_dwolla_funding_source(self, id):
         fs = self.model.objects.get(id=id)

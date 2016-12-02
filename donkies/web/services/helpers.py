@@ -1,3 +1,4 @@
+import functools
 import hashlib
 import os
 import random
@@ -43,6 +44,27 @@ def to_camel(value):
 def to_underscore(value):
     s = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', value)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
+
+
+def rs_singleton(rs, key, exp=1800):
+    """
+    Redis singleton.
+    rs - Redis server.
+    key - key that used in Redis db.
+    exp - expire time seconds, if fault (exception).
+    """
+    def deco(func):
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            if rs.get(key):
+                return
+            rs.set(key, 'true')
+            rs.expire(key, exp)
+            output = func(*args, **kwargs)
+            rs.delete(key)
+            return output
+        return inner
+    return deco
 
 
 class cached:

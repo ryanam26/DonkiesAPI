@@ -3,6 +3,9 @@ from django.conf import settings
 from donkies import capp
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
+from web.services.helpers import rs_singleton
+
+rs = settings.REDIS_DB
 
 
 # The number of attempts to get member  before exit.
@@ -89,6 +92,7 @@ def update_user(user_id):
 
 
 @periodic_task(run_every=crontab(minute=0, hour='*'))
+@rs_singleton(rs, 'USER_DATA_IS_PROCESSING', exp=3600)
 def update_users_data():
     """
     Runs every hour.
@@ -96,21 +100,10 @@ def update_users_data():
     with COMPLETED status.
     """
     Member = apps.get_model('finance', 'Member')
-    IS_PROCESSING = 'USER_DATA_IS_PROCESSING'
-    rs = settings.REDIS_DB
-
-    if rs.get(IS_PROCESSING):
-        return
-
-    rs.set(IS_PROCESSING, 'true')
-    rs.expire(IS_PROCESSING, 3000)
-
     qs = Member.objects.filter(status=Member.COMPLETED)\
         .values_list('user_id', flat=True).distinct()
     for user_id in qs:
         update_user(user_id)
-
-    rs.delete(IS_PROCESSING)
 
 
 @periodic_task(run_every=crontab(minute=0, hour='*/6'))

@@ -15,10 +15,17 @@ class CustomerSerializer(serializers.ModelSerializer):
             'postal_code',
             'date_of_birth',
             'ssn',
-            'phone'
+            'phone',
+            'id',
+            'dwolla_type',
+            'dwolla_id',
+            'status',
+            'created_at',
+            'is_created'
         )
 
         read_only_fields = (
+            'id',
             'dwolla_type',
             'dwolla_id',
             'status',

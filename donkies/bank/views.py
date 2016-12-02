@@ -20,5 +20,6 @@ class CustomerDetail(AuthMixin, APIView):
     def post(self, request, **kwargs):
         s = sers.CustomerSerializer(data=request.data)
         s.is_valid(raise_exception=True)
-        s.save(user=request.user)
+        c = s.save(user=request.user)
+        s = sers.CustomerSerializer(c)
         return Response(s.data, status=201)

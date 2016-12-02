@@ -1,6 +1,7 @@
 import hashlib
 import os
 import random
+import re
 import string
 import time
 from datetime import datetime, timedelta
@@ -31,6 +32,17 @@ def create_filename(filename):
     tup = os.path.splitext(filename)
     ext = tup[1].lower()
     return generate_filename() + ext
+
+
+def to_camel(value):
+    words = [word.capitalize() for word in value.split('_')]
+    words[0] = words[0].lower()
+    return ''.join(words)
+
+
+def to_underscore(value):
+    s = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', value)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
 
 
 class cached:

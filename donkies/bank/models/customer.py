@@ -1,6 +1,9 @@
+import datetime
 from django.db import models
 from django.contrib import admin
 from django.core.validators import RegexValidator
+from web.services.helpers import to_camel
+from bank.services.dwolla_api import DwollaApi
 
 
 class CustomerManager(models.Manager):
@@ -21,14 +24,51 @@ class CustomerManager(models.Manager):
         c.save()
         return c
 
-    def create_dwolla_customer(self):
+    def create_dwolla_customer(self, id):
         """
         1) Celery task POST call to dwolla to create customer.
         2) Should get 201. (Body is empty)
         3) Set is_created=True
         4) Other Celery task will fetch other info later.
         """
-        pass
+        c = self.model.objects.get(id=id)
+        if c.is_created:
+            return
+        fields = [
+            'first_name', 'last_name', 'email', 'type', 'address1',
+            'city', 'state', 'postal_code', 'date_of_birth', 'ssn',
+            'ip_address', 'address2', 'phone']
+
+        d = {}
+        for field in fields:
+            value = getattr(c, field)
+            if value is not None:
+                if isinstance(value, datetime.date):
+                    value = value.strftime('%Y-%m-%d')
+                d[to_camel(field)] = value
+
+        dw = DwollaApi()
+        result = dw.create_customer(d)
+        if result:
+            c.is_created = True
+            c.save()
+
+    def init_dwolla_customer(self, id):
+        """
+        Get data of created, but not inited yet customer.
+        """
+        c = self.model.objects.get(id=id)
+        if c.dwolla_id is not None:
+            return
+
+        dw = DwollaApi()
+        d = dw.get_customer_by_email(c.email)
+        if d is not None:
+            c.dwolla_id = d['id']
+            c.dwolla_type = d['type']
+            c.status = d['status']
+            c.created_at = d['created']
+            c.save()
 
 
 class Customer(models.Model):

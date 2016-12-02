@@ -27,6 +27,7 @@ class DwollaApi:
             id=self.client_id,
             secret=self.client_secret,
             environment=environment)
+        self.token = self.client.Auth.client()
 
     @property
     def access_token(self):
@@ -44,6 +45,9 @@ class DwollaApi:
             return 'https://api.dwolla.com/'
         return 'https://api-uat.dwolla.com/'
 
+    def get_headers(self):
+        return {'Idempotency-Key': uuid.uuid4().hex}
+
     # def get_application_token(self):
     #     url = '{}oauth/v2/token'.format(self.get_api_url())
     #     dic = {
@@ -55,51 +59,41 @@ class DwollaApi:
     #     r = requests.post(url, json=dic, headers=headers)
     #     print(r.text)
 
-    def init(self):
-        # self.token = self.client.Token(
-        #     access_token=self.access_token,
-        #     refresh_token=self.refresh_token,
-        #     account_id='0a2ea230-5dc7-46e5-815c-98c03de64ec9')
-        self.token = self.client.Auth.client()  # app token
+    # def init(self):
+    #     self.token = self.client.Token(
+    #         access_token=self.access_token,
+    #         refresh_token=self.refresh_token,
+    #         account_id='0a2ea230-5dc7-46e5-815c-98c03de64ec9')
 
     def get_customers(self):
         r = self.token.get('customers')
         return r.body['_embedded']['customers']
 
-    def create_cutomer(self):
-        dic = {
-            'firstName': 'John',
-            'lastName': 'Doe',
-            'email': 'jdoe4@nomail.com',
-            'ipAddress': '10.10.10.10',
-            'type': 'personal',
-            'address1': '221 Corrected Address St..',
-            'address2': 'Apt 201',
-            'city': 'San Francisco',
-            'state': 'CA',
-            'postalCode': '94104',
-            'dateOfBirth': '1970-07-11',
-            'ssn': '123-45-6789'
-        }
-        headers = {'Idempotency-Key': uuid.uuid4().hex}
-        r = self.token.post('customers', dic, headers)
-        # status should be 201
-        print(r.status)
-        print(r.body)
-        print(dir(r))
+    def get_customer_by_email(self, email):
+        """
+        Returns customer or None
+        """
+        r = self.token.get('customers', search=email)
+        try:
+            return r.body['_embedded']['customers'][0]
+        except:
+            return None
+
+    def create_customer(self, data):
+        r = self.token.post('customers', data)
+        if r.status == 201:
+            return True
+        return False
 
     def update_customer(self):
         pass
 
     def test(self):
-        self.init()
         # res = self.token.get('/')
         # print(res.body)
         # self.create_cutomer()
         # return
-        r = self.token.get('customers', search='jd2@doe.com')
-        print(r.body)
-
+        self.get_customer_by_email('jd2@doe.com')
         return
 
         for c in self.get_customers():

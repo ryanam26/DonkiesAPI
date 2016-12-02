@@ -54,6 +54,9 @@ class DwollaApi:
     def get_headers(self):
         return {'Idempotency-Key': uuid.uuid4().hex}
 
+    def get_customer_funding_sources_url(self, customer_id):
+        return 'customers/{}/funding-sources'.format(customer_id)
+
     # def get_application_token(self):
     #     url = '{}oauth/v2/token'.format(self.get_api_url())
     #     dic = {
@@ -92,22 +95,62 @@ class DwollaApi:
         except:
             return None
 
-    def update_customer(self):
+    def update_customer(self, id):
         pass
 
-    def test(self):
-        # res = self.token.get('/')
-        # print(res.body)
-        # self.create_cutomer()
-        # return
-        d = self.get_customer_by_email('jd2@doe.com')
-        print(d)
-        return
+    def create_funding_source(self, customer_id, data):
+        """
+        Create funding source for customer.
+        """
+        url = self.get_customer_funding_sources_url(customer_id)
+        try:
+            self.token.post(url, data)
+        except dwollav2.ValidationError as e:
+            print(str(e))
+            self.set_logs(
+                'Create funding source',
+                'Customer: {}'.format(customer_id),
+                json.dumps(data), str(e))
 
-        for c in self.get_customers():
-            # c.pop('_links')
-            print(c)
-            print('---')
+    def get_funding_sources(self, customer_id):
+        """
+        Returns customer's funding sources.
+        """
+        url = self.get_customer_funding_sources_url(customer_id)
+        r = self.token.get(url)
+        return r.body['_embedded']['funding-sources']
+
+    def get_funding_source(self, id):
+        url = 'funding-sources/{}'.format(id)
+        r = self.token.get(url)
+        return r.body
+
+    def get_funding_source_by_name(self, customer_id, name):
+        """
+        Returns customer's account or None
+        """
+        for d in self.get_funding_sources(customer_id):
+            if d['name'] == name:
+                return d
+        return None
+
+    def test(self):
+        # for c in self.get_customers():
+        #     if c['status'] == 'verified':
+        #         print(c)
+        customer_id = '5d98f995-8f3f-47f6-9d26-f30c1e543673'
+        # l = self.get_funding_sources(customer_id)
+
+        # data = {
+        #     'routingNumber': '222222226',
+        #     'accountNumber': '123456789',
+        #     'type': 'checking',
+        #     'name': 'My Bank'
+        # }
+        # self.create_funding_source(customer_id, data)
+        fs = self.get_funding_source_by_name(customer_id, 'My Bank')
+        print(fs)
+
 
 if __name__ == '__main__':
     from subprocess import Popen, PIPE

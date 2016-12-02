@@ -52,6 +52,7 @@ class FundingSourceSerializer(serializers.ModelSerializer):
             'routing_number',
             'status',
             'type',
+            'typeb',
             'name',
             'created_at',
             'is_removed'

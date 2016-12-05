@@ -14,12 +14,23 @@ rs = settings.REDIS_DB
 MAX_ATTEMPTS = 20
 
 
+@periodic_task(run_every=crontab())
+@rs_singleton(rs, 'CREATE_ATRIUM_USER_IS_PROCESSING', exp=300)
+def create_atrium_users():
+    """
+    Task that create atrium users, if fo any reason they wasn't
+    created by regular task.
+
+    TODO: on production change to run once per hour.
+    While development, run every minute.
+    """
+    User = apps.get_model('web', 'User')
+    for user in User.objects.filter(guid=None):
+        User.objects.create_atrium_user(user.id)
+
+
 @capp.task
 def create_atrium_user(user_id):
-    """
-    TODO: case when request to atrium fails, rerun task.
-          create periodic task, that handle not created cases.
-    """
     User = apps.get_model('web', 'User')
     user = User.objects.get(id=user_id)
     User.objects.create_atrium_user(user.id)

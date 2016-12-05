@@ -11,7 +11,7 @@ rs = settings.REDIS_DB
 @rs_singleton(rs, 'CREATE_CUSTOMERS_IS_PROCESSING')
 def create_customers():
     """
-    Task that creates customers in Dwolla.
+    Task that creates and inits customers in Dwolla.
     """
     Customer = apps.get_model('bank', 'Customer')
     for c in Customer.objects.filter(created_at=None, user__is_admin=False):
@@ -23,7 +23,7 @@ def create_customers():
 @rs_singleton(rs, 'CREATE_FUNDING_SOURCES_IS_PROCESSING')
 def create_funding_sources():
     """
-    Task that creates funding sources in Dwolla.
+    Task that creates and inits funding sources in Dwolla.
     """
     FundingSource = apps.get_model('bank', 'FundingSource')
     for fs in FundingSource.objects.filter(created_at=None):

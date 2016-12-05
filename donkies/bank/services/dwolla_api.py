@@ -40,6 +40,16 @@ class DwollaApi:
     def refresh_token(self):
         return self.rs.get('DONKIES_REFRESH_TOKEN')
 
+    def is_duplicate(self, e):
+        if isinstance(e, dwollav2.ValidationError):
+            for d in e.body['_embedded']['errors']:
+                if d['code'].lower() == 'duplicate':
+                    return True
+        elif isinstance(e, dwollav2.Error):
+            if e.body['code'].lower() == 'duplicateresource':
+                return True
+        return False
+
     def set_logs(self, *args):
         logger = logging.getLogger('dwolla')
         s = '-------\n'.join(args)
@@ -70,13 +80,15 @@ class DwollaApi:
 
     def create_customer(self, data):
         """
-        Returns id or None.
+        Returns id of created customer or None.
         """
         try:
             r = self.token.post('customers', data)
             if r.status == 201:
                 return self.get_id_from_headers(r.headers)
-        except dwollav2.ValidationError as e:
+        except dwollav2.Error as e:
+            if self.is_duplicate(e):
+                return self.get_customer_by_email(data['email'])['id']
             self.set_logs(
                 'Create customer', json.dumps(data), str(e))
         return None
@@ -109,15 +121,17 @@ class DwollaApi:
     def create_funding_source(self, customer_id, data):
         """
         Create funding source for customer.
-        Returns id or None.
+        Returns id of created funding source or None.
         """
         url = self.get_customer_funding_sources_url(customer_id)
         try:
             r = self.token.post(url, data)
             if r.status == 201:
                 return self.get_id_from_headers(r.headers)
-        except dwollav2.ValidationError as e:
-            print(str(e))
+        except dwollav2.Error as e:
+            if self.is_duplicate(e):
+                return self.get_funding_source_by_name(
+                    customer_id, data['name'])['id']
             self.set_logs(
                 'Create funding source',
                 'Customer: {}'.format(customer_id),
@@ -149,8 +163,7 @@ class DwollaApi:
         return None
 
     def remove_funding_source(self, id):
-        r = self.token.delete(self.get_funding_source_url(id))
-        print(r.status)
+        self.token.delete(self.get_funding_source_url(id))
 
     def test_create_customer(self):
         d = {
@@ -190,8 +203,9 @@ class DwollaApi:
 
     def test(self):
         customer_id = self.test_create_customer()
-        print('---')
-        self.test_create_funding_source(customer_id)
+        if customer_id:
+            print('---')
+            self.test_create_funding_source(customer_id)
 
 if __name__ == '__main__':
     from subprocess import Popen, PIPE

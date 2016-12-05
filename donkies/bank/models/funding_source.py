@@ -15,6 +15,9 @@ class FundingSourceManager(models.Manager):
 
     def create_dwolla_funding_source(self, id):
         fs = self.model.objects.get(id=id)
+        if fs.dwolla_id is not None:
+            return
+
         data = {
             'routingNumber': fs.routing_number,
             'accountNumber': fs.account_number,
@@ -22,13 +25,16 @@ class FundingSourceManager(models.Manager):
             'name': fs.name
         }
         dw = DwollaApi()
-        dw.create_funding_source(fs.customer.dwolla_id, data)
+        id = dw.create_funding_source(fs.customer.dwolla_id, data)
+        if id is not None:
+            fs.dwolla_id = id
+            fs.save()
 
     def init_dwolla_funding_source(self, id):
         fs = self.model.objects.get(id=id)
-        dw = DwollaApi()
-        d = dw.get_funding_source_by_name(fs.name)
-        if d is not None:
+        if fs.dwolla_id is not None and fs.created_at is None:
+            dw = DwollaApi()
+            d = dw.get_funding_source(fs.dwolla_id)
             fs.dwolla_id = d['id']
             fs.created_at = d['created']
             fs.status = d['status']

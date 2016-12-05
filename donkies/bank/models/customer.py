@@ -29,7 +29,7 @@ class CustomerManager(models.Manager):
         Celery task POST call to dwolla to create customer.
         """
         c = self.model.objects.get(id=id)
-        if c.created_at is not None:
+        if c.dwolla_id is not None:
             return
         fields = [
             'first_name', 'last_name', 'email', 'type', 'address1',
@@ -45,19 +45,19 @@ class CustomerManager(models.Manager):
                 d[to_camel(field)] = value
 
         dw = DwollaApi()
-        dw.create_customer(d)
+        id = dw.create_customer(d)
+        if id is not None:
+            c.dwolla_id = id
+            c.save()
 
     def init_dwolla_customer(self, id):
         """
         Get data of created, but not inited yet customer.
         """
         c = self.model.objects.get(id=id)
-        if c.dwolla_id is not None:
-            return
-
-        dw = DwollaApi()
-        d = dw.get_customer_by_email(c.email)
-        if d is not None:
+        if c.dwolla_id is not None and c.created_at is None:
+            dw = DwollaApi()
+            d = dw.get_customer(c.dwolla_id)
             c.dwolla_id = d['id']
             c.dwolla_type = d['type']
             c.status = d['status']

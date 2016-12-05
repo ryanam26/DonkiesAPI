@@ -2,6 +2,7 @@ import dwollav2
 import json
 import logging
 import os
+import time
 import uuid
 from django.conf import settings
 
@@ -79,6 +80,9 @@ class DwollaApi:
 
     def get_micro_deposit_url(self, id):
         return 'funding-sources/{}/micro-deposits'.format(id)
+
+    def get_transfer_url(self, id):
+        return 'transfers/{}'.format(self.id)
 
     def create_customer(self, data):
         """
@@ -210,6 +214,57 @@ class DwollaApi:
         except dwollav2.Error as e:
             return r.status, str(e)
 
+    def create_transfer(self, src_id, dst_id, amount, currency='USD'):
+        """
+        Source: funding source.
+        Destination: funding source.
+        Returns id of created transfer or None.
+        """
+        src_url = '{}funding-sources/{}'.format(self.get_api_url(), src_id)
+        dst_url = '{}funding-sources/{}'.format(self.get_api_url(), dst_id)
+        d = {
+            '_links': {
+                'source': {
+                    'href': src_url
+                },
+                'destination': {
+                    'href': dst_url
+                }
+            },
+            'amount': {
+                'currency': currency,
+                'value': amount
+            }
+        }
+        try:
+            r = self.token.post('transfers', d)
+            if r.status == 201:
+                return self.get_id_from_headers(r.headers)
+        except dwollav2.Error as e:
+            print(str(e))
+            self.set_logs(
+                'Create transfer', json.dumps(d), str(e))
+        return None
+
+    def get_transfer(self, id):
+        """
+        Returns transfer by id.
+        """
+        url = self.get_transfer_url(id)
+        r = self.token.get(url)
+        return r.body
+
+    def get_transfer_failure(self, id):
+        """
+        Returns 3-letters failure code.
+        All codes listed in docs:
+        /resources/bank-transfer-workflow/transfer-failures.html
+        """
+        url = self.get_transfer_url(id)
+        url += '/failure'
+        r = self.token.get(url)
+        return r.body['code']
+
     def test_create_customer(self):
         d = {
             'firstName': 'John',
@@ -235,7 +290,7 @@ class DwollaApi:
         data = {
             'routingNumber': '222222226',
             'accountNumber': '123456789',
-            'type': 'checking',
+            'type': 'savings',
             'name': 'My Bank'
         }
         id = self.create_funding_source(customer_id, data)
@@ -246,12 +301,34 @@ class DwollaApi:
             # print(fs)
         return id
 
+    def test_transfer(self):
+        customer1_id = self.test_create_customer()
+        src_id = self.test_create_funding_source(customer1_id)
+        self.init_micro_deposits(src_id)
+        time.sleep(1)
+        d = self.get_micro_deposits(src_id)
+        if d['status'] != 'processed':
+            print('Micro-deposits not processed (for src)')
+            return
+
+        customer2_id = self.test_create_customer()
+        dst_id = self.test_create_funding_source(customer2_id)
+        self.init_micro_deposits(dst_id)
+        time.sleep(1)
+        d = self.get_micro_deposits(dst_id)
+        if d['status'] != 'processed':
+            print('Micro-deposits not processed (for dst)')
+            return
+
+        self.create_transfer(src_id, dst_id, '1.00')
+
     def test(self):
-        customer_id = self.test_create_customer()
-        fs_id = self.test_create_funding_source(customer_id)
-        self.init_micro_deposits(fs_id)
-        d = self.get_micro_deposits(fs_id)
-        print(d)
+        # customer_id = self.test_create_customer()
+        # fs_id = self.test_create_funding_source(customer_id)
+        # self.init_micro_deposits(fs_id)
+        # d = self.get_micro_deposits(fs_id)
+        # print(d)
+        self.test_transfer()
 
 if __name__ == '__main__':
     from subprocess import Popen, PIPE

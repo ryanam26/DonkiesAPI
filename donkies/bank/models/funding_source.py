@@ -62,7 +62,7 @@ class FundingSource(models.Model):
         (BALANCE, 'balance')
     )
 
-    account = models.ForeignKey('finance.Account')
+    account = models.OneToOneField('finance.Account')
     dwolla_id = models.CharField(
         max_length=50, null=True, default=None, blank=True, unique=True)
     account_number = models.CharField(max_length=100)

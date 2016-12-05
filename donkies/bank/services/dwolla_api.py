@@ -1,6 +1,8 @@
 import dwollav2
 import json
 import logging
+import os
+import time
 import uuid
 from django.conf import settings
 
@@ -54,36 +56,42 @@ class DwollaApi:
     def get_headers(self):
         return {'Idempotency-Key': uuid.uuid4().hex}
 
+    def get_id_from_headers(self, headers):
+        return os.path.basename(headers['location'])
+
+    def get_customer_url(self, id):
+        return 'customers/{}'.format(id)
+
     def get_customer_funding_sources_url(self, customer_id):
         return 'customers/{}/funding-sources'.format(customer_id)
 
-    # def get_application_token(self):
-    #     url = '{}oauth/v2/token'.format(self.get_api_url())
-    #     dic = {
-    #         'client_id': self.client_id,
-    #         'client_secret': self.client_secret,
-    #         'grant_type': 'client_credentials'
-    #     }
-    #     headers = {'content-type': 'application/vnd.dwolla.v1.hal+json'}
-    #     r = requests.post(url, json=dic, headers=headers)
-    #     print(r.text)
-
-    # def init(self):
-    #     self.token = self.client.Token(
-    #         access_token=self.access_token,
-    #         refresh_token=self.refresh_token,
-    #         account_id='0a2ea230-5dc7-46e5-815c-98c03de64ec9')
+    def get_funding_source_url(self, id):
+        return 'funding-sources/{}'.format(id)
 
     def create_customer(self, data):
+        """
+        Returns id or None.
+        """
         try:
-            self.token.post('customers', data)
+            r = self.token.post('customers', data)
+            if r.status == 201:
+                return self.get_id_from_headers(r.headers)
         except dwollav2.ValidationError as e:
             self.set_logs(
                 'Create customer', json.dumps(data), str(e))
+        return None
 
     def get_customers(self):
         r = self.token.get('customers')
         return r.body['_embedded']['customers']
+
+    def get_customer(self, id):
+        """
+        Returns customer by id.
+        """
+        url = self.get_customer_url(id)
+        r = self.token.get(url)
+        return r.body
 
     def get_customer_by_email(self, email):
         """
@@ -101,16 +109,20 @@ class DwollaApi:
     def create_funding_source(self, customer_id, data):
         """
         Create funding source for customer.
+        Returns id or None.
         """
         url = self.get_customer_funding_sources_url(customer_id)
         try:
-            self.token.post(url, data)
+            r = self.token.post(url, data)
+            if r.status == 201:
+                return self.get_id_from_headers(r.headers)
         except dwollav2.ValidationError as e:
             print(str(e))
             self.set_logs(
                 'Create funding source',
                 'Customer: {}'.format(customer_id),
                 json.dumps(data), str(e))
+        return None
 
     def get_funding_sources(self, customer_id):
         """
@@ -121,8 +133,10 @@ class DwollaApi:
         return r.body['_embedded']['funding-sources']
 
     def get_funding_source(self, id):
-        url = 'funding-sources/{}'.format(id)
-        r = self.token.get(url)
+        """
+        Returns funding source by id.
+        """
+        r = self.token.get(self.get_funding_source_url(id))
         return r.body
 
     def get_funding_source_by_name(self, customer_id, name):
@@ -134,23 +148,50 @@ class DwollaApi:
                 return d
         return None
 
+    def remove_funding_source(self, id):
+        r = self.token.delete(self.get_funding_source_url(id))
+        print(r.status)
+
+    def test_create_customer(self):
+        d = {
+            'firstName': 'John',
+            'lastName': 'Doe',
+            'email': '{}@nomail.net'.format(uuid.uuid4().hex),
+            'type': 'personal',
+            'address1': '99-99 33rd St',
+            'city': 'Some City',
+            'state': 'NY',
+            'postalCode': '11101',
+            'dateOfBirth': '1970-01-01',
+            'ssn': '1234'
+        }
+        id = self.create_customer(d)
+        print('Created customer id', id)
+        print('---')
+        if id is not None:
+            c = self.get_customer(id)
+            print(c)
+        return id
+
+    def test_create_funding_source(self, customer_id):
+        data = {
+            'routingNumber': '222222226',
+            'accountNumber': '123456789',
+            'type': 'checking',
+            'name': 'My Bank'
+        }
+        id = self.create_funding_source(customer_id, data)
+        print('Created funding source id:', id)
+        print('---')
+        if id is not None:
+            fs = self.get_funding_source(id)
+            print(fs)
+        return id
+
     def test(self):
-        # for c in self.get_customers():
-        #     if c['status'] == 'verified':
-        #         print(c)
-        customer_id = '5d98f995-8f3f-47f6-9d26-f30c1e543673'
-        # l = self.get_funding_sources(customer_id)
-
-        # data = {
-        #     'routingNumber': '222222226',
-        #     'accountNumber': '123456789',
-        #     'type': 'checking',
-        #     'name': 'My Bank'
-        # }
-        # self.create_funding_source(customer_id, data)
-        fs = self.get_funding_source_by_name(customer_id, 'My Bank')
-        print(fs)
-
+        customer_id = self.test_create_customer()
+        print('---')
+        self.test_create_funding_source(customer_id)
 
 if __name__ == '__main__':
     from subprocess import Popen, PIPE

@@ -42,6 +42,24 @@ class FundingSourceManager(models.Manager):
             fs.typeb = d['type']
             fs.save()
 
+    def init_micro_deposits(self, id):
+        fs = self.model.objects.get(id=id)
+        if fs.md_status is None:
+            dw = DwollaApi()
+            dw.init_micro_deposits(fs.dwolla_id)
+
+    def update_micro_deposits(self, id):
+        """
+        Updates status of micro-deposits verification.
+        """
+        fs = self.model.objects.get(id=id)
+        if fs.md_status is not None and fs.md_status != self.model.PROCESSED:
+            dw = DwollaApi()
+            d = dw.get_micro_deposits(fs.dwolla_id)
+            fs.md_status = d['status']
+            fs.md_created_at = d['created']
+            fs.save()
+
 
 class FundingSource(models.Model):
     VERIFIED = 'verified'
@@ -52,6 +70,12 @@ class FundingSource(models.Model):
 
     BANK = 'bank'
     BALANCE = 'balance'
+
+    MICRO_DEPOSIT = 'micro-deposit'
+    IAV = 'iav'
+
+    PENDING = 'pending'
+    PROCESSED = 'processed'
 
     STATUS_CHOICES = (
         (VERIFIED, 'verified'),
@@ -66,6 +90,11 @@ class FundingSource(models.Model):
     TYPEB_CHOICES = (
         (BANK, 'bank'),
         (BALANCE, 'balance')
+    )
+
+    VERIFICATION_CHOICES = (
+        (MICRO_DEPOSIT, 'micro deposit'),
+        (IAV, 'instant verification')
     )
 
     account = models.OneToOneField('finance.Account')
@@ -83,6 +112,14 @@ class FundingSource(models.Model):
     name = models.CharField(max_length=100)
     created_at = models.DateTimeField(null=True, default=None, blank=True)
     is_removed = models.BooleanField(default=False)
+    verification_type = models.CharField(
+        max_length=20, choices=VERIFICATION_CHOICES, default=MICRO_DEPOSIT)
+    md_status = models.CharField(
+        max_length=20, null=True, default=None, blank=True,
+        help_text='Micro-deposits verification status')
+    md_created_at = models.DateTimeField(
+        null=True, default=None, blank=True,
+        help_text='Micro-deposits created time.')
 
     objects = FundingSourceManager()
 
@@ -123,6 +160,9 @@ class FundingSourceAdmin(admin.ModelAdmin):
         'type',
         'typeb',
         'created_at',
-        'is_removed'
+        'is_removed',
+        'verification_type',
+        'md_status',
+        'md_created_at'
     )
     list_filter = ('is_removed',)

@@ -2,7 +2,6 @@ import dwollav2
 import json
 import logging
 import os
-import time
 import uuid
 from django.conf import settings
 
@@ -77,6 +76,9 @@ class DwollaApi:
 
     def get_funding_source_url(self, id):
         return 'funding-sources/{}'.format(id)
+
+    def get_micro_deposit_url(self, id):
+        return 'funding-sources/{}/micro-deposits'.format(id)
 
     def create_customer(self, data):
         """
@@ -165,6 +167,49 @@ class DwollaApi:
     def remove_funding_source(self, id):
         self.token.delete(self.get_funding_source_url(id))
 
+    def init_micro_deposits(self, id):
+        """
+        Initiates micro-deposits verification for funding source.
+        """
+        url = self.get_micro_deposit_url(id)
+        self.token.post(url)
+
+    def get_micro_deposits(self, id):
+        """
+        Returns dict with status and created for micro-deposits
+        for funding source.
+        """
+        url = self.get_micro_deposit_url(id)
+        r = self.token.get(url)
+        if r.status == 200:
+            return r.body
+        return None
+
+    def verify_micro_deposits(
+            self, id, amount1, amount2, currency1='USD', currency2='USD'):
+        """
+        Live method, that calls directly from front-end (not celery)
+        Returns status code and error (if status is not 200)
+        """
+        url = self.get_micro_deposit_url(id)
+        d = {
+            'amount1': {
+                'value': amount1,
+                'currency': currency1
+            },
+            'amount2': {
+                'value': amount2,
+                'currency': currency2
+            }
+        }
+        try:
+            r = self.token(url, d)
+            if r.status == 200:
+                return r.status, None
+            raise dwollav2.Error('Try again later.')
+        except dwollav2.Error as e:
+            return r.status, str(e)
+
     def test_create_customer(self):
         d = {
             'firstName': 'John',
@@ -179,11 +224,11 @@ class DwollaApi:
             'ssn': '1234'
         }
         id = self.create_customer(d)
-        print('Created customer id', id)
-        print('---')
+        # print('Created customer id', id)
+        # print('---')
         if id is not None:
             c = self.get_customer(id)
-            print(c)
+            # print(c)
         return id
 
     def test_create_funding_source(self, customer_id):
@@ -194,18 +239,19 @@ class DwollaApi:
             'name': 'My Bank'
         }
         id = self.create_funding_source(customer_id, data)
-        print('Created funding source id:', id)
-        print('---')
+        # print('Created funding source id:', id)
+        # print('---')
         if id is not None:
             fs = self.get_funding_source(id)
-            print(fs)
+            # print(fs)
         return id
 
     def test(self):
         customer_id = self.test_create_customer()
-        if customer_id:
-            print('---')
-            self.test_create_funding_source(customer_id)
+        fs_id = self.test_create_funding_source(customer_id)
+        self.init_micro_deposits(fs_id)
+        d = self.get_micro_deposits(fs_id)
+        print(d)
 
 if __name__ == '__main__':
     from subprocess import Popen, PIPE

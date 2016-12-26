@@ -6,6 +6,11 @@ import autoBind from 'react-autobind'
 import { Checkbox, Input } from 'components'
 
 
+/**
+ * js/app.js had method that automatically removes "toggled" class
+ * from lc-block and div started to be invisible.
+ * Removed this method from app.js
+ */
 export default class Registration extends Component{
     constructor(props){
         super(props)
@@ -15,14 +20,20 @@ export default class Registration extends Component{
     render(){
         return (
             <div className="login-content">
-                <div className="lc-block toggled">
+                <div ref="block" className="lc-block toggled">
                     <div className="lcb-form">
                         
                         <Input
-                            name="username"
+                            name="first_name"
                             wrapperClass="input-group m-b-20"
                             zmdi="zmdi-account"
-                            placeholder="Username" />
+                            placeholder="First name" />
+
+                        <Input
+                            name="last_name"
+                            wrapperClass="input-group m-b-20"
+                            zmdi="zmdi-account"
+                            placeholder="Last name" />
 
                         <Input
                             name="email"
@@ -45,7 +56,6 @@ export default class Registration extends Component{
                     <div className="lcb-navigation">
                         <Link
                             to="/login"
-                            data-ma-action="login-switch"
                             data-ma-block="#l-login">
 
                             <i className="zmdi zmdi-long-arrow-right" />
@@ -54,7 +64,6 @@ export default class Registration extends Component{
 
                         <Link
                             to="/forgot_password"
-                            data-ma-action="login-switch"
                             data-ma-block="#l-forget-password">
                             <i>{'?'}</i> <span>{'Forgot Password'}</span>
                         </Link>

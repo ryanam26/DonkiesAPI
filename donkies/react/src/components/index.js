@@ -12,6 +12,9 @@ export { Input }
 
 // layout
 
+import { default as HomeMiniCharts } from './layout/content/HomeMiniCharts'
+export { HomeMiniCharts }
+
 import { default as MainMenu } from './layout/content/MainMenu'
 export { MainMenu }
 

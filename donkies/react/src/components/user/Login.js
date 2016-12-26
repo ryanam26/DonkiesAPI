@@ -61,8 +61,8 @@ class Login extends Component{
                         <Input
                             name="email"
                             wrapperClass="input-group m-b-20"
-                            zmdi="zmdi-account"
-                            placeholder="Username"
+                            zmdi="zmdi-email"
+                            placeholder="Email Address"
                             errors={errors} />
 
                         <Input
@@ -91,7 +91,6 @@ class Login extends Component{
                     <div className="lcb-navigation">
                         <Link
                             to="/registration"
-                            data-ma-action="login-switch"
                             data-ma-block="#l-register">
                             
                             <i className="zmdi zmdi-plus" />
@@ -100,7 +99,6 @@ class Login extends Component{
                         
                         <Link
                             to="/forgot_password"
-                            data-ma-action="login-switch"
                             data-ma-block="#l-forget-password">
                             <i>{'?'}</i> <span>{'Forgot Password'}</span>
                         </Link>

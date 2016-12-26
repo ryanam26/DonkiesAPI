@@ -12,6 +12,8 @@ export default class ForgotPassword extends Component{
         autoBind(this)
     }
 
+
+
     render(){
         return (
             <div className="login-content">
@@ -35,7 +37,6 @@ export default class ForgotPassword extends Component{
                     <div className="lcb-navigation">
                         <Link
                             to="/login"
-                            data-ma-action="login-switch"
                             data-ma-block="#l-login">
 
                             <i className="zmdi zmdi-long-arrow-right" />
@@ -44,7 +45,6 @@ export default class ForgotPassword extends Component{
 
                         <Link
                             to="/registration"
-                            data-ma-action="login-switch"
                             data-ma-block="#l-register">
                             
                             <i className="zmdi zmdi-plus" />

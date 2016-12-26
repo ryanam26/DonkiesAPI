@@ -66,7 +66,7 @@ class App extends Component {
                     </section>
                 </section>
 
-
+                <Footer />
 
             </wrap>
         )

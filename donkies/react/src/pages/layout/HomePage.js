@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
+import { HomeMiniCharts } from 'components'
 
 
 export default class HomePageComponent extends Component{
@@ -11,7 +12,9 @@ export default class HomePageComponent extends Component{
 
     render(){
         return (
-            <div>{'HomePageComponent'}</div>
+            <wrap>
+                <HomeMiniCharts />
+            </wrap>
         )
     }
 }

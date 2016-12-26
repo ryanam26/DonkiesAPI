@@ -16,7 +16,6 @@ export default class Input extends Component {
             onKeyPress: null,
             onKeyUp: null,
             placeholder: null,
-            ref: 'input',
             style: {},
             zmdi: null
         }
@@ -100,7 +99,6 @@ export default class Input extends Component {
             style,
             type,
             placeholder,
-            ref,
             wrapperClass,
             zmdi } = this.props
         const { value, inputClassName } = this.state
@@ -111,7 +109,6 @@ export default class Input extends Component {
             style,
             type,
             placeholder,
-            ref,
             onFocus: this.onFocus,
             onBlur: this.onBlur,
             onChange: this.onChange,
@@ -131,7 +128,7 @@ export default class Input extends Component {
         )
 
         return (
-            <div className={wrapperClass}>
+            <div className={wrapperCN}>
                 {zmdi && 
                     <span className="input-group-addon">
                         <i className={`zmdi ${zmdi}`} />
@@ -139,10 +136,16 @@ export default class Input extends Component {
                 }
                 
                 <div className={inputClassName}>
-                    <input type="text" className="form-control" {...inputProps} />
+                    {label &&
+                        <label className="control-label">{label}</label>}
+
+                    <input
+                        type="text"
+                        className="form-control"
+                        {...inputProps} />
                 </div>
 
-                {this.hasErros && this.renderErrors()}
+                {this.hasError() && this.renderErrors()}
             </div>
         )
     }
@@ -160,7 +163,6 @@ Input.propTypes = {
     onKeyPress: PropTypes.func,
     onKeyUp: PropTypes.func,
     placeholder: PropTypes.string,
-    ref: PropTypes.string,
     style: PropTypes.object,
     type: PropTypes.string,
     value: PropTypes.oneOfType([

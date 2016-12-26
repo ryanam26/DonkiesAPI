@@ -11,7 +11,7 @@ import {
     resetErrorMessage,
     updateRouterState } from 'actions'
 
-import { Alert } from 'components'
+import { Alert, Header, Footer, Sidebar } from 'components'
 
 
 // @DragDropContext(HTML5Backend)
@@ -49,15 +49,26 @@ class App extends Component {
             location } = this.props
         
         return (
-            <div>
-                <div className="container">
-                    {alerts.map((a, ind) => {
-                      return <Alert key={ind} type={a.alertType} value={a.message} index={ind} showClose />  
-                    })}
+            <wrap>
+                <Header />
 
-                    {children}
-                </div>
-            </div>
+                <section id="main">
+                    <Sidebar />
+
+                    <section id="content">
+                        <div className="container">
+                            {alerts.map((a, ind) => {
+                              return <Alert key={ind} type={a.alertType} value={a.message} index={ind} showClose />  
+                            })}
+
+                            {children}
+                        </div>
+                    </section>
+                </section>
+
+
+
+            </wrap>
         )
     }
 }

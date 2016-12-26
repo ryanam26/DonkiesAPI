@@ -32,9 +32,9 @@ class AuthMixin:
     permission_classes = (IsAuthenticated,)
 
 
-@api_view(['GET'])
-def api_root(request):
-    return HttpResponseForbidden()
+def home(request):
+    ctx = {}
+    return render(request, 'web/home.html', ctx)
 
 
 class Signup(APIView):

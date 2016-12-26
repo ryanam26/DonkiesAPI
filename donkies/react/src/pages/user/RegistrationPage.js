@@ -1,21 +1,16 @@
 import React, {Component, PropTypes} from 'react'
-import { connect } from 'react-redux'
-import autoBind from 'react-autobind'
+import { Registration } from 'components'
 
 
 export default class RegistrationPageComponent extends Component{
     constructor(props){
         super(props)
-        autoBind(this)
     }
 
     render(){
-        return (
-            <div>{'RegistrationPageComponent'}</div>
-        )
+        return <Registration />
     }
 }
 
-RegistrationPageComponent.propTypes = {
-}
+
 

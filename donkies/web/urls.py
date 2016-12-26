@@ -49,5 +49,5 @@ urlpatterns = [
         v.UserDetail.as_view(),
         name='user_detail'),
 
-    url(r'^$', v.api_root, name='api_root'),
+    url(r'^$', v.home, name='home'),
 ]

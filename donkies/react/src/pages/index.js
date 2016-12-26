@@ -1,3 +1,12 @@
+// finance
+
+import { default as AccountsPage } from './finance/AccountsPage'
+export { AccountsPage }
+
+import { default as SettingsPage } from './finance/SettingsPage'
+export { SettingsPage }
+
+
 // layout
 
 import { default as HomePage } from './layout/HomePage'

@@ -2,37 +2,46 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import autoBind from 'react-autobind'
+import classNames from 'classnames'
+import { setActiveMenu } from 'actions'
 
 
-export default class MainMenu extends Component{
+class MainMenu extends Component{
     constructor(props){
         super(props)
         autoBind(this)
     }
 
+    getMenu(){
+        return [
+            {url: '/', name: 'Dashboard', className: 'zmdi-home'},
+            {url: '/accounts', name: 'Accounts', className: 'zmdi-money'},
+            {url: '/settings', name: 'Settings', className: 'zmdi-settings'}
+        ]
+    }
+
+    onClick(url){
+        this.props.setActiveMenu(url)
+    }
+
     render(){
+        const { activeUrl } = this.props
+
         return (
             <ul className="main-menu">
-                <li className="active">
-                    <Link to="/dashboard">
-                        <i className="zmdi zmdi-home" />
-                        {' Dashboard'}
-                    </Link>
-                </li>
+                {this.getMenu().map((obj, index) => {
+                    const cnActive = classNames({'active': activeUrl === obj.url})
+                    const cnZmdi = classNames('zmdi', obj.className)
 
-                <li>
-                    <Link to="/accounts">
-                        <i className="zmdi zmdi-money" />
-                        {' Accounts'}
-                    </Link>
-                </li>
-
-                <li>
-                    <Link to="/settings">
-                        <i className="zmdi zmdi-settings" />
-                        {' Settings'}
-                    </Link>
-                </li>
+                    return (
+                        <li key={index} className={cnActive}>
+                            <Link onClick={this.onClick.bind(null, obj.url)} to={obj.url}>
+                                <i className={cnZmdi} />
+                                {' '}{obj.name}
+                            </Link>
+                        </li>                        
+                    )     
+                })}
             </ul>
         )
     }
@@ -40,5 +49,14 @@ export default class MainMenu extends Component{
 
 
 MainMenu.propTypes = {
+    activeUrl: PropTypes.string,
+    setActiveMenu: PropTypes.func
 }
 
+const mapStateToProps = (state) => ({
+    activeUrl: state.menu.activeUrl
+})
+
+export default connect(mapStateToProps, {
+    setActiveMenu
+})(MainMenu)

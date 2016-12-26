@@ -2,12 +2,14 @@ import React from 'react'
 import { Route, IndexRoute } from 'react-router'
 
 import {
-    HomePage,
-    NotFoundPage,
-    TestPage,
-    LoginPage,
+    AccountsPage,
     ForgotPasswordPage,
-    RegistrationPage } from 'pages'
+    HomePage,
+    LoginPage,
+    NotFoundPage,
+    RegistrationPage,
+    SettingsPage,
+    TestPage } from 'pages'
 
 
 import App from 'containers/App'
@@ -22,6 +24,8 @@ export default (
                 
         <Route component={requireAuth(App)} path="/">
             <IndexRoute component={HomePage} />
+            <Route component={AccountsPage} path="/accounts" />
+            <Route component={SettingsPage} path="/settings" />
             <Route component={TestPage} path="/test_page" />
         </Route>
 

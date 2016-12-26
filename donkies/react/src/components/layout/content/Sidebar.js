@@ -20,7 +20,7 @@ export default class Sidebar extends Component{
                         </div>
 
                         <div className="sp-info">
-                            {'Malinda'}
+                            {'Maldina'}
                         </div>
                     </a>
                 </div>

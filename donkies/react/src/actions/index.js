@@ -46,6 +46,7 @@ export const FORM_ERRORS =  'FORM_ERRORS'
 export const LOGOUT =  'LOGOUT'
 export const NAVIGATE =  'NAVIGATE'
 export const RESET_ERROR_MESSAGE = 'RESET_ERROR_MESSAGE'
+export const SET_ACTIVE_MENU = 'SET_ACTIVE_MENU'
 export const TOKEN_EXPIRED =  'TOKEN_EXPIRED'
 export const UPDATE_ROUTER_STATE = 'UPDATE_ROUTER_STATE'
 
@@ -75,6 +76,7 @@ export const alertRemove = (message) => action(ALERT_REMOVE, {message})
 export const navigate = pathname => action(NAVIGATE, {pathname})
 export const resetErrorMessage = () => action(RESET_ERROR_MESSAGE)
 export const setFormErrors = (formType, errors) => action(FORM_ERRORS, {formType, errors})
+export const setActiveMenu = url => action(SET_ACTIVE_MENU, {url})
 export const updateRouterState = state => action(UPDATE_ROUTER_STATE, {state})
 
 

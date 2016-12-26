@@ -15,6 +15,9 @@ export { Input }
 import { default as HomeMiniCharts } from './layout/content/HomeMiniCharts'
 export { HomeMiniCharts }
 
+import { default as HomeTransfer } from './layout/content/HomeTransfer'
+export { HomeTransfer }
+
 import { default as MainMenu } from './layout/content/MainMenu'
 export { MainMenu }
 
@@ -29,6 +32,12 @@ export { Header }
 
 import { default as Alert } from './layout/misc/Alert'
 export { Alert }
+
+import { default as CardSimple } from './layout/misc/CardSimple'
+export { CardSimple }
+
+import { default as TableSimple } from './layout/misc/TableSimple'
+export { TableSimple }
 
 
 // user

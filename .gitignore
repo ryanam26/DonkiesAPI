@@ -6,3 +6,5 @@ __pycache__/
 donkies/celerybeat-schedule
 donkies/donkies/settings/data.json
 donkies/db.dump
+template/
+template-react/

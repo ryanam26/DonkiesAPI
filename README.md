@@ -89,3 +89,12 @@ Instead of *** - real credentials.
     "ATRIUM_CLIENT_ID_PROD": "***",
     "ATRIUM_KEY_PROD": "***"
 }
+
+### Possible transfer scenarios (info from forum)
+
+Account -> unverified Customer
+Account -> verified Customer
+Account -> receive-only Customer
+unverified Customer -> verified Customer
+verified Customer -> verified Customer
+verified Customer -> unverified Customer

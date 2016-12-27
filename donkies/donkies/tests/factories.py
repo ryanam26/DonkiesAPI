@@ -1,6 +1,7 @@
 import factory
 # from oauth2_provider.models import Application
 from django.utils import timezone
+from faker import Faker
 from web.models import User, Email
 from finance.models import Account, Member, Institution
 
@@ -10,6 +11,13 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
         django_get_or_create = ('email',)
 
+    address1 = Faker().address()[:50]
+    city = Faker().city()
+    date_of_birth = '1980-01-01'
+    state = Faker().state_abbr()
+    postal_code = Faker().postalcode()
+    ssn = Faker().ssn()
+    phone = '5613069507'
     is_active = True
     is_confirmed = True
 

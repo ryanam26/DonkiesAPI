@@ -102,6 +102,12 @@ class UserDetail(AuthMixin, APIView):
         s = sers.UserSerializer(self.request.user)
         return Response(s.data)
 
+    def put(self, request, **kwargs):
+        s = sers.UserSerializer(self.request.user, data=request.data)
+        s.is_valid(raise_exception=True)
+        s.save()
+        return Response(s.data)
+
 
 class OauthTest(AuthMixin, APIView):
     def get(self, request, **kwargs):

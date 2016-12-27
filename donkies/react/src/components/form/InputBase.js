@@ -120,9 +120,6 @@ export default class InputBase extends Component {
         const { label, zmdi } = this.props
         const { inputClassName } = this.state
 
-        console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!1')
-        console.log(inputProps, cnWrapper)
-
         return (
             <div className={cnWrapper}>
                 {zmdi && 
@@ -136,7 +133,6 @@ export default class InputBase extends Component {
                         <label className="control-label">{label}</label>}
 
                     <input
-                        type="text"
                         className="form-control"
                         {...inputProps} />
                 </div>
@@ -146,8 +142,23 @@ export default class InputBase extends Component {
         )
     }
 
-    renderVersion2(){
+    renderVersion2(inputProps, cnWrapper){
+        const { label } = this.props
+        
+        return (
+            <div className={cnWrapper}>
+                <label className="col-sm-2 control-label">{label}</label>
+                <div className="col-sm-10">
+                    <div className="fg-line">
+                        <input
+                            className="form-control input-sm"
+                            {...inputProps} />
+                    </div>
+                </div>
 
+                {this.hasError() && this.renderErrors()}
+            </div>
+        )
     }
 
     render() {

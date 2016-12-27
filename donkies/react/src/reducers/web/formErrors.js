@@ -17,7 +17,11 @@ import * as actions from 'actions'
 
 const iState = {
     login: null,
-    registration: null
+    registration: null,
+    changeEmail: null,
+    changePassword: null,
+    editProfile: null
+
 }
 
 
@@ -45,7 +49,32 @@ export function formErrors(state=iState, action){
                 registration: action.payload
             }
 
+        case actions.EDIT_PROFILE.ERROR:
+            return {
+                ...iState,
+                editProfile: action.payload
+            }
+
+        case actions.CHANGE_EMAIL.ERROR:
+            return {
+                ...iState,
+                changeEmail: action.payload
+            }
+
+        case actions.CHANGE_PASSWORD.ERROR:
+            return {
+                ...iState,
+                changePassword: action.payload
+            }
+
         default:
             return state
     }
 }
+
+
+
+
+
+        
+

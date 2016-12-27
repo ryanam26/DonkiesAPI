@@ -1,5 +1,8 @@
 import React, {Component, PropTypes} from 'react'
-import { UserProfile } from 'components'
+import {
+    ChangeEmail,
+    ChangePassword,
+    EditProfile } from 'components'
 
 
 export default class UserProfilePage extends Component{
@@ -8,7 +11,22 @@ export default class UserProfilePage extends Component{
     }
 
     render(){
-        return <UserProfile />
+        return (
+            <div className="row">
+                <div className="col-lg-4 col-md-6 col-sm-12">
+                    <EditProfile />
+                </div> 
+
+                <div className="col-lg-4 col-md-6 col-sm-12">
+                    <ChangeEmail />
+                </div> 
+
+                <div className="col-lg-4 col-md-6 col-sm-12">
+                    <ChangePassword />
+                </div> 
+               
+            </div>
+        )
     }
 }
 

@@ -48,6 +48,15 @@ export { TableSimple }
 
 // user
 
+import { default as ChangeEmail } from './user/ChangeEmail'
+export { ChangeEmail }
+
+import { default as ChangePassword } from './user/ChangePassword'
+export { ChangePassword }
+
+import { default as EditProfile } from './user/EditProfile'
+export { EditProfile }
+
 import { default as ForgotPassword } from './user/ForgotPassword'
 export { ForgotPassword }
 
@@ -57,5 +66,3 @@ export { Login }
 import { default as Registration } from './user/Registration'
 export { Registration }
 
-import { default as UserProfile } from './user/UserProfile'
-export { UserProfile }

@@ -31,10 +31,10 @@ class Alert extends Component{
 
         return (
             <div className={classNames('alert', classType, 'alert-close', 'alert-dismissible')} role="alert">
-                {showClose ?
+                {showClose &&
                     <button onClick={this.onClick} type="button" className="close" aria-label="Close">
                         <span aria-hidden="true">{'\u00d7'}</span>
-                    </button> : null}
+                    </button>}
                 {value}
             </div>
         )
@@ -54,3 +54,13 @@ export default connect(null, {
   alertRemove
 })(Alert)
 
+
+/*
+
+<div class="alert alert-success alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">×</span></button>
+    Well done! You successfully read this important alert message.
+</div>
+
+*/

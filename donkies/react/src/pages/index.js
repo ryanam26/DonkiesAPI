@@ -27,6 +27,9 @@ export { ForgotPasswordPage }
 import { default as LoginPage } from './user/LoginPage'
 export { LoginPage }
 
+import { default as RegistrationConfirmPage } from './user/RegistrationConfirmPage'
+export { RegistrationConfirmPage }
+
 import { default as RegistrationPage } from './user/RegistrationPage'
 export { RegistrationPage }
 

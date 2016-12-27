@@ -66,3 +66,6 @@ export { Login }
 import { default as Registration } from './user/Registration'
 export { Registration }
 
+import { default as RegistrationConfirm } from './user/RegistrationConfirm'
+export { RegistrationConfirm }
+

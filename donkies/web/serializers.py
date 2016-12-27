@@ -8,7 +8,7 @@ class EncIdMixin:
     def validate_encrypted_id(self, value):
         if not User.objects.filter(encrypted_id=value).exists():
             raise serializers.ValidationError(
-                'Provided encryption_id is not correct')
+                'Provided id is not correct')
         return value
 
 

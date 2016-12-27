@@ -8,6 +8,7 @@ import {
     LoginPage,
     NotFoundPage,
     RegistrationPage,
+    RegistrationConfirmPage,
     SettingsPage,
     TestPage,
     UserProfilePage } from 'pages'
@@ -21,6 +22,7 @@ export default (
     <div>
         <Route component={LoginPage} path="/login" />     
         <Route component={RegistrationPage} path="/registration" />
+        <Route component={RegistrationConfirmPage} path="/confirm" />
         <Route component={ForgotPasswordPage} path="/forgot_password" />     
                 
         <Route component={requireAuth(App)} path="/">

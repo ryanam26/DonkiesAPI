@@ -48,44 +48,6 @@ class ChangeEmailSerializer(serializers.Serializer):
         u.change_email_request(data['new_email'])
 
 
-class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):
-    encrypted_id = serializers.CharField()
-    confirmation_token = serializers.CharField()
-
-    def validate(self, data):
-        user = User.objects.get(encrypted_id=data['encrypted_id'])
-        if user.is_confirmed:
-            raise serializers.ValidationError(
-                'Registration already has been confirmed.')
-
-        if user.confirmation_token != data['confirmation_token']:
-            raise serializers.ValidationError(
-                'Provided confirmation token is not correct')
-        return data
-
-
-class PasswordResetRequireSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-
-    def validate_email(self, value):
-        if not User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Email is not correct')
-        return value
-
-
-class PasswordResetSerializer(EncIdMixin, serializers.Serializer):
-    encrypted_id = serializers.CharField()
-    reset_token = serializers.CharField()
-    new_password = serializers.CharField()
-
-    def validate(self, data):
-        user = User.objects.get(encrypted_id=data['encrypted_id'])
-        if user.reset_token != data['reset_token']:
-            raise serializers.ValidationError(
-                'Provided reset token is not correct')
-        return data
-
-
 class LoginSerializer(serializers.ModelSerializer):
     message = 'Email or password is not correct.'
 
@@ -113,6 +75,28 @@ class LoginSerializer(serializers.ModelSerializer):
         return data
 
 
+class PasswordResetRequireSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError('Email is not correct')
+        return value
+
+
+class PasswordResetSerializer(EncIdMixin, serializers.Serializer):
+    encrypted_id = serializers.CharField()
+    reset_token = serializers.CharField()
+    new_password = serializers.CharField()
+
+    def validate(self, data):
+        user = User.objects.get(encrypted_id=data['encrypted_id'])
+        if user.reset_token != data['reset_token']:
+            raise serializers.ValidationError(
+                'Provided reset token is not correct')
+        return data
+
+
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -132,6 +116,22 @@ class SignupSerializer(serializers.ModelSerializer):
 
         # Post save operations, send email e.t.c
         user.signup()
+
+
+class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):
+    encrypted_id = serializers.CharField()
+    confirmation_token = serializers.CharField()
+
+    def validate(self, data):
+        user = User.objects.get(encrypted_id=data['encrypted_id'])
+        if user.is_confirmed:
+            raise serializers.ValidationError(
+                'Registration already has been confirmed.')
+
+        if user.confirmation_token != data['confirmation_token']:
+            raise serializers.ValidationError(
+                'Provided confirmation token is not correct')
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):

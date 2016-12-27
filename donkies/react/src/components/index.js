@@ -69,3 +69,6 @@ export { Registration }
 import { default as RegistrationConfirm } from './user/RegistrationConfirm'
 export { RegistrationConfirm }
 
+import { default as UserNotConfirmed } from './user/UserNotConfirmed'
+export { UserNotConfirmed }
+

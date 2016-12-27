@@ -14,7 +14,7 @@ class Header extends Component{
     onClickLogout(e){
         e.preventDefault()
         this.props.logout()
-        window.reload()
+        location.reload()
     }
 
     render(){

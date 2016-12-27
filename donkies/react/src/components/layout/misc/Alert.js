@@ -53,14 +53,3 @@ Alert.propTypes = {
 export default connect(null, {
   alertRemove
 })(Alert)
-
-
-/*
-
-<div class="alert alert-success alert-dismissible" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">×</span></button>
-    Well done! You successfully read this important alert message.
-</div>
-
-*/

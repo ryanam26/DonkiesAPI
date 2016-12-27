@@ -33,5 +33,8 @@ export { RegistrationConfirmPage }
 import { default as RegistrationPage } from './user/RegistrationPage'
 export { RegistrationPage }
 
+import { default as UserNotConfirmedPage } from './user/UserNotConfirmedPage'
+export { UserNotConfirmedPage }
+
 import { default as UserProfilePage } from './user/UserProfilePage'
 export { UserProfilePage }

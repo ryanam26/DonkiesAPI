@@ -11,6 +11,7 @@ import {
     RegistrationConfirmPage,
     SettingsPage,
     TestPage,
+    UserNotConfirmedPage,
     UserProfilePage } from 'pages'
 
 
@@ -24,7 +25,9 @@ export default (
         <Route component={RegistrationPage} path="/registration" />
         <Route component={RegistrationConfirmPage} path="/confirm" />
         <Route component={ForgotPasswordPage} path="/forgot_password" />     
-                
+       
+        <Route component={requireAuth(UserNotConfirmedPage)} path="/not_confirmed" />
+
         <Route component={requireAuth(App)} path="/">
             <IndexRoute component={HomePage} />
             <Route component={AccountsPage} path="/accounts" />

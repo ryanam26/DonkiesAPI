@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import autoBind from 'react-autobind'
 import { navigate, registration, setFormErrors } from 'actions'
-import { Checkbox, ErrorBlock, Input } from 'components'
+import { Alert, Checkbox, ErrorBlock, Input } from 'components'
 import { formToObject } from 'services/helpers'
 
 
@@ -19,18 +19,18 @@ class Registration extends Component{
     }
 
     componentWillMount(){
-        if (this.props.auth.isAuthenticated){
+        if (this.props.isAuthenticated){
             this.props.navigate('/')
-            return
         }
     }
 
-    componentWillReceiveProps(props){
-        if (props.auth.isAuthenticated)
-            props.navigate('/')
+    componentWillReceiveProps(nextProps){
+        if (nextProps.isAuthenticated)
+            nextProps.navigate('/')
         
-        if (props.auth.registrationSuccessMessage !== null)
+        if (nextProps.successMessage !== null){
             this.refs.form.reset()
+        }
     }
 
     componentWillUnmount(){
@@ -47,8 +47,8 @@ class Registration extends Component{
 
 
     render(){
-        const { errors } = this.props
-
+        const { errors, successMessage } = this.props
+        
         return (
             <div className="login-content">
                 <div ref="block" className="lc-block toggled">
@@ -95,6 +95,13 @@ class Registration extends Component{
                         {errors && <ErrorBlock errors={errors} />}
                         
                         </form>
+
+                        {successMessage && 
+                            <Alert
+                                type="success"
+                                showClose={false}
+                                value={successMessage} />}
+
                     </div>
 
                     <div className="lcb-navigation">
@@ -119,16 +126,18 @@ class Registration extends Component{
 }
 
 Registration.propTypes = {
-    auth: PropTypes.object,
     errors: PropTypes.object,
+    isAuthenticated: PropTypes.bool,
     navigate: PropTypes.func,
     registration: PropTypes.func,
-    setFormErrors: PropTypes.func
+    setFormErrors: PropTypes.func,
+    successMessage: PropTypes.string
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.auth,
-    errors: state.formErrors.registration
+    isAuthenticated: state.auth.isAuthenticated,
+    errors: state.formErrors.registration,
+    successMessage: state.auth.registrationSuccessMessage
 })
 
 export default connect(mapStateToProps, {

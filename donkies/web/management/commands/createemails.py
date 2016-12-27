@@ -40,4 +40,5 @@ class Command(BaseCommand):
         self.create_signup()
         self.create_reset_password()
         self.create_change_email()
+        self.create_resend_reg_confirmation()
         print('Emails have been created.')

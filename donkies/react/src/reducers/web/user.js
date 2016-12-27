@@ -33,7 +33,8 @@ export function user(state=iState, action){
         case actions.CHANGE_EMAIL.SUCCESS:
             return {
                 ...state,
-                triggerChangeEmail: state.triggerChangeEmail + 1
+                triggerChangeEmail: state.triggerChangeEmail + 1,
+                isSubmittingChangeEmail: false
             }
 
         case actions.CHANGE_PASSWORD.REQUEST:
@@ -51,7 +52,8 @@ export function user(state=iState, action){
         case actions.CHANGE_PASSWORD.SUCCESS:
             return {
                 ...state,
-                triggerChangePassword: state.triggerChangePassword + 1
+                triggerChangePassword: state.triggerChangePassword + 1,
+                isSubmittingChangePassword: false
             }
 
         case actions.EDIT_PROFILE.REQUEST:
@@ -69,7 +71,8 @@ export function user(state=iState, action){
         case actions.EDIT_PROFILE.SUCCESS:
             return {
                 ...state,
-                triggerEditProfile: state.triggerEditProfile + 1
+                triggerEditProfile: state.triggerEditProfile + 1,
+                isSubmittingEditProfile: false
             }
 
         default:

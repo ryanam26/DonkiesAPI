@@ -43,6 +43,7 @@ class App extends Component {
             })
         }
 
+        // Growl global messages (come from Redux)
         if (this.props.growls !== nextProps.growls){
             for (let obj of nextProps.growls){
                 const { message, ...settings } = obj
@@ -50,7 +51,6 @@ class App extends Component {
                 g.run()
             }
         }
-
     }
 
     handleChange(nextValue) {

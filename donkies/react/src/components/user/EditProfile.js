@@ -28,7 +28,7 @@ class EditProfile extends Component{
     }
 
     render(){
-        const { errors, user } = this.props
+        const { errors, inProgress, user } = this.props
 
         return (
             <div className="card">
@@ -113,6 +113,7 @@ class EditProfile extends Component{
                         <div className="form-group">
                             <div className="col-sm-offset-2 col-sm-10">
                                 <button
+                                    disabled={inProgress}
                                     type="submit"
                                     className="btn btn-primary btn-sm waves-effect">
                                 
@@ -132,6 +133,7 @@ EditProfile.propTypes = {
     apiGetRequest: PropTypes.func,
     editProfile: PropTypes.func,
     errors: PropTypes.object,
+    inProgress: PropTypes.bool,
     setFormErrors: PropTypes.func,
     triggerEditProfile: PropTypes.number,
     user: PropTypes.object
@@ -139,6 +141,7 @@ EditProfile.propTypes = {
 
 const mapStateToProps = (state) => ({
     errors: state.formErrors.editProfile,
+    inProgress: state.user.isSubmittingEditProfile,
     triggerEditProfile: state.user.triggerEditProfile,
     user: state.user.item
 })

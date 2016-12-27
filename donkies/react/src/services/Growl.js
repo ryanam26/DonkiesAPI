@@ -3,8 +3,9 @@
 /**
  * Growl notifications: uses bootstrap library
  * http://bootstrap-notify.remabledesigns.com/
+ * https://github.com/mouse0270/bootstrap-notify
  * 
- * type: info, success, danger, warning
+ * type: info, success, danger, warning, inverse
  * placementFrom: top, bottom
  * placementAlign: left, right, center
  *
@@ -20,7 +21,7 @@ export default class Growl{
     }
 
     get type(){
-        return this.settings.type || 'info'
+        return this.settings.type || 'inverse'
     }
 
     get placementFrom(){

@@ -148,10 +148,17 @@ class User(AbstractBaseUser):
     )
     confirmation_token = models.CharField(max_length=255, blank=True)
     confirmed_at = models.DateTimeField(blank=True, default=None, null=True)
+    confirmation_resend_count = models.IntegerField(default=0)
     reset_token = models.CharField(max_length=255)
     reset_at = models.DateTimeField(blank=True, default=None, null=True)
     is_confirmed = models.BooleanField(default=False)
     last_access_date = models.DateTimeField(auto_now_add=True)
+    new_email = models.EmailField(
+        max_length=255, null=True, default=None)
+    new_email_token = models.CharField(
+        max_length=255, null=True, default=None, blank=True)
+    new_email_expire_at = models.DateTimeField(
+        null=True, default=None, blank=True)
     is_active = models.BooleanField(default=True, verbose_name='active')
     is_admin = models.BooleanField(default=False, verbose_name='admin')
     is_superuser = models.BooleanField(default=False, verbose_name='superuser')
@@ -219,7 +226,7 @@ class User(AbstractBaseUser):
             id=self.encrypted_id,
             token=self.confirmation_token
         )
-        link = '{url}/confirm?id={id}&token={token}'
+        link = '{url}/account/confirm?id={id}&token={token}'
         return link.format(**dic)
 
     def get_reset_link(self):
@@ -228,7 +235,7 @@ class User(AbstractBaseUser):
             id=self.encrypted_id,
             token=self.reset_token
         )
-        link = '{url}/reset?id={id}&token={token}'
+        link = '{url}/account/reset?id={id}&token={token}'
         return link.format(**dic)
 
     def signup(self):
@@ -247,6 +254,21 @@ class User(AbstractBaseUser):
         self.save()
         return self.get_token()
 
+    def resend_confirmation_link(self):
+        """
+        If 5 emails for resend confirmation has been sent to user,
+        it might possible, that somebody tries to abuse
+        somebody other's email. Do nothing!
+        """
+        Emailer = apps.get_model('web', 'Emailer')
+        Email = apps.get_model('web', 'Email')
+        if self.confirmation_resend_count >= 5:
+            return
+
+        self.confirmation_resend_count += 1
+        self.save()
+        Emailer.objects.mail_user(self, Email.RESEND_REG_CONFIRMATION)
+
     def reset_require(self):
         Emailer = apps.get_model('web', 'Emailer')
         Email = apps.get_model('web', 'Email')
@@ -262,6 +284,59 @@ class User(AbstractBaseUser):
         self.set_password(new_password)
         self.reset_token = ''
         self.save()
+
+    def change_email_request(self, new_email):
+        Emailer = apps.get_model('web', 'Emailer')
+        Email = apps.get_model('web', 'Email')
+
+        self.new_email = new_email
+        self.new_email_token = self.generate_token()
+        self.new_email_expire_at =\
+            timezone.now() + datetime.timedelta(hours=1)
+        self.save()
+        Emailer.objects.mail_user(self, Email.CHANGE_EMAIL)
+
+    def change_email_confirm(self, token):
+        """
+        Returns bool.
+        """
+        ChangeEmailHistory = apps.get_model('web', 'ChangeEmailHistory')
+
+        if self.new_email_token != token:
+            return False
+
+        if timezone.now() > self.new_email_expire_at:
+            return False
+
+        # history
+        d = {
+            'user': self,
+            'email_old': self.email,
+            'email_new': self.new_email,
+        }
+        ChangeEmailHistory.objects.create(**d)
+
+        self.email = self.new_email
+        self.new_email = None
+        self.new_email_token = None
+        self.new_email_expire_at = None
+        self.save()
+        return True
+
+    def get_change_email_link(self):
+        dic = dict(
+            url=settings.FRONTEND_URL,
+            id=self.encrypted_id,
+            token=self.new_email_token
+        )
+        link = '{url}/account/change_email_confirm?id={id}&token={token}'
+        return link.format(**dic)
+
+    @property
+    def new_email_expired(self):
+        if not self.new_email_expire_at:
+            return True
+        return timezone.now() > self.new_email_expire_at
 
     def save(self, *args, **kwargs):
         Token = apps.get_model('web', 'Token')

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from web.models import User
 from django.contrib import auth
+from web.exceptions import PasswordsNotMatch
 
 
 class EncIdMixin:
@@ -9,6 +10,42 @@ class EncIdMixin:
             raise serializers.ValidationError(
                 'Provided encryption_id is not correct')
         return value
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField()
+    new_password1 = serializers.CharField(min_length=8, max_length=30)
+    new_password2 = serializers.CharField(min_length=8, max_length=30)
+
+    def validate_current_password(self, value):
+        email = self.context['request'].user.email
+        user = auth.authenticate(
+            email=email, password=value)
+        if user is None:
+            raise serializers.ValidationError(
+                'Current password is not correct.')
+        return value
+
+    def validate(self, data):
+        if data['new_password1'] != data['new_password2']:
+            raise PasswordsNotMatch('Passwords do not match.')
+
+        return data
+
+    def save(self):
+        data = self.validated_data
+        u = self.context['request'].user
+        u.set_password(data['new_password1'])
+        u.save()
+
+
+class ChangeEmailSerializer(serializers.Serializer):
+    new_email = serializers.EmailField()
+
+    def save(self):
+        data = self.validated_data
+        u = self.context['request'].user
+        u.change_email_request(data['new_email'])
 
 
 class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):

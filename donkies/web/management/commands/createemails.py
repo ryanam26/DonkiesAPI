@@ -20,6 +20,14 @@ class Command(BaseCommand):
         e.html = '{{ user.get_reset_link }}'
         e.save()
 
+    def create_resend_reg_confirmation(self):
+        e = Email(code=Email.RESEND_REG_CONFIRMATION)
+        e.name = 'Confirm registration'
+        e.subject = 'Confirm registration'
+        e.txt = '{{ user.get_confirmation_link }}'
+        e.html = '{{ user.get_confirmation_link }}'
+        e.save()
+
     def create_change_email(self):
         e = Email(code=Email.CHANGE_EMAIL)
         e.name = _('Change email')

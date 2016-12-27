@@ -4,10 +4,18 @@ from django.contrib import admin
 
 class Email(models.Model):
     SIGNUP = 'signup'
+    RESEND_REG_CONFIRMATION = 'resend_reg_confirmation'
     RESET_PASSWORD = 'reset_password'
     CHANGE_EMAIL = 'change_email'
 
-    code = models.CharField(max_length=50)
+    CODE_CHOICES = (
+        (CHANGE_EMAIL, 'change email'),
+        (RESEND_REG_CONFIRMATION, 'resend registration confirmation'),
+        (RESET_PASSWORD, 'reset password'),
+        (SIGNUP, 'signup')
+    )
+
+    code = models.CharField(max_length=50, choices=CODE_CHOICES)
     name = models.CharField(max_length=255)
     subject = models.CharField(max_length=255)
     txt = models.TextField()

@@ -109,6 +109,64 @@ class UserDetail(AuthMixin, APIView):
         return Response(s.data)
 
 
+class UserResendRegConfirmationLink(AuthMixin, APIView):
+    def get(self, request, **kwargs):
+        u = request.user
+        if u.is_confirmed:
+            return Response({'message': 'Your account is confirmed.'})
+
+        u.resend_confirmation_link()
+        u.save()
+        return Response({
+            'message': 'Email with confirmation link has been sent.'
+        })
+
+
+class UserChangePassword(AuthMixin, APIView):
+    message = 'Your password has been changed!'
+
+    def post(self, request, **kwargs):
+        serializer = sers.ChangePasswordSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'message': self.message})
+
+
+class UserChangeEmail(AuthMixin, APIView):
+    message = (
+        'Email with confirmation link has been sent to {}! '
+        'The link will expire in an 1 hour.'
+    )
+
+    def post(self, request, **kwargs):
+        serializer = sers.ChangeEmailSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({
+            'message': self.message.format(request.data['new_email'])})
+
+
+class UserChangeEmailConfirm(APIView):
+    message = 'Your email has been successfully changed!'
+
+    def post(self, request, **kwargs):
+        try:
+            user = User.objects.get(encrypted_id=kwargs['encrypted_id'])
+        except User.DoesNotExist:
+            return r400('Incorrect id.')
+
+        if not user.change_email_confirm(kwargs['token']):
+            return r400('Incorrect link or expired token.')
+
+        return Response({'message': self.message})
+
+
 class OauthTest(AuthMixin, APIView):
     def get(self, request, **kwargs):
         return Response({'hello': request.user.email})

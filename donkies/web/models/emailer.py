@@ -10,7 +10,7 @@ from django.template import Template, Context
 class EmailerManager(models.Manager):
     def mail_user(self, user, code):
         """
-        code: signup, reset_password, change_email
+        code: list Email.CODE_CHOICES
         """
         Email = apps.get_model('web', 'Email')
         try:

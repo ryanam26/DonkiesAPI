@@ -144,3 +144,7 @@ server {
     }
 }
 
+### js/app.js of Material Admin
+
+All changes in file react/dist/js/app.js
+This is working project's file of template.

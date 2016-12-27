@@ -29,3 +29,6 @@ export { LoginPage }
 
 import { default as RegistrationPage } from './user/RegistrationPage'
 export { RegistrationPage }
+
+import { default as UserProfilePage } from './user/UserProfilePage'
+export { UserProfilePage }

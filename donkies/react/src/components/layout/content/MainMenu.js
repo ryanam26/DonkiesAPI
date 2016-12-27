@@ -16,7 +16,8 @@ class MainMenu extends Component{
         return [
             {url: '/', name: 'Dashboard', className: 'zmdi-home'},
             {url: '/accounts', name: 'Accounts', className: 'zmdi-money'},
-            {url: '/settings', name: 'Settings', className: 'zmdi-settings'}
+            {url: '/settings', name: 'Settings', className: 'zmdi-settings'},
+            {url: '/user_profile', name: 'Profile', className: 'zmdi-male'}
         ]
     }
 

@@ -7,7 +7,7 @@ from .factories import UserFactory
 from .import base
 
 
-class TestUser(base.Mixin):
+class TestUsers(base.Mixin):
     @pytest.mark.django_db
     def test_get(self, client):
         """

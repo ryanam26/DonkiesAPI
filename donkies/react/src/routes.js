@@ -9,7 +9,8 @@ import {
     NotFoundPage,
     RegistrationPage,
     SettingsPage,
-    TestPage } from 'pages'
+    TestPage,
+    UserProfilePage } from 'pages'
 
 
 import App from 'containers/App'
@@ -27,6 +28,7 @@ export default (
             <Route component={AccountsPage} path="/accounts" />
             <Route component={SettingsPage} path="/settings" />
             <Route component={TestPage} path="/test_page" />
+            <Route component={UserProfilePage} path="/user_profile" />
         </Route>
 
         <Route component={NotFoundPage} path="*" /> 

@@ -1,15 +1,12 @@
 import datetime
 from django.db import models
 from django.contrib import admin
-from django.core.validators import RegexValidator
 from web.services.helpers import to_camel
 from bank.services.dwolla_api import DwollaApi
 
 
 class CustomerManager(models.Manager):
-    def create_customer(
-            self, user, address1, city, state, postal_code,
-            date_of_birth, ssn, type=None, address2=None, phone=None):
+    def create_customer(self, user, type=None):
         """
         Customer is created by API from frontend.
         Then periodic celery task will create customer in Dwolla.
@@ -17,10 +14,7 @@ class CustomerManager(models.Manager):
         if type is None:
             type = self.model.PERSONAL
 
-        c = self.model(
-            user=user, address1=address1, city=city, state=state,
-            postal_code=postal_code, date_of_birth=date_of_birth,
-            ssn=ssn, type=type, address2=address2, phone=phone)
+        c = self.model(user=user, type=type)
         c.save()
         return c
 

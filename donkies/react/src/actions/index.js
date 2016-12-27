@@ -36,9 +36,13 @@ function createRequestTypes(base) {
 
 export const API_GET_REQUEST = createRequestTypes('API_GET_REQUEST')
 export const API_EDIT_REQUEST = createRequestTypes('API_EDIT_REQUEST')
+export const CHANGE_EMAIL = createRequestTypes('CHANGE_EMAIL')
+export const CHANGE_PASSWORD = createRequestTypes('CHANGE_PASSWORD')
+export const EDIT_PROFILE = createRequestTypes('EDIT_PROFILE')
 export const LOGIN = createRequestTypes('LOGIN')
 export const REGISTRATION = createRequestTypes('REGISTRATION')
 export const TOKEN = createRequestTypes('TOKEN')
+export const USER = createRequestTypes('USER')
 
 export const ALERT_ADD = 'ALERT_ADD'
 export const ALERT_REMOVE = 'ALERT_REMOVE'

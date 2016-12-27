@@ -16,14 +16,6 @@ class TestCustomer(base.Mixin):
         url = '/v1/customer'
         dic = {
             'type': 'personal',
-            'address1': '99-99 33rd St',
-            'address2': '99-99 33rd St',
-            'city': 'Some City',
-            'state': 'NY',
-            'postal_code': '11111',
-            'date_of_birth': '1970-01-01',
-            'ssn': '111-11-1111',
-            'phone': '1111111111'
         }
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')

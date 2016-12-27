@@ -11,7 +11,9 @@ import * as api from 'services/api'
 import { apiCall } from 'services/api'
 
 
-
+/**
+ * Require auth by default.
+ */
 function* apiGet(name, params, url){
     // TODO: add params to url
     const a = actions[name.toUpperCase()]

@@ -2,7 +2,10 @@ import React, {Component, PropTypes} from 'react'
 import { Registration } from 'components'
 
 
-export default class RegistrationPageComponent extends Component{
+/**
+ * Not auth page
+ */
+export default class RegistrationPage extends Component{
     constructor(props){
         super(props)
     }

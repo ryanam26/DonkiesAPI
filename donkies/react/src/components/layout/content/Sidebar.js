@@ -4,13 +4,15 @@ import autoBind from 'react-autobind'
 import { MainMenu } from 'components'
 
 
-export default class Sidebar extends Component{
+class Sidebar extends Component{
     constructor(props){
         super(props)
         autoBind(this)
     }
 
     render(){
+        const { user } = this.props
+
         return (
             <aside id="sidebar" className="sidebar c-overflow">
                 <div className="s-profile">
@@ -20,7 +22,7 @@ export default class Sidebar extends Component{
                         </div>
 
                         <div className="sp-info">
-                            {'Maldina'}
+                            {user.first_name}{' '}{user.last_name}
                         </div>
                     </a>
                 </div>
@@ -34,5 +36,13 @@ export default class Sidebar extends Component{
 
 
 Sidebar.propTypes = {
+    user: PropTypes.object
 }
 
+
+const mapStateToProps = (state) => ({
+    user: state.user.item
+})
+
+export default connect(mapStateToProps, {
+})(Sidebar)

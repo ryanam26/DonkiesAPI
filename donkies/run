@@ -57,7 +57,7 @@ clear
 # py.test -s donkies/tests/test_linking.py
 # py.test -s donkies/tests/test_transactions.py
 # py.test -s donkies/tests/test_facebook.py
-py.test -s donkies/tests/test_user.py
+py.test -s donkies/tests/test_users.py
 
 else
 clear

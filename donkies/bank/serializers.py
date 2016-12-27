@@ -7,17 +7,9 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = (
+            'id',
             'ip_address',
             'type',
-            'address1',
-            'address2',
-            'city',
-            'state',
-            'postal_code',
-            'date_of_birth',
-            'ssn',
-            'phone',
-            'id',
             'dwolla_type',
             'dwolla_id',
             'status',

@@ -11,7 +11,12 @@ import {
     resetErrorMessage,
     updateRouterState } from 'actions'
 
-import { Alert, Header, Footer, Sidebar } from 'components'
+import {
+    Alert,
+    Header,
+    Footer,
+    Loading,
+    Sidebar } from 'components'
 
 
 // @DragDropContext(HTML5Backend)
@@ -26,6 +31,7 @@ class App extends Component {
             pathname: this.props.location.pathname,
             params  : this.props.params
         })
+        this.props.apiGetRequest('user')
     }
 
     
@@ -46,8 +52,13 @@ class App extends Component {
         const {
             children,
             alerts,
-            location } = this.props
+            location,
+            user } = this.props
         
+        if (!user){
+            return <Loading />    
+        }
+
         return (
             <wrap>
                 <Header />
@@ -82,15 +93,16 @@ App.propTypes = {
     navigate: PropTypes.func.isRequired,
     params: PropTypes.object,
     resetErrorMessage: PropTypes.func.isRequired,
-    updateRouterState: PropTypes.func.isRequired
+    updateRouterState: PropTypes.func.isRequired,
+    user: PropTypes.object
 }
 
-function mapStateToProps(state) {
-    return {
-        alerts: state.alerts.data,
-        errorMessage: state.errorMessage
-    }
-}
+
+const mapStateToProps = (state) => ({
+    alerts: state.alerts.data,
+    errorMessage: state.errorMessage,
+    user: state.user.item,
+})
 
 
 export default connect(mapStateToProps, {

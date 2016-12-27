@@ -10,6 +10,10 @@ import { watchApiEditRequest } from './web/apiEditRequest'
 import { watchRegistration } from './web/registration'
 import { watchLogin } from './web/login'
 
+import { watchChangeEmail } from './web/user'
+import { watchChangePassword } from './web/user'
+import { watchEditProfile } from './web/user'
+
 
 function* watchNavigate(){
   while(true){
@@ -23,6 +27,9 @@ export default function* root() {
   yield [
     fork(watchApiGetRequest),
     fork(watchApiEditRequest),
+    fork(watchChangeEmail),
+    fork(watchChangePassword),
+    fork(watchEditProfile),
     fork(watchLogin),
     fork(watchNavigate),
     fork(watchRegistration),

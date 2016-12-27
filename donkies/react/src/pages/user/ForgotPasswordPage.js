@@ -2,7 +2,10 @@ import React, {Component, PropTypes} from 'react'
 import { ForgotPassword } from 'components'
 
 
-export default class ForgotPasswordPageComponent extends Component{
+/**
+ * Not auth page
+ */
+export default class ForgotPasswordPage extends Component{
     constructor(props){
         super(props)
     }

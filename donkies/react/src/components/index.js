@@ -18,6 +18,9 @@ export { HomeMiniCharts }
 import { default as HomeTransfer } from './layout/content/HomeTransfer'
 export { HomeTransfer }
 
+import { default as Loading } from './layout/content/Loading'
+export { Loading }
+
 import { default as MainMenu } from './layout/content/MainMenu'
 export { MainMenu }
 
@@ -50,3 +53,6 @@ export { Login }
 
 import { default as Registration } from './user/Registration'
 export { Registration }
+
+import { default as UserProfile } from './user/UserProfile'
+export { UserProfile }

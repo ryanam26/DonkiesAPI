@@ -13,12 +13,13 @@ class Command(BaseCommand):
         fake = Faker()
 
         c = Customer(user=user)
-        c.address1 = fake.address()[:50]
-        c.city = fake.city()
-        c.date_of_birth = '1980-01-01'
-        c.state = fake.state_abbr()
-        c.postal_code = fake.postalcode()
-        c.ssn = fake.ssn()
+        user.address1 = fake.address()[:50]
+        user.city = fake.city()
+        user.date_of_birth = '1980-01-01'
+        user.state = fake.state_abbr()
+        user.postal_code = fake.postalcode()
+        user.ssn = fake.ssn()
+        user.save()
         c.save()
 
     def set_names(self):

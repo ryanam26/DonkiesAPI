@@ -98,37 +98,6 @@ class Customer(models.Model):
         max_length=10, choices=TYPE_CHOICES, default=PERSONAL)
     dwolla_type = models.CharField(
         max_length=10, choices=DWOLLA_TYPE_CHOICES, default=UNVERIFIED)
-    address1 = models.CharField(max_length=50)
-    address2 = models.CharField(
-        max_length=50, null=True, default=None, blank=True)
-    city = models.CharField(max_length=100)
-    state = models.CharField(max_length=2)
-    postal_code = models.CharField(
-        max_length=5,
-        validators=[
-            RegexValidator(
-                regex='^\d{5}$',
-                message='Should be 5 digits')]
-    )
-    date_of_birth = models.DateField(help_text='YYYY-MM-DD')
-    ssn = models.CharField(
-        help_text='Last 4 digits',
-        max_length=11,
-        validators=[
-            RegexValidator(
-                regex='^\d{3}\-\d{2}\-\d{4}$',
-                message='Should be XXX-XX-XXXX')]
-    )
-    phone = models.CharField(
-        max_length=10,
-        validators=[
-            RegexValidator(
-                regex='^\d{10}$',
-                message='Should be 10 digits')],
-        null=True,
-        default=None,
-        blank=True
-    )
     dwolla_id = models.CharField(
         max_length=50, null=True, default=None, blank=True, unique=True)
     status = models.CharField(
@@ -145,7 +114,7 @@ class Customer(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return self.email
+        return self.user.email
 
     @property
     def first_name(self):
@@ -158,6 +127,38 @@ class Customer(models.Model):
     @property
     def email(self):
         return self.user.email
+
+    @property
+    def address1(self):
+        return self.user.address1
+
+    @property
+    def address2(self):
+        return self.user.address2
+
+    @property
+    def city(self):
+        return self.user.city
+
+    @property
+    def state(self):
+        return self.user.state
+
+    @property
+    def postal_code(self):
+        return self.user.postal_code
+
+    @property
+    def date_of_birth(self):
+        return self.user.date_of_birth
+
+    @property
+    def ssn(self):
+        return self.user.ssn
+
+    @property
+    def phone(self):
+        return self.user.phone
 
 
 @admin.register(Customer)

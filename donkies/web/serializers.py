@@ -108,5 +108,21 @@ class UserSerializer(serializers.ModelSerializer):
             'encrypted_id',
             'is_confirmed',
             'first_name',
-            'last_name'
+            'last_name',
+            'address1',
+            'address2',
+            'city',
+            'state',
+            'postal_code',
+            'date_of_birth',
+            'ssn',
+            'phone'
+        )
+        read_only_fields = (
+            'id',
+            'guid',
+            'identifier',
+            'email',
+            'encrypted_id',
+            'is_confirmed',
         )

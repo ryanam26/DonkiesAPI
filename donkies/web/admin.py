@@ -31,6 +31,15 @@ class MyUserAdmin(PopupMixin, UserAdmin):
                 (
                     'first_name',
                     'last_name',
+                    'email',
+                    'address1',
+                    'address2',
+                    'city',
+                    'state',
+                    'postal_code',
+                    'date_of_birth',
+                    'ssn',
+                    'phone',
                     'is_active')}
         ),
     )

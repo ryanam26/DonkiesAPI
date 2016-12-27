@@ -6,6 +6,7 @@ from django.contrib.postgres.fields import JSONField
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
+from django.core.validators import RegexValidator
 from web.services.helpers import get_md5
 from finance.services.atrium_api import AtriumApi
 from finance import tasks
@@ -96,11 +97,55 @@ class User(AbstractBaseUser):
         unique=True,
         help_text='Atrium guid')
     identifier = models.CharField(
-        max_length=50, null=True, default=None, blank=True)
+        max_length=50,
+        null=True,
+        default=None,
+        blank=True,
+        help_text='Used in Atrium')
     email = models.EmailField(
         max_length=255, null=True, unique=True, default=None)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50, blank=True, default='')
+    address1 = models.CharField(max_length=50, null=True, default=None)
+    address2 = models.CharField(
+        max_length=50, null=True, default=None, blank=True)
+    city = models.CharField(max_length=100, null=True, default=None)
+    state = models.CharField(
+        max_length=2,
+        null=True,
+        default=None,
+        choices=settings.US_STATES)
+    postal_code = models.CharField(
+        max_length=5,
+        null=True,
+        default=None,
+        validators=[
+            RegexValidator(
+                regex='^\d{5}$',
+                message='Should be 5 digits')]
+    )
+    date_of_birth = models.DateField(
+        null=True, default=None, help_text='YYYY-MM-DD')
+    ssn = models.CharField(
+        help_text='Last 4 digits',
+        max_length=11,
+        null=True,
+        default=None,
+        validators=[
+            RegexValidator(
+                regex='^\d{3}\-\d{2}\-\d{4}$',
+                message='Should be XXX-XX-XXXX')]
+    )
+    phone = models.CharField(
+        max_length=10,
+        validators=[
+            RegexValidator(
+                regex='^\d{10}$',
+                message='Should be 10 digits')],
+        null=True,
+        default=None,
+        blank=True
+    )
     confirmation_token = models.CharField(max_length=255, blank=True)
     confirmed_at = models.DateTimeField(blank=True, default=None, null=True)
     reset_token = models.CharField(max_length=255)

@@ -1,7 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
+import { formToObject } from 'services/helpers'
+import { changePassword, setFormErrors } from 'actions' 
 import { Input2 } from 'components'
+
 
 
 class ChangePassword extends Component{
@@ -10,13 +13,28 @@ class ChangePassword extends Component{
         autoBind(this)
     }
 
+    componentWillReceiveProps(nextProps){
+        if (this.props.triggerChangePassword !== nextProps.triggerChangePassword){
+            this.refs.form.reset()
+        }
+    }
+
+    onSubmit(e){
+        e.preventDefault()
+        this.props.setFormErrors('clear', null)
+
+        const form = formToObject(e.target)
+        this.props.changePassword(form)
+    }
+
+
     render(){
-        const { errors, user } = this.props
+        const { errors, inProgress, user } = this.props
 
         return (
             <div className="card">
 
-                <form className="form-horizontal">
+                <form ref="form" onSubmit={this.onSubmit} className="form-horizontal">
                     <div className="card-header">
                         <h2>{'Change password'}</h2>
                     </div>
@@ -25,16 +43,16 @@ class ChangePassword extends Component{
                         <Input2
                             col1="col-sm-4"
                             col2="col-sm-8"
-                            name="old_password"
-                            placeholder="Old password"
-                            label="Old password"
+                            name="current_password"
+                            placeholder="Current password"
+                            label="Current password"
                             type="password"
                             errors={errors} />
 
                         <Input2
                             col1="col-sm-4"
                             col2="col-sm-8"
-                            name="password1"
+                            name="new_password1"
                             placeholder="New password"
                             label="New password"
                             type="password"
@@ -43,7 +61,7 @@ class ChangePassword extends Component{
                         <Input2
                             col1="col-sm-4"
                             col2="col-sm-8"
-                            name="password2"
+                            name="new_password2"
                             placeholder="Confirm new password"
                             label="Confirm"
                             type="password"
@@ -52,6 +70,7 @@ class ChangePassword extends Component{
                         <div className="form-group">
                             <div className="col-sm-offset-4 col-sm-8">
                                 <button
+                                    disabled={inProgress}
                                     type="submit"
                                     className="btn btn-primary btn-sm waves-effect">
                                 
@@ -68,15 +87,22 @@ class ChangePassword extends Component{
 
 
 ChangePassword.propTypes = {
+    changePassword: PropTypes.func,
     errors: PropTypes.object,
+    inProgress: PropTypes.bool,
+    setFormErrors: PropTypes.func,
+    triggerChangePassword: PropTypes.number,
     user: PropTypes.object
 }
 
 const mapStateToProps = (state) => ({
-    errors: state.formErrors.editProfile,
+    errors: state.formErrors.changePassword,
+    inProgress: state.user.isSubmittingChangePassword,
+    triggerChangePassword: state.user.triggerChangePassword,
     user: state.user.item
 })
 
 export default connect(mapStateToProps, {
-
+    changePassword,
+    setFormErrors
 })(ChangePassword)

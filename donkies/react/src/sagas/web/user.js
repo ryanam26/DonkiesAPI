@@ -84,11 +84,13 @@ function* changePassword(form){
 
     yield put({type: actions.CHANGE_PASSWORD.SUCCESS, payload: result.data})
     
+    const id = createUUID()
+
     yield put({
-        type: actions.ALERT_ADD,
-        alertType: 'success',
-        message: result.data.message
+        type: actions.GROWL_ADD,
+        payload: {id: id, message: 'Your password has been changed!', type: 'success'}
     })
+    yield put({type: actions.GROWL_REMOVE, id: id})
     
 }
 

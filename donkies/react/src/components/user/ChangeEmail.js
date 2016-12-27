@@ -55,7 +55,7 @@ ChangeEmail.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-    errors: state.formErrors.editProfile,
+    errors: state.formErrors.ChangeEmail,
     user: state.user.item
 })
 

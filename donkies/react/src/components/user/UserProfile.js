@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
+import { Input } from 'components'
 
 
 class UserProfile extends Component{
@@ -11,7 +12,11 @@ class UserProfile extends Component{
 
     render(){
         return (
-            <div>{'UserProfile'}</div>
+            <div>
+                {'UserProfile'}
+                <Input
+                    name="email" />
+            </div>
         )
     }
 }

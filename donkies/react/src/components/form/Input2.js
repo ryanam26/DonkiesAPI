@@ -4,8 +4,8 @@ import classNames from 'classnames'
 import InputBase from './InputBase'
 
 
-export default function(props) {
+export default function(props){
     return (
-        <InputBase version={1} {...props} />
+        <InputBase version={2} {...props} />
     )
 }

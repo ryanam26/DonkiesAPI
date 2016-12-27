@@ -9,6 +9,9 @@ export { ErrorBlock }
 import { default as Input } from './form/Input'
 export { Input }
 
+import { default as Input2 } from './form/Input2'
+export { Input2 }
+
 
 // layout
 

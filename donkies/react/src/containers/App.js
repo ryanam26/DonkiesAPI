@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { DragDropContext } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import { Link, RouteHandler, Redirect } from 'react-router'
-
+import Growl from 'services/Growl'
 
 import {
     apiGetRequest,
@@ -42,6 +42,15 @@ class App extends Component {
                 params  : nextProps.params
             })
         }
+
+        if (this.props.growls !== nextProps.growls){
+            for (let obj of nextProps.growls){
+                const { message, ...settings } = obj
+                let g = new Growl(message, settings)
+                g.run()
+            }
+        }
+
     }
 
     handleChange(nextValue) {
@@ -89,6 +98,7 @@ App.propTypes = {
     apiGetRequest: PropTypes.func,
     children: PropTypes.node, // Injected by React Router
     errorMessage: PropTypes.string,
+    growls: PropTypes.array,
     location: PropTypes.object,
     navigate: PropTypes.func.isRequired,
     params: PropTypes.object,
@@ -101,6 +111,7 @@ App.propTypes = {
 const mapStateToProps = (state) => ({
     alerts: state.alerts.data,
     errorMessage: state.errorMessage,
+    growls: state.growl.data,
     user: state.user.item,
 })
 

@@ -47,6 +47,8 @@ export const USER = createRequestTypes('USER')
 export const ALERT_ADD = 'ALERT_ADD'
 export const ALERT_REMOVE = 'ALERT_REMOVE'
 export const FORM_ERRORS =  'FORM_ERRORS'
+export const GROWL_ADD = 'GROWL_ADD'
+export const GROWL_REMOVE = 'GROWL_REMOVE'
 export const LOGOUT =  'LOGOUT'
 export const NAVIGATE =  'NAVIGATE'
 export const RESET_ERROR_MESSAGE = 'RESET_ERROR_MESSAGE'
@@ -77,6 +79,8 @@ export const apiEditRequest = (name, id, form, url=null) => action(API_EDIT_REQU
 // layout
 export const alertAdd = (alertType, message) => action(ALERT_ADD, {alertType, message})
 export const alertRemove = (message) => action(ALERT_REMOVE, {message})
+export const growlAdd = (payload) => action(GROWL_ADD, {payload})
+export const growlRemove = (id) => action(GROWL_REMOVE, {id})
 export const navigate = pathname => action(NAVIGATE, {pathname})
 export const resetErrorMessage = () => action(RESET_ERROR_MESSAGE)
 export const setFormErrors = (formType, errors) => action(FORM_ERRORS, {formType, errors})
@@ -90,3 +94,8 @@ export const login = (email, password) => action(LOGIN.SUBMIT, {email, password}
 export const logout = () => action(LOGOUT)
 export const registration = (form) => action(REGISTRATION.SUBMIT, {form})
 
+
+// user
+export const changeEmail = (form) => action(CHANGE_EMAIL.SUBMIT, {form})
+export const changePassword = (form) => action(CHANGE_PASSWORD.SUBMIT, {form})
+export const editProfile = (form) => action(EDIT_PROFILE.SUBMIT, {form})

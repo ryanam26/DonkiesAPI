@@ -11,6 +11,8 @@ export default class InputBase extends Component {
     static get defaultProps() {
         return {
             type: 'text',
+            col1: 'col-sm-2',
+            col2: 'col-sm-10',
             disabled: false,
             errors: null,
             label: null,
@@ -143,20 +145,21 @@ export default class InputBase extends Component {
     }
 
     renderVersion2(inputProps, cnWrapper){
-        const { label } = this.props
-        
+        const { col1, col2, label } = this.props
+        const cnCol1 = classNames('control-label', col1)
+
         return (
             <div className={cnWrapper}>
-                <label className="col-sm-2 control-label">{label}</label>
-                <div className="col-sm-10">
+                <label className={cnCol1}>{label}</label>
+                <div className={col2}>
                     <div className="fg-line">
                         <input
                             className="form-control input-sm"
                             {...inputProps} />
                     </div>
-                </div>
 
-                {this.hasError() && this.renderErrors()}
+                    {this.hasError() && this.renderErrors()}
+                </div>
             </div>
         )
     }
@@ -191,6 +194,8 @@ export default class InputBase extends Component {
 
 
 InputBase.propTypes = {
+    col1: PropTypes.string,
+    col2: PropTypes.string,
     disabled: PropTypes.bool,
     errors: PropTypes.object,
     label: PropTypes.string,

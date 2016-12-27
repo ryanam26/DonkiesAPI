@@ -1,6 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
+import { formToObject } from 'services/helpers'
+import { apiGetRequest, editProfile, setFormErrors } from 'actions'
 import { Input2 } from 'components'
 
 
@@ -10,13 +12,28 @@ class EditProfile extends Component{
         autoBind(this)
     }
 
+    componentWillReceiveProps(nextProps){
+        // Update user in Redux state.
+        if (this.props.triggerEditProfile !== nextProps.triggerEditProfile){
+            this.props.apiGetRequest('user')
+        }
+    }   
+
+    onSubmit(e){
+        e.preventDefault()
+        this.props.setFormErrors('clear', null)
+
+        const form = formToObject(e.target)
+        this.props.editProfile(form)
+    }
+
     render(){
         const { errors, user } = this.props
 
         return (
             <div className="card">
 
-                <form className="form-horizontal">
+                <form onSubmit={this.onSubmit} className="form-horizontal">
                     <div className="card-header">
                         <h2>{'Edit user profile'}
                             <small>{'some description'}</small></h2>
@@ -112,15 +129,22 @@ class EditProfile extends Component{
 
 
 EditProfile.propTypes = {
+    apiGetRequest: PropTypes.func,
+    editProfile: PropTypes.func,
     errors: PropTypes.object,
+    setFormErrors: PropTypes.func,
+    triggerEditProfile: PropTypes.number,
     user: PropTypes.object
 }
 
 const mapStateToProps = (state) => ({
     errors: state.formErrors.editProfile,
+    triggerEditProfile: state.user.triggerEditProfile,
     user: state.user.item
 })
 
 export default connect(mapStateToProps, {
-
+    apiGetRequest,
+    editProfile,
+    setFormErrors
 })(EditProfile)

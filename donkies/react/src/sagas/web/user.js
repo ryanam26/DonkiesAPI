@@ -1,5 +1,6 @@
 import { take, put, call, fork, select } from 'redux-saga/effects'
 import * as actions from 'actions'
+import { createUUID } from 'services/helpers'
 import {
     CHANGE_EMAIL_URL,
     CHANGE_EMAIL_CONFIRM_URL,
@@ -21,6 +22,14 @@ function* editProfile(form){
         return
     } 
     
+    const id = createUUID()
+
+    yield put({
+        type: actions.GROWL_ADD,
+        payload: {id: id, message: 'Your profile has been changed!', type: 'success'}
+    })
+    yield put({type: actions.GROWL_REMOVE, id: id})
+
     yield put({type: actions.EDIT_PROFILE.SUCCESS, payload: result.data})
     
 }

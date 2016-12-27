@@ -35,11 +35,11 @@ class Login extends Component{
         e.preventDefault()
         this.props.setFormErrors('clear', null)
         
-        let username = document.querySelector('[name="email"]').value.trim()
+        let email = document.querySelector('[name="email"]').value.trim()
         let password = document.querySelector('[name="password"]').value.trim()
 
-        if (username.length === 0){
-            this.props.setFormErrors('login', {email: ['Please input username']})
+        if (email.length === 0){
+            this.props.setFormErrors('login', {email: ['Please input email']})
             return
         }
 
@@ -48,7 +48,7 @@ class Login extends Component{
             return
         }
 
-        this.props.login(username, password)
+        this.props.login(email, password)
     }
 
     render(){

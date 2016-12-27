@@ -2,9 +2,7 @@ import logging
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib.auth import logout as auth_logout
-from django.http import HttpResponseForbidden
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated

@@ -1,0 +1,1 @@
+const NUM_TRANSACTIONS_HOME = 10

@@ -55,11 +55,14 @@ function* changeEmail(form){
     } 
     
     yield put({type: actions.CHANGE_EMAIL.SUCCESS, payload: result.data})
+    
+    const id = createUUID()
+
     yield put({
-        type: actions.ALERT_ADD,
-        alertType: 'success',
-        message: result.data.message
+        type: actions.GROWL_ADD,
+        payload: {id: id, message: result.data.message, type: 'success', delay: 20000}
     })
+    yield put({type: actions.GROWL_REMOVE, id: id})
 }
 
 export function* watchChangeEmail(){

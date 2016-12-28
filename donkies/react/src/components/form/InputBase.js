@@ -11,8 +11,8 @@ export default class InputBase extends Component {
     static get defaultProps() {
         return {
             type: 'text',
-            col1: 'col-sm-2',
-            col2: 'col-sm-10',
+            col1: 'col-sm-4',
+            col2: 'col-sm-8',
             disabled: false,
             errors: null,
             label: null,

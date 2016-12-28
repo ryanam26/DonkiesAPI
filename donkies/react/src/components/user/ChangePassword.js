@@ -41,8 +41,6 @@ class ChangePassword extends Component{
 
                     <div className="card-body card-padding">
                         <Input2
-                            col1="col-sm-4"
-                            col2="col-sm-8"
                             name="current_password"
                             placeholder="Current password"
                             label="Current password"
@@ -50,8 +48,6 @@ class ChangePassword extends Component{
                             errors={errors} />
 
                         <Input2
-                            col1="col-sm-4"
-                            col2="col-sm-8"
                             name="new_password1"
                             placeholder="New password"
                             label="New password"
@@ -59,8 +55,6 @@ class ChangePassword extends Component{
                             errors={errors} />
 
                         <Input2
-                            col1="col-sm-4"
-                            col2="col-sm-8"
                             name="new_password2"
                             placeholder="Confirm new password"
                             label="Confirm"

@@ -24,6 +24,8 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password):
         user = self.create_user(email, password=password)
         user.is_admin = True
+        user.is_confirmed = True
+        user.confirmed_at = timezone.now()
         user.is_superuser = True
         user.save(using=self._db)
         return user

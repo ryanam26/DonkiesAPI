@@ -3,6 +3,9 @@
 import { default as AccountsPage } from './finance/AccountsPage'
 export { AccountsPage }
 
+import { default as AddBankPage } from './finance/AddBankPage'
+export { AddBankPage }
+
 import { default as SettingsPage } from './finance/SettingsPage'
 export { SettingsPage }
 

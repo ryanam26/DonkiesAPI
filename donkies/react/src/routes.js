@@ -3,6 +3,7 @@ import { Route, IndexRoute } from 'react-router'
 
 import {
     AccountsPage,
+    AddBankPage,
     ForgotPasswordPage,
     HomePage,
     LoginPage,
@@ -31,6 +32,7 @@ export default (
         <Route component={requireAuth(App)} path="/">
             <IndexRoute component={HomePage} />
             <Route component={AccountsPage} path="/accounts" />
+            <Route component={AddBankPage} path="/add_bank" />
             <Route component={SettingsPage} path="/settings" />
             <Route component={TestPage} path="/test_page" />
             <Route component={UserProfilePage} path="/user_profile" />

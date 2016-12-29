@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
+import { Link } from 'react-router'
 import { CardSimple } from 'components'
 
 
@@ -24,10 +25,10 @@ class AccountsPage extends Component{
                             {'View Transactions'}
                         </button>
 
-                        <button className="btn bgm-lightblue btn-icon-text btn-sm waves-effect m-r-5">
+                        <Link to="/add_bank" className="btn bgm-lightblue btn-icon-text btn-sm waves-effect m-r-5">
                             <i className="zmdi zmdi-plus" />
                             {'Add Bank'}
-                        </button>
+                        </Link>
 
                         <button className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5">
                             <i className="zmdi zmdi-delete" />

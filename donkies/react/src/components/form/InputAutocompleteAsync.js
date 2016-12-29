@@ -15,6 +15,9 @@ import InputAutocompleteUI from './ui/InputAutocompleteUI'
  *                       "value" in GET param for filtering suggestions and
  *                       returns array of objects: {id: ..., value: ...}.
  *
+ * @param {func} onSuccess - callback, when suggestion selected.
+ * @param {func} onFail - callback, when incorrect value in input. 
+ *
  * We use 2 inputs.
  * First input: that uses text ("value") as value and works with suggestions.
  * Second hidden input: that uses "id" as value.
@@ -27,6 +30,8 @@ export default class InputAutocompleteAsync extends Component{
     static get defaultProps() {
         return {
             isAuth: true,
+            onFail: null,
+            onSuccess: null
         }
     }
 
@@ -68,20 +73,26 @@ export default class InputAutocompleteAsync extends Component{
         let arr = await response.json()
 
         let map = this.getMap(arr)
-        let id = map.get(value)
-        id = id || ''
+         let id = map.get(value)
+         id = id || ''
+
+        if (id === undefined || id === null || id === ''){
+            this.props.onFail && this.props.onFail()
+        } else {
+            this.props.onSuccess && this.props.onSuccess(id, value)
+        }
 
         this.setState({suggestions: arr, hiddenInputValue: id})
     }
 
     onUpdate(value){
         this.sendRequest(value)
-        
     }
 
     render(){
-        const {isAuth, url, ...other} = this.props
         const { hiddenInputValue } = this.state
+        const { name, disabled, placeholder, type } = this.props
+        const inputProps = {name, disabled, placeholder, type}
 
         return (
             <wrap>
@@ -93,7 +104,7 @@ export default class InputAutocompleteAsync extends Component{
                 <InputAutocompleteUI
                     suggestions={this.state.suggestions}
                     onUpdate={this.onUpdate}
-                    {...other} />
+                    {...inputProps} />
             </wrap>
         )
     }
@@ -104,6 +115,8 @@ InputAutocompleteAsync.propTypes = {
     disabled: PropTypes.bool,
     isAuth: PropTypes.bool,
     name: PropTypes.string.isRequired,
+    onFail: PropTypes.func,
+    onSuccess: PropTypes.func,
     placeholder: PropTypes.string,
     type: PropTypes.string,
     url: PropTypes.string

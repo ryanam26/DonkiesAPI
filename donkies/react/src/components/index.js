@@ -1,3 +1,8 @@
+// finance
+
+import { default as AddBank } from './finance/add_bank/AddBank'
+export { AddBank }
+
 // form
 
 import { default as Checkbox } from './form/Checkbox'

@@ -53,6 +53,12 @@ export default class InputAutocompleteUI extends Component {
         }
     }
 
+    onKeyDown(e){
+        if (e.keyCode === 13){
+            e.preventDefault()
+        }
+    }
+
     onChange(e, {newValue, method}) {
         this.setState({value: newValue, isError: false})
     }
@@ -105,6 +111,7 @@ export default class InputAutocompleteUI extends Component {
             placeholder: placeholder,
             onChange: this.onChange,
             onBlur: this.onBlur,
+            onKeyDown: this.onKeyDown,
             className: cn
         }
 

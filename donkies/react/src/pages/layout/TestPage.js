@@ -11,8 +11,17 @@ export default class TestPageComponent extends Component{
     }
 
     render(){
+
+        const suggestions = [
+            {text: 'text1', value: 'text1'},
+            {text: 'text2', value: 'text2'}
+        ]
+
         return (
-            <InputAutocomplete />
+            <InputAutocomplete
+                name="name"
+                placeholder="test"
+                suggestions={suggestions} />
         )
     }
 }

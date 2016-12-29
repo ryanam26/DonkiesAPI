@@ -7,16 +7,16 @@ import Autosuggest from 'react-autosuggest'
  * Presentational component.
  * dependencies: css/react-autosuggest.css
  *
- * @param {array} - suggestions.
- *                  Array of objects {text:..., value:...}
- *                  In most cases text == value.
- *                  In special cases value can be different.
- *                  "value" comes to input after selection.  
+ * @param {array} suggestions.
+ *                Array of objects {text:..., value:...}
+ *                In most cases text == value.
+ *                In special cases value can be different.
+ *                "value" comes to input after selection.  
  *
- * @param {function} - onUpdate
- *                     Send updated value to parent and parent
- *                     should send back new suggestions accordingly
- *                     to new value. 
+ * @param {function} onUpdate
+ *                   Send updated value to parent and parent
+ *                   should send back new suggestions accordingly
+ *                   to new value. 
  *
  * Other params passed to input props. 
  *
@@ -124,6 +124,11 @@ InputAutocompleteUI.propTypes = {
     // pass value to parent
     onUpdate: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
-    suggestions: PropTypes.array,
+    suggestions: PropTypes.arrayOf(
+        PropTypes.shape({
+            text: PropTypes.string,
+            value: PropTypes.string
+        })
+    ).isRequired,
     type: PropTypes.string,
 }

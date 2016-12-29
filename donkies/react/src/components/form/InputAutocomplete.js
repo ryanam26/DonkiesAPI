@@ -13,6 +13,9 @@ import InputAutocompleteUI from './ui/InputAutocompleteUI'
  * @param {array} suggestions - array of objects: {id: ..., value: ...}.
                   Suggestions that come from props go to state.
  *
+ * @param {func} onSuccess - callback, when suggestion selected.
+ * @param {func} onFail - callback, when incorrect value in input. 
+ *
  * We use 2 inputs.
  * First input: that uses text ("value") as value and works with suggestions.
  * Second hidden input: that uses "id" as value.
@@ -73,12 +76,21 @@ export default class InputAutocomplete extends Component{
         const { map } = this.state
         let id = map.get(value)
         id = id || ''
+
+        if (id === undefined || id === null || id === ''){
+            this.props.onFail && this.props.onFail()
+        } else {
+            this.props.onSuccess && this.props.onSuccess(id, value)
+        }
+
         this.setState({hiddenInputValue: id})
     }
 
     render(){
-        const {suggestions, ...other} = this.props
         const { hiddenInputValue } = this.state
+        const { name, disabled, placeholder, type } = this.props
+        const inputProps = {name, disabled, placeholder, type}
+
 
         return (
             <wrap>
@@ -90,7 +102,7 @@ export default class InputAutocomplete extends Component{
                 <InputAutocompleteUI
                     suggestions={this.state.suggestions}
                     onUpdate={this.onUpdate}
-                    {...other} />
+                    {...inputProps} />
             </wrap>
         )
     }
@@ -100,6 +112,8 @@ export default class InputAutocomplete extends Component{
 InputAutocomplete.propTypes = {
     disabled: PropTypes.bool,
     name: PropTypes.string.isRequired,
+    onFail: PropTypes.func,
+    onSuccess: PropTypes.func,
     placeholder: PropTypes.string,
     suggestions: PropTypes.arrayOf(
         PropTypes.shape({

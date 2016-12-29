@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import Institution from './Institution'
+import Credentials from './Credentials'
 
 
 class AddBank extends Component{
@@ -11,7 +12,8 @@ class AddBank extends Component{
 
         this.state = {
             institution: null,
-            isInstitutionChosen: false
+            isInstitutionChosen: false,
+            memberStatus: null
         }
     }
 
@@ -36,11 +38,18 @@ class AddBank extends Component{
         this.setState({isInstitutionChosen: true})
     }
 
+    /**
+     * Receives member status.
+     */ 
+    onUpdateMemberStatus(status){
+        this.setState({memberStatus: status})
+    }
+
     render(){
         const { institution, isInstitutionChosen } = this.state
 
         return (
-            <div className="card">
+            <div className="card col-lg-6">
 
                 <form ref="form" onSubmit={this.onSubmit} className="form-horizontal">
                     <div className="card-header">
@@ -54,6 +63,10 @@ class AddBank extends Component{
                             onFailInstitution={this.onFailInstitution}
                             onSelectInstitution={this.onSelectInstitution}
                             isInstitutionChosen={isInstitutionChosen} />
+
+                        <Credentials
+                            institution={institution}
+                            onUpdateMemberStatus={this.onUpdateMemberStatus} />
                         
                     </div>
                 </form>

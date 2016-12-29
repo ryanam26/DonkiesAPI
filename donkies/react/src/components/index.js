@@ -34,6 +34,9 @@ export { HomeTransfer }
 import { default as Loading } from './layout/content/Loading'
 export { Loading }
 
+import { default as LoadingInline } from './layout/content/LoadingInline'
+export { LoadingInline }
+
 import { default as MainMenu } from './layout/content/MainMenu'
 export { MainMenu }
 

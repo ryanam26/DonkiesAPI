@@ -23,13 +23,20 @@ class Accounts(AuthMixin, ListAPIView):
             member__user=self.request.user)
 
 
-class CredentialsList(AuthMixin, ListAPIView):
+class CredentialsListByCode(AuthMixin, ListAPIView):
     serializer_class = sers.CredentialsSerializer
-    queryset = Credentials.objects.all()
 
     def get_queryset(self):
         return Credentials.objects.filter(
-            institution__code=self.kwargs['institution__code'])
+            institution__code=self.kwargs['institution_code'])
+
+
+class CredentialsListById(AuthMixin, ListAPIView):
+    serializer_class = sers.CredentialsSerializer
+
+    def get_queryset(self):
+        return Credentials.objects.filter(
+            institution__id=self.kwargs['institution_id'])
 
 
 class InstitutionsSuggest(AuthMixin, APIView):

@@ -8,9 +8,14 @@ urlpatterns = [
         name='accounts'),
 
     url(
-        r'^(?P<version>(v1))/credentials/(?P<institution_code>\w+)$',
-        v.CredentialsList.as_view(),
-        name='credentials'),
+        r'^(?P<version>(v1))/credentials/code/(?P<institution_code>\w+)$',
+        v.CredentialsListByCode.as_view(),
+        name='credentials_by_code'),
+
+    url(
+        r'^(?P<version>(v1))/credentials/id/(?P<institution_id>\w+)$',
+        v.CredentialsListById.as_view(),
+        name='credentials_by_id'),
 
     url(
         r'^(?P<version>(v1))/institutions_suggest$',

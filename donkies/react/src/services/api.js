@@ -6,6 +6,8 @@ import { API_ROOT_URL } from 'store/configureStore'
 export const CHANGE_EMAIL_URL = `${API_ROOT_URL}v1/user/change/email`
 export const CHANGE_EMAIL_CONFIRM_URL = `${API_ROOT_URL}v1/user/change/email/confirm`
 export const CHANGE_PASSWORD_URL = `${API_ROOT_URL}v1/user/change/password`
+export const CREDENTIALS_BY_CODE_URL = `${API_ROOT_URL}v1/credentials/code`
+export const CREDENTIALS_BY_ID_URL = `${API_ROOT_URL}v1/credentials/id`
 export const INSTITUTIONS_SUGGEST_URL = `${API_ROOT_URL}v1/institutions_suggest`
 export const LOGIN_URL = `${API_ROOT_URL}v1/auth/login`
 export const REGISTRATION_URL = `${API_ROOT_URL}v1/auth/signup`

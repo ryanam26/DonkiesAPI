@@ -43,7 +43,7 @@ class InstitutionsSuggest(AuthMixin, APIView):
             return Response([])
         l = []
         for i in Institution.objects.filter(name__icontains=value):
-            l.append({'value': i.name, 'id': str(i.id)})
+            l.append({'value': i.name, 'id': i.id})
         return Response(l)
 
 

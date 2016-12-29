@@ -1,7 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
-import { InputAutocomplete } from 'components'
+import { InputAutocompleteAsync } from 'components'
+import { INSTITUTIONS_SUGGEST_URL } from 'services/api'
 
 
 export default class TestPageComponent extends Component{
@@ -12,16 +13,12 @@ export default class TestPageComponent extends Component{
 
     render(){
 
-        const suggestions = [
-            {id: 1, value: 'text1'},
-            {id: 2, value: 'text2'}
-        ]
-
+       
         return (
-            <InputAutocomplete
+            <InputAutocompleteAsync
                 name="name"
                 placeholder="my placeholder"
-                suggestions={suggestions} />
+                url={INSTITUTIONS_SUGGEST_URL} />
         )
     }
 }

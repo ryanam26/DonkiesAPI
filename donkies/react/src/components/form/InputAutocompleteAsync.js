@@ -1,59 +1,100 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
+import { apiCall2, INSTITUTIONS_SUGGEST_URL } from 'services/api'
 import InputAutocompleteUI from './ui/InputAutocompleteUI'
 
 
 /**
- * Component with suggestions received by API.
- * Pass suggestions to dump InputAutocompleteUI and
- * after getting value fetch data from server and send them back
+ * Component with static suggestions.
+ * Pass suggestions to InputAutocompleteUI and
+ * after getting value filter suggestions and send them back
  * to UI component.
  *
- * @param {string} url. API url, that should return
- *                      array of suggestions.
+ * @param {string} url - API endpoint url that receives 
+ *                       "value" in GET param for filtering suggestions and
+ *                       returns array of objects: {id: ..., value: ...}.
  *
+ * We use 2 inputs.
+ * First input: that uses text ("value") as value and works with suggestions.
+ * Second hidden input: that uses "id" as value.
+ * Hidden input name called: <name>_id
+ * If we don't need id, we can pass id=value.
+ * This is implemented, because we often need id instead of text.
  */
 
 export default class InputAutocompleteAsync extends Component{
+    static get defaultProps() {
+        return {
+            isAuth: true,
+        }
+    }
+
     constructor(props){
         super(props)
         autoBind(this)
     }
 
     componentWillMount(){
-        const arr = this.props.suggestions
         this.setState({
-            suggestions: arr,
-            suggestionsAll: arr
+            suggestions: [],
+            hiddenInputValue: ''
         })   
     }
 
-    filterSuggestions(value){
-        const { suggestionsAll } = this.state
+    get hiddenInputName(){
+        const { name } = this.props
+        return name + '_id'
+    }
 
-        if (value.trim().length === 0){
-            this.setState({suggestions: suggestionsAll})            
+    /**
+     * Map value to id.
+     * @param {array} - array of objects {id:..., value:...}
+     * @return {map}
+     */
+    getMap(arr){
+        let m = new Map()
+        for (let obj of arr){
+            m.set(obj.value, obj.id)
         }
+        return m
+    }
 
-        const arr = suggestionsAll.filter(
-            (obj) => obj.value.includes(value))
+    async sendRequest(value) {
+        let {isAuth, url} = this.props
+        url = url + '?value=' + encodeURI(value)
 
-        this.setState({suggestions: arr})
+        let response = await apiCall2(url, isAuth) 
+        let arr = await response.json()
+
+        let map = this.getMap(arr)
+        let id = map.get(value)
+        id = id || ''
+
+        this.setState({suggestions: arr, hiddenInputValue: id})
     }
 
     onUpdate(value){
-        this.filterSuggestions(value)
+        this.sendRequest(value)
+        
     }
 
     render(){
-        const {suggestions, ...other} = this.props
+        const {isAuth, url, ...other} = this.props
+        const { hiddenInputValue } = this.state
 
         return (
-            <InputAutocompleteUI
-                suggestions={this.state.suggestions}
-                onUpdate={this.onUpdate}
-                {...other} />
+            <wrap>
+                <input
+                    type="hidden"
+                    name={this.hiddenInputName}
+                    value={hiddenInputValue} />
+                
+                <InputAutocompleteUI
+                    suggestions={this.state.suggestions}
+                    onUpdate={this.onUpdate}
+                    {...other} />
+            </wrap>
         )
     }
 }
@@ -61,26 +102,14 @@ export default class InputAutocompleteAsync extends Component{
 
 InputAutocompleteAsync.propTypes = {
     disabled: PropTypes.bool,
+    isAuth: PropTypes.bool,
     name: PropTypes.string.isRequired,
     placeholder: PropTypes.string,
-    suggestions: PropTypes.arrayOf(
-        PropTypes.shape({
-            text: PropTypes.string,
-            value: PropTypes.string
-        })
-    ).isRequired,
-    type: PropTypes.string
+    type: PropTypes.string,
+    url: PropTypes.string
 }
 
 
-/*
-import { apiCall2, ___URL } from 'services/api'
 
-async sendRequest() {
-        this.setState({isProcessing: true})
-        let response = await apiCall2(___URL, true) 
-        let data = await response.json()
-        this.setState({message: data.message})
-    }
 
-*/
+

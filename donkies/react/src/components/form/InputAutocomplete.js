@@ -12,7 +12,7 @@ import InputAutocompleteUI from './ui/InputAutocompleteUI'
  *
  * @param {array} suggestions - array of objects: {id: ..., value: ...}.
                   Suggestions that come from props go to state.
-  *
+ *
  * We use 2 inputs.
  * First input: that uses text ("value") as value and works with suggestions.
  * Second hidden input: that uses "id" as value.

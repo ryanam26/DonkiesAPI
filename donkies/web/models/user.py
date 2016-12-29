@@ -32,10 +32,13 @@ class UserManager(BaseUserManager):
 
     def create_atrium_user(self, user_id):
         """
+        Do not create atrium user for "admin" user.
         TODO: processing errors.
         """
         User = apps.get_model('web', 'User')
         user = User.objects.get(id=user_id)
+        if user.is_admin:
+            return
 
         a = AtriumApi()
         guid = a.create_user(user.identifier)

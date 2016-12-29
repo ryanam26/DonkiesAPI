@@ -2,6 +2,7 @@
 *.~
 .cache/
 __pycache__/
+db.dump
 
 donkies/react/node_modules/
 donkies/celerybeat-schedule

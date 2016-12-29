@@ -42,7 +42,6 @@ class ChangeEmail extends Component{
                             name="new_email"
                             placeholder="Input new email"
                             label="New email"
-                            value=""
                             errors={errors} />
                         
                         <div className="form-group">

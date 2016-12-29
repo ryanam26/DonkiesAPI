@@ -54,7 +54,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "dfcf6aeb03b271a61e42"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "5bf1af0440543b0a0d52"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43947,7 +43947,6 @@
 	                            name: 'new_email',
 	                            placeholder: 'Input new email',
 	                            label: 'New email',
-	                            value: '',
 	                            errors: errors }),
 	                        _react2.default.createElement(
 	                            'div',

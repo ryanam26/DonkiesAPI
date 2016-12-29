@@ -45,6 +45,16 @@ python manage.py pgdropremote
 python manage.py pgcreateremote
 pg_restore -h 159.203.137.132 -p 5432 -d donkies -U udonkies db.dump
 
+
+elif [ "$1" == "pgdownload" ]
+then
+clear
+python manage.py pgdroplocal
+python manage.py pgcreatelocal
+python manage.py pgdownload
+
+
+
 elif [ "$1" == "test" ]
 then
 clear

@@ -1,0 +1,11 @@
+.react-autosuggest__suggestions-container{
+    border:1px solid rgba(197,214,222,.7);
+}
+
+.react-autosuggest__suggestion{
+    padding: 0 20px 0 20px;
+}
+
+.react-autosuggest__suggestion--focused{
+    background-color: rgba(197,214,222,.7);
+}

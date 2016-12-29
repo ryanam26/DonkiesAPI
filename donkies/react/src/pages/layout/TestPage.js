@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
+import { InputAutocomplete } from 'components'
 
 
 export default class TestPageComponent extends Component{
@@ -11,7 +12,7 @@ export default class TestPageComponent extends Component{
 
     render(){
         return (
-            <div>{'TestPageComponent'}</div>
+            <InputAutocomplete />
         )
     }
 }

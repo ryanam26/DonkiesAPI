@@ -25,7 +25,7 @@ def create_atrium_users():
     While development, run every minute.
     """
     User = apps.get_model('web', 'User')
-    for user in User.objects.filter(guid=None):
+    for user in User.objects.filter(guid=None, is_admin=False):
         User.objects.create_atrium_user(user.id)
 
 

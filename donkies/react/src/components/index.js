@@ -12,6 +12,8 @@ export { Input }
 import { default as Input2 } from './form/Input2'
 export { Input2 }
 
+import { default as InputAutocomplete } from './form/InputAutocomplete'
+export { InputAutocomplete }
 
 // layout
 

@@ -9,6 +9,9 @@ import Autosuggest from 'react-autosuggest'
  *
  * @param {array} - suggestions.
  *                  Array of objects {text:..., value:...}
+ *                  In most cases text == value.
+ *                  In special cases value can be different.
+ *                  "value" comes to input after selection.  
  *
  * @param {function} - onUpdate
  *                     Send updated value to parent and parent
@@ -41,6 +44,7 @@ export default class InputAutocompleteUI extends Component {
 
     onBlur(e){
         const { value } = this.state
+        console.log(':::', value)
         if (!this.checkValue(value)){
             this.setState({value: ''})
             this.props.onUpdate('')    
@@ -71,7 +75,7 @@ export default class InputAutocompleteUI extends Component {
     }
 
     getSuggestionValue(suggestion) {
-        return suggestion.text
+        return suggestion.value
     }
  
     renderSuggestion(suggestion) {
@@ -97,12 +101,17 @@ export default class InputAutocompleteUI extends Component {
         }
 
         return (
+            <wrap>
             <Autosuggest 
                 suggestions={this.props.suggestions}
                 getSuggestionValue={this.getSuggestionValue}
                 onSuggestionsUpdateRequested={this.onUpdate}
                 renderSuggestion={this.renderSuggestion}
                 inputProps={inputProps} />
+
+            
+
+            </wrap>
             
         )
     }

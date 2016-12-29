@@ -17,8 +17,8 @@ export default class InputAutocomplete extends Component{
 
     onUpdate(value){
         const suggestions = [
-            {text: 'text1', value: 'value1'},
-            {text: 'text2', value: 'value2'}
+            {text: 'text1', value: 'text1'},
+            {text: 'text2', value: 'text2'}
         ]
         this.setState({suggestions: suggestions})
 
@@ -30,10 +30,11 @@ export default class InputAutocomplete extends Component{
         
 
         return (
-            <InputAutocompleteUI
-                name="name"
-                suggestions={this.state.suggestions}
-                onUpdate={this.onUpdate} />
+                <InputAutocompleteUI
+                    name="name"
+                    suggestions={this.state.suggestions}
+                    onUpdate={this.onUpdate} />
+            
         )
     }
 }

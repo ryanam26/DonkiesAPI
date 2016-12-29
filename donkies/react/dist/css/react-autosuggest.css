@@ -1,11 +1,30 @@
+
 .react-autosuggest__suggestions-container{
-    border:1px solid rgba(197,214,222,.7);
+    box-shadow: 0 0 2px rgba(0,0,0,0.5);
 }
 
-.react-autosuggest__suggestion{
-    padding: 0 20px 0 20px;
+.react-autosuggest__container input{
+    border: 1px solid #eaebeb;
+}
+
+.react-autosuggest__container input:focus{
+    border-bottom: 2px solid #2196f3;
+}
+
+
+.react-autosuggest__container .react-autosuggest__suggestion{
+    padding: 5px 5px 5px 10px;
 }
 
 .react-autosuggest__suggestion--focused{
-    background-color: rgba(197,214,222,.7);
+    background-color: #eaebeb;
+}
+
+.react-autosuggest__container ul li{
+    list-style: none;
+}
+
+.react-autosuggest__container ul{
+    padding: 0;
+
 }

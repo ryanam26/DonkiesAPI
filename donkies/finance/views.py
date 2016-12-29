@@ -9,7 +9,7 @@ import finance.serializers as sers
 from web.views import AuthMixin, r400
 from finance import tasks
 from finance.models import (
-    Account, Credentials, LinkDebt, Member, Transaction)
+    Account, Credentials, Institution, LinkDebt, Member, Transaction)
 
 
 logger = logging.getLogger('app')
@@ -30,6 +30,21 @@ class CredentialsList(AuthMixin, ListAPIView):
     def get_queryset(self):
         return Credentials.objects.filter(
             institution__code=self.kwargs['institution__code'])
+
+
+class InstitutionsSuggest(AuthMixin, APIView):
+    """
+    Returns data for React InputAutocompleteAsync.
+    In "GET" params receives "value" for filtering.
+    """
+    def get(self, request, **kwargs):
+        value = request.query_params.get('value', None)
+        if value is None:
+            return Response([])
+        l = []
+        for i in Institution.objects.filter(name__icontains=value):
+            l.append({'value': i.name, 'id': str(i.id)})
+        return Response(l)
 
 
 class LinkDebts(AuthMixin, ListCreateAPIView):

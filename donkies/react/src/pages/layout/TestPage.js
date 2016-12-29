@@ -13,14 +13,14 @@ export default class TestPageComponent extends Component{
     render(){
 
         const suggestions = [
-            {text: 'text1', value: 'text1'},
-            {text: 'text2', value: 'text2'}
+            {id: 1, value: 'text1'},
+            {id: 2, value: 'text2'}
         ]
 
         return (
             <InputAutocomplete
                 name="name"
-                placeholder="test"
+                placeholder="my placeholder"
                 suggestions={suggestions} />
         )
     }

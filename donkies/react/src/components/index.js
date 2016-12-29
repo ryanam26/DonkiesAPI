@@ -15,6 +15,9 @@ export { Input2 }
 import { default as InputAutocomplete } from './form/InputAutocomplete'
 export { InputAutocomplete }
 
+import { default as InputAutocompleteAsync } from './form/InputAutocompleteAsync'
+export { InputAutocompleteAsync }
+
 // layout
 
 import { default as HomeMiniCharts } from './layout/content/HomeMiniCharts'

@@ -7,6 +7,10 @@
     border: 1px solid #eaebeb;
 }
 
+.react-autosuggest__container input.error{
+    color: #ff3333;
+}
+
 .react-autosuggest__container input:focus{
     border-bottom: 2px solid #2196f3;
 }

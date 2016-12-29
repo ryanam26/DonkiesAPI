@@ -6,13 +6,19 @@ import InputAutocompleteUI from './ui/InputAutocompleteUI'
 
 /**
  * Component with static suggestions.
- * Pass suggestion to dump InputAutocompleteUI and
+ * Pass suggestions to InputAutocompleteUI and
  * after getting value filter suggestions and send them back
  * to UI component.
  *
- * @param {array} suggestions.
+ * @param {array} suggestions - array of objects: {id: ..., value: ...}.
                   Suggestions that come from props go to state.
- *
+  *
+ * We use 2 inputs.
+ * First input: that uses text ("value") as value and works with suggestions.
+ * Second hidden input: that uses "id" as value.
+ * Hidden input name called: <name>_id
+ * If we don't need id, we can pass id=value.
+ * This is implemented, because we often need id instead of text.
  */
 
 export default class InputAutocomplete extends Component{
@@ -25,8 +31,28 @@ export default class InputAutocomplete extends Component{
         const arr = this.props.suggestions
         this.setState({
             suggestions: arr,
-            suggestionsAll: arr
+            suggestionsAll: arr,
+            map: this.getMap(arr),
+            hiddenInputValue: ''
         })   
+    }
+
+    get hiddenInputName(){
+        const { name } = this.props
+        return name + '_id'
+    }
+
+    /**
+     * Map value to id.
+     * @param {array} - array of objects {id:..., value:...}
+     * @return {map}
+     */
+    getMap(arr){
+        let m = new Map()
+        for (let obj of arr){
+            m.set(obj.value, obj.id)
+        }
+        return m
     }
 
     filterSuggestions(value){
@@ -44,16 +70,28 @@ export default class InputAutocomplete extends Component{
 
     onUpdate(value){
         this.filterSuggestions(value)
+        const { map } = this.state
+        let id = map.get(value)
+        id = id || ''
+        this.setState({hiddenInputValue: id})
     }
 
     render(){
         const {suggestions, ...other} = this.props
+        const { hiddenInputValue } = this.state
 
         return (
-            <InputAutocompleteUI
-                suggestions={this.state.suggestions}
-                onUpdate={this.onUpdate}
-                {...other} />
+            <wrap>
+                <input
+                    type="hidden"
+                    name={this.hiddenInputName}
+                    value={hiddenInputValue} />
+                
+                <InputAutocompleteUI
+                    suggestions={this.state.suggestions}
+                    onUpdate={this.onUpdate}
+                    {...other} />
+            </wrap>
         )
     }
 }
@@ -65,9 +103,12 @@ InputAutocomplete.propTypes = {
     placeholder: PropTypes.string,
     suggestions: PropTypes.arrayOf(
         PropTypes.shape({
-            text: PropTypes.string,
+            id: PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number
+            ]),
             value: PropTypes.string
         })
     ).isRequired,
-    type: PropTypes.string
+    type: PropTypes.string,
 }

@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import autoBind from 'react-autobind'
+import classNames from 'classnames'
 import Autosuggest from 'react-autosuggest'
 
 
@@ -8,10 +9,9 @@ import Autosuggest from 'react-autosuggest'
  * dependencies: css/react-autosuggest.css
  *
  * @param {array} suggestions.
- *                Array of objects {text:..., value:...}
- *                In most cases text == value.
- *                In special cases value can be different.
- *                "value" comes to input after selection.  
+ *                Array of objects {id:..., value:...}
+                  "value" goes to input element value.
+                  "id" used in parent component. 
  *
  * @param {function} onUpdate
  *                   Send updated value to parent and parent
@@ -21,14 +21,15 @@ import Autosuggest from 'react-autosuggest'
  * Other params passed to input props. 
  *
  * onBlur checks if current value is not in suggestions, 
- * set value to empty and send updated value to parent.
+ * and set isError.
  *
  */
 export default class InputAutocompleteUI extends Component {
     static get defaultProps() {
         return {
             disabled: false,
-            type: 'text'
+            type: 'text',
+            isError: false
         }
     }
 
@@ -44,18 +45,23 @@ export default class InputAutocompleteUI extends Component {
 
     onBlur(e){
         const { value } = this.state
-        console.log(':::', value)
         if (!this.checkValue(value)){
-            this.setState({value: ''})
+            this.setState({isError: true})
             this.props.onUpdate('')    
+        } else {
+            this.setState({isError: false})
         }
     }
 
     onChange(e, {newValue, method}) {
-        this.setState({value: newValue})
+        this.setState({value: newValue, isError: false})
     }
 
-    onUpdate({ value, reason }) {
+    /**
+     * Called every time we need update suggestions.
+     * Where value is current value of input.
+     */
+    onUpdate({ value }) {
         this.props.onUpdate(value)
     }
 
@@ -80,13 +86,15 @@ export default class InputAutocompleteUI extends Component {
  
     renderSuggestion(suggestion) {
         return (
-            <span>{suggestion.text}</span>
+            <span>{suggestion.value}</span>
         )
     }
 
     render() {
         const { disabled, name, type, placeholder, suggestions, ...other } = this.props
-        const { value } = this.state
+        const { value, isError } = this.state
+
+        const cn = classNames('form-control', {'error': isError})
 
         // Props that goes to <input />
         const inputProps = {
@@ -97,22 +105,16 @@ export default class InputAutocompleteUI extends Component {
             placeholder: placeholder,
             onChange: this.onChange,
             onBlur: this.onBlur,
-            className: 'form-control'
+            className: cn
         }
 
         return (
-            <wrap>
             <Autosuggest 
                 suggestions={this.props.suggestions}
                 getSuggestionValue={this.getSuggestionValue}
                 onSuggestionsUpdateRequested={this.onUpdate}
                 renderSuggestion={this.renderSuggestion}
                 inputProps={inputProps} />
-
-            
-
-            </wrap>
-            
         )
     }
 }
@@ -126,7 +128,10 @@ InputAutocompleteUI.propTypes = {
     placeholder: PropTypes.string,
     suggestions: PropTypes.arrayOf(
         PropTypes.shape({
-            text: PropTypes.string,
+            id: PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number
+            ]),
             value: PropTypes.string
         })
     ).isRequired,

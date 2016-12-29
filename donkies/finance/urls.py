@@ -13,6 +13,11 @@ urlpatterns = [
         name='credentials'),
 
     url(
+        r'^(?P<version>(v1))/institutions_suggest$',
+        v.InstitutionsSuggest.as_view(),
+        name='institutions_suggest'),
+
+    url(
         r'^(?P<version>(v1))/link_debts$',
         v.LinkDebts.as_view(),
         name='link_debts'),

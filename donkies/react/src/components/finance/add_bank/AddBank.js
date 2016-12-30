@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import {CREDENTIALS_URL, apiCall2} from 'services/api'
+import { Alert } from 'components'
 import Institution from './Institution'
 import Credentials from './Credentials'
 
@@ -77,6 +78,16 @@ class AddBank extends Component{
 
     render(){
         const { institution, isInstitutionChosen } = this.state
+        const { user } = this.props
+
+        if (!user.guid){
+            return (
+                <Alert
+                    type="info"
+                    showClose={false}
+                    value="Your account has not been activated to add bank." />
+            )       
+        }
 
         return (
             <div className="card col-lg-6">
@@ -105,12 +116,12 @@ class AddBank extends Component{
 
 
 AddBank.propTypes = {
-    
+    user: PropTypes.object
 }
 
 const mapStateToProps = (state) => ({
+    user: state.user.item
 })
 
 export default connect(mapStateToProps, {
-
 })(AddBank)

@@ -7,6 +7,9 @@ cd /home/vlad/dev/web/dj/d/donkies/project/donkies/
 if [ "$1" == "init" ]
 then
 clear
+
+# celery should be running on init project
+
 python manage.py cleanatrium
 python manage.py pgcreatelocal
 python manage.py initproject
@@ -23,6 +26,8 @@ python manage.py createcustomers
 
 python manage.py loaddata institutions
 python manage.py loaddata credentials
+
+python manage.py updateinstitutions
 
 elif [ "$1" == "migr" ]
 then

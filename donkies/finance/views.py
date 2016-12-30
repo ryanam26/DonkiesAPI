@@ -54,6 +54,16 @@ class InstitutionsSuggest(AuthMixin, APIView):
         return Response(l)
 
 
+class Institutions(AuthMixin, ListAPIView):
+    serializer_class = sers.InstitutionSerializer
+    queryset = Institution.objects.all()
+
+
+class InstitutionDetail(AuthMixin, RetrieveAPIView):
+    serializer_class = sers.InstitutionSerializer
+    queryset = Institution.objects.all()
+
+
 class LinkDebts(AuthMixin, ListCreateAPIView):
     serializer_class = sers.LinkDebtSerializer
 

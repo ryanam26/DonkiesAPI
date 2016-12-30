@@ -47,8 +47,11 @@ class AddBank extends Component{
     /**
      * User clicked button and chosen institution.
      */
-    onChooseInstitution(){
-        this.setState({isInstitutionChosen: true})
+    onChooseInstitution(institution){
+        this.setState({
+            isInstitutionChosen: true,
+            institution: institution
+        })
     }
 
     /**

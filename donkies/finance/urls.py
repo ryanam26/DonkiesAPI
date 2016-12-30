@@ -23,6 +23,16 @@ urlpatterns = [
         name='institutions_suggest'),
 
     url(
+        r'^(?P<version>(v1))/institutions$',
+        v.Institutions.as_view(),
+        name='institutions'),
+
+    url(
+        r'^(?P<version>(v1))/institutions/(?P<pk>\w+)$',
+        v.InstitutionDetail.as_view(),
+        name='institution'),
+
+    url(
         r'^(?P<version>(v1))/link_debts$',
         v.LinkDebts.as_view(),
         name='link_debts'),

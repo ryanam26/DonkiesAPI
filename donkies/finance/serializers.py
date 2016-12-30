@@ -68,6 +68,7 @@ class InstitutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institution
         fields = (
+            'id',
             'code',
             'name',
             'url'

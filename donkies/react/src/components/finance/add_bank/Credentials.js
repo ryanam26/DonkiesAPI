@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
-import { apiCall2, CREDENTIALS_BY_ID_URL } from 'services/api'
+import { apiCall2, apiCall3, CREDENTIALS_BY_ID_URL, MEMBERS_URL } from 'services/api'
 import { formToObject } from 'services/helpers'
 import { Button2, Input2, LoadingInline } from 'components'
 
@@ -31,7 +31,8 @@ class Credentials extends Component{
         autoBind(this)
 
         this.state = {
-            credentials: null
+            credentials: null,
+            errorSubmit: null
         }
     }
 
@@ -40,12 +41,8 @@ class Credentials extends Component{
     }
 
     /**
-     * Renders input components using data received by API.
+     * Fetch from server data to render credentials.
      */
-    renderCredentials(){
-
-    }
-
     async fetchCredentials(){
         let { institution } = this.props
         const url = CREDENTIALS_BY_ID_URL + '/' + institution.id
@@ -54,15 +51,47 @@ class Credentials extends Component{
         let arr = await response.json()
 
         this.setState({credentials: arr})
-       
     }
 
     onSubmit(e){
+        e.preventDefault()
+        const { institution } = this.props
 
+        this.setState({errorSubmit: null})
+        const form = formToObject(e.target)
+        const data = {institution_code: institution.code}
+
+        data.credentials = []
+        for (let key in form){
+            if (key.length === 0){
+                continue
+            }
+
+            if (form[key].trim().length === 0){
+                this.setState({errorSubmit: `Please fill ${key}`})
+                return
+            }
+
+            let obj = {field_name: key, value: form[key].trim()}
+            data.credentials.push(obj)
+        }
+
+        this.submitCredentials(data)
     }
 
+    /**
+     * Submit to server user's filled credentials.
+     * (create member)
+     */
+    async submitCredentials(data){
+        let response = await apiCall3(MEMBERS_URL, data, true) 
+        let member = await response.json()
+        console.log(member)
+    }
+
+
     render(){
-        const { credentials } = this.state
+        const { credentials, errorSubmit } = this.state
 
         if (!credentials){
             return <LoadingInline />
@@ -83,6 +112,8 @@ class Credentials extends Component{
                 })}
             
                 <Button2 />
+
+                {errorSubmit && <p className="custom-errors">{errorSubmit}</p>}
 
             </form>
         )

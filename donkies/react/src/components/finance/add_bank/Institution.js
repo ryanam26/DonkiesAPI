@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
-import { INSTITUTIONS_SUGGEST_URL } from 'services/api'
+import { INSTITUTIONS_URL, INSTITUTIONS_SUGGEST_URL, apiCall2 } from 'services/api'
 import { InputAutocompleteAsync, Button2 } from 'components'
 
 
@@ -12,6 +12,21 @@ export default class Institution extends Component{
     constructor(props){
         super(props)
         autoBind(this)
+    }
+
+    /**
+     * From autocomplete we have only id and name of institution.
+     * As soon as user have chosen institution,
+     * request server for full object.
+     */
+    async onChooseInstitution(){
+        const { institution } = this.props
+        const url = INSTITUTIONS_URL + '/' + institution.id
+
+        let response = await apiCall2(url, true) 
+        let newInstitution = await response.json()
+
+        this.props.onChooseInstitution(newInstitution)
     }
 
     render(){
@@ -46,7 +61,7 @@ export default class Institution extends Component{
                             <Button2
                                 type="button"
                                 text="next"
-                                onClick={this.props.onChooseInstitution} />
+                                onClick={this.onChooseInstitution} />
                         }
                         
                     </wrap>

@@ -6,7 +6,7 @@ import autoBind from 'react-autobind'
 /**
  * Button that used with Input2
  */
-class Button2 extends Component{
+export default class Button2 extends Component{
     static get defaultProps() {
         return {
             className: 'btn btn-primary btn-sm waves-effect',

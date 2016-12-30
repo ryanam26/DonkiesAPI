@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { formToObject } from 'services/helpers'
 import { changePassword, setFormErrors } from 'actions' 
-import { Input2 } from 'components'
+import { Input2, Button2 } from 'components'
 
 
 
@@ -61,17 +61,7 @@ class ChangePassword extends Component{
                             type="password"
                             errors={errors} />
 
-                        <div className="form-group">
-                            <div className="col-sm-offset-4 col-sm-8">
-                                <button
-                                    disabled={inProgress}
-                                    type="submit"
-                                    className="btn btn-primary btn-sm waves-effect">
-                                
-                                    {'Submit'}
-                                </button>
-                            </div>
-                        </div>
+                        <Button2 disabled={inProgress} />
                     </div>
                 </form>
             </div>

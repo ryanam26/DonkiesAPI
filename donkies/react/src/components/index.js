@@ -5,6 +5,9 @@ export { AddBank }
 
 // form
 
+import { default as Button2 } from './form/Button2'
+export { Button2 }
+
 import { default as Checkbox } from './form/Checkbox'
 export { Checkbox }
 

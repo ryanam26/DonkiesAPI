@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { INSTITUTIONS_SUGGEST_URL } from 'services/api'
-import { InputAutocompleteAsync } from 'components'
+import { InputAutocompleteAsync, Button2 } from 'components'
 
 
 /**
@@ -43,17 +43,10 @@ export default class Institution extends Component{
                         </div>
                         
                         {institution && 
-                            <div className="form-group">
-                                <div className="col-sm-offset-4 col-sm-8">
-                                    <button
-                                        onClick={this.props.onChooseInstitution}
-                                        type="button"
-                                        className="btn btn-primary btn-sm waves-effect">
-                                    
-                                        {'Next'}
-                                    </button>
-                                </div>
-                            </div>
+                            <Button2
+                                type="button"
+                                text="next"
+                                onClick={this.props.onChooseInstitution} />
                         }
                         
                     </wrap>

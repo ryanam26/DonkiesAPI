@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { apiCall2, CREDENTIALS_BY_ID_URL } from 'services/api'
 import { formToObject } from 'services/helpers'
-import { Input2, LoadingInline } from 'components'
+import { Button2, Input2, LoadingInline } from 'components'
 
 
 /**
@@ -81,6 +81,9 @@ class Credentials extends Component{
                             placeholder={obj.label} />
                     )                                
                 })}
+            
+                <Button2 />
+
             </form>
         )
     }

@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { apiCall2, CREDENTIALS_BY_ID_URL } from 'services/api'
-import { LoadingInline } from 'components'
+import { Input2, LoadingInline } from 'components'
 
 
 /**
@@ -21,7 +21,7 @@ class Credentials extends Component{
         autoBind(this)
 
         this.state = {
-            isLoading: true
+            credentials: null
         }
     }
 
@@ -43,21 +43,33 @@ class Credentials extends Component{
         let response = await apiCall2(url, true) 
         let arr = await response.json()
 
-
-        console.log(arr)
-        this.setState({isLoading: false})
+        this.setState({credentials: arr})
        
     }
 
     render(){
-        const { isLoading } = this.state
+        const { credentials } = this.state
 
-        if (isLoading){
+        if (!credentials){
             return <LoadingInline />
         }
 
         return (
-            <div>{'Credentials'}</div>
+            <wrap>
+                {credentials.map((obj, index) => {
+                    const type = obj.type.toLowerCase() === 'password' ? 'password' : 'text'
+                    console.log(obj)
+
+                    return (
+                        <Input2
+                            key={index}
+                            type={type}
+                            name={obj.field_name}
+                            label={obj.label}
+                            placeholder={obj.label} />
+                    )                                
+                })}
+            </wrap>
         )
     }
 }

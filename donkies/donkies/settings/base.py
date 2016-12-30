@@ -281,7 +281,7 @@ ATRIUM_API_MODE = 'DEV'
 DWOLLA_API_MODE = 'DEV'
 
 # User for real tests.
-TEST_USER_EMAIL = 'test-bob@gmail.com'
+TEST_USER_EMAIL = 'test@donkies.co'
 TEST_USER_PASSWORD = '111'
 
 US_STATES = (

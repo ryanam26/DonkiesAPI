@@ -86,9 +86,32 @@ class Credentials extends Component{
     async submitCredentials(data){
         let response = await apiCall3(MEMBERS_URL, data, true) 
         let member = await response.json()
-        console.log(member)
+        if (response.status === 201){
+            this.props.onUpdateMember(member)
+            this.fetchMemberUntilCompleted(member)
+        } else {
+            this.setState({errorSubmit: 'Server responded with error.'})
+        }
     }
 
+    /**
+     * Request MemberDetail endpoint every 5 seconds until 
+     * get completed status.
+     */
+    async fetchMemberUntilCompleted(member){
+        const url = MEMBERS_URL + '/' + member.id
+
+        let response = await apiCall2(url, true) 
+        let member = await response.json()
+
+        const status = member.member_stutuses[member.member_status]
+        
+        if (status.is_completed){
+            this.props.onCompletedMember(member)
+        } else {
+            setTimeout(() => this.fetchMemberUntilCompleted(member), 5000)
+        }
+    }
 
     render(){
         const { credentials, errorSubmit } = this.state
@@ -123,8 +146,9 @@ class Credentials extends Component{
 
 Credentials.propTypes = {
     institution: PropTypes.object,
-    memberStatus: PropTypes.string,
-    onUpdateMemberStatus: PropTypes.func
+    member: PropTypes.object,
+    onCompletedMember: PropTypes.func,
+    onUpdateMember: PropTypes.func
 
 }
 

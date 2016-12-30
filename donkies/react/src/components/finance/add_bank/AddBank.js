@@ -27,7 +27,7 @@ class AddBank extends Component{
         this.state = {
             institution: null,
             isInstitutionChosen: false,
-            memberStatus: null
+            member: null
         }
     }
 
@@ -56,10 +56,17 @@ class AddBank extends Component{
     }
 
     /**
-     * Receives member status.
+     * Receives member after first submit.
      */ 
-    onUpdateMemberStatus(status){
-        this.setState({memberStatus: status})
+    onUpdateMember(member){
+        this.setState({member: member})
+    }
+
+    /**
+     * Receives member after status is completed
+     */
+    onCompletedMember(member){
+
     }
 
     renderCredentials(){
@@ -71,8 +78,9 @@ class AddBank extends Component{
         return (
             <Credentials
                 institution={institution}
-                memberStatus={memberStatus}
-                onUpdateMemberStatus={this.onUpdateMemberStatus} />
+                member={member}
+                onUpdateMember={this.onUpdateMember}
+                onCompletedMember={this.onCompletedMember} />
         )
     }
 
@@ -81,6 +89,7 @@ class AddBank extends Component{
         const { user } = this.props
 
         if (!user.guid){
+            // Means that user has not been created yet in Atrium.
             return (
                 <Alert
                     type="info"

@@ -109,6 +109,7 @@ class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
         fields = (
+            'id',
             'institution',
             'identifier',
             'name',

@@ -140,7 +140,7 @@ class Member(models.Model):
     @property
     def member_status(self):
         """
-        Aggregated status.
+        Aggregated status for frontend.
         """
         processing = [
             self.INITIATED,
@@ -162,6 +162,31 @@ class Member(models.Model):
             return self.SUCCESS
 
         return self.OTHER_ERROR
+
+    @property
+    def member_statuses(self):
+        return {
+            self.SUCCESS: {
+                'is_completed': True,
+                'is_success': True,
+                'message': 'Successfully created!'
+            },
+            self.PROCESSING: {
+                'is_completed': False,
+                'is_success': False,
+                'message': 'Processing...'
+            },
+            self.WRONG_CREDENTIALS: {
+                'is_completed': True,
+                'is_success': False,
+                'message': 'Incorrect credentials.'
+            },
+            self.OTHER_ERROR: {
+                'is_completed': True,
+                'is_success': False,
+                'message': 'Failed.'
+            }
+        }
 
     def save(self, *args, **kwargs):
         if not self.pk:

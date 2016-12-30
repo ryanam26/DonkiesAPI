@@ -103,6 +103,9 @@ class MemberDetail(AuthMixin, RetrieveAPIView):
 
 
 class MemberResume(AuthMixin, APIView):
+    """
+    Used when member has challenges.
+    """
     def post(self, request, identifier, **kwargs):
         try:
             m = Member.objects.get(

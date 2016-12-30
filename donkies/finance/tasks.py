@@ -64,7 +64,7 @@ def get_member(member_id, attempt=0):
     if status not in Member.FINISHED_STATUSES:
         attempt += 1
         return get_member.apply_async(
-            args=[member_id], kwargs={'attempt': attempt}, countdown=2)
+            args=[member_id], kwargs={'attempt': attempt}, countdown=5)
 
     # If status is CHALLENGED, create challenges for member in database
     if status == Member.CHALLENGED:

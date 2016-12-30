@@ -9,7 +9,7 @@ import Credentials from './Credentials'
 /**
  * Main component that controls adding bank account.
  * Flow: 
- * 1) Select institution and set it to state (it also is set in input element)
+ * 1) Select institution and set it to state
  * 2) Fetch credentials for institution.
  * 3) Submit credentials to server.
  * 4) Wait for member status.
@@ -78,7 +78,7 @@ class AddBank extends Component{
         return (
             <div className="card col-lg-6">
 
-                <form ref="form" onSubmit={this.onSubmit} className="form-horizontal">
+                <div className="form-horizontal">
                     <div className="card-header">
                         <h2>{'Add bank account'}</h2>
                     </div>
@@ -94,7 +94,7 @@ class AddBank extends Component{
                         {this.renderCredentials()}
                         
                     </div>
-                </form>
+                </div>
             </div>
         )
     }

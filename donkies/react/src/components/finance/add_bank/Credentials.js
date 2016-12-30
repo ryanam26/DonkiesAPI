@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { apiCall2, CREDENTIALS_BY_ID_URL } from 'services/api'
+import { formToObject } from 'services/helpers'
 import { Input2, LoadingInline } from 'components'
 
 
@@ -14,6 +15,15 @@ import { Input2, LoadingInline } from 'components'
  *
  * @param {object} institution: {id: ..., name: ...}
  * @param {func} onUpdateMemberStatus
+ *
+ * Flow:
+ * 1) Fetch credentials (on mount)
+ * 2) Submit credentials to server
+ * 3) Request server for every 5 seconds until completed status
+ * 4) If error, allow to submit again.
+ * 5) If challenged, load challenges.
+ * 6) If success - show success message.
+ *
  */ 
 class Credentials extends Component{
     constructor(props){
@@ -47,6 +57,10 @@ class Credentials extends Component{
        
     }
 
+    onSubmit(e){
+
+    }
+
     render(){
         const { credentials } = this.state
 
@@ -55,11 +69,9 @@ class Credentials extends Component{
         }
 
         return (
-            <wrap>
+            <form onSubmit={this.onSubmit}>
                 {credentials.map((obj, index) => {
                     const type = obj.type.toLowerCase() === 'password' ? 'password' : 'text'
-                    console.log(obj)
-
                     return (
                         <Input2
                             key={index}
@@ -69,7 +81,7 @@ class Credentials extends Component{
                             placeholder={obj.label} />
                     )                                
                 })}
-            </wrap>
+            </form>
         )
     }
 }

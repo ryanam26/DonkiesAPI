@@ -116,6 +116,7 @@ class MemberSerializer(serializers.ModelSerializer):
             'successfully_aggregated_at',
             'metadata',
             'member_status',
+            'member_statuses',
             'challenges'
         )
 

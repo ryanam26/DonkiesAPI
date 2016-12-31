@@ -10,6 +10,8 @@ import { watchApiEditRequest } from './web/apiEditRequest'
 import { watchRegistration } from './web/registration'
 import { watchLogin } from './web/login'
 
+import { watchGrowlAdd } from './web/growl'
+
 import { watchChangeEmail } from './web/user'
 import { watchChangePassword } from './web/user'
 import { watchEditProfile } from './web/user'
@@ -30,6 +32,7 @@ export default function* root() {
     fork(watchChangeEmail),
     fork(watchChangePassword),
     fork(watchEditProfile),
+    fork(watchGrowlAdd),
     fork(watchLogin),
     fork(watchNavigate),
     fork(watchRegistration),

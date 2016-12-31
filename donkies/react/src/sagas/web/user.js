@@ -25,11 +25,10 @@ function* editProfile(form){
     const id = createUUID()
 
     yield put({
-        type: actions.GROWL_ADD,
+        type: actions.GROWL_ADD_REQUEST,
         payload: {id: id, message: 'Your profile has been changed!', type: 'success'}
     })
-    yield put({type: actions.GROWL_REMOVE, id: id})
-
+    
     yield put({type: actions.EDIT_PROFILE.SUCCESS, payload: result.data})
     
 }
@@ -59,10 +58,10 @@ function* changeEmail(form){
     const id = createUUID()
 
     yield put({
-        type: actions.GROWL_ADD,
+        type: actions.GROWL_ADD_REQUEST,
         payload: {id: id, message: result.data.message, type: 'success', delay: 20000}
     })
-    yield put({type: actions.GROWL_REMOVE, id: id})
+    
 }
 
 export function* watchChangeEmail(){
@@ -90,10 +89,10 @@ function* changePassword(form){
     const id = createUUID()
 
     yield put({
-        type: actions.GROWL_ADD,
+        type: actions.GROWL_ADD_REQUEST,
         payload: {id: id, message: 'Your password has been changed!', type: 'success'}
     })
-    yield put({type: actions.GROWL_REMOVE, id: id})
+    
     
 }
 

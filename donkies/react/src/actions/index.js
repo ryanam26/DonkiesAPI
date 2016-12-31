@@ -47,6 +47,7 @@ export const USER = createRequestTypes('USER')
 export const ALERT_ADD = 'ALERT_ADD'
 export const ALERT_REMOVE = 'ALERT_REMOVE'
 export const FORM_ERRORS =  'FORM_ERRORS'
+export const GROWL_ADD_REQUEST = 'GROWL_ADD_REQUEST'
 export const GROWL_ADD = 'GROWL_ADD'
 export const GROWL_REMOVE = 'GROWL_REMOVE'
 export const LOGOUT =  'LOGOUT'
@@ -79,8 +80,7 @@ export const apiEditRequest = (name, id, form, url=null) => action(API_EDIT_REQU
 // layout
 export const alertAdd = (alertType, message) => action(ALERT_ADD, {alertType, message})
 export const alertRemove = (message) => action(ALERT_REMOVE, {message})
-export const growlAdd = (payload) => action(GROWL_ADD, {payload})
-export const growlRemove = (id) => action(GROWL_REMOVE, {id})
+export const growlAddRequest = (payload) => action(GROWL_ADD_REQUEST, {payload})
 export const navigate = pathname => action(NAVIGATE, {pathname})
 export const resetErrorMessage = () => action(RESET_ERROR_MESSAGE)
 export const setFormErrors = (formType, errors) => action(FORM_ERRORS, {formType, errors})

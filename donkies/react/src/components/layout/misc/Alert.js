@@ -15,16 +15,22 @@ class Alert extends Component{
     constructor(props){
         super(props)
         this.onClick = this.onClick.bind(this)
+
+        this.state = {
+            isVisible: true
+        }
     }
 
     onClick(e){
         this.props.alertRemove(this.props.value)
+        this.setState({isVisible: false})
     }
 
     render(){
         const {type, value, index, showClose} = this.props
+        const { isVisible } = this.state
 
-        if (!value)
+        if (!value || !isVisible)
             return null
         
         const classType = 'alert-' + type

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { CREDENTIALS_URL, apiCall2 } from 'services/api'
 import { createUUID } from 'services/helpers'
-import { growlAdd } from 'actions'
+import { growlAddRequest } from 'actions'
 import { MEMBER_STATUS } from 'constants'
 import { Alert } from 'components'
 import Institution from './Institution'
@@ -88,8 +88,9 @@ class AddBank extends Component{
             console.log('TODO')
         
         } else if (s.name === MEMBER_STATUS.ERROR){
-            this.props.growlAdd({
-                id: createUUID(),
+            const id = createUUID()
+            this.props.growlAddRequest({
+                id: id,
                 message: s.message,
                 'type': 'danger'
             })
@@ -124,13 +125,7 @@ class AddBank extends Component{
 
     renderSuccess(){
         const { successMessage } = this.state
-        if (!successMessage){
-            return null
-        }
-
-        return (
-            <Alert alertType="success" value={successMessage} />
-        )
+        return successMessage ? <Alert type="success" value={successMessage} /> : null
     }
 
     render(){
@@ -168,7 +163,7 @@ class AddBank extends Component{
                         {this.renderChallenge()}
 
                         {this.renderSuccess()}
-                        
+
                     </div>
                 </div>
             </div>
@@ -178,7 +173,7 @@ class AddBank extends Component{
 
 
 AddBank.propTypes = {
-    growlAdd: PropTypes.func,
+    growlAddRequest: PropTypes.func,
     user: PropTypes.object
 }
 
@@ -187,5 +182,5 @@ const mapStateToProps = (state) => ({
 })
 
 export default connect(mapStateToProps, {
-    growlAdd
+    growlAddRequest
 })(AddBank)

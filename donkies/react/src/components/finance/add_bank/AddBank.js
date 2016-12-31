@@ -6,8 +6,9 @@ import { createUUID } from 'services/helpers'
 import { growlAddRequest } from 'actions'
 import { MEMBER_STATUS } from 'constants'
 import { Alert } from 'components'
-import Institution from './Institution'
 import Credentials from './Credentials'
+import Challenges from './Challenges'
+import Institution from './Institution'
 
 
 /**
@@ -74,19 +75,22 @@ class AddBank extends Component{
     /**
      * Receives member after status is completed
      */
-    onCompletedMember(member){
+    onCompleteMember(member){
         const s = member.status_info
 
         if (s.name === MEMBER_STATUS.SUCCESS){
             this.setState({
                 isShowCredentials: false,
+                isShowChallenge: false,
                 successMessage: s.message
             })
         
         } else if (s.name === MEMBER_STATUS.CHALLENGED){
-            this.setState({isShowCredentials: false, isShowChallenge: true})
-            console.log('TODO')
-        
+            this.setState({
+                isShowCredentials: false,
+                isShowChallenge: true
+            })
+
         } else if (s.name === MEMBER_STATUS.ERROR){
             const id = createUUID()
             this.props.growlAddRequest({
@@ -108,18 +112,20 @@ class AddBank extends Component{
                 institution={institution}
                 member={member}
                 onUpdateMember={this.onUpdateMember}
-                onCompletedMember={this.onCompletedMember} />
+                onCompleteMember={this.onCompleteMember} />
         )
     }
 
-    renderChallenge(){
+    renderChallenges(){
         const { member, isShowChallenge } = this.state
         if (!isShowChallenge){
             return null
         }
 
         return (
-            <div>{'Render challenge here'}</div>
+            <Challenges
+                member={member}
+                onCompleteMember={this.onCompleteMember} />
         )
     }
 
@@ -160,7 +166,7 @@ class AddBank extends Component{
 
                         {this.renderCredentials()}
 
-                        {this.renderChallenge()}
+                        {this.renderChallenges()}
 
                         {this.renderSuccess()}
 

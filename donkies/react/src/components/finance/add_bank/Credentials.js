@@ -14,13 +14,12 @@ import { Button2, Input2, LoadingInline } from 'components'
  * and send callback to parent with updated status.
  *
  * @param {object} institution: {id: ..., name: ...}
- * @param {func} onUpdateMemberStatus
  *
  * Flow:
  * 1) Fetch credentials (on mount)
  * 2) Submit credentials to server
  * 3) Request server for every 5 seconds until completed status
- * 4) As soon as member is completed, call onMemberCompleted(member)
+ * 4) As soon as member is completed, call onCompleteMember(member)
  *
  */ 
 class Credentials extends Component{
@@ -105,8 +104,8 @@ class Credentials extends Component{
         member = await response.json()
 
         if (member.status_info.is_completed){
-            this.props.onCompletedMember(member)
             this.setState({isFetchingMember: false})
+            this.props.onCompleteMember(member)
         } else {
             setTimeout(() => this.fetchMemberUntilCompleted(member), 5000)
         }
@@ -150,7 +149,7 @@ class Credentials extends Component{
 Credentials.propTypes = {
     institution: PropTypes.object,
     member: PropTypes.object,
-    onCompletedMember: PropTypes.func,
+    onCompleteMember: PropTypes.func,
     onUpdateMember: PropTypes.func
 
 }

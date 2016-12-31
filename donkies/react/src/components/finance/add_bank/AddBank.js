@@ -22,7 +22,8 @@ import Credentials from './Credentials'
  * 6) If member has completed status and error - show error message.
  * 7) If status is challenged, fetch challenges and resume member.
  * 8) Wait for status again, back to 4th step.
-  */
+ *
+ */
 class AddBank extends Component{
     constructor(props){
         super(props)
@@ -36,10 +37,6 @@ class AddBank extends Component{
             member: null,
             successMessage: null
         }
-    }
-
-    componentDidMount(){
-        
     }
 
     /**
@@ -93,14 +90,14 @@ class AddBank extends Component{
         } else if (s.name === MEMBER_STATUS.ERROR){
             this.props.growlAdd({
                 id: createUUID(),
-                message: status.message,
+                message: s.message,
                 'type': 'danger'
             })
         }
     }
 
     renderCredentials(){
-        const { institution, member, isInstitutionChosen } = this.state
+        const { institution, member, isInstitutionChosen, isShowCredentials } = this.state
         if (!isInstitutionChosen || !isShowCredentials){
             return null
         }
@@ -111,6 +108,28 @@ class AddBank extends Component{
                 member={member}
                 onUpdateMember={this.onUpdateMember}
                 onCompletedMember={this.onCompletedMember} />
+        )
+    }
+
+    renderChallenge(){
+        const { member, isShowChallenge } = this.state
+        if (!isShowChallenge){
+            return null
+        }
+
+        return (
+            <div>{'Render challenge here'}</div>
+        )
+    }
+
+    renderSuccess(){
+        const { successMessage } = this.state
+        if (!successMessage){
+            return null
+        }
+
+        return (
+            <Alert alertType="success" value={successMessage} />
         )
     }
 
@@ -145,6 +164,10 @@ class AddBank extends Component{
                             isInstitutionChosen={isInstitutionChosen} />
 
                         {this.renderCredentials()}
+
+                        {this.renderChallenge()}
+
+                        {this.renderSuccess()}
                         
                     </div>
                 </div>

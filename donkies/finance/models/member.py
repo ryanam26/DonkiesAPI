@@ -121,6 +121,7 @@ class Member(models.Model):
     successfully_aggregated_at = models.DateTimeField(
         null=True, default=None, blank=True)
     metadata = JSONField(null=True, default=None)
+    is_created = models.BooleanField(default=False)
 
     objects = MemberManager()
 
@@ -186,6 +187,9 @@ class Member(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             self.identifier = uuid.uuid4().hex
+
+        if self.successfully_aggregated_at is not None:
+            self.is_created = True
         super().save(*args, **kwargs)
 
 

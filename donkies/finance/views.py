@@ -1,5 +1,6 @@
 import logging
 from django.http import Http404
+from django.db.models import Q
 from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, ListCreateAPIView)
 from rest_framework.response import Response
@@ -48,8 +49,10 @@ class InstitutionsSuggest(AuthMixin, APIView):
         value = request.query_params.get('value', None)
         if value is None:
             return Response([])
+
         l = []
-        for i in Institution.objects.filter(name__icontains=value):
+        qs = Institution.objects.filter(name__icontains=value)
+        for i in qs:
             l.append({'value': i.name, 'id': i.id})
         return Response(l)
 

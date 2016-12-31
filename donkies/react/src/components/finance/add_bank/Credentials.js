@@ -106,6 +106,7 @@ class Credentials extends Component{
 
         if (member.status_info.is_completed){
             this.props.onCompletedMember(member)
+            this.setState({isFetchingMember: false})
         } else {
             setTimeout(() => this.fetchMemberUntilCompleted(member), 5000)
         }

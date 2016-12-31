@@ -57,7 +57,7 @@ def get_member(member_id, attempt=0):
     except:
         attempt += 1
         return get_member.apply_async(
-            args=[member_id], kwargs={'attempt': attempt}, countdown=2)
+            args=[member_id], kwargs={'attempt': attempt}, countdown=5)
 
     status = am.status
 

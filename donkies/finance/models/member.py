@@ -65,8 +65,7 @@ class MemberManager(models.Manager):
 class Member(models.Model):
     SUCCESS = 'SUCCESS'
     PROCESSING = 'PROCESSING'
-    WRONG_CREDENTIALS = 'WRONG_CREDENTIALS'
-    OTHER_ERROR = 'OTHER_ERROR'
+    ERROR = 'ERROR'
 
     INITIATED = 'INITIATED'
     REQUESTED = 'REQUESTED'
@@ -138,9 +137,10 @@ class Member(models.Model):
         return self.guid
 
     @property
-    def member_status(self):
+    def status_info(self):
         """
-        Aggregated status for frontend.
+        Returns dict status for frontend.
+        "name": PROCESSING / SUCCESS / ERROR / CHALLENGED
         """
         processing = [
             self.INITIATED,
@@ -150,42 +150,37 @@ class Member(models.Model):
             self.PROCESSED
         ]
         if self.status in processing:
-            return self.PROCESSING
+            return {
+                'name': self.PROCESSING,
+                'message': 'Processing...',
+                'is_completed': False
+            }
 
         if self.status == self.CHALLENGED:
-            return self.status
+            return {
+                'name': self.CHALLENGED,
+                'message': 'Please provide additional info.',
+                'is_completed': True
+            }
 
         if self.status == self.DENIED:
-            return self.WRONG_CREDENTIALS
+            return {
+                'name': self.ERROR,
+                'message': 'Incorrect credentials.',
+                'is_completed': True
+            }
 
         if self.status == self.COMPLETED:
-            return self.SUCCESS
-
-        return self.OTHER_ERROR
-
-    @property
-    def member_statuses(self):
-        return {
-            self.SUCCESS: {
-                'is_completed': True,
-                'is_success': True,
-                'message': 'Successfully created!'
-            },
-            self.PROCESSING: {
-                'is_completed': False,
-                'is_success': False,
-                'message': 'Processing...'
-            },
-            self.WRONG_CREDENTIALS: {
-                'is_completed': True,
-                'is_success': False,
-                'message': 'Incorrect credentials.'
-            },
-            self.OTHER_ERROR: {
-                'is_completed': True,
-                'is_success': False,
-                'message': 'Failed.'
+            return {
+                'name': self.SUCCESS,
+                'message': 'Bank account has been created!',
+                'is_completed': True
             }
+
+        return {
+            'name': self.ERROR,
+            'message': 'Other error.',
+            'is_completed': True
         }
 
     def save(self, *args, **kwargs):

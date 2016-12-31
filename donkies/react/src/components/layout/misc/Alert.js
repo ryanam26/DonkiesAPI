@@ -8,7 +8,7 @@ class Alert extends Component{
     static get defaultProps() {
         return {
             index: 0,
-            showClose: false
+            showClose: true
         }
     }
 

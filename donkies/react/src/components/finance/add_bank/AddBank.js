@@ -1,7 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
-import {CREDENTIALS_URL, apiCall2} from 'services/api'
+import { CREDENTIALS_URL, apiCall2 } from 'services/api'
+import { createUUID } from 'services/helpers'
+import { growlAdd } from 'actions'
+import { MEMBER_STATUS } from 'constants'
 import { Alert } from 'components'
 import Institution from './Institution'
 import Credentials from './Credentials'
@@ -14,11 +17,12 @@ import Credentials from './Credentials'
  * 2) Fetch credentials for institution.
  * 3) Submit credentials to server.
  * 4) Wait for member status.
- * 5) If member has completed status - show message.
- * 6) If status is challenged, fetch challenges and resume member.
- * 7) Wait for status again.
- * 8) If member has completed status - show message.
- */
+ * 5) If member has completed status and success - show success message.
+ *    and hide Credentials component.
+ * 6) If member has completed status and error - show error message.
+ * 7) If status is challenged, fetch challenges and resume member.
+ * 8) Wait for status again, back to 4th step.
+  */
 class AddBank extends Component{
     constructor(props){
         super(props)
@@ -27,8 +31,15 @@ class AddBank extends Component{
         this.state = {
             institution: null,
             isInstitutionChosen: false,
-            member: null
+            isShowCredentials: false,
+            isShowChallenge: false,
+            member: null,
+            successMessage: null
         }
+    }
+
+    componentDidMount(){
+        
     }
 
     /**
@@ -51,7 +62,8 @@ class AddBank extends Component{
     onChooseInstitution(institution){
         this.setState({
             isInstitutionChosen: true,
-            institution: institution
+            institution: institution,
+            isShowCredentials: true
         })
     }
 
@@ -66,12 +78,30 @@ class AddBank extends Component{
      * Receives member after status is completed
      */
     onCompletedMember(member){
+        const s = member.status_info
 
+        if (s.name === MEMBER_STATUS.SUCCESS){
+            this.setState({
+                isShowCredentials: false,
+                successMessage: s.message
+            })
+        
+        } else if (s.name === MEMBER_STATUS.CHALLENGED){
+            this.setState({isShowCredentials: false, isShowChallenge: true})
+            console.log('TODO')
+        
+        } else if (s.name === MEMBER_STATUS.ERROR){
+            this.props.growlAdd({
+                id: createUUID(),
+                message: status.message,
+                'type': 'danger'
+            })
+        }
     }
 
     renderCredentials(){
-        const { institution, memberStatus, isInstitutionChosen } = this.state
-        if (!isInstitutionChosen){
+        const { institution, member, isInstitutionChosen } = this.state
+        if (!isInstitutionChosen || !isShowCredentials){
             return null
         }
 
@@ -125,6 +155,7 @@ class AddBank extends Component{
 
 
 AddBank.propTypes = {
+    growlAdd: PropTypes.func,
     user: PropTypes.object
 }
 
@@ -133,4 +164,5 @@ const mapStateToProps = (state) => ({
 })
 
 export default connect(mapStateToProps, {
+    growlAdd
 })(AddBank)

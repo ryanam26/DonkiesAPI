@@ -20,9 +20,7 @@ import { Button2, Input2, LoadingInline } from 'components'
  * 1) Fetch credentials (on mount)
  * 2) Submit credentials to server
  * 3) Request server for every 5 seconds until completed status
- * 4) If error, allow to submit again.
- * 5) If challenged, load challenges.
- * 6) If success - show success message.
+ * 4) As soon as member is completed, call onMemberCompleted(member)
  *
  */ 
 class Credentials extends Component{
@@ -32,7 +30,8 @@ class Credentials extends Component{
 
         this.state = {
             credentials: null,
-            errorSubmit: null
+            errorSubmit: null,
+            isFetchingMember: false
         }
     }
 
@@ -88,6 +87,7 @@ class Credentials extends Component{
         let member = await response.json()
         if (response.status === 201){
             this.props.onUpdateMember(member)
+            this.setState({'isFetchingMember': true})
             this.fetchMemberUntilCompleted(member)
         } else {
             this.setState({errorSubmit: 'Server responded with error.'})
@@ -99,14 +99,12 @@ class Credentials extends Component{
      * get completed status.
      */
     async fetchMemberUntilCompleted(member){
-        const url = MEMBERS_URL + '/' + member.id
+        const url = MEMBERS_URL + '/' + member.identifier
 
         let response = await apiCall2(url, true) 
-        let member = await response.json()
+        member = await response.json()
 
-        const status = member.member_stutuses[member.member_status]
-        
-        if (status.is_completed){
+        if (member.status_info.is_completed){
             this.props.onCompletedMember(member)
         } else {
             setTimeout(() => this.fetchMemberUntilCompleted(member), 5000)
@@ -114,10 +112,14 @@ class Credentials extends Component{
     }
 
     render(){
-        const { credentials, errorSubmit } = this.state
+        const { credentials, isFetchingMember, errorSubmit } = this.state
 
         if (!credentials){
             return <LoadingInline />
+        }
+
+        if (isFetchingMember){
+            return <LoadingInline message="Please wait..." />
         }
 
         return (

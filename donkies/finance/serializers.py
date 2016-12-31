@@ -117,8 +117,7 @@ class MemberSerializer(serializers.ModelSerializer):
             'aggregated_at',
             'successfully_aggregated_at',
             'metadata',
-            'member_status',
-            'member_statuses',
+            'status_info',
             'challenges'
         )
 
@@ -168,6 +167,9 @@ class MemberCreateSerializer(serializers.ModelSerializer):
         code = data['institution_code']
         credentials = data['credentials']
         m = Member.objects.get_or_create_member(user.guid, code, credentials)
+        # In case recreate user
+        m.status = Member.REQUESTED
+        m.save()
         return m
 
 

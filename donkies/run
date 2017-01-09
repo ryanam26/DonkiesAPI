@@ -26,6 +26,7 @@ python manage.py createcustomers
 
 python manage.py loaddata institutions
 python manage.py loaddata credentials
+python manage.py generatetransactions
 
 python manage.py updateinstitutions
 

@@ -7,6 +7,7 @@ import {
     ForgotPasswordPage,
     HomePage,
     LoginPage,
+    LoginFacebookPage,
     NotFoundPage,
     RegistrationPage,
     RegistrationConfirmPage,
@@ -22,7 +23,8 @@ import { requireAuth } from 'components/Auth'
 
 export default (
     <div>
-        <Route component={LoginPage} path="/login" />     
+        <Route component={LoginPage} path="/login" />
+        <Route component={LoginFacebookPage} path="/login_facebook" />     
         <Route component={RegistrationPage} path="/registration" />
         <Route component={RegistrationConfirmPage} path="/confirm" />
         <Route component={ForgotPasswordPage} path="/forgot_password" />     

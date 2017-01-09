@@ -79,6 +79,9 @@ export { ForgotPassword }
 import { default as Login } from './user/Login'
 export { Login }
 
+import { default as LoginFacebook } from './user/LoginFacebook'
+export { LoginFacebook }
+
 import { default as Registration } from './user/Registration'
 export { Registration }
 

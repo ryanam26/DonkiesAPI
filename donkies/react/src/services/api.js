@@ -11,6 +11,7 @@ export const CREDENTIALS_BY_ID_URL = `${API_ROOT_URL}v1/credentials/id`
 export const INSTITUTIONS_URL = `${API_ROOT_URL}v1/institutions`
 export const INSTITUTIONS_SUGGEST_URL = `${API_ROOT_URL}v1/institutions_suggest`
 export const LOGIN_URL = `${API_ROOT_URL}v1/auth/login`
+export const LOGIN_FACEBOOK_URL = `${API_ROOT_URL}v1/auth/facebook`
 export const MEMBERS_URL = `${API_ROOT_URL}v1/members`
 export const REGISTRATION_URL = `${API_ROOT_URL}v1/auth/signup`
 export const REGISTRATION_CONFIRM_URL = `${API_ROOT_URL}v1/auth/signup/confirm`

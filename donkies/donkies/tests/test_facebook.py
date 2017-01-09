@@ -40,7 +40,7 @@ PREPARATION:
 7) "PRODUCTS" -> Add product: "Facebook Login"
 8) "PRODUCTS" -> "Facebook Login" -> "Settings"
    set "Valid OAuth redirect URIs"
-   http://donkies.com:8080/account/complete_facebook
+   http://donkies.com:8080/account/login_facebook
 
 USAGE:
 

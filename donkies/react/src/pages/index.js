@@ -30,6 +30,9 @@ export { ForgotPasswordPage }
 import { default as LoginPage } from './user/LoginPage'
 export { LoginPage }
 
+import { default as LoginFacebookPage } from './user/LoginFacebookPage'
+export { LoginFacebookPage }
+
 import { default as RegistrationConfirmPage } from './user/RegistrationConfirmPage'
 export { RegistrationConfirmPage }
 

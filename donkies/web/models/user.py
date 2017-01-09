@@ -83,7 +83,7 @@ class User(AbstractBaseUser):
         help_text='Used in Atrium')
     email = models.EmailField(
         max_length=255, null=True, unique=True, default=None)
-    first_name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50, blank=True, default='')
     last_name = models.CharField(max_length=50, blank=True, default='')
     address1 = models.CharField(max_length=50, null=True, default=None)
     address2 = models.CharField(
@@ -467,6 +467,13 @@ class User(AbstractBaseUser):
             if str(value).isdigit():
                 user.fb_age_range = value
 
+        if user.fb_first_name:
+            user.first_name = user.fb_first_name
+
+        if user.fb_last_name:
+            user.last_name = user.fb_last_name
+
+        user.is_confirmed = True
         user.save()
 
         # save picture

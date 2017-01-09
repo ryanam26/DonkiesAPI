@@ -2,7 +2,6 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import autoBind from 'react-autobind'
-import { HOME_PAGE_URL } from 'store/configureStore'
 import { loginFacebook, navigate, setFormErrors } from 'actions'
 import { ErrorBlock, Loading } from 'components'
 
@@ -44,7 +43,9 @@ class LoginFacebook extends Component{
     render(){
         const { errors } = this.props
 
-        //return <Loading />
+        if (!this.props.auth.isAuthenticated && !errors){
+            return <Loading />    
+        }
 
         return (
             <div className="login-content">

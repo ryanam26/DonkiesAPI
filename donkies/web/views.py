@@ -35,6 +35,23 @@ def home(request):
     return render(request, 'web/home.html', ctx)
 
 
+class AuthFacebook(APIView):
+    """
+    """
+    def post(self, request, **kwargs):
+        serializer = sers.FacebookAuthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        d = serializer.validated_data
+
+        try:
+            user = User.objects.get(fb_id=d['id'])
+        except User.DoesNotExist:
+            user = User.create_facebook_user(d)
+
+
+        return r
+
+
 class Signup(APIView):
     def post(self, request, **kwargs):
         serializer = sers.SignupSerializer(data=request.data)

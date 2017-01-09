@@ -1,12 +1,15 @@
 import datetime
+import json
+import requests
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.contrib.postgres.fields import JSONField
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
 from django.core.validators import RegexValidator
+from django.core.files.base import ContentFile
+from django.core.exceptions import ValidationError
 from web.services.helpers import get_md5
 from finance.services.atrium_api import AtriumApi
 from finance import tasks
@@ -64,6 +67,8 @@ class UserManager(BaseUserManager):
 
     def login_facebook(self, fb_response):
         """
+        OLD
+
         Get or create user.
         Save updated response from facebook to database.
         Returns dict with "message" if error.
@@ -168,8 +173,21 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False, verbose_name='admin')
     is_superuser = models.BooleanField(default=False, verbose_name='superuser')
     fb_id = models.CharField(
-        max_length=100, null=True, default=None, unique=True)
-    fb_response = JSONField(null=True, default=None)
+        max_length=100,
+        default=None,
+        null=True,
+        unique=True,
+        blank=True)
+    fb_token = models.CharField(max_length=3000, blank=True, default='')
+    fb_link = models.CharField(max_length=1000, blank=True, default='')
+    fb_name = models.CharField(max_length=255, blank=True, default='')
+    fb_first_name = models.CharField(max_length=255, blank=True, default='')
+    fb_last_name = models.CharField(max_length=255, blank=True, default='')
+    fb_gender = models.CharField(max_length=50, blank=True, default='')
+    fb_locale = models.CharField(max_length=10, blank=True, default='')
+    fb_age_range = models.IntegerField(default=0)
+    fb_timezone = models.IntegerField(default=0)
+    fb_verified = models.BooleanField(default=False)
     is_atrium_created = models.BooleanField(default=False)
 
     objects = UserManager()
@@ -343,6 +361,26 @@ class User(AbstractBaseUser):
             return True
         return timezone.now() > self.new_email_expire_at
 
+    def save_facebook_picture(self):
+        if self.fb_id is None:
+            return
+        url = 'https://graph.facebook.com/{}/picture'.format(self.fb_id)
+        url += '?width=320&height=320'
+
+        try:
+            r = requests.get(url)
+        except:
+            return
+
+        if r.status_code != 200:
+            return
+
+        bytes = r.content
+        extension = '.jpg'
+
+        filename = uuid.uuid4().hex + extension.lower()
+        self.profile_image_f.save(filename, ContentFile(bytes))
+
     def save(self, *args, **kwargs):
         Token = apps.get_model('web', 'Token')
         created = True if not self.pk else False
@@ -359,3 +397,104 @@ class User(AbstractBaseUser):
 
             # Create atrium user in background
             tasks.create_atrium_user.delay(self.id)
+
+    @staticmethod
+    def get_facebook_user(code, redirect_uri):
+        """
+        Input: facebook "code" and "redirect uri".
+        Requests info from facebook.
+        Returns dict with id and email or raise validation error.
+        Use this method in serializer, that can process validation error.
+        """
+        # Step1. Get access_token
+        url = 'https://graph.facebook.com/v2.8/oauth/access_token'
+        url += '?client_id={}'.format(settings.FACEBOOK_APP_ID)
+        url += '&redirect_uri={}'.format(redirect_uri)
+        url += '&client_secret={}'.format(settings.FACEBOOK_APP_SECRET)
+        url += '&code={}'.format(code)
+
+        try:
+            resp = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            raise ValidationError('Connection error.')
+
+        dic = json.loads(resp.text)
+        if 'error' in dic:
+            raise ValidationError(dic['error']['message'])
+
+        access_token = dic['access_token']
+
+        fields = (
+            'id',
+            'email',
+            'name',
+            'first_name',
+            'last_name',
+            'age_range',
+            'link',
+            'gender',
+            'locale',
+            'picture',
+            'timezone',
+            'updated_time',
+            'verified'
+        )
+
+        url = 'https://graph.facebook.com/me?fields={}'.format(
+            ','.join(fields))
+        url += '&access_token={}'.format(access_token)
+        try:
+            resp = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            raise ValidationError('Connection error.')
+
+        dic = json.loads(resp.text)
+        if 'error' in dic:
+            raise ValidationError(dic['error']['message'])
+
+        if 'id' not in dic:
+            raise ValidationError('User id is not available.')
+
+        # If email is not available, use <fb_id>@facebook.com as email.
+        if 'email' not in dic:
+            dic['email'] = '{}@facebook.com'.format(dic['id'])
+
+        dic['access_token'] = access_token
+        return dic
+
+    @staticmethod
+    def create_facebook_user(dic):
+        """
+        Creates user from facebook data and fills appropriate fields.
+        """
+        user = User.objects.create_user(dic['email'], uuid.uuid4().hex)
+        user.is_email_confirmed = True
+
+        map_fields = {
+            'id': 'fb_id',
+            'name': 'fb_name',
+            'first_name': 'fb_first_name',
+            'last_name': 'fb_last_name',
+            'link': 'fb_link',
+            'gender': 'fb_gender',
+            'locale': 'fb_locale',
+            'timezone': 'fb_timezone',
+            'verified': 'fb_verified',
+            'access_token': 'fb_token',
+        }
+
+        for k1, k2 in map_fields.items():
+            if k1 in dic:
+                setattr(user, k2, dic[k1])
+
+        # set age_range
+        if 'age_range' in dic and 'min' in dic['age_range']:
+            value = dic['age_range']['min']
+            if str(value).isdigit():
+                user.fb_age_range = value
+
+        user.save()
+
+        # save picture
+        user.save_facebook_picture()
+        return user

@@ -15,7 +15,13 @@ import { Button2, Input2, LoadingInline } from 'components'
  * 2) Request server for every 5 seconds until completed status
  * 3) As soon as member is completed, call onCompleteMember(member)
  *    exactly the same scenario as has Credentials component.
- */ 
+ */
+
+//
+// NOT COMPLETED
+//
+
+
 class Challenges extends Component{
     constructor(props){
         super(props)

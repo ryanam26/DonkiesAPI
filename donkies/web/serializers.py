@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from web.models import User
 from django.contrib import auth
+from django.conf import settings
 from web.exceptions import PasswordsNotMatch
 
 
@@ -46,6 +47,27 @@ class ChangeEmailSerializer(serializers.Serializer):
         data = self.validated_data
         u = self.context['request'].user
         u.change_email_request(data['new_email'])
+
+
+class FacebookAuthSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    redirect_uri = serializers.CharField(required=False)
+    rt_mode = serializers.BooleanField(required=False)
+
+    def validate(self, data):
+        """
+        get_facebook_user method returns dict
+        with id and email or raise error
+        """
+        if 'redirect_uri' in data:
+            redirect_uri = data['redirect_uri']
+        else:
+            redirect_uri = settings.FACEBOOK_REDIRECT_URI
+
+        dic = User.get_facebook_user(data['code'], redirect_uri)
+        for k, v in dic.items():
+            data[k] = v
+        return data
 
 
 class LoginSerializer(serializers.ModelSerializer):

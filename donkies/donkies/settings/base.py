@@ -8,6 +8,11 @@ BASE_DIR = abspath(join(dirname(abspath(__file__)), '..', '..', '..'))
 data_path = os.path.join(BASE_DIR, 'donkies/donkies/settings/data.json')
 data = json.loads(open(data_path).read())
 
+
+FACEBOOK_APP_ID = data['FACEBOOK_APP_ID']
+FACEBOOK_APP_SECRET = data['FACEBOOK_APP_SECRET']
+FACEBOOK_REDIRECT_URI = data['FACEBOOK_REDIRECT_URI']
+
 SOCIAL_AUTH_FACEBOOK_KEY = data['SOCIAL_AUTH_FACEBOOK_KEY']
 SOCIAL_AUTH_FACEBOOK_SECRET = data['SOCIAL_AUTH_FACEBOOK_SECRET']
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = data['SOCIAL_AUTH_GOOGLE_OAUTH2_KEY']

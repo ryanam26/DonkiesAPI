@@ -1,78 +1,168 @@
+"""
+Testing Facebook and Facebook flow.
+
+donkies.com - development (setup /etc/hosts)
+donkies.co (dev.donkies.co)  - production
+
+PERMISSIONS
+https://developers.facebook.com/docs/facebook-login/permissions
+
+public_profile (Default)
+
+id
+cover
+name
+first_name
+last_name
+age_range
+link
+gender
+locale
+picture
+timezone
+updated_time
+verified
+
+"Facebook Login" -> "Settings" -> "Client OAuth Login" should be turned on.
+
+Values that requested from Facebook Graph using access_token passed in string.
+Method: user.get_facebook_user implements it.
+
+
+PREPARATION:
+
+1) Create test app on https://developers.facebook.com
+2) Settings basics - set "donkies.com" to "App Domains"
+3) Add platform: Web
+4) Set in "Website" -> "Site URL": http://donkies.com/
+5) The app should have access to user's email (by default)
+6) "Roles" -> "Test Users" - create test user.
+7) "PRODUCTS" -> Add product: "Facebook Login"
+8) "PRODUCTS" -> "Facebook Login" -> "Settings"
+   set "Valid OAuth redirect URIs"
+   http://donkies.com:8080/account/complete_facebook
+
+USAGE:
+
+1) Frontend redirect user to Facebook auth:
+   https://www.facebook.com/dialog/oauth?client_id={APP_ID}&redirect_uri={REDIRECT_URI}
+2) In tests: all we need is code that passed as GET param.
+   Set code to TestFacebook class and run tests, "code" is valid only one time.
+3) In frontend (redirect_uri). Frontend get "code" in GET param
+   and send request to API.
+
+TEST DATA:
+
+User name: Mike Aladhajchfjif McDonaldsen
+User ID: 122801238223555
+Email: tmqliiattt_1483961185@tfbnw.net
+Password: axcf45gh
+
+Use selenium webdriver to automate login flow.
+"""
+
+import os
+import re
 import pytest
-from web.models import User
+import requests
+from selenium import webdriver
+from django.conf import settings
 from .import base
+from .factories import UserFactory
+from web.models import User, Token
 
 
 class TestFacebook(base.Mixin):
-    """
-    First part of auth via facebook implemented with
-    python social auth library (pso).
-    On final pipeline get response from facebook and implement own logic.
+    TEST_USER_EMAIL = 'tmqliiattt_1483961185@tfbnw.net'
+    TEST_USER_PASSWORD = 'axcf45gh'
 
-    1) Frontend poin browser to /login/facebook/
-    2) pso sends browser to facebook site.
-    3) User click button login.
-    4) pso process all data.
-    5) On final pipeline custom implementation.
-
-    If user does not exist - create user (lookup by id).
-    Update json field with response.
-
-    Facebook response should have id and email.
-    If error - redirect browser to FACEBOOK_FAIL_URL with "message"
-    If success - redirect browser to FACEBOOK_SUCCESS_URL with "token"
-
-    """
-    def get_pso_dic(self):
+    def get_code(self):
         """
-        Example from real response from facebook.
+        Use real browser to get "code".
+        1) Go to dialog page (login page).
+        2) Auth with test user.
+        3) Get "code" from url params.
+        4) Use code to request API.
+           "code" is valid only for single test run.
         """
-        return {
-            'link': 'xxx',
-            'verified': True,
-            'picture': {
-                'data': {
-                    'url': 'https://scontent.xx.fbcdn.net/v/xxx',
-                    'is_silhouette': True
-                }
-            },
-            'access_token': 'xxx',
-            'updated_time': '2016-09-07T09:03:36+0000',
-            'first_name': 'Bob',
-            'timezone': 3,
-            'email': 'bob@gmail.com',
-            'name': 'Bob Smith',
-            'last_name': 'Smith',
-            'locale': 'ru_RU',
-            'id': '222448744834113',
-            'gender': 'male',
-            'age_range': {'min': 21}
-        }
+        chromedriver = '/home/vlad/dev/ubuntu/chromedriver'
+        os.environ['webdriver.chrome.driver'] = chromedriver
+        br = webdriver.Chrome(chromedriver)
+
+        url = 'https://www.facebook.com/dialog/oauth?client_id={}'
+        url += '&redirect_uri={}'
+        url = url.format(
+            settings.FACEBOOK_APP_ID, settings.FACEBOOK_REDIRECT_URI)
+        br.get(url)
+
+        el = br.find_element_by_name('email')
+        el.send_keys(self.TEST_USER_EMAIL)
+
+        el = br.find_element_by_name('pass')
+        el.send_keys(self.TEST_USER_PASSWORD)
+
+        button = br.find_element_by_id('loginbutton')
+        button.click()
+
+        m = re.search('code=(.*?)$', br.current_url)
+        code = m.group(1)
+        br.quit()
+        return code
 
     @pytest.mark.django_db
-    def test_01(self, client):
-        """
-        Try response without id and email.
-        Should get message.
-        """
-        d = self.get_pso_dic()
-        d.pop('id')
-        result = User.objects.login_facebook(d)
-        assert 'message' in result
-
-        d.pop('email')
-        result = User.objects.login_facebook(d)
-        assert 'message' in result
+    def test01(self, client):
+        dic = User.get_facebook_user(
+            self.get_code(), settings.FACEBOOK_REDIRECT_URI)
+        print(dic)
 
     @pytest.mark.django_db
-    def test_02(self, client):
-        d = self.get_pso_dic()
-        result = User.objects.login_facebook(d)
-        assert 'token' in result
+    def test02(self, client):
+        """
+        Use correct code.
+        Should get success.
+        """
+        url = '/v1/auth/facebook'
+        dic = {'code': self.code}
+        response = requests.post(url, data=dic)
+        print(response.content)
+        assert response.status_code == 200
+        return
 
-        user = User.objects.get(fb_id=d['id'])
-        assert user.fb_response is not None
+        key = response.json()['token']
+        token = Token.objects.get(key=key)
+        user = token.user
+        assert user.fb_id is not None
+        assert user.fb_token != ''
+        assert user.fb_link != ''
+        assert user.fb_name != ''
+        assert user.fb_first_name != ''
+        assert user.fb_last_name != ''
+        assert user.fb_gender != ''
+        assert user.fb_locale != ''
+        assert user.fb_age_range > 0
+        assert user.fb_timezone > 0
+        assert user.profile_image_f != ''
 
-        # Try to login again with existing user.
-        result = User.objects.login_facebook(d)
-        assert 'token' in result
+    @pytest.mark.django_db
+    def notest03(self, client):
+        """
+        Test facebook auth endpoint with wrong code.
+        Should get error.
+        """
+        url = '/v1/auth/facebook'
+        dic = {'code': 'wrong code'}
+        response = requests.post(url, data=dic)
+        # print(response.content)
+        assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def notest04(self, client):
+        """
+        Test facebook auth endpoint with wrong redirect_uri.
+        Should get error.
+        """
+        url = '/v1/auth/facebook'
+        dic = {'code': 'wrong code'}
+        response = requests.post(url, data=dic)
+        # print(response.content)
+        assert response.status_code == 400

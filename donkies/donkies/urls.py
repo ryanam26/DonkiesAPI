@@ -4,7 +4,7 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
-    url('', include('social.apps.django_app.urls', namespace='social')),
+    # url('', include('social.apps.django_app.urls', namespace='social')),
     # url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^', include('bank.urls')),
     url(r'^', include('finance.urls')),

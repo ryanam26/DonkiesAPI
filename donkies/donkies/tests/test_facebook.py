@@ -61,6 +61,7 @@ Password: axcf45gh
 Use selenium webdriver to automate login flow.
 """
 
+import json
 import os
 import re
 import pytest
@@ -68,7 +69,6 @@ import requests
 from selenium import webdriver
 from django.conf import settings
 from .import base
-from .factories import UserFactory
 from web.models import User, Token
 
 
@@ -122,11 +122,10 @@ class TestFacebook(base.Mixin):
         Should get success.
         """
         url = '/v1/auth/facebook'
-        dic = {'code': self.code}
-        response = requests.post(url, data=dic)
-        print(response.content)
+        dic = {'code': self.get_code()}
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
         assert response.status_code == 200
-        return
 
         key = response.json()['token']
         token = Token.objects.get(key=key)
@@ -141,28 +140,30 @@ class TestFacebook(base.Mixin):
         assert user.fb_locale != ''
         assert user.fb_age_range > 0
         assert user.fb_timezone > 0
-        assert user.profile_image_f != ''
+        assert user.profile_image != ''
 
     @pytest.mark.django_db
-    def notest03(self, client):
+    def test03(self, client):
         """
         Test facebook auth endpoint with wrong code.
         Should get error.
         """
         url = '/v1/auth/facebook'
         dic = {'code': 'wrong code'}
-        response = requests.post(url, data=dic)
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
         # print(response.content)
         assert response.status_code == 400
 
     @pytest.mark.django_db
-    def notest04(self, client):
+    def test04(self, client):
         """
         Test facebook auth endpoint with wrong redirect_uri.
         Should get error.
         """
         url = '/v1/auth/facebook'
         dic = {'code': 'wrong code'}
-        response = requests.post(url, data=dic)
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
         # print(response.content)
         assert response.status_code == 400

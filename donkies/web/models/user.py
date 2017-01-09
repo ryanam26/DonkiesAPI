@@ -65,37 +65,6 @@ class UserManager(BaseUserManager):
         for d in res['users']:
             a.delete_user(d['guid'])
 
-    def login_facebook(self, fb_response):
-        """
-        OLD
-
-        Get or create user.
-        Save updated response from facebook to database.
-        Returns dict with "message" if error.
-        Returns dict with "token" if success.
-        TODO: facebook may send response with error.
-              Process facebook error.
-        """
-        d = fb_response
-        if 'id' not in d:
-            return {'message': 'No id'}
-
-        if 'email' not in d:
-            return {'message': 'No email'}
-
-        try:
-            user = self.model.objects.get(fb_id=d['id'])
-            user.fb_response = fb_response
-            user.save()
-            token = user.update_token()
-        except self.model.DoesNotExist:
-            user = self.model.objects.create_user(d['email'], uuid.uuid4().hex)
-            user.fb_id = d['id']
-            user.fb_response = fb_response
-            user.save()
-            token = user.get_token()
-        return {'token': token.key}
-
 
 class User(AbstractBaseUser):
     encrypted_id = models.CharField(max_length=32, default='')
@@ -169,6 +138,11 @@ class User(AbstractBaseUser):
         max_length=255, null=True, default=None, blank=True)
     new_email_expire_at = models.DateTimeField(
         null=True, default=None, blank=True)
+    profile_image = models.ImageField(
+        verbose_name='profile image',
+        max_length=255,
+        blank=True,
+        upload_to='user/profile_image/%Y')
     is_active = models.BooleanField(default=True, verbose_name='active')
     is_admin = models.BooleanField(default=False, verbose_name='admin')
     is_superuser = models.BooleanField(default=False, verbose_name='superuser')
@@ -379,7 +353,7 @@ class User(AbstractBaseUser):
         extension = '.jpg'
 
         filename = uuid.uuid4().hex + extension.lower()
-        self.profile_image_f.save(filename, ContentFile(bytes))
+        self.profile_image.save(filename, ContentFile(bytes))
 
     def save(self, *args, **kwargs):
         Token = apps.get_model('web', 'Token')

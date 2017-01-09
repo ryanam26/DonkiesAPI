@@ -47,9 +47,7 @@ class AuthFacebook(APIView):
             user = User.objects.get(fb_id=d['id'])
         except User.DoesNotExist:
             user = User.create_facebook_user(d)
-
-
-        return r
+        return Response({'token': user.get_token().key})
 
 
 class Signup(APIView):
@@ -182,21 +180,3 @@ class UserChangeEmailConfirm(APIView):
             return r400('Incorrect link or expired token.')
 
         return Response({'message': self.message})
-
-
-class OauthTest(AuthMixin, APIView):
-    def get(self, request, **kwargs):
-        return Response({'hello': request.user.email})
-
-
-def login(request):
-    ctx = {
-        'user': request.user,
-        'next': request.GET.get('next', '')
-    }
-    return render(request, 'web/login.html', ctx)
-
-
-def logout(request):
-    auth_logout(request)
-    return redirect(reverse('auth_login'))

@@ -10,15 +10,6 @@ urlpatterns = [
     url(r'^robots\.txt$', TemplateView.as_view(
         template_name='web/txt/robots.txt', content_type='text/plain')),
 
-    url(r'^auth/login/', v.login, name='auth_login'),
-    url(r'^auth/logout/$', v.logout, name='auth_logout'),
-    url(r'^test', TemplateView.as_view(template_name='web/test.html')),
-
-    url(
-        r'^(?P<version>(v1))/oauth/test$',
-        v.OauthTest.as_view(),
-        name='oauth_test'),
-
     url(
         r'^(?P<version>(v1))/auth/signup$',
         v.Signup.as_view(),

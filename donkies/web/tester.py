@@ -32,7 +32,8 @@ class TestMember:
 
     def get_auth_client(self, user):
         client = APIClient()
-        token = Token.objects.get(user_id=user.id)
+        user = User.objects.get(user_id=user.id)
+        token = user.get_token()
         client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
         return client
 

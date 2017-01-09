@@ -41,6 +41,8 @@ export const CHANGE_PASSWORD = createRequestTypes('CHANGE_PASSWORD')
 export const EDIT_PROFILE = createRequestTypes('EDIT_PROFILE')
 export const LOGIN = createRequestTypes('LOGIN')
 export const REGISTRATION = createRequestTypes('REGISTRATION')
+export const SETTINGS = createRequestTypes('SETTINGS')
+export const SETTINGS_LOGIN = createRequestTypes('SETTINGS_LOGIN')
 export const TOKEN = createRequestTypes('TOKEN')
 export const USER = createRequestTypes('USER')
 

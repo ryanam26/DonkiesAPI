@@ -3,7 +3,8 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import autoBind from 'react-autobind'
 import { HOME_PAGE_URL } from 'store/configureStore'
-import { login, navigate, setFormErrors } from 'actions'
+import { SETTINGS_LOGIN_URL } from 'services/api'
+import { apiGetRequest, login, navigate, setFormErrors } from 'actions'
 import { Checkbox, ErrorBlock, Input } from 'components'
 
 
@@ -19,6 +20,7 @@ class Login extends Component{
             this.props.navigate('/')
             return
         }
+        this.props.apiGetRequest('settings_login', {useToken: false}, SETTINGS_LOGIN_URL)
     }
 
     componentWillReceiveProps(props){
@@ -51,12 +53,30 @@ class Login extends Component{
         this.props.login(email, password)
     }
 
+    renderSocial(){
+        const { settings } = this.props
+        if (!settings){
+            return null
+        }
+
+        return (
+            <div style={{backgroundColor: '#fff'}}>
+                <a href={settings.facebook_login_url}>
+                    <i style={{fontSize: '40px'}} className="zmdi zmdi-facebook-box" />
+                </a>
+            </div>
+        )
+    }
+
     render(){
         const { errors } = this.props
 
         return (
             <div className="login-content">
                 <div className="lc-block toggled">
+                    
+                    {this.renderSocial()}
+
                     <div className="lcb-form">
                         <Input
                             name="email"
@@ -103,6 +123,7 @@ class Login extends Component{
                             <i>{'?'}</i> <span>{'Forgot Password'}</span>
                         </Link>
                     </div>
+                   
                 </div>
             </div>
         )
@@ -110,25 +131,24 @@ class Login extends Component{
 }
 
 Login.propTypes = {
-}
-
-
-
-Login.propTypes = {
+    apiGetRequest: PropTypes.func,
     auth: PropTypes.object,
     errors: PropTypes.object,
     location: PropTypes.object,
     login: PropTypes.func,
     navigate: PropTypes.func,
-    setFormErrors: PropTypes.func
+    setFormErrors: PropTypes.func,
+    settings: PropTypes.object
 }
 
 const mapStateToProps = (state) => ({
     auth: state.auth,
-    errors: state.formErrors.login
+    errors: state.formErrors.login,
+    settings: state.settingsLogin
 })
 
 export default connect(mapStateToProps, {
+    apiGetRequest,
     login,
     navigate,
     setFormErrors

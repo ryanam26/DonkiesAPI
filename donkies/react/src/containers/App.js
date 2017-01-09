@@ -31,6 +31,7 @@ class App extends Component {
             pathname: this.props.location.pathname,
             params  : this.props.params
         })
+        this.props.apiGetRequest('settings')
         this.props.apiGetRequest('user')
     }
 

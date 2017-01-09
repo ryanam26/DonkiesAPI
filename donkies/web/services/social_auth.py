@@ -1,3 +1,8 @@
+"""
+Old implementation.
+Not used.
+"""
+
 from django.shortcuts import redirect
 from django.conf import settings
 from web.models import User

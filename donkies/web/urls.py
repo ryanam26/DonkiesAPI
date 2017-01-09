@@ -41,6 +41,16 @@ urlpatterns = [
         name='password_reset'),
 
     url(
+        r'^(?P<version>(v1))/settings$',
+        v.Settings.as_view(),
+        name='settings'),
+
+    url(
+        r'^(?P<version>(v1))/settings/login$',
+        v.SettingsLogin.as_view(),
+        name='settings_login'),
+
+    url(
         r'^(?P<version>(v1))/user/resend_reg_confirmation_link$',
         v.UserResendRegConfirmationLink.as_view(),
         name='user_resend_reg_confirmation_link'),

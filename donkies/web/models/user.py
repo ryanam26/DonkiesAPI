@@ -472,3 +472,11 @@ class User(AbstractBaseUser):
         # save picture
         user.save_facebook_picture()
         return user
+
+    @staticmethod
+    def get_facebook_login_url():
+        url = 'https://www.facebook.com/dialog/oauth?client_id='
+        url += settings.FACEBOOK_APP_ID
+        url += '&redirect_uri='
+        url += settings.FACEBOOK_REDIRECT_URI
+        return url

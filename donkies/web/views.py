@@ -1,10 +1,9 @@
 import logging
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.utils import timezone
-from django.contrib.auth import logout as auth_logout
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 
 import web.serializers as sers
@@ -36,8 +35,6 @@ def home(request):
 
 
 class AuthFacebook(APIView):
-    """
-    """
     def post(self, request, **kwargs):
         serializer = sers.FacebookAuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,26 +47,6 @@ class AuthFacebook(APIView):
         return Response({'token': user.get_token().key})
 
 
-class Signup(APIView):
-    def post(self, request, **kwargs):
-        serializer = sers.SignupSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({}, status=204)
-
-
-class SignupConfirm(APIView):
-    def post(self, request, **kwargs):
-        serializer = sers.SignupConfirmSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        d = serializer.data
-        user = User.objects.get(encrypted_id=d['encrypted_id'])
-
-        token = user.signup_confirm()
-        data = {'token': token.key}
-        return Response(data, status=201)
-
-
 class Login(APIView):
     def post(self, request, **kwargs):
         serializer = sers.LoginSerializer(data=request.data)
@@ -77,9 +54,6 @@ class Login(APIView):
 
         d = serializer.data
         user = User.objects.get(email=d['email'])
-        # if not user.is_confirmed:
-        #     return r400('Your email is not confirmed.')
-
         data = {'token': user.get_token().key}
 
         user.last_access_date = timezone.now()
@@ -110,6 +84,45 @@ class PasswordReset(APIView):
         user = User.objects.get(encrypted_id=d['encrypted_id'])
         user.reset_password(d['new_password'])
         return Response({}, status=204)
+
+
+class Signup(APIView):
+    def post(self, request, **kwargs):
+        serializer = sers.SignupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({}, status=204)
+
+
+class SignupConfirm(APIView):
+    def post(self, request, **kwargs):
+        serializer = sers.SignupConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        d = serializer.data
+        user = User.objects.get(encrypted_id=d['encrypted_id'])
+
+        token = user.signup_confirm()
+        data = {'token': token.key}
+        return Response(data, status=201)
+
+
+class Settings(AuthMixin, APIView):
+    """
+    Settings for auth users.
+    """
+    def get(self, request, **kwargs):
+        d = {}
+        return Response(d, status=200)
+
+
+class SettingsLogin(APIView):
+    """
+    Social settings for login page.
+    """
+    def get(self, request, **kwargs):
+        d = {}
+        d['facebook_login_url'] = User.get_facebook_login_url()
+        return Response(d, status=200)
 
 
 class UserDetail(AuthMixin, APIView):

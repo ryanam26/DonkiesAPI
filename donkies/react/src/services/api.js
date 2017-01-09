@@ -15,6 +15,8 @@ export const MEMBERS_URL = `${API_ROOT_URL}v1/members`
 export const REGISTRATION_URL = `${API_ROOT_URL}v1/auth/signup`
 export const REGISTRATION_CONFIRM_URL = `${API_ROOT_URL}v1/auth/signup/confirm`
 export const RESEND_REG_CONFIRMATION_URL = `${API_ROOT_URL}v1/user/resend_reg_confirmation_link`
+export const SETTINGS_URL = `${API_ROOT_URL}v1/settings`
+export const SETTINGS_LOGIN_URL = `${API_ROOT_URL}v1/settings/login`
 export const USER_URL = `${API_ROOT_URL}v1/user`
 
 

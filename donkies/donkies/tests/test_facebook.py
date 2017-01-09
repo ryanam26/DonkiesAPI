@@ -47,9 +47,10 @@ USAGE:
 1) Frontend redirect user to Facebook auth:
    https://www.facebook.com/dialog/oauth?client_id={APP_ID}&redirect_uri={REDIRECT_URI}
 2) In tests: all we need is code that passed as GET param.
-   Set code to TestFacebook class and run tests, "code" is valid only one time.
-3) In frontend (redirect_uri). Frontend get "code" in GET param
+
+3) In frontend (on redirect_uri). Frontend get "code" in GET param
    and send request to API.
+   It should get "token" and 200 if success, otherwise 400 error.
 
 TEST DATA:
 
@@ -65,7 +66,6 @@ import json
 import os
 import re
 import pytest
-import requests
 from selenium import webdriver
 from django.conf import settings
 from .import base

@@ -98,23 +98,25 @@ class Generator:
     def create_transaction(self, account, date):
         Transaction = apps.get_model('finance', 'Transaction')
 
-        dt = datetime.datetime(
-            date.year,
-            date.month,
-            date.day,
-            random.randint(0, 23),
-            random.randint(0, 59),
-            random.randint(0, 59))
+        num_transactions = random.randint(3, 5)
+        for i in range(num_transactions):
+            dt = datetime.datetime(
+                date.year,
+                date.month,
+                date.day,
+                random.randint(0, 23),
+                random.randint(0, 59),
+                random.randint(0, 59))
 
-        t = Transaction(account=account)
-        t.guid = uuid.uuid4().hex
-        t.uid = uuid.uuid4().hex
-        t.date = date
-        t.created_at = timezone.make_aware(dt)
-        t.amount = self.generate_amount()
-        t.is_expense = True
-        t.description = Faker().sentence()
-        t.save()
+            t = Transaction(account=account)
+            t.guid = uuid.uuid4().hex
+            t.uid = uuid.uuid4().hex
+            t.date = date
+            t.created_at = timezone.make_aware(dt)
+            t.amount = self.generate_amount()
+            t.is_expense = True
+            t.description = Faker().sentence()
+            t.save()
 
     def clean(self):
         Member = apps.get_model('finance', 'Member')

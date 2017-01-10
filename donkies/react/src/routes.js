@@ -13,6 +13,7 @@ import {
     RegistrationConfirmPage,
     SettingsPage,
     TestPage,
+    TransactionsPage,
     UserNotConfirmedPage,
     UserProfilePage } from 'pages'
 
@@ -37,6 +38,7 @@ export default (
             <Route component={AddBankPage} path="/add_bank" />
             <Route component={SettingsPage} path="/settings" />
             <Route component={TestPage} path="/test_page" />
+            <Route component={TransactionsPage} path="/transactions" />
             <Route component={UserProfilePage} path="/user_profile" />
         </Route>
 

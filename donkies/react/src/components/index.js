@@ -9,6 +9,9 @@ export { BankAccounts }
 import { default as BankRemove } from './finance/BankRemove'
 export { BankRemove }
 
+import { default as Transactions } from './finance/Transactions'
+export { Transactions }
+
 // form
 
 import { default as Button2 } from './form/Button2'
@@ -69,6 +72,9 @@ export { CardSimple }
 
 import { default as Modal } from './layout/misc/Modal'
 export { Modal }
+
+import { default as TableData } from './layout/misc/TableData'
+export { TableData }
 
 import { default as TableSimple } from './layout/misc/TableSimple'
 export { TableSimple }

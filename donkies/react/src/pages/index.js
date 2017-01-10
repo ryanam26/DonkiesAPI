@@ -9,6 +9,9 @@ export { AddBankPage }
 import { default as SettingsPage } from './finance/SettingsPage'
 export { SettingsPage }
 
+import { default as TransactionsPage } from './finance/TransactionsPage'
+export { TransactionsPage }
+
 
 // layout
 

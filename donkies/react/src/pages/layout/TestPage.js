@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
-import { InputAutocompleteAsync, Modal } from 'components'
+import { InputAutocompleteAsync } from 'components'
 import { INSTITUTIONS_SUGGEST_URL } from 'services/api'
 
 
@@ -13,9 +13,7 @@ export default class TestPageComponent extends Component{
 
     render(){
         return (
-            <Modal visible title="Modal title">
-                <div>{'content'}</div>
-            </Modal>            
+            <div />
         )
     }
 }

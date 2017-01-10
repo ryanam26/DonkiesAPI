@@ -30,7 +30,7 @@ class Modal extends Component{
         let cn = classNames('modal fade', {'in': visible})
 
         return (
-            <div className={cn} role="dialog" aria-hidden="true" style={style}>
+            <div className={cn} style={style}>
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">

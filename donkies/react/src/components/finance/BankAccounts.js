@@ -2,18 +2,25 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { Link } from 'react-router'
-import { TableSimple } from 'components'
+import { CardSimple, Modal, TableSimple } from 'components'
 
 
 class BankAccounts extends Component{
     constructor(props){
         super(props)
         autoBind(this)
+
+        this.state = {
+            isShowRemoveModal: false
+        }
     }
 
-    onClickRemove(accountId){
-        console.log('remove account')
-        console.log(accountId)
+    onClickShowModal(){
+        this.setState({isShowRemoveModal: true})
+    }
+
+    onClickCloseModal(){
+        this.setState({isShowRemoveModal: false})
     }
 
     /**
@@ -48,13 +55,46 @@ class BankAccounts extends Component{
     }
 
     render(){
+        const { isShowRemoveModal } = this.state
         const { accounts } = this.props
         if (!accounts || accounts.length === 0){
             return null
         }
 
         return (
-            <TableSimple data={this.getData(accounts)} />
+            <wrap>
+                <Modal
+                    onClickClose={this.onClickCloseModal}
+                    visible={isShowRemoveModal}
+                    title="Remove bank account">
+                    <div>{'content'}</div>
+                </Modal>  
+            
+                <CardSimple
+                    header="Bank Accounts"
+                    headerClass="m-b-20"
+                    isContentToBody={false}>
+                                    
+                    <Link to="/transactions" className="btn btn-default btn-sm waves-effect m-r-5">
+                        {'View Transactions'}
+                    </Link>
+                    
+                    <Link to="/add_bank" className="btn bgm-lightblue btn-icon-text btn-sm waves-effect m-r-5">
+                        <i className="zmdi zmdi-plus" />
+                        {'Add Bank Account'}
+                    </Link>
+
+                    <button
+                        onClick={this.onClickShowModal}
+                        className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5">
+                        <i className="zmdi zmdi-delete" />
+                        {'Remove Bank'}
+                    </button>
+
+                </CardSimple>
+
+                <TableSimple data={this.getData(accounts)} />
+            </wrap>
         )
     }
 }

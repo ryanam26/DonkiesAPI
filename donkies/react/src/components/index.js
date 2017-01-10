@@ -61,6 +61,9 @@ export { Alert }
 import { default as CardSimple } from './layout/misc/CardSimple'
 export { CardSimple }
 
+import { default as Modal } from './layout/misc/Modal'
+export { Modal }
+
 import { default as TableSimple } from './layout/misc/TableSimple'
 export { TableSimple }
 

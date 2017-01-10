@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
-import { InputAutocompleteAsync } from 'components'
+import { InputAutocompleteAsync, Modal } from 'components'
 import { INSTITUTIONS_SUGGEST_URL } from 'services/api'
 
 
@@ -12,13 +12,10 @@ export default class TestPageComponent extends Component{
     }
 
     render(){
-
-       
         return (
-            <InputAutocompleteAsync
-                name="name"
-                placeholder="my placeholder"
-                url={INSTITUTIONS_SUGGEST_URL} />
+            <Modal visible title="Modal title">
+                <div>{'content'}</div>
+            </Modal>            
         )
     }
 }
@@ -26,3 +23,7 @@ export default class TestPageComponent extends Component{
 TestPageComponent.propTypes = {
 }
 
+// <InputAutocompleteAsync
+//     name="name"
+//     placeholder="my placeholder"
+//     url={INSTITUTIONS_SUGGEST_URL} />

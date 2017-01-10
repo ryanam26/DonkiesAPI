@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
+import { Link } from 'react-router'
 import { TableSimple } from 'components'
 
 
@@ -22,7 +23,7 @@ class BankAccounts extends Component{
         let data = {}
         data.id = 'accounts'
         data.header = [
-            'BANK', 'NAME', 'BALANCE', 'TRANSACTIONS', '']
+            'BANK', 'NAME', 'BALANCE', 'TRANSACTIONS']
         data.rows = []
 
         for (let a of accounts){
@@ -31,28 +32,18 @@ class BankAccounts extends Component{
 
             let col
             col = {
-                value: <a target="_blank" href="a.institution.url">{a.institution.name}</a>
+                value: <a target="_blank" href={a.institution.url}>{a.institution.name}</a>
             }
             row.cols.push(col)
             row.cols.push({value: a.name})
-            row.cols.push({value: a.balance})
+            row.cols.push({value: '$' + a.balance})
 
+            const link = (<Link to={'/transactions?account_id=' + a.id}>
+                            <i style={{fontSize: '25px'}} className="zmdi zmdi-view-list" />
+                        </Link>)
+            row.cols.push({value: link})
             data.rows.push(row)
         }
-
-
-        // for (let arr of mock){
-        //     let row = {}
-        //     row.cols = []
-        //     let count = 0
-        //     for (let s of arr){
-        //         let col = {value: s}
-        //         col.className = count === 1 ?  '' : 'f-500 c-cyan'
-        //         row.cols.push(col)
-        //         count++
-        //     }
-        //     data.rows.push(row)
-        // }
         return data
     }
 

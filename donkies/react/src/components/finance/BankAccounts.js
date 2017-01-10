@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { Link } from 'react-router'
-import { CardSimple, Modal, TableSimple } from 'components'
+import { BankRemove, CardSimple, Modal, TableSimple } from 'components'
 
 
 class BankAccounts extends Component{
@@ -67,7 +67,7 @@ class BankAccounts extends Component{
                     onClickClose={this.onClickCloseModal}
                     visible={isShowRemoveModal}
                     title="Remove bank account">
-                    <div>{'content'}</div>
+                        <BankRemove />
                 </Modal>  
             
                 <CardSimple

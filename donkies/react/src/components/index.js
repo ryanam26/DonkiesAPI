@@ -6,6 +6,9 @@ export { AddBank }
 import { default as BankAccounts } from './finance/BankAccounts'
 export { BankAccounts }
 
+import { default as BankRemove } from './finance/BankRemove'
+export { BankRemove }
+
 // form
 
 import { default as Button2 } from './form/Button2'

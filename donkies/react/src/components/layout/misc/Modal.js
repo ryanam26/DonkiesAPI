@@ -2,7 +2,17 @@ import React, {Component, PropTypes} from 'react'
 import classNames from 'classnames'
 
 
+/**
+ * onClickClose - passed from parent (show/hide controls from parent).
+ * footer - additional node to footer.
+ */
 class Modal extends Component{
+    static get defaultProps() {
+        return {
+            footer: null
+        }
+    }
+
     constructor(props){
         super(props)
         this.onClickClose = this.onClickClose.bind(this)
@@ -13,7 +23,7 @@ class Modal extends Component{
     }
 
     render(){
-        const {title, visible, children} = this.props
+        const { children, footer, title, visible } = this.props
 
         let style = visible ? {'display': 'block', 'paddingRight': '15px'} : {'display': 'none'}
         
@@ -30,6 +40,8 @@ class Modal extends Component{
                             {children}
                         </div>
                         <div className="modal-footer">
+                            {footer}
+
                             <button
                                 onClick={this.onClickClose}
                                 type="button"
@@ -47,8 +59,8 @@ class Modal extends Component{
 
 Modal.propTypes = {
     children: PropTypes.node,
+    footer: PropTypes.node,
     onClickClose: PropTypes.func,
-    size: PropTypes.string,
     title: PropTypes.string,
     visible: PropTypes.bool
 }

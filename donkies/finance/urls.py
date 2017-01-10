@@ -8,6 +8,11 @@ urlpatterns = [
         name='accounts'),
 
     url(
+        r'^(?P<version>(v1))/accounts/(?P<pk>\d+)$',
+        v.AccountDetail.as_view(),
+        name='account'),
+
+    url(
         r'^(?P<version>(v1))/credentials/code/(?P<institution_code>\w+)$',
         v.CredentialsListByCode.as_view(),
         name='credentials_by_code'),
@@ -28,7 +33,7 @@ urlpatterns = [
         name='institutions'),
 
     url(
-        r'^(?P<version>(v1))/institutions/(?P<pk>\w+)$',
+        r'^(?P<version>(v1))/institutions/(?P<pk>\d+)$',
         v.InstitutionDetail.as_view(),
         name='institution'),
 

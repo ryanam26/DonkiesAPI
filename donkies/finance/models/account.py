@@ -4,6 +4,8 @@ from django.contrib import admin
 from finance.services.atrium_api import AtriumApi
 from django.apps import apps
 from django.db import transaction
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 class AccountManager(models.Manager):
@@ -215,6 +217,19 @@ class Account(models.Model):
         if self.type in self.INVESTMENT_TYPES:
             return self.INVESTMENT
         return self.OTHER
+
+
+@receiver(post_delete, sender=Account)
+def delete_account(sender, instance, **kwargs):
+    """
+    If account member connected only to this account,
+    remove also member.
+    """
+    Member = apps.get_model('finance', 'Member')
+    qs = Account.objects.filter(member_id=instance.member.id)
+    if qs.count() == 0:
+        member = Member.objects.get(id=instance.member.id)
+        member.delete()
 
 
 @admin.register(Account)

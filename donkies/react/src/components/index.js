@@ -32,6 +32,9 @@ export { InputAutocomplete }
 import { default as InputAutocompleteAsync } from './form/InputAutocompleteAsync'
 export { InputAutocompleteAsync }
 
+import { default as SelectSimple } from './form/SelectSimple'
+export { SelectSimple }
+
 // layout
 
 import { default as HomeMiniCharts } from './layout/content/HomeMiniCharts'

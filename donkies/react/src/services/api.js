@@ -179,3 +179,24 @@ export function apiCall3(url, data, isAuth){
     }
     return fetch(url, fetchObj)
 }
+
+
+/**
+ * This function returns promise.
+ * Used for DELETE requests inside component.
+ */
+export function apiCall4(url, isAuth){
+    let fetchObj = {method: 'DELETE'}
+    fetchObj.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+
+    if (isAuth){
+        let token = window.localStorage.getItem('token')
+        if (token !== null){
+            fetchObj.headers.Authorization = 'Token ' + token    
+        }
+    }
+    return fetch(url, fetchObj)
+}

@@ -23,6 +23,10 @@ class BankAccounts extends Component{
         this.setState({isShowRemoveModal: false})
     }
 
+    onBankRemoved(){
+        this.setState({isShowRemoveModal: false})   
+    }
+
     /**
      * Prepare data for table.
      */
@@ -67,7 +71,10 @@ class BankAccounts extends Component{
                     onClickClose={this.onClickCloseModal}
                     visible={isShowRemoveModal}
                     title="Remove bank account">
-                        <BankRemove />
+                        
+                        <BankRemove
+                            onBankRemoved={this.onBankRemoved}
+                            accounts={accounts} />
                 </Modal>  
             
                 <CardSimple
@@ -88,7 +95,7 @@ class BankAccounts extends Component{
                         onClick={this.onClickShowModal}
                         className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5">
                         <i className="zmdi zmdi-delete" />
-                        {'Remove Bank'}
+                        {'Remove Bank Account'}
                     </button>
 
                 </CardSimple>

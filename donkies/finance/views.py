@@ -1,7 +1,7 @@
 import logging
 from django.http import Http404
 from rest_framework.generics import (
-    ListAPIView, RetrieveAPIView, ListCreateAPIView)
+    ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -11,11 +11,18 @@ from finance import tasks
 from finance.models import (
     Account, Credentials, Institution, LinkDebt, Member, Transaction)
 
-
 logger = logging.getLogger('app')
 
 
 class Accounts(AuthMixin, ListAPIView):
+    serializer_class = sers.AccountSerializer
+
+    def get_queryset(self):
+        return Account.objects.filter(
+            member__user=self.request.user)
+
+
+class AccountDetail(AuthMixin, RetrieveDestroyAPIView):
     serializer_class = sers.AccountSerializer
 
     def get_queryset(self):

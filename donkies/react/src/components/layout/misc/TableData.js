@@ -41,7 +41,7 @@ class TableData extends Component{
 
                     <div id="data-table-basic_filter" className="dataTables_filter">
                         <label>{'Search:'}
-                            <input type="search" className="" placeholder="" aria-controls="data-table-basic" />
+                            <input type="search" placeholder="Search..." aria-controls="data-table-basic" />
                         </label>
                     </div>
 
@@ -133,7 +133,6 @@ class TableData extends Component{
             </div>
         </div>
         </div>
-            
             
         )
     }

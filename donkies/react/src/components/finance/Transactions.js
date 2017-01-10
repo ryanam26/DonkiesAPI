@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
-import { TableData } from 'components'
+import { LoadingInline, TableData } from 'components'
 
 
 class Transactions extends Component{
@@ -10,11 +10,44 @@ class Transactions extends Component{
         autoBind(this)
     }
 
+    /**
+     * Prepare data for table.
+     */
+    getData(transactions){
+        let data = {}
+        data.id = 'transactions'
+        data.header = [
+            'Date', 'Account', 'Amount', 'Roundup', 'Description']
+        data.rows = []
+
+        for (let t of transactions){
+            let row = {}
+            row.cols = []
+
+            row.cols.push({value: t.created_at})
+            row.cols.push({value: t.account})
+            row.cols.push({value: `$${t.amount}`})
+            row.cols.push({value: `$${t.roundup}`})
+            row.cols.push({value: t.description})
+            data.rows.push(row)
+        }
+        return data
+    }
+
     render(){
+        const { transactions } = this.props
+        if (!transactions){
+            return <LoadingInline />
+        }
+
+        const data = this.getData(transactions)
+
         return (
             <wrap>
                 <h3>{'Transactions'}</h3>
-                <TableData />
+                <TableData
+                    data={data}
+                    searchFields={['account', 'description']} />
             </wrap>
         )
     }
@@ -22,13 +55,12 @@ class Transactions extends Component{
 
 
 Transactions.propTypes = {
-  
+    transactions: PropTypes.array
 }
 
 const mapStateToProps = (state) => ({
-    
+    transactions: state.transactions.items
 })
 
 export default connect(mapStateToProps, {
-  
 })(Transactions)

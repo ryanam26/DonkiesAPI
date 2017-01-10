@@ -8,8 +8,8 @@ import { SelectClean } from 'components'
  * Data table component.
  * Props:
  *
- * onSearchChange - (optional) if passed, show search block.
  * data (required) - all data for rendering table.
+ * searchFields - array of fields for search.
  *
  * data contains id, className, header (array of header names),
  * rows (array of tr objects), where each tr object
@@ -17,6 +17,14 @@ import { SelectClean } from 'components'
  * Each col object may contain "className", "onClick" function, "params", "colspan" and "value".
  */
 class TableData extends Component{
+    static get defaultProps() {
+        return {
+            isShowFooter: true,
+            isShowSearch: true,
+            searchFields: null
+        }
+    }
+
     constructor(props){
         super(props)
         autoBind(this)
@@ -40,7 +48,7 @@ class TableData extends Component{
     }
 
     render(){
-        const { data, onSearchChange } = this.props
+        const { data, isShowFooter, isShowSearch } = this.props
         
         return (
             <div className="card">
@@ -58,37 +66,54 @@ class TableData extends Component{
                         </label>
                     </div>
 
-                    <div className="dataTables_filter">
-                        <label>{'Search:'}
-                            <input type="search" placeholder="Search..." />
-                        </label>
-                    </div>
+                    {isShowSearch &&
+                        <div className="dataTables_filter">
+                            <label>{'Search:'}
+                                <input type="search" placeholder="Search..." />
+                            </label>
+                        </div>
+                    }
+                    
 
-                    <table className="table table-striped dataTable">
+                    <table id={data.id} className="table table-striped dataTable">
                         <thead>
                             <tr>
-                                <th>{'Col1'}</th>
-                                <th>{'Col2'}</th>
+                                {data.header.map((name, index) => {
+                                    return <th key={index}>{name}</th>
+                                })}
                             </tr>
                         </thead>
 
-                        <tfoot>
-                            <tr>
-                                <th>{'Col1'}</th>
-                                <th>{'Col2'}</th>
-                            </tr>
-                        </tfoot>
-                        <tbody>
+                        {isShowFooter &&
+                            <tfoot>
+                                <tr>
+                                    {data.header.map((name, index) => {
+                                        return <th key={index}>{name}</th>
+                                    })}
+                                </tr>
+                            </tfoot>
+                        }
                         
-                            <tr className="odd">
-                                <td>Airi Satou</td>
-                                <td>Accountant</td>
-                            </tr>
+                        <tbody>
+                            {data.rows.map((row, index) => {
+                                const f = row.onClick ? row.onClick.bind(null, row.params) : null
 
-                            <tr className="even">
-                                <td>Angelica Ramos</td>
-                                <td>Chief Executive Officer (CEO)</td>
-                            </tr>
+                                return (
+                                    <tr key={index} className={row.className} onClick={f}>
+                                        {row.cols.map((col, index) => {
+                                            let colspan = col.colspan ? col.colspan : 1
+
+                                            const f = col.onClick ? col.onClick.bind(null, col.params) : null
+
+                                            return (
+                                                <td colSpan={colspan} key={index} className={col.className} onClick={f}>
+                                                    {col.value}
+                                                </td>
+                                            )
+                                        })}
+                                    </tr>
+                                )
+                            })}
 
                         </tbody>
                     </table>
@@ -141,78 +166,9 @@ TableData.propTypes = {
             })
         )
     }),
-    onSearchChange: PropTypes.func,
+    isShowFooter: PropTypes.bool,
+    isShowSearch: PropTypes.bool,
+    searchFields: PropTypes.array
 }
 
 export default TableData
-
-
-
-
-/*
-<div>
-    {onSearchChange ?
-        <div className="col-lg-4 col-lg-offset-8" style={{marginBottom: 10}}>
-            <div className="form-control-wrapper form-control-icon-right">
-                <input
-                    onChange={onSearchChange}
-                    type="text"
-                    className="form-control form-control-rounded"
-                    placeholder="Search..."/>
-                <i className="font-icon font-icon-search" />
-            </div>
-        </div> : null}
-    
-    <div className="table-responsive">
-        <table id={data.id} className={data.className}>
-            {data.header !== null ?
-                <thead>
-                    <tr>
-                        {data.header.map((name, index) => {
-                            return <th key={index}>{name}</th>
-                        })}
-                    </tr>
-                </thead> : null}
-            
-            <tbody>
-                {data.rows.map((row, index) => {
-                    const f = row.onClick ? row.onClick.bind(null, row.params) : null
-
-                    return (
-                        <tr key={index} className={row.className} onClick={f}>
-                            {row.cols.map((col, index) => {
-                                let colspan = col.colspan ? col.colspan : 1
-
-                                const f = col.onClick ? col.onClick.bind(null, col.params) : null
-
-                                return (
-                                    <td colSpan={colspan} key={index} className={col.className} onClick={f}>
-                                        {col.value}
-                                    </td>
-                                )
-                            })}
-                        </tr>
-                    )
-                })}
-            </tbody>
-        </table>
-    </div>
-</div>
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

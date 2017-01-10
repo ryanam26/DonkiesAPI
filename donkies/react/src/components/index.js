@@ -35,6 +35,9 @@ export { InputAutocomplete }
 import { default as InputAutocompleteAsync } from './form/InputAutocompleteAsync'
 export { InputAutocompleteAsync }
 
+import { default as SelectClean } from './form/SelectClean'
+export { SelectClean }
+
 import { default as SelectSimple } from './form/SelectSimple'
 export { SelectSimple }
 

@@ -12,7 +12,10 @@ class Transactions extends Component{
 
     render(){
         return (
-            <TableData />
+            <wrap>
+                <h3>{'Transactions'}</h3>
+                <TableData />
+            </wrap>
         )
     }
 }

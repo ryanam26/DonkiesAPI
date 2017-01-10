@@ -7,7 +7,6 @@ import { createUUID } from 'services/helpers'
 import { LoadingInline, SelectSimple } from 'components'
 
 
-
 class BankRemove extends Component{
     constructor(props){
         super(props)
@@ -60,12 +59,11 @@ class BankRemove extends Component{
         const url = `${ACCOUNTS_URL}/${accountId}`
 
         let response = await apiCall4(url, true) 
-        let member = await response.json()
 
         this.setState({isLoading: false})
 
-        if (response.status === 200){
-            // Update accounts and transactions
+        if (response.status === 204){
+            // Update accounts and transactions in Redux state
             this.props.apiGetRequest('accounts')
             this.props.apiGetRequest('transactions')
             this.props.onBankRemoved()            

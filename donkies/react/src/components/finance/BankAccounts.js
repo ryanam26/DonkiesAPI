@@ -27,6 +27,15 @@ class BankAccounts extends Component{
         this.setState({isShowRemoveModal: false})   
     }
 
+    hasAccounts(){
+        const { accounts } = this.props
+
+        if (accounts && accounts.length > 0){
+            return true
+        }
+        return false
+    }
+
     /**
      * Prepare data for table.
      */
@@ -61,21 +70,20 @@ class BankAccounts extends Component{
     render(){
         const { isShowRemoveModal } = this.state
         const { accounts } = this.props
-        if (!accounts || accounts.length === 0){
-            return null
-        }
-
+        
         return (
             <wrap>
-                <Modal
-                    onClickClose={this.onClickCloseModal}
-                    visible={isShowRemoveModal}
-                    title="Remove bank account">
-                        
-                        <BankRemove
-                            onBankRemoved={this.onBankRemoved}
-                            accounts={accounts} />
-                </Modal>  
+                {this.hasAccounts() &&
+                    <Modal
+                        onClickClose={this.onClickCloseModal}
+                        visible={isShowRemoveModal}
+                        title="Remove bank account">
+                            
+                            <BankRemove
+                                onBankRemoved={this.onBankRemoved}
+                                accounts={accounts} />
+                    </Modal>  
+                }
             
                 <CardSimple
                     header="Bank Accounts"
@@ -91,16 +99,18 @@ class BankAccounts extends Component{
                         {'Add Bank Account'}
                     </Link>
 
-                    <button
-                        onClick={this.onClickShowModal}
-                        className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5">
-                        <i className="zmdi zmdi-delete" />
-                        {'Remove Bank Account'}
-                    </button>
-
+                    {this.hasAccounts() &&
+                        <button
+                            onClick={this.onClickShowModal}
+                            className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5">
+                            <i className="zmdi zmdi-delete" />
+                            {'Remove Bank Account'}
+                        </button>
+                    }
                 </CardSimple>
 
-                <TableSimple data={this.getData(accounts)} />
+                {this.hasAccounts() && <TableSimple data={this.getData(accounts)} />}
+                
             </wrap>
         )
     }

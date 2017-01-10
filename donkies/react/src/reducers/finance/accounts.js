@@ -7,6 +7,12 @@ const iState = {
 
 export function accounts(state=iState, action){
     switch(action.type){
+        case actions.ACCOUNTS.REQUEST:
+            return {
+                ...state,
+                items: null
+            }
+
         case actions.ACCOUNTS.SUCCESS:
             return {
                 ...state,

@@ -222,8 +222,8 @@ class Account(models.Model):
 @receiver(post_delete, sender=Account)
 def delete_account(sender, instance, **kwargs):
     """
-    If account member connected only to this account,
-    remove also member.
+    If account's member connected only to this account,
+    remove member also.
     """
     Member = apps.get_model('finance', 'Member')
     qs = Account.objects.filter(member_id=instance.member.id)

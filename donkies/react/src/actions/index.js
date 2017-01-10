@@ -34,6 +34,7 @@ function createRequestTypes(base) {
   return res;
 }
 
+export const ACCOUNTS = createRequestTypes('ACCOUNTS')
 export const API_GET_REQUEST = createRequestTypes('API_GET_REQUEST')
 export const API_EDIT_REQUEST = createRequestTypes('API_EDIT_REQUEST')
 export const CHANGE_EMAIL = createRequestTypes('CHANGE_EMAIL')
@@ -45,6 +46,7 @@ export const REGISTRATION = createRequestTypes('REGISTRATION')
 export const SETTINGS = createRequestTypes('SETTINGS')
 export const SETTINGS_LOGIN = createRequestTypes('SETTINGS_LOGIN')
 export const TOKEN = createRequestTypes('TOKEN')
+export const TRANSACTIONS = createRequestTypes('TRANSACTIONS')
 export const USER = createRequestTypes('USER')
 
 export const ALERT_ADD = 'ALERT_ADD'

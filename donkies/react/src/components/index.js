@@ -3,6 +3,9 @@
 import { default as AddBank } from './finance/add_bank/AddBank'
 export { AddBank }
 
+import { default as BankAccounts } from './finance/BankAccounts'
+export { BankAccounts }
+
 // form
 
 import { default as Button2 } from './form/Button2'

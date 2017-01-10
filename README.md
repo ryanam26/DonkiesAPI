@@ -150,4 +150,7 @@ All changes in file react/dist/js/app.js
 This is working project's file of template.
 
 
+### Frontend
 
+On first load of dashboard in App container load accounts and transactions
+from server to Redux state.

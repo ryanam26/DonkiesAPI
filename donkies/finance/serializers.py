@@ -5,12 +5,25 @@ from finance.models import (
     Transaction)
 
 
+class InstitutionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Institution
+        fields = (
+            'id',
+            'code',
+            'name',
+            'url'
+        )
+
+
 class AccountSerializer(serializers.ModelSerializer):
     member = serializers.StringRelatedField()
+    institution = serializers.SerializerMethodField()
 
     class Meta:
         model = Account
         fields = (
+            'id',
             'uid',
             'member',
             'name',
@@ -37,8 +50,13 @@ class AccountSerializer(serializers.ModelSerializer):
             'total_account_value',
             'type',
             'type_ds',
-            'updated_at'
+            'updated_at',
+            'institution'
         )
+
+    def get_institution(self, obj):
+        i = obj.member.institution
+        return InstitutionSerializer(i).data
 
 
 class ChallengeSerializer(serializers.ModelSerializer):
@@ -61,17 +79,6 @@ class CredentialsSerializer(serializers.ModelSerializer):
             'field_name',
             'label',
             'type'
-        )
-
-
-class InstitutionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Institution
-        fields = (
-            'id',
-            'code',
-            'name',
-            'url'
         )
 
 
@@ -209,6 +216,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         model = Transaction
         fields = (
             'account',
+            'account_id',
             'uid',
             'amount',
             'check_number',
@@ -233,5 +241,6 @@ class TransactionSerializer(serializers.ModelSerializer):
             'top_level_category',
             'transacted_at',
             'type',
-            'updated_at'
+            'updated_at',
+            'roundup'
         )

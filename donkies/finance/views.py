@@ -1,6 +1,5 @@
 import logging
 from django.http import Http404
-from django.db.models import Q
 from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, ListCreateAPIView)
 from rest_framework.response import Response

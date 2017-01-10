@@ -2,7 +2,8 @@ import 'whatwg-fetch'
 import { put } from 'redux-saga/effects'
 import { TOKEN_EXPIRED } from 'actions'
 import { API_ROOT_URL } from 'store/configureStore'
-   
+
+export const ACCOUNTS_URL = `${API_ROOT_URL}v1/accounts`   
 export const CHANGE_EMAIL_URL = `${API_ROOT_URL}v1/user/change/email`
 export const CHANGE_EMAIL_CONFIRM_URL = `${API_ROOT_URL}v1/user/change/email/confirm`
 export const CHANGE_PASSWORD_URL = `${API_ROOT_URL}v1/user/change/password`
@@ -18,6 +19,7 @@ export const REGISTRATION_CONFIRM_URL = `${API_ROOT_URL}v1/auth/signup/confirm`
 export const RESEND_REG_CONFIRMATION_URL = `${API_ROOT_URL}v1/user/resend_reg_confirmation_link`
 export const SETTINGS_URL = `${API_ROOT_URL}v1/settings`
 export const SETTINGS_LOGIN_URL = `${API_ROOT_URL}v1/settings/login`
+export const TRANSACTIONS_URL = `${API_ROOT_URL}v1/transactions`  
 export const USER_URL = `${API_ROOT_URL}v1/user`
 
 

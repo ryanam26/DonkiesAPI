@@ -2,6 +2,7 @@ import logging
 from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
+from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -41,7 +42,8 @@ class AuthFacebook(APIView):
         d = serializer.validated_data
 
         try:
-            user = User.objects.get(fb_id=d['id'])
+            user = User.objects.get(
+                Q(fb_id=d['id']) | Q(email=d['email']))
         except User.DoesNotExist:
             user = User.create_facebook_user(d)
         return Response({'token': user.get_token().key})

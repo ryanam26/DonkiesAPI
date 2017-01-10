@@ -28,6 +28,9 @@ os.environ.setdefault(
     'DJANGO_SETTINGS_MODULE', 'donkies.settings.development')
 django.setup()
 
+NUM_DAYS = 730
+NUM_DAYS = 20  # TODO: remove
+
 
 class Generator:
     institutions = ['chase', 'mxbank']
@@ -66,6 +69,8 @@ class Generator:
         a.name = 'Debit {}'.format(member.name)
         a.type_ds = Account.DEBIT
         a.updated_at = timezone.now()
+        a.balance = random.randint(300, 2000)
+        a.available_balance = a.balance
         a.save()
 
     def create_accounts(self):
@@ -91,7 +96,7 @@ class Generator:
         Create transactions for account for 2 years.
         """
         today = datetime.date.today()
-        l = [today - datetime.timedelta(days=x) for x in range(0, 730)]
+        l = [today - datetime.timedelta(days=x) for x in range(0, NUM_DAYS)]
         for date in l:
             self.create_transaction(account, date)
 
@@ -131,5 +136,5 @@ class Generator:
 
 if __name__ == '__main__':
     g = Generator()
-    g.run()
     g.clean()
+    g.run()

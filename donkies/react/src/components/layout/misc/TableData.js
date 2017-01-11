@@ -30,12 +30,29 @@ class TableData extends Component{
         autoBind(this)
 
         this.state = {
+            currentPage: 1,
             perPage: 10
         }
     }
 
+    componentWillReceiveProps(nextProps){
+        this.setState({currentPage: 1})
+    }
+
     onChangePerPage(value){
         this.setState({perPage: parseInt(value)})
+    }
+
+    onClickPage(num){
+        this.setState({currentPage: num})
+    }
+
+    onClickNext(){
+        this.setState({currentPage: this.state.currentPage + 1})
+    }
+
+    onClickPrevious(){
+        this.setState({currentPage: this.state.currentPage - 1})
     }
 
     getPerPageOptions(){
@@ -45,6 +62,80 @@ class TableData extends Component{
         data.push({value: '50', text: '50'})
         data.push({value: '100', text: '100'})
         return data
+    }
+
+    isNextActive(){
+        const { currentPage } = this.state
+        if (currentPage < this.numPages()){
+            return true
+        }
+        return false
+    }
+
+    isPreviousActive(){
+        const { currentPage } = this.state
+        if (currentPage > 1){
+            return true
+        }
+        return false
+    }
+
+    numPages(){
+        const num = this.totalRows() / this.state.perPage
+        return Math.ceil(num)
+    }
+
+    /** 
+     * Active visible rows
+     */ 
+    rows(){
+        const { data } = this.props
+        const { currentPage, perPage } = this.state
+
+        const ofs = (currentPage - 1) * perPage
+        return data.rows.offset(ofs).limit(perPage)
+    }
+
+    /**
+     * Returns the number of row "from"
+     */
+    showFrom(){
+        const { currentPage, perPage } = this.state
+        return (currentPage - 1) * perPage + 1
+    }
+
+    /**
+     * Returns the number of row "to"
+     */
+    showTo(){
+        const { currentPage, perPage } = this.state
+        return currentPage * perPage
+    }
+
+    /**
+     * Returns number of total rows
+     */
+    totalRows(){
+        // TODO: apply search
+        const { data } = this.props
+        return data.rows.length
+    }
+
+    renderPagination(){
+        return (
+            <div className="dataTables_paginate paging_simple_numbers">
+                <a className="paginate_button previous disabled">
+                    {'Previous'}
+                </a>
+
+                <span>
+                    <a className="paginate_button current">{'1'}</a>
+                    <a className="paginate_button">{'2'}</a>
+                </span>
+
+                <a className="paginate_button next">{'Next'}</a>
+            </div>
+        )
     }
 
     render(){
@@ -95,18 +186,20 @@ class TableData extends Component{
                         }
                         
                         <tbody>
-                            {data.rows.map((row, index) => {
+                            {this.rows().map((row, index) => {
                                 const f = row.onClick ? row.onClick.bind(null, row.params) : null
 
                                 return (
                                     <tr key={index} className={row.className} onClick={f}>
                                         {row.cols.map((col, index) => {
+                                            
                                             let colspan = col.colspan ? col.colspan : 1
-
                                             const f = col.onClick ? col.onClick.bind(null, col.params) : null
+                                            const oddEven = (index + 1) % 2 === 0 ? 'even' : 'odd'
+                                            const cn = classNames(col.className, oddEven)
 
                                             return (
-                                                <td colSpan={colspan} key={index} className={col.className} onClick={f}>
+                                                <td colSpan={colspan} key={index} className={cn} onClick={f}>
                                                     {col.value}
                                                 </td>
                                             )
@@ -119,21 +212,10 @@ class TableData extends Component{
                     </table>
 
                 <div className="dataTables_info">
-                    {'Showing 1 to 10 of 57 entries'}
+                    {`Showing ${this.showFrom()} to ${this.showTo()} of ${this.totalRows()} entries`}
                 </div>
 
-                <div className="dataTables_paginate paging_simple_numbers">
-                    <a className="paginate_button previous disabled">
-                        {'Previous'}
-                    </a>
-
-                    <span>
-                        <a className="paginate_button current">{'1'}</a>
-                        <a className="paginate_button">{'2'}</a>
-                    </span>
-
-                    <a className="paginate_button next">{'Next'}</a>
-                </div>
+                {this.renderPagination()}
 
             </div>
         </div>

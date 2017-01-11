@@ -36,6 +36,7 @@ class Transactions extends Component{
 
     render(){
         const { transactions } = this.props
+        
         if (!transactions){
             return <LoadingInline />
         }
@@ -45,6 +46,12 @@ class Transactions extends Component{
         return (
             <wrap>
                 <h3>{'Transactions'}</h3>
+
+                <div>
+                    {'TODO: Show select with accounts. If account passed via GET param, autoselect it.'}
+                </div>
+                <br /><br />
+
                 <TableData
                     data={data}
                     searchFields={['account', 'description']} />

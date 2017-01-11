@@ -174,3 +174,12 @@ export function getDateTimeString(dt){
     return moment(dt).format('DD MMM HH:mm:ss')
 }
 
+
+Array.prototype.offset = function(os){
+   return this.filter((e,i) => i > os - 1)
+}
+
+
+Array.prototype.limit = function(index) {
+   return this.filter((e, i) =>  i < index)
+}

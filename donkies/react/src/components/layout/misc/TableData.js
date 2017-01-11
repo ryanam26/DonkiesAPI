@@ -41,7 +41,10 @@ class TableData extends Component{
     }
 
     onChangePerPage(value){
-        this.setState({perPage: parseInt(value)})
+        this.setState({
+            currentPage: 1,
+            perPage: parseInt(value)
+        })
     }
 
     onClickPage(num, e){
@@ -133,7 +136,11 @@ class TableData extends Component{
      */
     showTo(){
         const { currentPage, perPage } = this.state
-        return currentPage * perPage
+        let value = currentPage * perPage
+        if (value < this.totalRows()){
+            return value
+        }
+        return this.totalRows()
     }
 
     /**

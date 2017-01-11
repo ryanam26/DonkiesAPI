@@ -183,3 +183,36 @@ Array.prototype.offset = function(os){
 Array.prototype.limit = function(index) {
    return this.filter((e, i) =>  i < index)
 }
+
+/**
+ * @param {number} currentPage
+ * @param {number} numPages
+ * @returns {array} - array of numbers
+ *
+ * Pagination consist of 3 ranges.
+ * Example: 1 2 3 ... 7 8 9 ... 17 18 19
+ *
+ * Function returns combined 3 ranges.
+ * Example: [1, 2, 3, 7, 8, 9, 17, 18, 19] 
+ *
+ * First range  [1, 2, 3]
+ * Second range [currentPage - 1, currentPage, currentPage + 1]
+ * Third range  [numPages - 2, numPages - 1, numPages]
+ */
+export function getPaginationArr(currentPage, numPages){
+    let arr = [1]
+    
+    numPages > 1 && arr.push(2)
+    numPages > 2 && arr.push(3)
+
+    currentPage > 1 && arr.push(currentPage - 1)
+    arr.push(currentPage)
+    currentPage < numPages && arr.push(currentPage + 1)
+
+    numPages > 2 && arr.push(numPages - 2)
+    numPages > 1 && arr.push(numPages - 1)
+    arr.push(numPages)
+
+    arr = [... new Set(arr)]
+    return arr.sort((a, b) => a > b)
+}

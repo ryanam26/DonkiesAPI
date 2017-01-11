@@ -54,7 +54,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "509e5086c3bedf994120"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "ac979d7bc32fadfc7bbb"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -8364,6 +8364,18 @@
 	function getDateTimeString(dt) {
 	    return (0, _moment2.default)(dt).format('DD MMM HH:mm:ss');
 	}
+
+	Array.prototype.offset = function (os) {
+	    return this.filter(function (e, i) {
+	        return i > os - 1;
+	    });
+	};
+
+	Array.prototype.limit = function (index) {
+	    return this.filter(function (e, i) {
+	        return i < index;
+	    });
+	};
 	;
 
 	var _temp = function () {
@@ -47076,9 +47088,36 @@
 	    }
 
 	    _createClass(TableData, [{
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(nextProps) {
+	            this.setState({ currentPage: 1 });
+	        }
+	    }, {
 	        key: 'onChangePerPage',
 	        value: function onChangePerPage(value) {
 	            this.setState({ perPage: parseInt(value) });
+	        }
+	    }, {
+	        key: 'onClickPage',
+	        value: function onClickPage(num, e) {
+	            e.preventDefault();
+	            this.setState({ currentPage: num });
+	        }
+	    }, {
+	        key: 'onClickNext',
+	        value: function onClickNext(e) {
+	            e.preventDefault();
+	            if (this.isNextActive()) {
+	                this.setState({ currentPage: this.state.currentPage + 1 });
+	            }
+	        }
+	    }, {
+	        key: 'onClickPrevious',
+	        value: function onClickPrevious(e) {
+	            e.preventDefault();
+	            if (this.isPreviousActive()) {
+	                this.setState({ currentPage: this.state.currentPage - 1 });
+	            }
 	        }
 	    }, {
 	        key: 'getPerPageOptions',
@@ -47092,10 +47131,104 @@
 	        }
 	    }, {
 	        key: 'isNextActive',
-	        value: function isNextActive() {}
+	        value: function isNextActive() {
+	            var currentPage = this.state.currentPage;
+
+	            if (currentPage < this.numPages()) {
+	                return true;
+	            }
+	            return false;
+	        }
 	    }, {
 	        key: 'isPreviousActive',
-	        value: function isPreviousActive() {}
+	        value: function isPreviousActive() {
+	            var currentPage = this.state.currentPage;
+
+	            if (currentPage > 1) {
+	                return true;
+	            }
+	            return false;
+	        }
+	    }, {
+	        key: 'numPages',
+	        value: function numPages() {
+	            var num = this.totalRows() / this.state.perPage;
+	            return Math.round(num);
+	        }
+
+	        /**
+	         * Returns array of numbers from 1 to numPages
+	         */
+
+	    }, {
+	        key: 'numsArr',
+	        value: function numsArr() {
+	            var nums = [];
+	            for (var i = 1; i <= this.numPages(); i++) {
+	                nums.push(i);
+	            }
+	            return nums;
+	        }
+
+	        /**
+	         * Limit numsArr.
+	         * Returns array of numbers that contains only first 3 pages
+	         * and last 3 pages.
+	         */
+
+	    }, {
+	        key: 'numsArrVisible',
+	        value: function numsArrVisible() {}
+
+	        /** 
+	         * Active visible rows
+	         */
+
+	    }, {
+	        key: 'rows',
+	        value: function rows() {
+	            var data = this.props.data;
+	            var _state = this.state,
+	                currentPage = _state.currentPage,
+	                perPage = _state.perPage;
+
+
+	            var ofs = (currentPage - 1) * perPage;
+	            return data.rows.offset(ofs).limit(perPage);
+	        }
+
+	        /**
+	         * Returns the number of row "from"
+	         */
+
+	    }, {
+	        key: 'showFrom',
+	        value: function showFrom() {
+	            var _state2 = this.state,
+	                currentPage = _state2.currentPage,
+	                perPage = _state2.perPage;
+
+	            return (currentPage - 1) * perPage + 1;
+	        }
+
+	        /**
+	         * Returns the number of row "to"
+	         */
+
+	    }, {
+	        key: 'showTo',
+	        value: function showTo() {
+	            var _state3 = this.state,
+	                currentPage = _state3.currentPage,
+	                perPage = _state3.perPage;
+
+	            return currentPage * perPage;
+	        }
+
+	        /**
+	         * Returns number of total rows
+	         */
+
 	    }, {
 	        key: 'totalRows',
 	        value: function totalRows() {
@@ -47103,6 +47236,51 @@
 	            var data = this.props.data;
 
 	            return data.rows.length;
+	        }
+	    }, {
+	        key: 'renderPagination',
+	        value: function renderPagination() {
+	            var _this2 = this;
+
+	            var currentPage = this.state.currentPage;
+
+
+	            var cnNext = (0, _classnames2.default)('paginate_button next', { 'disabled': !this.isNextActive() });
+	            var cnPrevious = (0, _classnames2.default)('paginate_button previous', { 'disabled': !this.isPreviousActive() });
+
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'dataTables_paginate paging_simple_numbers' },
+	                _react2.default.createElement(
+	                    'a',
+	                    {
+	                        onClick: this.onClickPrevious,
+	                        className: cnPrevious },
+	                    'Previous'
+	                ),
+	                _react2.default.createElement(
+	                    'span',
+	                    null,
+	                    this.numsArr().map(function (num) {
+	                        var cn = (0, _classnames2.default)('paginate_button', { 'current': num === currentPage });
+	                        return _react2.default.createElement(
+	                            'a',
+	                            {
+	                                onClick: _this2.onClickPage.bind(null, num),
+	                                key: num,
+	                                className: cn },
+	                            num
+	                        );
+	                    })
+	                ),
+	                _react2.default.createElement(
+	                    'a',
+	                    {
+	                        onClick: this.onClickNext,
+	                        className: cnNext },
+	                    'Next'
+	                )
+	            );
 	        }
 	    }, {
 	        key: 'render',
@@ -47182,7 +47360,7 @@
 	                            _react2.default.createElement(
 	                                'tbody',
 	                                null,
-	                                data.rows.map(function (row, index) {
+	                                this.rows().map(function (row, index) {
 	                                    var f = row.onClick ? row.onClick.bind(null, row.params) : null;
 
 	                                    return _react2.default.createElement(
@@ -47208,36 +47386,9 @@
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'dataTables_info' },
-	                            'Showing 1 to 10 of 57 entries'
+	                            'Showing ' + this.showFrom() + ' to ' + this.showTo() + ' of ' + this.totalRows() + ' entries'
 	                        ),
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'dataTables_paginate paging_simple_numbers' },
-	                            _react2.default.createElement(
-	                                'a',
-	                                { className: 'paginate_button previous disabled' },
-	                                'Previous'
-	                            ),
-	                            _react2.default.createElement(
-	                                'span',
-	                                null,
-	                                _react2.default.createElement(
-	                                    'a',
-	                                    { className: 'paginate_button current' },
-	                                    '1'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'a',
-	                                    { className: 'paginate_button' },
-	                                    '2'
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'a',
-	                                { className: 'paginate_button next' },
-	                                'Next'
-	                            )
-	                        )
+	                        this.renderPagination()
 	                    )
 	                )
 	            );

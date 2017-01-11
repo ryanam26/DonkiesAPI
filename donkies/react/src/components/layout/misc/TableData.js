@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import autoBind from 'react-autobind'
 import classNames from 'classnames'
+import { getPaginationArr } from 'services/helpers'
 import { SelectClean } from 'components'
 
 
@@ -103,6 +104,11 @@ class TableData extends Component{
         return nums
     }
 
+    paginationArr(){
+        const { currentPage } = this.state
+        return getPaginationArr(currentPage, this.numPages())
+    }
+
     /** 
      * Active visible rows
      */ 
@@ -151,6 +157,8 @@ class TableData extends Component{
             {'disabled': !this.isPreviousActive()}
         )
 
+        let previousPage = 0
+        
         return (
             <div className="dataTables_paginate paging_simple_numbers">
                 <a
@@ -158,16 +166,26 @@ class TableData extends Component{
                     className={cnPrevious}>{'Previous'}</a>
 
                 <span>
-                    {this.numsArr().map((num) => {
+                    {this.paginationArr().map((num) => {
                         const cn = classNames(
                             'paginate_button',
                             {'current': num === currentPage}
                         )
+
+                        let trio = null
+                        if (num - previousPage > 1){
+                            trio = <span style={{padding: '20px 10px 0 10px', fontSize: '20px'}}>{'...'}</span>
+                        }
+
+                        previousPage = num
+
                         return (
-                            <a
-                                onClick={this.onClickPage.bind(null, num)}
-                                key={num}
-                                className={cn}>{num}</a>
+                            <wrap key={num}>
+                                {trio}
+                                <a
+                                    onClick={this.onClickPage.bind(null, num)}
+                                    className={cn}>{num}</a>
+                            </wrap>
                         )
 
                     })}

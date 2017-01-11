@@ -21,7 +21,6 @@ class TableData extends Component{
     static get defaultProps() {
         return {
             isShowFooter: true,
-            isShowSearch: true,
             searchFields: null
         }
     }
@@ -32,7 +31,8 @@ class TableData extends Component{
 
         this.state = {
             currentPage: 1,
-            perPage: 10
+            perPage: 10,
+            searchValue: null
         }
     }
 
@@ -44,6 +44,18 @@ class TableData extends Component{
         this.setState({
             currentPage: 1,
             perPage: parseInt(value)
+        })
+    }
+
+    onChangeSearch(e){
+        let value = e.target.value
+        value = value.trim()
+        if (value.length < 2){
+            value = null
+        }    
+        this.setState({
+            searchValue: value,
+            currentPage: 1
         })
     }
 
@@ -64,6 +76,38 @@ class TableData extends Component{
         if (this.isPreviousActive()){
             this.setState({currentPage: this.state.currentPage - 1})    
         }
+    }
+
+    /**
+     * Returns array of filtered rows.
+     * Apply search if searchFields passed to component.
+     * Without search returns all rows.
+     */
+    filteredRows(){
+        const { searchValue } = this.state
+        const { searchFields, data } = this.props
+        if (!searchFields || !searchValue){
+            return data.rows
+        }
+
+        let indexes = []
+        // Map header names (searchFields) to indexes
+        // Then look to indexes in row.cols
+        let headers = data.header.map((name) => name.toLowerCase())
+        
+        for (let field of searchFields){
+            let index = headers.indexOf(field)
+            index > -1 && indexes.push(index)
+        }
+
+        return data.rows.filter((row) => {
+            for (let index of indexes){
+                if (row.cols[index].value.toLowerCase().indexOf(searchValue.toLowerCase()) > -1){
+                    return true
+                }
+            }
+            return false
+        })
     }
 
     getPerPageOptions(){
@@ -116,11 +160,11 @@ class TableData extends Component{
      * Active visible rows
      */ 
     rows(){
-        const { data } = this.props
         const { currentPage, perPage } = this.state
-
         const ofs = (currentPage - 1) * perPage
-        return data.rows.offset(ofs).limit(perPage)
+        const rows = this.filteredRows()
+
+        return rows.offset(ofs).limit(perPage)
     }
 
     /**
@@ -147,9 +191,7 @@ class TableData extends Component{
      * Returns number of total rows
      */
     totalRows(){
-        // TODO: apply search
-        const { data } = this.props
-        return data.rows.length
+        return this.filteredRows().length
     }
 
     renderPagination(){
@@ -206,7 +248,7 @@ class TableData extends Component{
     }
 
     render(){
-        const { data, isShowFooter, isShowSearch } = this.props
+        const { data, isShowFooter, searchFields } = this.props
         
         return (
             <div className="card">
@@ -224,65 +266,73 @@ class TableData extends Component{
                         </label>
                     </div>
 
-                    {isShowSearch &&
+                    {searchFields &&
                         <div className="dataTables_filter">
                             <label>{'Search:'}
-                                <input type="search" placeholder="Search..." />
+                                <input
+                                    onChange={this.onChangeSearch}
+                                    type="search"
+                                    placeholder="Search..." />
                             </label>
                         </div>
                     }
                     
 
-                    <table id={data.id} className="table table-striped dataTable">
-                        <thead>
-                            <tr>
-                                {data.header.map((name, index) => {
-                                    return <th key={index}>{name}</th>
-                                })}
-                            </tr>
-                        </thead>
-
-                        {isShowFooter &&
-                            <tfoot>
-                                <tr>
-                                    {data.header.map((name, index) => {
-                                        return <th key={index}>{name}</th>
-                                    })}
-                                </tr>
-                            </tfoot>
-                        }
-                        
-                        <tbody>
-                            {this.rows().map((row, index) => {
-                                const f = row.onClick ? row.onClick.bind(null, row.params) : null
-
-                                return (
-                                    <tr key={index} className={row.className} onClick={f}>
-                                        {row.cols.map((col, index) => {
-                                            
-                                            let colspan = col.colspan ? col.colspan : 1
-                                            const f = col.onClick ? col.onClick.bind(null, col.params) : null
-                                            const oddEven = (index + 1) % 2 === 0 ? 'even' : 'odd'
-                                            const cn = classNames(col.className, oddEven)
-
-                                            return (
-                                                <td colSpan={colspan} key={index} className={cn} onClick={f}>
-                                                    {col.value}
-                                                </td>
-                                            )
+                    {this.totalRows() > 0 &&
+                        <wrap>
+                            <table id={data.id} className="table table-striped dataTable">
+                                <thead>
+                                    <tr>
+                                        {data.header.map((name, index) => {
+                                            return <th key={index}>{name}</th>
                                         })}
                                     </tr>
-                                )
-                            })}
+                                </thead>
 
-                        </tbody>
-                    </table>
+                                {isShowFooter &&
+                                    <tfoot>
+                                        <tr>
+                                            {data.header.map((name, index) => {
+                                                return <th key={index}>{name}</th>
+                                            })}
+                                        </tr>
+                                    </tfoot>
+                                }
+                                
+                                <tbody>
+                                    {this.rows().map((row, index) => {
+                                        const f = row.onClick ? row.onClick.bind(null, row.params) : null
 
-                <div className="dataTables_info">
-                    {`Showing ${this.showFrom()} to ${this.showTo()} of ${this.totalRows()} entries`}
-                </div>
+                                        return (
+                                            <tr key={index} className={row.className} onClick={f}>
+                                                {row.cols.map((col, index) => {
+                                                    
+                                                    let colspan = col.colspan ? col.colspan : 1
+                                                    const f = col.onClick ? col.onClick.bind(null, col.params) : null
+                                                    const oddEven = (index + 1) % 2 === 0 ? 'even' : 'odd'
+                                                    const cn = classNames(col.className, oddEven)
 
-                {this.renderPagination()}
+                                                    return (
+                                                        <td colSpan={colspan} key={index} className={cn} onClick={f}>
+                                                            {col.value}
+                                                        </td>
+                                                    )
+                                                })}
+                                            </tr>
+                                        )
+                                    })}
+
+                                </tbody>
+                            </table>
+
+                            <div className="dataTables_info">
+                                {`Showing ${this.showFrom()} to ${this.showTo()} of ${this.totalRows()} entries`}
+                            </div>
+
+                            {this.renderPagination()}
+
+                        </wrap>
+                    }
 
             </div>
         </div>
@@ -316,7 +366,6 @@ TableData.propTypes = {
         )
     }),
     isShowFooter: PropTypes.bool,
-    isShowSearch: PropTypes.bool,
     searchFields: PropTypes.array
 }
 

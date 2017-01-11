@@ -37,7 +37,10 @@ class TableData extends Component{
     }
 
     componentWillReceiveProps(nextProps){
-        this.setState({currentPage: 1})
+        this.setState({
+            currentPage: 1,
+            searchValue: null
+        })
     }
 
     onChangePerPage(value){
@@ -49,10 +52,6 @@ class TableData extends Component{
 
     onChangeSearch(e){
         let value = e.target.value
-        value = value.trim()
-        if (value.length < 2){
-            value = null
-        }    
         this.setState({
             searchValue: value,
             currentPage: 1
@@ -249,6 +248,9 @@ class TableData extends Component{
 
     render(){
         const { data, isShowFooter, searchFields } = this.props
+        let { searchValue } = this.state
+
+        searchValue = searchValue || ''
         
         return (
             <div className="card">
@@ -270,6 +272,7 @@ class TableData extends Component{
                         <div className="dataTables_filter">
                             <label>{'Search:'}
                                 <input
+                                    value={searchValue}
                                     onChange={this.onChangeSearch}
                                     type="search"
                                     placeholder="Search..." />

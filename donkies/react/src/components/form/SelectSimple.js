@@ -3,10 +3,15 @@ import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 
 
+/**
+ * Options passes to Select is array of objects.
+ * Each object has properties: text and value.
+ */
 export default class SelectSimple extends Component{
     static get defaultProps() {
         return {
-            onChange: null
+            onChange: null,
+            value: ''
         }
     }
 
@@ -35,12 +40,13 @@ export default class SelectSimple extends Component{
 
     render(){
         const { wrapperClassName } = this.state
-        const { name, options } = this.props
+        const { name, options, value } = this.props
 
         return (
             <div className={wrapperClassName}>
                 <div className="select">
                     <select
+                        defaultValue={value}
                         onChange={this.onChange}
                         onFocus={this.onFocus}
                         onBlur={this.onBlur}
@@ -67,5 +73,6 @@ SelectSimple.propTypes = {
             value: PropTypes.any,
             text: PropTypes.any
         })
-    ).isRequired
+    ).isRequired,
+    value: PropTypes.any
 }

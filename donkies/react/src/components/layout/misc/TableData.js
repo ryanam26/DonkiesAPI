@@ -43,16 +43,23 @@ class TableData extends Component{
         this.setState({perPage: parseInt(value)})
     }
 
-    onClickPage(num){
+    onClickPage(num, e){
+        e.preventDefault()
         this.setState({currentPage: num})
     }
 
-    onClickNext(){
-        this.setState({currentPage: this.state.currentPage + 1})
+    onClickNext(e){
+        e.preventDefault()
+        if (this.isNextActive()){
+            this.setState({currentPage: this.state.currentPage + 1})    
+        }
     }
 
-    onClickPrevious(){
-        this.setState({currentPage: this.state.currentPage - 1})
+    onClickPrevious(e){
+        e.preventDefault()
+        if (this.isPreviousActive()){
+            this.setState({currentPage: this.state.currentPage - 1})    
+        }
     }
 
     getPerPageOptions(){
@@ -82,7 +89,18 @@ class TableData extends Component{
 
     numPages(){
         const num = this.totalRows() / this.state.perPage
-        return Math.ceil(num)
+        return Math.round(num)
+    }
+
+    /**
+     * Returns array of numbers from 1 to numPages
+     */
+    numsArr(){
+        let nums = []
+        for (let i=1; i <= this.numPages(); i++){
+            nums.push(i)
+        }
+        return nums
     }
 
     /** 
@@ -122,18 +140,42 @@ class TableData extends Component{
     }
 
     renderPagination(){
+        const { currentPage } = this.state
+
+        const cnNext = classNames(
+            'paginate_button next',
+            {'disabled': !this.isNextActive()}
+        )
+        const cnPrevious = classNames(
+            'paginate_button previous',
+            {'disabled': !this.isPreviousActive()}
+        )
+
         return (
             <div className="dataTables_paginate paging_simple_numbers">
-                <a className="paginate_button previous disabled">
-                    {'Previous'}
-                </a>
+                <a
+                    onClick={this.onClickPrevious}
+                    className={cnPrevious}>{'Previous'}</a>
 
                 <span>
-                    <a className="paginate_button current">{'1'}</a>
-                    <a className="paginate_button">{'2'}</a>
+                    {this.numsArr().map((num) => {
+                        const cn = classNames(
+                            'paginate_button',
+                            {'current': num === currentPage}
+                        )
+                        return (
+                            <a
+                                onClick={this.onClickPage.bind(null, num)}
+                                key={num}
+                                className={cn}>{num}</a>
+                        )
+
+                    })}
                 </span>
 
-                <a className="paginate_button next">{'Next'}</a>
+                <a
+                    onClick={this.onClickNext}
+                    className={cnNext}>{'Next'}</a>
             </div>
         )
     }

@@ -105,7 +105,7 @@ class DebtAccounts extends Component{
                     <Modal
                         onClickClose={this.onClickCloseShareModal}
                         visible={isShowShareModal}
-                        title="Share of transfers">
+                        title="Edit share of transfers">
                             
                             <ShareEdit
                                 accounts={accounts} />

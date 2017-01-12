@@ -30,6 +30,61 @@ class AccountDetail(AuthMixin, RetrieveDestroyAPIView):
             member__user=self.request.user)
 
 
+class AccountsEditShare(AuthMixin, APIView):
+    """
+    Edit transfer_share for debt accounts.
+
+    Example request: {id7: 35, id8: 65}
+    1) The ids should be equal to ids in database.
+    2) The total sum of share should be equal to 100.
+
+    Returns 200 or 400, no error messages.
+    Frontend checks everything before sending data.
+    """
+    def get_queryset(self):
+        return Account.objects.filter(
+            member__user=self.request.user,
+            type_ds=Account.DEBT)
+
+    def get_list(self, data):
+        """
+        Converts query dict from request post
+        from {id7: 35, id8: 65} to [(7, 35), (8, 65)]
+        """
+        l = []
+        for key, value in data.items():
+            if 'id' in key:
+                key = key.lstrip('id')
+                id = int(key)
+                value = int(value)
+                l.append((id, value))
+        return l
+
+    def validate_ids(self, l):
+        qs = self.get_queryset()
+        ids1 = list(qs.values_list('id', flat=True))
+        ids2 = [tup[0] for tup in l]
+        if sorted(ids1) == sorted(ids2):
+            return True
+        return False
+
+    def validate_sum(self, l):
+        ids = [tup[1] for tup in l]
+        if sum(ids) == 100:
+            return True
+        return False
+
+    def put(self, request, **kwargs):
+        l = self.get_list(request.data)
+        if not self.validate_ids(l):
+            return Response(status=400)
+
+        if not self.validate_sum(l):
+            return Response(status=400)
+
+        return Response()
+
+
 class CredentialsListByCode(AuthMixin, ListAPIView):
     serializer_class = sers.CredentialsSerializer
 

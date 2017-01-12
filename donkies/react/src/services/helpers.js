@@ -1,3 +1,4 @@
+
 import moment from 'moment'
 import React from 'react'
 
@@ -148,6 +149,12 @@ export function isFloat(value){
 }
 
 
+export function isInteger(value){
+    var er = /^[0-9]+$/
+    return ( er.test(value) ) ? true : false
+}
+
+
 /**
  * Empty row for table.
  */
@@ -228,3 +235,16 @@ export function getDollarAmount(amount){
     }
     return `-$${Math.abs(amount)}`
 }
+
+/**
+ * Returns sum of the array of numbers.
+ */
+export function getArraySum(arr){
+    let sum = 0
+    for (let num of arr){
+        sum += num
+    }
+    return sum
+}
+    
+

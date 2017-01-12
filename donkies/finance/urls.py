@@ -13,6 +13,11 @@ urlpatterns = [
         name='account'),
 
     url(
+        r'^(?P<version>(v1))/accounts/edit_share$',
+        v.AccountsEditShare.as_view(),
+        name='accounts_edit_share'),
+
+    url(
         r'^(?P<version>(v1))/credentials/code/(?P<institution_code>\w+)$',
         v.CredentialsListByCode.as_view(),
         name='credentials_by_code'),

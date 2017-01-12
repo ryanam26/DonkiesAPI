@@ -1,4 +1,8 @@
 
+.error{
+    color: #f6675d;
+}
+
 .custom-errors{
     margin-top: 15px;
     color: #f6675d;

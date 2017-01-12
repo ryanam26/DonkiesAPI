@@ -239,12 +239,11 @@ def apply_transfer_share(sender, instance, created, **kwargs):
     """
     If user adds first debt account, set transfer_share to 100%.
     """
-    if created and instance.type_ds == Account.DEBT:
+    if instance.type_ds == Account.DEBT:
         qs = Account.objects.filter(
             member__user=instance.member.user, type_ds=Account.DEBT)
         if qs.count() == 1:
-            instance.transfer_share = 100
-            instance.save()
+            Account.objects.filter(id=instance.id).update(transfer_share=100)
 
 
 # Got error with multiple accounts in generator "clean".

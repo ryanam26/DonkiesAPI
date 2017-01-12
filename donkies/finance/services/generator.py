@@ -2,9 +2,9 @@
 Creates fake Atrium data for admin user.
 By default admin users do not connect to Atrium API.
 
-2 bank accounts: chase and mxbank.
+2 debit bank accounts: chase and mxbank.
+2 debt bank accounts: chase and mxbank
 
-Each bank account has 2 years of transactions.
 Each day has randomly from 3 to 5 transactions from 3 to 30 USD.
 """
 
@@ -28,8 +28,7 @@ os.environ.setdefault(
     'DJANGO_SETTINGS_MODULE', 'donkies.settings.development')
 django.setup()
 
-NUM_DAYS = 730
-NUM_DAYS = 20  # TODO: remove
+NUM_DAYS = 50
 
 
 class Generator:
@@ -61,13 +60,24 @@ class Generator:
         for code in self.institutions:
             self.create_member(code)
 
-    def create_account(self, member):
+    def create_account(self, member, account_type):
+        """
+        account_type: debit/debt
+        """
         Account = apps.get_model('finance', 'Account')
+
+        if account_type == 'debit':
+            name = 'Debit {}'.format(member.name)
+            acc_type = Account.CHECKING
+        else:
+            name = 'Credit {}'.format(member.name)
+            acc_type = Account.LOAN
+
         a = Account(member=member)
         a.guid = uuid.uuid4().hex
         a.uid = uuid.uuid4().hex
-        a.name = 'Debit {}'.format(member.name)
-        a.type_ds = Account.DEBIT
+        a.name = name
+        a.type = acc_type
         a.updated_at = timezone.now()
         a.balance = random.randint(300, 2000)
         a.available_balance = a.balance
@@ -76,7 +86,8 @@ class Generator:
     def create_accounts(self):
         Member = apps.get_model('finance', 'Member')
         for member in Member.objects.filter(user=self.user):
-            self.create_account(member)
+            self.create_account(member, 'debit')
+            self.create_account(member, 'debt')
 
     def generate_amount(self):
         """
@@ -124,7 +135,9 @@ class Generator:
             t.save()
 
     def clean(self):
+        Account = apps.get_model('finance', 'Account')
         Member = apps.get_model('finance', 'Member')
+        Account.objects.filter(member__user=self.user).delete()
         Member.objects.filter(user=self.user).delete()
 
     @transaction.atomic

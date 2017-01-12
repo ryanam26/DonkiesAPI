@@ -1,7 +1,9 @@
  import * as actions from 'actions'
 
 const iState = {
-    items: null
+    allAccounts: null,
+    debtAccounts: null,
+    debitAccounts: null
 }
 
 
@@ -10,13 +12,30 @@ export function accounts(state=iState, action){
         case actions.ACCOUNTS.REQUEST:
             return {
                 ...state,
-                items: null
+                allAccounts: null,
+                debtAccounts: null,
+                debitAccounts: null
             }
 
         case actions.ACCOUNTS.SUCCESS:
+            let debtAccounts = []
+            let debitAccounts = []
+
+            for (let obj of action.payload){
+                if (obj.type_ds === 'debt'){
+                    debtAccounts.push(obj)    
+                }
+
+                if (obj.type_ds === 'debit'){
+                    debitAccounts.push(obj)    
+                }
+            }
+
             return {
                 ...state,
-                items: action.payload
+                allAccounts: action.payload,
+                debtAccounts: debtAccounts,
+                debitAccounts: debitAccounts
             }
 
         default:

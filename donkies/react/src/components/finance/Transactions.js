@@ -107,13 +107,17 @@ class Transactions extends Component{
             <wrap>
                 <h3>{'Transactions'}</h3>
 
-                <SelectSimple
-                    name="accounts"
-                    options={this.getAccountsOptions()}
-                    onChange={this.onChangeAccount}
-                    value={accountId} />
-
-                <br /><br />
+                <div className="row">
+                    <div className="col-sm-4 col-xs-6">
+                        <div className="card p-20">
+                            <SelectSimple
+                                name="accounts"
+                                options={this.getAccountsOptions()}
+                                onChange={this.onChangeAccount}
+                                value={accountId} />
+                        </div>
+                    </div>
+                </div>
 
                 <TableData
                     data={data}
@@ -131,7 +135,7 @@ Transactions.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-    accounts: state.accounts.items,
+    accounts: state.accounts.allAccounts,
     transactions: state.transactions.items
 })
 

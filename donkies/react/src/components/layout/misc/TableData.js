@@ -135,8 +135,12 @@ class TableData extends Component{
     }
 
     numPages(){
-        const num = this.totalRows() / this.state.perPage
-        return Math.round(num)
+        let num = this.totalRows() / this.state.perPage
+        num = Math.round(num)
+        if (num === 0){
+            num = 1
+        }
+        return num
     }
 
     /**

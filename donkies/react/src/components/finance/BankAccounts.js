@@ -122,7 +122,7 @@ BankAccounts.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-    accounts: state.accounts.items
+    accounts: state.accounts.debitAccounts
 })
 
 export default connect(mapStateToProps, {

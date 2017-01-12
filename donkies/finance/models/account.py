@@ -55,6 +55,12 @@ class AccountManager(models.Manager):
         return self.model.objects.filter(
             member__user__guid=user_guid)
 
+    def debit_accounts(self):
+        return self.model.objects.filter(type_ds=self.model.DEBIT)
+
+    def debt_accounts(self):
+        return self.model.objects.filter(type_ds=self.model.DEBT)
+
 
 class Account(models.Model):
     """
@@ -219,17 +225,19 @@ class Account(models.Model):
         return self.OTHER
 
 
-@receiver(post_delete, sender=Account)
-def delete_account(sender, instance, **kwargs):
-    """
-    If account's member connected only to this account,
-    remove member also.
-    """
-    Member = apps.get_model('finance', 'Member')
-    qs = Account.objects.filter(member_id=instance.member.id)
-    if qs.count() == 0:
-        member = Member.objects.get(id=instance.member.id)
-        member.delete()
+# Got error with multiple accounts in generator "clean".
+
+# @receiver(post_delete, sender=Account)
+# def delete_account(sender, instance, **kwargs):
+#     """
+#     If account's member connected only to this account,
+#     remove member also.
+#     """
+#     Member = apps.get_model('finance', 'Member')
+#     qs = Account.objects.filter(member_id=instance.member.id)
+#     if qs.count() == 0:
+#         member = Member.objects.get(id=instance.member.id)
+#         member.delete()
 
 
 @admin.register(Account)

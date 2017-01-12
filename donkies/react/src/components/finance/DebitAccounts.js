@@ -43,7 +43,7 @@ class DebitAccounts extends Component{
         let data = {}
         data.id = 'debitAccounts'
         data.header = [
-            'BANK', 'NAME', 'BALANCE', 'TRANSACTIONS']
+            'BANK', 'ACCOUNT NAME', 'BALANCE', 'TRANSACTIONS']
         data.rows = []
 
         for (let a of accounts){
@@ -90,11 +90,11 @@ class DebitAccounts extends Component{
                     headerClass="m-b-20"
                     isContentToBody={false}>
                                     
-                    <Link to="/transactions" className="btn btn-default btn-sm waves-effect m-r-5">
+                    <Link to="/transactions" className="btn btn-default btn-sm waves-effect m-r-5 m-t-5">
                         {'View Transactions'}
                     </Link>
                     
-                    <Link to="/add_bank" className="btn bgm-lightblue btn-icon-text btn-sm waves-effect m-r-5">
+                    <Link to="/add_bank" className="btn bgm-lightblue btn-icon-text btn-sm waves-effect m-r-5 m-t-5">
                         <i className="zmdi zmdi-plus" />
                         {'Add Bank Account'}
                     </Link>
@@ -102,7 +102,7 @@ class DebitAccounts extends Component{
                     {this.hasAccounts() &&
                         <button
                             onClick={this.onClickShowModal}
-                            className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5">
+                            className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5 m-t-5">
                             <i className="zmdi zmdi-delete" />
                             {'Remove Bank Account'}
                         </button>

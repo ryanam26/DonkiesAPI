@@ -159,4 +159,11 @@ The message:
 "Your user account has not been activated to add financial account."
  
  on "/add_bank" and "/add_lender" pages means that user not created yet in Atrium.
- 
+
+### Share change between all debt accounts.
+
+1) The share is in percentage.
+2) First account will get 100% by default.
+3) All next accounts will get 0% by default.
+4) User is able to assign any value in dashboard.
+5) The sum of share of all debt accounts should be equal 100%.

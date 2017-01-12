@@ -43,7 +43,7 @@ class DebtAccounts extends Component{
         let data = {}
         data.id = 'debtAccounts'
         data.header = [
-            'INSTITUTION', 'NAME', 'BALANCE', 'TRANSACTIONS']
+            'LENDER', 'ACCOUNT NAME', 'BALANCE', 'TRANSACTIONS']
         data.rows = []
 
         for (let a of accounts){
@@ -90,7 +90,7 @@ class DebtAccounts extends Component{
                     headerClass="m-b-20"
                     isContentToBody={false}>
                                     
-                    <Link to="/add_lender" className="btn bgm-lightblue btn-icon-text btn-sm waves-effect m-r-5">
+                    <Link to="/add_lender" className="btn bgm-lightblue btn-icon-text btn-sm waves-effect m-r-5 m-t-5">
                         <i className="zmdi zmdi-plus" />
                         {'Add lender'}
                     </Link>
@@ -98,7 +98,7 @@ class DebtAccounts extends Component{
                     {this.hasAccounts() &&
                         <button
                             onClick={this.onClickShowModal}
-                            className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5">
+                            className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5 m-t-5">
                             <i className="zmdi zmdi-delete" />
                             {'Remove lender'}
                         </button>

@@ -4,6 +4,7 @@ from django.contrib import admin
 from finance.services.atrium_api import AtriumApi
 from django.apps import apps
 from django.db import transaction
+from django.db.models.signals import post_save
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
@@ -190,6 +191,14 @@ class Account(models.Model):
         choices=TYPE_DS_CHOICES,
         default=OTHER)
     updated_at = models.DateTimeField(null=True, default=None)
+    share_of_change = models.IntegerField(
+        default=0,
+        help_text=(
+            'For debt accounts in percentage. '
+            'Share of "change" between debt accounts.'
+            'The total share of all accounts should be 100%.'
+        )
+    )
 
     objects = AccountManager()
 
@@ -223,6 +232,19 @@ class Account(models.Model):
         if self.type in self.INVESTMENT_TYPES:
             return self.INVESTMENT
         return self.OTHER
+
+
+@receiver(post_save, sender=Account)
+def apply_change_share(sender, instance, created, **kwargs):
+    """
+    If user adds first debt account, set share_of_change to 100%.
+    """
+    if created and instance.type_ds == Account.DEBT:
+        qs = Account.objects.filter(
+            member__user=instance.member.user, type_ds=Account.DEBT)
+        if qs.count() == 1:
+            instance.share_of_change = 100
+            instance.save()
 
 
 # Got error with multiple accounts in generator "clean".

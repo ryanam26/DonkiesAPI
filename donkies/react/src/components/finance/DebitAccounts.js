@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { Link } from 'react-router'
+import { getDollarAmount } from 'services/helpers'
 import { AccountRemove, CardSimple, Modal, TableSimple } from 'components'
 
 
@@ -56,7 +57,7 @@ class DebitAccounts extends Component{
             }
             row.cols.push(col)
             row.cols.push({value: a.name})
-            row.cols.push({value: '$' + a.balance})
+            row.cols.push({value: getDollarAmount(a.balance)})
 
             const link = (<Link to={'/transactions?account_id=' + a.id}>
                             <i style={{fontSize: '25px'}} className="zmdi zmdi-view-list" />

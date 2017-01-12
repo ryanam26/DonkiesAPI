@@ -216,3 +216,15 @@ export function getPaginationArr(currentPage, numPages){
     arr = [... new Set(arr)]
     return arr.sort((a, b) => a > b)
 }
+
+/**
+ * @param {number} amount
+ * @returns {string} 
+ * Examples: $10.00 -$10.00
+ */
+export function getDollarAmount(amount){
+    if (amount >= 0){
+        return `$${Math.abs(amount)}`
+    }
+    return `-$${Math.abs(amount)}`
+}

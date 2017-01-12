@@ -51,6 +51,7 @@ class AccountSerializer(serializers.ModelSerializer):
             'type',
             'type_ds',
             'updated_at',
+            'transfer_share',
             'institution'
         )
 

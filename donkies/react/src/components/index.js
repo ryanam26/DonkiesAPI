@@ -12,6 +12,9 @@ export { DebtAccounts }
 import { default as AccountRemove } from './finance/AccountRemove'
 export { AccountRemove }
 
+import { default as ShareEdit } from './finance/ShareEdit'
+export { ShareEdit }
+
 import { default as Transactions } from './finance/Transactions'
 export { Transactions }
 

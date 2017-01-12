@@ -191,11 +191,11 @@ class Account(models.Model):
         choices=TYPE_DS_CHOICES,
         default=OTHER)
     updated_at = models.DateTimeField(null=True, default=None)
-    share_of_change = models.IntegerField(
+    transfer_share = models.IntegerField(
         default=0,
         help_text=(
             'For debt accounts in percentage. '
-            'Share of "change" between debt accounts.'
+            'Share of transfer amount between debt accounts.'
             'The total share of all accounts should be 100%.'
         )
     )
@@ -235,15 +235,15 @@ class Account(models.Model):
 
 
 @receiver(post_save, sender=Account)
-def apply_change_share(sender, instance, created, **kwargs):
+def apply_transfer_share(sender, instance, created, **kwargs):
     """
-    If user adds first debt account, set share_of_change to 100%.
+    If user adds first debt account, set transfer_share to 100%.
     """
     if created and instance.type_ds == Account.DEBT:
         qs = Account.objects.filter(
             member__user=instance.member.user, type_ds=Account.DEBT)
         if qs.count() == 1:
-            instance.share_of_change = 100
+            instance.transfer_share = 100
             instance.save()
 
 

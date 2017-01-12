@@ -154,3 +154,9 @@ This is working project's file of template.
 
 On first load of dashboard in App container load accounts and transactions
 from server to Redux state.
+
+The message:
+"Your user account has not been activated to add financial account."
+ 
+ on "/add_bank" and "/add_lender" pages means that user not created yet in Atrium.
+ 

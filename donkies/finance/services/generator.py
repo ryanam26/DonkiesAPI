@@ -69,9 +69,11 @@ class Generator:
         if account_type == 'debit':
             name = 'Debit {}'.format(member.name)
             acc_type = Account.CHECKING
+            balance = random.randint(300, 2000)
         else:
             name = 'Credit {}'.format(member.name)
             acc_type = Account.LOAN
+            balance = -random.randint(50000, 100000)
 
         a = Account(member=member)
         a.guid = uuid.uuid4().hex
@@ -79,7 +81,7 @@ class Generator:
         a.name = name
         a.type = acc_type
         a.updated_at = timezone.now()
-        a.balance = random.randint(300, 2000)
+        a.balance = balance
         a.available_balance = a.balance
         a.save()
 

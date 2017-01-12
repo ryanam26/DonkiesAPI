@@ -7,7 +7,7 @@ import { createUUID } from 'services/helpers'
 import { LoadingInline, SelectSimple } from 'components'
 
 
-class BankRemove extends Component{
+class AccountRemove extends Component{
     constructor(props){
         super(props)
         autoBind(this)
@@ -23,7 +23,7 @@ class BankRemove extends Component{
      */
     getOptions(accounts){
         let data = []
-        data.push({value: '', text: '--- Select bank account'})
+        data.push({value: '', text: '--- Select account'})
         
         for (let a of accounts){
             data.push({value: a.id, text: a.name})
@@ -66,7 +66,7 @@ class BankRemove extends Component{
             // Update accounts and transactions in Redux state
             this.props.apiGetRequest('accounts')
             this.props.apiGetRequest('transactions')
-            this.props.onBankRemoved()            
+            this.props.onAccountRemoved()            
 
         } else {
             const id = createUUID()
@@ -111,11 +111,11 @@ class BankRemove extends Component{
 }
 
 
-BankRemove.propTypes = {
+AccountRemove.propTypes = {
     accounts: PropTypes.array,
     apiGetRequest: PropTypes.func,
     growlAddRequest: PropTypes.func,
-    onBankRemoved: PropTypes.func
+    onAccountRemoved: PropTypes.func
 }
 
 const mapStateToProps = (state) => ({
@@ -125,4 +125,4 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
     apiGetRequest,
     growlAddRequest
-})(BankRemove)
+})(AccountRemove)

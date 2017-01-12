@@ -4,7 +4,7 @@ import autoBind from 'react-autobind'
 import { AddAccount } from 'components' 
 
 
-export default class AddBankPage extends Component{
+export default class AddLenderPage extends Component{
     constructor(props){
         super(props)
         autoBind(this)
@@ -18,6 +18,6 @@ export default class AddBankPage extends Component{
 }
 
 
-AddBankPage.propTypes = {
+AddLenderPage.propTypes = {
 }
 

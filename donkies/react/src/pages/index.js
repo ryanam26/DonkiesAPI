@@ -6,6 +6,9 @@ export { AccountsPage }
 import { default as AddBankPage } from './finance/AddBankPage'
 export { AddBankPage }
 
+import { default as AddLenderPage } from './finance/AddLenderPage'
+export { AddLenderPage }
+
 import { default as SettingsPage } from './finance/SettingsPage'
 export { SettingsPage }
 

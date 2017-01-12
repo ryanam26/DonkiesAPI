@@ -2,10 +2,10 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { Link } from 'react-router'
-import { BankRemove, CardSimple, Modal, TableSimple } from 'components'
+import { AccountRemove, CardSimple, Modal, TableSimple } from 'components'
 
 
-class BankAccounts extends Component{
+class DebtAccounts extends Component{
     constructor(props){
         super(props)
         autoBind(this)
@@ -23,7 +23,7 @@ class BankAccounts extends Component{
         this.setState({isShowRemoveModal: false})
     }
 
-    onBankRemoved(){
+    onAccountRemoved(){
         this.setState({isShowRemoveModal: false})   
     }
 
@@ -41,9 +41,9 @@ class BankAccounts extends Component{
      */
     getData(accounts){
         let data = {}
-        data.id = 'accounts'
+        data.id = 'debtAccounts'
         data.header = [
-            'BANK', 'NAME', 'BALANCE', 'TRANSACTIONS']
+            'INSTITUTION', 'NAME', 'BALANCE', 'TRANSACTIONS']
         data.rows = []
 
         for (let a of accounts){
@@ -77,26 +77,22 @@ class BankAccounts extends Component{
                     <Modal
                         onClickClose={this.onClickCloseModal}
                         visible={isShowRemoveModal}
-                        title="Remove bank account">
+                        title="Remove lender">
                             
-                            <BankRemove
-                                onBankRemoved={this.onBankRemoved}
+                            <AccountRemove
+                                onAccountRemoved={this.onAccountRemoved}
                                 accounts={accounts} />
                     </Modal>  
                 }
             
                 <CardSimple
-                    header="Bank Accounts"
+                    header="Lenders"
                     headerClass="m-b-20"
                     isContentToBody={false}>
                                     
-                    <Link to="/transactions" className="btn btn-default btn-sm waves-effect m-r-5">
-                        {'View Transactions'}
-                    </Link>
-                    
-                    <Link to="/add_bank" className="btn bgm-lightblue btn-icon-text btn-sm waves-effect m-r-5">
+                    <Link to="/add_lender" className="btn bgm-lightblue btn-icon-text btn-sm waves-effect m-r-5">
                         <i className="zmdi zmdi-plus" />
-                        {'Add Bank Account'}
+                        {'Add lender'}
                     </Link>
 
                     {this.hasAccounts() &&
@@ -104,7 +100,7 @@ class BankAccounts extends Component{
                             onClick={this.onClickShowModal}
                             className="btn bgm-red btn-icon-text btn-sm waves-effect m-r-5">
                             <i className="zmdi zmdi-delete" />
-                            {'Remove Bank Account'}
+                            {'Remove lender'}
                         </button>
                     }
                 </CardSimple>
@@ -117,13 +113,13 @@ class BankAccounts extends Component{
 }
 
 
-BankAccounts.propTypes = {
+DebtAccounts.propTypes = {
     accounts: PropTypes.array
 }
 
 const mapStateToProps = (state) => ({
-    accounts: state.accounts.debitAccounts
+    accounts: state.accounts.debtAccounts
 })
 
 export default connect(mapStateToProps, {
-})(BankAccounts)
+})(DebtAccounts)

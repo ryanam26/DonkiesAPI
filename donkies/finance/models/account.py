@@ -83,7 +83,7 @@ class Account(models.Model):
     INVESTMENT_TYPES = (INVESTMENT, PROPERTY)
 
     DEBIT = 'debit'
-    DEBT = 'dept'
+    DEBT = 'debt'
     INVESTMENT = 'investment'
     OTHER = 'other'
 
@@ -197,7 +197,7 @@ class Account(models.Model):
         app_label = 'finance'
         verbose_name = 'account'
         verbose_name_plural = 'accounts'
-        ordering = ['member']
+        ordering = ['type_ds', 'member']
 
     def __str__(self):
         if self.name:

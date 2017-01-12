@@ -1,13 +1,16 @@
 // finance
 
-import { default as AddBank } from './finance/add_bank/AddBank'
-export { AddBank }
+import { default as AddAccount } from './finance/add_account/AddAccount'
+export { AddAccount }
 
-import { default as BankAccounts } from './finance/BankAccounts'
-export { BankAccounts }
+import { default as DebitAccounts } from './finance/DebitAccounts'
+export { DebitAccounts }
 
-import { default as BankRemove } from './finance/BankRemove'
-export { BankRemove }
+import { default as DebtAccounts } from './finance/DebtAccounts'
+export { DebtAccounts }
+
+import { default as AccountRemove } from './finance/AccountRemove'
+export { AccountRemove }
 
 import { default as Transactions } from './finance/Transactions'
 export { Transactions }

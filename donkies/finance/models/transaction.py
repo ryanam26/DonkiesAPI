@@ -121,10 +121,12 @@ class Transaction(models.Model):
         return top - value
 
     def save(self, *args, **kwargs):
+        Account = apps.get_model('finance', 'Account')
         if not self.pk:
             self.uid = uuid.uuid4().hex
 
-        self.roundup = self.calculate_roundup(self.amount)
+        if self.account.type_ds == Account.DEBIT:
+            self.roundup = self.calculate_roundup(self.amount)
         super().save(*args, **kwargs)
 
 

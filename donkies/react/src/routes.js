@@ -4,6 +4,7 @@ import { Route, IndexRoute } from 'react-router'
 import {
     AccountsPage,
     AddBankPage,
+    AddLenderPage,
     ForgotPasswordPage,
     HomePage,
     LoginPage,
@@ -36,6 +37,7 @@ export default (
             <IndexRoute component={HomePage} />
             <Route component={AccountsPage} path="/accounts" />
             <Route component={AddBankPage} path="/add_bank" />
+            <Route component={AddLenderPage} path="/add_lender" />
             <Route component={SettingsPage} path="/settings" />
             <Route component={TestPage} path="/test_page" />
             <Route component={TransactionsPage} path="/transactions" />

@@ -80,10 +80,12 @@ class Transactions extends Component{
             let row = {}
             row.cols = []
 
+            const roundup = t.roundup ? `$${t.roundup}` : '-'
+
             row.cols.push({value: t.created_at})
             row.cols.push({value: t.account})
             row.cols.push({value: `$${t.amount}`})
-            row.cols.push({value: `$${t.roundup}`})
+            row.cols.push({value: roundup})
             row.cols.push({value: t.description})
             data.rows.push(row)
         }

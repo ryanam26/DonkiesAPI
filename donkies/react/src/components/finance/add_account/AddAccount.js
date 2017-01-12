@@ -25,7 +25,7 @@ import Institution from './Institution'
  * 8) Wait for status again, back to 4th step.
  *
  */
-class AddBank extends Component{
+class AddAccount extends Component{
     constructor(props){
         super(props)
         autoBind(this)
@@ -144,7 +144,7 @@ class AddBank extends Component{
                 <Alert
                     type="info"
                     showClose={false}
-                    value="Your account has not been activated to add bank." />
+                    value="Your user account has not been activated to add financial account." />
             )       
         }
 
@@ -178,7 +178,7 @@ class AddBank extends Component{
 }
 
 
-AddBank.propTypes = {
+AddAccount.propTypes = {
     growlAddRequest: PropTypes.func,
     user: PropTypes.object
 }
@@ -189,4 +189,4 @@ const mapStateToProps = (state) => ({
 
 export default connect(mapStateToProps, {
     growlAddRequest
-})(AddBank)
+})(AddAccount)

@@ -11,10 +11,7 @@ export function accounts(state=iState, action){
     switch(action.type){
         case actions.ACCOUNTS.REQUEST:
             return {
-                ...state,
-                allAccounts: null,
-                debtAccounts: null,
-                debitAccounts: null
+                ...state
             }
 
         case actions.ACCOUNTS.SUCCESS:

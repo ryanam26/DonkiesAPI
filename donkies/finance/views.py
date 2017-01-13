@@ -74,6 +74,10 @@ class AccountsEditShare(AuthMixin, APIView):
             return True
         return False
 
+    def update(self, l):
+        for id, share in l:
+            Account.objects.filter(id=id).update(transfer_share=share)
+
     def put(self, request, **kwargs):
         l = self.get_list(request.data)
         if not self.validate_ids(l):
@@ -82,6 +86,7 @@ class AccountsEditShare(AuthMixin, APIView):
         if not self.validate_sum(l):
             return Response(status=400)
 
+        self.update(l)
         return Response()
 
 

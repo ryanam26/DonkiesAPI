@@ -69,7 +69,7 @@ class ShareEdit extends Component{
         if (response.status === 200){
             // Update accounts in Redux state
             this.setState({success: 'Saved!'})
-            // this.props.apiGetRequest('accounts')
+            this.props.apiGetRequest('accounts')
         } else {
             this.setState({error: 'Server error.'})
         }
@@ -78,6 +78,10 @@ class ShareEdit extends Component{
     render(){
         const { accounts } = this.props
         const { error, success } = this.state
+
+        if (!accounts){
+            return null
+        }
 
         return (
             <form ref="form">
@@ -128,6 +132,7 @@ ShareEdit.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
+    accounts: state.accounts.debtAccounts,
 })
 
 export default connect(mapStateToProps, {

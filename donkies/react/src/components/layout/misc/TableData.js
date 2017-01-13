@@ -287,7 +287,7 @@ class TableData extends Component{
 
                     {this.totalRows() > 0 &&
                         <wrap>
-                            <table id={data.id} className="table table-striped dataTable">
+                            <table id={data.id} className="table table-striped table-condensed dataTable">
                                 <thead>
                                     <tr>
                                         {data.header.map((name, index) => {

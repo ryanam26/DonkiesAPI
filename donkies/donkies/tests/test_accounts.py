@@ -119,3 +119,9 @@ class TestAccounts(base.Mixin):
         data = json.dumps(dic)
         response = client.put(url, data, content_type='application/json')
         assert response.status_code == 200
+
+        a1.refresh_from_db()
+        a2.refresh_from_db()
+
+        assert a1.transfer_share == 50
+        assert a1.transfer_share == 50

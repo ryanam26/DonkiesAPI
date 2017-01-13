@@ -101,15 +101,16 @@ class DebtAccounts extends Component{
                     </Modal>  
                 }
 
-                <Modal
-                    onClickClose={this.onClickCloseShareModal}
-                    visible={isShowShareModal}
-                    title="Edit share of transfers">
+                {(this.hasAccounts() && accounts.length > 1) &&
+                    <Modal
+                        onClickClose={this.onClickCloseShareModal}
+                        visible={isShowShareModal}
+                        title="Edit share of transfers">
+                            
+                            <ShareEdit accounts={accounts} />
+                    </Modal>  
+                }
                         
-                        <ShareEdit />
-                </Modal>  
-            
-            
                 <CardSimple
                     header="Lenders"
                     headerClass="m-b-20"

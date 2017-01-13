@@ -79,10 +79,6 @@ class ShareEdit extends Component{
         const { accounts } = this.props
         const { error, success } = this.state
 
-        if (!accounts){
-            return null
-        }
-
         return (
             <form ref="form">
             <div className="table-responsive">
@@ -132,7 +128,6 @@ ShareEdit.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-    accounts: state.accounts.debtAccounts,
 })
 
 export default connect(mapStateToProps, {

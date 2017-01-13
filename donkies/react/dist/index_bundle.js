@@ -54,7 +54,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "d2c769f69b4eef203cd8"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "d695be7a646c9e10c076"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43698,8 +43698,7 @@
 	                        onClickClose: this.onClickCloseShareModal,
 	                        visible: isShowShareModal,
 	                        title: 'Edit share of transfers' },
-	                    _react2.default.createElement(_components.ShareEdit, {
-	                        accounts: accounts })
+	                    _react2.default.createElement(_components.ShareEdit, { accounts: accounts })
 	                ),
 	                _react2.default.createElement(
 	                    _components.CardSimple,
@@ -43916,7 +43915,7 @@
 	                                if (response.status === 200) {
 	                                    // Update accounts in Redux state
 	                                    this.setState({ success: 'Saved!' });
-	                                    // this.props.apiGetRequest('accounts')
+	                                    this.props.apiGetRequest('accounts');
 	                                } else {
 	                                    this.setState({ error: 'Server error.' });
 	                                }
@@ -48233,7 +48232,7 @@
 	                            null,
 	                            _react2.default.createElement(
 	                                'table',
-	                                { id: data.id, className: 'table table-striped dataTable' },
+	                                { id: data.id, className: 'table table-striped table-condensed dataTable' },
 	                                _react2.default.createElement(
 	                                    'thead',
 	                                    null,
@@ -51894,11 +51893,7 @@
 
 	    switch (action.type) {
 	        case actions.ACCOUNTS.REQUEST:
-	            return _extends({}, state, {
-	                allAccounts: null,
-	                debtAccounts: null,
-	                debitAccounts: null
-	            });
+	            return _extends({}, state);
 
 	        case actions.ACCOUNTS.SUCCESS:
 	            var debtAccounts = [];

@@ -1,6 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
+import { apiGetRequest } from 'actions'
+import { apiCall4, ACCOUNTS_EDIT_SHARE_URL } from 'services/api'
 import { formToObject, getArraySum, isInteger } from 'services/helpers'
 
 
@@ -13,7 +15,8 @@ class ShareEdit extends Component{
         autoBind(this)
 
         this.state = {
-            error: null
+            error: null,
+            success: null
         }
     }
 
@@ -34,27 +37,47 @@ class ShareEdit extends Component{
         if (getArraySum(values) !== 100){
             return 'The total sum of all share should be equal 100.'
         }
+        return null
     }
 
+    /**
+     * Disable space.
+     */
+    onKeyDown(e){
+        if (e.keyCode === 32){
+            e.preventDefault()
+        }
+    }
     
     onChange(){
+        this.setState({error: null, success: null})
+
         let form = this.refs.form
         form = formToObject(form)
         let error = this.checkValues(form)
-        if (error){
+        if (error !== null){
             this.setState({error: error})
-        } else {
-            this.setState({error: null})
-        }
+            return
+        } 
+        this.submitRequest(form)
     }
 
-    async submitRequest(form){
+    async submitRequest(data){
+        const url = ACCOUNTS_EDIT_SHARE_URL
 
+        let response = await apiCall4(url, data, true) 
+        if (response.status === 200){
+            // Update accounts in Redux state
+            this.setState({success: 'Saved!'})
+            // this.props.apiGetRequest('accounts')
+        } else {
+            this.setState({error: 'Server error.'})
+        }
     }
 
     render(){
         const { accounts } = this.props
-        const { error } = this.state
+        const { error, success } = this.state
 
         return (
             <form ref="form">
@@ -67,6 +90,8 @@ class ShareEdit extends Component{
                                     <td>{account.name}</td>
                                     <td>
                                         <input
+                                            autoComplete="off"
+                                            onKeyDown={this.onKeyDown}
                                             onChange={this.onChange}
                                             className="form-control input-sm"
                                             type="text"
@@ -79,7 +104,11 @@ class ShareEdit extends Component{
 
                         <tr>
                             <td colSpan="2" className="text-right">
-                                {error && <div className="error">{error}</div>}
+                                {error && 
+                                    <div className="custom-error">{error}</div>}
+                                
+                                {success &&
+                                    <div className="custom-success">{success}</div>}
                             </td>
                         </tr>
 
@@ -94,13 +123,13 @@ class ShareEdit extends Component{
 
 
 ShareEdit.propTypes = {
-    accounts: PropTypes.array
+    accounts: PropTypes.array,
+    apiGetRequest: PropTypes.func
 }
 
 const mapStateToProps = (state) => ({
-    
 })
 
 export default connect(mapStateToProps, {
-  
+    apiGetRequest
 })(ShareEdit)

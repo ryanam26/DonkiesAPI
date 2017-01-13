@@ -4,6 +4,7 @@ import { TOKEN_EXPIRED } from 'actions'
 import { API_ROOT_URL } from 'store/configureStore'
 
 export const ACCOUNTS_URL = `${API_ROOT_URL}v1/accounts`   
+export const ACCOUNTS_EDIT_SHARE_URL = `${API_ROOT_URL}v1/accounts/edit_share`   
 export const CHANGE_EMAIL_URL = `${API_ROOT_URL}v1/user/change/email`
 export const CHANGE_EMAIL_CONFIRM_URL = `${API_ROOT_URL}v1/user/change/email/confirm`
 export const CHANGE_PASSWORD_URL = `${API_ROOT_URL}v1/user/change/password`
@@ -138,7 +139,7 @@ export function* apiCall(url, method, data, isAuth){
 
 
 /**
- * This function returns promise.
+ * @returns {promise}.
  * Used for simple GET requests inside component.
  * Doesn't process errors.
  */
@@ -160,7 +161,7 @@ export function apiCall2(url, isAuth){
 
 
 /**
- * This function returns promise.
+ * @returns {promise}.
  * Used for POST requests inside component.
  */
 export function apiCall3(url, data, isAuth){
@@ -182,10 +183,32 @@ export function apiCall3(url, data, isAuth){
 
 
 /**
- * This function returns promise.
+ * @returns {promise}.
+ * Used for PUT requests inside component.
+ */
+export function apiCall4(url, data, isAuth){
+    let fetchObj = {method: 'PUT'}
+    fetchObj.body = JSON.stringify(data)
+    fetchObj.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+
+    if (isAuth){
+        let token = window.localStorage.getItem('token')
+        if (token !== null){
+            fetchObj.headers.Authorization = 'Token ' + token    
+        }
+    }
+    return fetch(url, fetchObj)
+}
+
+
+/**
+ * @returns {promise}.
  * Used for DELETE requests inside component.
  */
-export function apiCall4(url, isAuth){
+export function apiCall5(url, isAuth){
     let fetchObj = {method: 'DELETE'}
     fetchObj.headers = {
         'Accept': 'application/json',

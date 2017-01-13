@@ -1,6 +1,10 @@
 
-.error{
+.custom-error{
     color: #f6675d;
+}
+
+.custom-success{
+    color: #4caf50;
 }
 
 .custom-errors{

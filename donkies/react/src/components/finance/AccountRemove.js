@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { apiGetRequest, growlAddRequest } from 'actions'
-import { apiCall4, ACCOUNTS_URL } from 'services/api'
+import { apiCall5, ACCOUNTS_URL } from 'services/api'
 import { createUUID } from 'services/helpers'
 import { LoadingInline, SelectSimple } from 'components'
 
@@ -58,7 +58,7 @@ class AccountRemove extends Component{
 
         const url = `${ACCOUNTS_URL}/${accountId}`
 
-        let response = await apiCall4(url, true) 
+        let response = await apiCall5(url, true) 
 
         this.setState({isLoading: false})
 

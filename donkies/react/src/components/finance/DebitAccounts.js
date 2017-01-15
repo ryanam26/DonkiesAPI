@@ -2,8 +2,16 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { Link } from 'react-router'
+import classNames from 'classnames'
+import { apiGetRequest } from 'actions'
+import { apiCall3, ACCOUNTS_SET_FUNDING_SOURCE_URL } from 'services/api'
 import { getDollarAmount } from 'services/helpers'
-import { AccountRemove, CardSimple, Modal, TableSimple } from 'components'
+import {
+    AccountRemove,
+    CardSimple,
+    LoadingInline,
+    Modal,
+    TableSimple } from 'components'
 
 
 class DebitAccounts extends Component{
@@ -12,7 +20,8 @@ class DebitAccounts extends Component{
         autoBind(this)
 
         this.state = {
-            isShowRemoveModal: false
+            isShowRemoveModal: false,
+            setSourceInProgressId: null
         }
     }
 
@@ -26,6 +35,24 @@ class DebitAccounts extends Component{
 
     onAccountRemoved(){
         this.setState({isShowRemoveModal: false})   
+    }
+
+    onClickSetSource(params){
+        const { id } = params
+        this.setSourceRequest(id)
+        
+    }
+
+    async setSourceRequest(id){
+        this.setState({setSourceInProgressId: id})
+
+        const url = `${ACCOUNTS_SET_FUNDING_SOURCE_URL}/${id}`  
+        const data = {}
+        let response = await apiCall3(url, data, true)
+        if (response.status === 201){
+            this.props.apiGetRequest('accounts')
+            this.setState({setSourceInProgressId: null})
+        }
     }
 
     hasAccounts(){
@@ -44,7 +71,7 @@ class DebitAccounts extends Component{
         let data = {}
         data.id = 'debitAccounts'
         data.header = [
-            'BANK', 'ACCOUNT NAME', 'BALANCE', 'TRANSACTIONS']
+            'BANK', 'ACCOUNT NAME', 'BALANCE', 'TRANSACTIONS', 'SOURCE']
         data.rows = []
 
         for (let a of accounts){
@@ -63,6 +90,26 @@ class DebitAccounts extends Component{
                             <i style={{fontSize: '25px'}} className="zmdi zmdi-view-list" />
                         </Link>)
             row.cols.push({value: link})
+            
+            const cn = classNames(
+                'zmdi',
+                {
+                    'zmdi-money': a.is_funding_source,
+                    'zmdi-assignment fake-link': !a.is_funding_source
+                }
+            )
+
+            let value = <i title="Set funding source" style={{fontSize: '25px'}} className={cn} />
+            if (a.id === this.state.setSourceInProgressId){
+                value = <LoadingInline radius={10} />
+            }
+
+            col = {
+                value: value,
+                onClick: this.onClickSetSource,
+                params: {id: a.id}}
+            row.cols.push(col)
+
             data.rows.push(row)
         }
         return data
@@ -119,7 +166,8 @@ class DebitAccounts extends Component{
 
 
 DebitAccounts.propTypes = {
-    accounts: PropTypes.array
+    accounts: PropTypes.array,
+    apiGetRequest: PropTypes.func
 }
 
 const mapStateToProps = (state) => ({
@@ -127,4 +175,5 @@ const mapStateToProps = (state) => ({
 })
 
 export default connect(mapStateToProps, {
+    apiGetRequest
 })(DebitAccounts)

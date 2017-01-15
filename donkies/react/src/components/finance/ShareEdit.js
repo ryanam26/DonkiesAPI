@@ -16,7 +16,8 @@ class ShareEdit extends Component{
 
         this.state = {
             error: null,
-            success: null
+            success: null,
+            isProcessing: false
         }
     }
 
@@ -63,6 +64,7 @@ class ShareEdit extends Component{
     }
 
     async submitRequest(data){
+        this.setState({isProcessing: true})
         const url = ACCOUNTS_EDIT_SHARE_URL
 
         let response = await apiCall4(url, data, true) 
@@ -73,11 +75,13 @@ class ShareEdit extends Component{
         } else {
             this.setState({error: 'Server error.'})
         }
+
+        this.setState({isProcessing: false})
     }
 
     render(){
         const { accounts } = this.props
-        const { error, success } = this.state
+        const { error, success, isProcessing } = this.state
 
         return (
             <form ref="form">
@@ -90,6 +94,7 @@ class ShareEdit extends Component{
                                     <td>{account.name}</td>
                                     <td>
                                         <input
+                                            disabled={isProcessing}
                                             autoComplete="off"
                                             onKeyDown={this.onKeyDown}
                                             onChange={this.onChange}

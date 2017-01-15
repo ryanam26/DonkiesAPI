@@ -52,6 +52,7 @@ class AccountSerializer(serializers.ModelSerializer):
             'type_ds',
             'updated_at',
             'transfer_share',
+            'is_funding_source',
             'institution'
         )
 

@@ -90,6 +90,16 @@ class AccountsEditShare(AuthMixin, APIView):
         return Response()
 
 
+class AccountsSetFundingSource(AuthMixin, APIView):
+    """
+    Set funding source for debit accounts. (is_funding_source)
+    """
+    def post(self, request, **kwargs):
+        id = kwargs['pk']
+        Account.objects.set_funding_source(id)
+        return Response(status=201)
+
+
 class CredentialsListByCode(AuthMixin, ListAPIView):
     serializer_class = sers.CredentialsSerializer
 

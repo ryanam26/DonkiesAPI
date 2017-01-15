@@ -54,7 +54,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "d695be7a646c9e10c076"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "9d7813045ccc0146a150"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43819,7 +43819,8 @@
 
 	        _this.state = {
 	            error: null,
-	            success: null
+	            success: null,
+	            isProcessing: false
 	        };
 	        return _this;
 	    }
@@ -43905,11 +43906,12 @@
 	                    while (1) {
 	                        switch (_context.prev = _context.next) {
 	                            case 0:
+	                                this.setState({ isProcessing: true });
 	                                url = _api.ACCOUNTS_EDIT_SHARE_URL;
-	                                _context.next = 3;
+	                                _context.next = 4;
 	                                return (0, _api.apiCall4)(url, data, true);
 
-	                            case 3:
+	                            case 4:
 	                                response = _context.sent;
 
 	                                if (response.status === 200) {
@@ -43920,7 +43922,9 @@
 	                                    this.setState({ error: 'Server error.' });
 	                                }
 
-	                            case 5:
+	                                this.setState({ isProcessing: false });
+
+	                            case 7:
 	                            case 'end':
 	                                return _context.stop();
 	                        }
@@ -43942,7 +43946,8 @@
 	            var accounts = this.props.accounts;
 	            var _state = this.state,
 	                error = _state.error,
-	                success = _state.success;
+	                success = _state.success,
+	                isProcessing = _state.isProcessing;
 
 
 	            return _react2.default.createElement(
@@ -43970,6 +43975,7 @@
 	                                        'td',
 	                                        null,
 	                                        _react2.default.createElement('input', {
+	                                            disabled: isProcessing,
 	                                            autoComplete: 'off',
 	                                            onKeyDown: _this2.onKeyDown,
 	                                            onChange: _this2.onChange,

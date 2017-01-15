@@ -5,7 +5,6 @@ from finance.services.atrium_api import AtriumApi
 from django.apps import apps
 from django.db import transaction
 from django.db.models.signals import post_save
-from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
 
@@ -61,6 +60,19 @@ class AccountManager(models.Manager):
 
     def debt_accounts(self):
         return self.model.objects.filter(type_ds=self.model.DEBT)
+
+    @transaction.atomic
+    def set_funding_source(self, account_id):
+        """
+        Set account as funding source for user.
+        """
+        account = self.model.objects.get(
+            id=account_id, type_ds=self.model.DEBIT)
+        self.model.objects.filter(
+            member__user=account.member.user).update(is_funding_source=False)
+        account.is_funding_source = True
+        account.save()
+        return account
 
 
 class Account(models.Model):
@@ -199,6 +211,9 @@ class Account(models.Model):
             'The total share of all accounts should be 100%.'
         )
     )
+    is_funding_source = models.BooleanField(
+        default=False,
+        help_text='Funding source (for debit account).')
 
     objects = AccountManager()
 

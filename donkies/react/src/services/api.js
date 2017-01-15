@@ -4,7 +4,8 @@ import { TOKEN_EXPIRED } from 'actions'
 import { API_ROOT_URL } from 'store/configureStore'
 
 export const ACCOUNTS_URL = `${API_ROOT_URL}v1/accounts`   
-export const ACCOUNTS_EDIT_SHARE_URL = `${API_ROOT_URL}v1/accounts/edit_share`   
+export const ACCOUNTS_EDIT_SHARE_URL = `${API_ROOT_URL}v1/accounts/edit_share`
+export const ACCOUNTS_SET_FUNDING_SOURCE_URL = `${API_ROOT_URL}v1/accounts/set_funding_source`   
 export const CHANGE_EMAIL_URL = `${API_ROOT_URL}v1/user/change/email`
 export const CHANGE_EMAIL_CONFIRM_URL = `${API_ROOT_URL}v1/user/change/email/confirm`
 export const CHANGE_PASSWORD_URL = `${API_ROOT_URL}v1/user/change/password`

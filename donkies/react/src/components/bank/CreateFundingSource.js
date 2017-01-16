@@ -14,6 +14,13 @@ import { LoadingInline } from 'components'
  * check account and if account passes all checks,
  * send request to get iav token from API,
  * and set iav token to state.
+ *
+ * On click button, send request using dwolla.js
+ * and dwolla generates flow in div id=iavContainer in iframe.
+ * After processing user's input, dwolla will send 
+ * result and error in callback.
+ * If success, dwolla will give JSON with link to created funding_source.
+ * Send request to API to save funding_source in database.
  */
 class CreateFundingSource extends Component{
     constructor(props){
@@ -27,17 +34,25 @@ class CreateFundingSource extends Component{
         }
     }
 
+    componentWillMount(){
+        this.init(this.props)   
+    }
+
     componentDidMount(){
         dwolla.configure(DWOLLA_MODE)   
     }
 
     componentWillReceiveProps(nextProps){
+        this.init(nextProps)
+    }
+
+    init(props){
         const { account } = this.state
         if (account){
             return
         }
 
-        const { user, accounts, location } = nextProps
+        const { user, accounts, location } = props
         if (!user || !accounts){
             return
         }
@@ -52,10 +67,19 @@ class CreateFundingSource extends Component{
 
     onClickStart(){
         const { iavToken } = this.state
+
         dwolla.configure('uat')
-        dwolla.iav.start(iavToken, 'iavContainer', (err, res) => {
-            console.log(' -- Response: ' + JSON.stringify(res))
-            console.log(' -- Error: ' + JSON.stringify(err))
+        dwolla.iav.start(
+            iavToken, 
+            {
+                container: 'iavContainer',
+                // stylesheets: ['http://donkies.co/css/custom-dwolla.css']
+            },
+        (err, res) => {
+            if (err === null){
+                const href = res['_links']['funding-source']['href']
+                // send to server href, account, prepare API endpoint
+            }
         })
     }
 
@@ -149,10 +173,11 @@ class CreateFundingSource extends Component{
         return (
             <wrap>
                 <div id="mainContainer">
-                    <input
-                        onClick={this.onClickStart}
-                        type="button"
-                        value="Create funding source" />
+                    <button
+                        className="btn btn-primary btn-sm waves-effect"
+                        onClick={this.onClickStart}>
+                        {'Create funding source'}
+                    </button>
                 </div>  
 
                 <div id="iavContainer" />

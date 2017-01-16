@@ -54,7 +54,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "c28bc3c7aea7a86f9fb7"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "23596878bae8ebc26391"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -5267,6 +5267,233 @@
 
 /***/ },
 /* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.UserNotConfirmed = exports.RegistrationConfirm = exports.Registration = exports.LoginFacebook = exports.Login = exports.ForgotPassword = exports.EditProfile = exports.ChangePassword = exports.ChangeEmail = exports.TableSimple = exports.TableData = exports.Modal = exports.CardSimple = exports.Alert = exports.Header = exports.Footer = exports.Sidebar = exports.MainMenu = exports.LoadingInline = exports.Loading = exports.HomeTransfer = exports.HomeMiniCharts = exports.SelectSimple = exports.SelectClean = exports.InputAutocompleteAsync = exports.InputAutocomplete = exports.Input2 = exports.Input = exports.ErrorBlock = exports.Checkbox = exports.Button2 = exports.Transactions = exports.ShareEdit = exports.AccountRemove = exports.DebtAccounts = exports.DebitAccounts = exports.AddAccount = exports.CreateFundingSource = undefined;
+
+	var _CreateFundingSource = __webpack_require__(508);
+
+	var _CreateFundingSource2 = _interopRequireDefault(_CreateFundingSource);
+
+	var _AddAccount = __webpack_require__(514);
+
+	var _AddAccount2 = _interopRequireDefault(_AddAccount);
+
+	var _DebitAccounts = __webpack_require__(510);
+
+	var _DebitAccounts2 = _interopRequireDefault(_DebitAccounts);
+
+	var _DebtAccounts = __webpack_require__(511);
+
+	var _DebtAccounts2 = _interopRequireDefault(_DebtAccounts);
+
+	var _AccountRemove = __webpack_require__(509);
+
+	var _AccountRemove2 = _interopRequireDefault(_AccountRemove);
+
+	var _ShareEdit = __webpack_require__(512);
+
+	var _ShareEdit2 = _interopRequireDefault(_ShareEdit);
+
+	var _Transactions = __webpack_require__(513);
+
+	var _Transactions2 = _interopRequireDefault(_Transactions);
+
+	var _Button = __webpack_require__(518);
+
+	var _Button2 = _interopRequireDefault(_Button);
+
+	var _Checkbox = __webpack_require__(519);
+
+	var _Checkbox2 = _interopRequireDefault(_Checkbox);
+
+	var _ErrorBlock = __webpack_require__(520);
+
+	var _ErrorBlock2 = _interopRequireDefault(_ErrorBlock);
+
+	var _Input = __webpack_require__(521);
+
+	var _Input2 = _interopRequireDefault(_Input);
+
+	var _Input3 = __webpack_require__(522);
+
+	var _Input4 = _interopRequireDefault(_Input3);
+
+	var _InputAutocomplete = __webpack_require__(523);
+
+	var _InputAutocomplete2 = _interopRequireDefault(_InputAutocomplete);
+
+	var _InputAutocompleteAsync = __webpack_require__(524);
+
+	var _InputAutocompleteAsync2 = _interopRequireDefault(_InputAutocompleteAsync);
+
+	var _SelectClean = __webpack_require__(525);
+
+	var _SelectClean2 = _interopRequireDefault(_SelectClean);
+
+	var _SelectSimple = __webpack_require__(526);
+
+	var _SelectSimple2 = _interopRequireDefault(_SelectSimple);
+
+	var _HomeMiniCharts = __webpack_require__(527);
+
+	var _HomeMiniCharts2 = _interopRequireDefault(_HomeMiniCharts);
+
+	var _HomeTransfer = __webpack_require__(528);
+
+	var _HomeTransfer2 = _interopRequireDefault(_HomeTransfer);
+
+	var _Loading = __webpack_require__(529);
+
+	var _Loading2 = _interopRequireDefault(_Loading);
+
+	var _LoadingInline = __webpack_require__(530);
+
+	var _LoadingInline2 = _interopRequireDefault(_LoadingInline);
+
+	var _MainMenu = __webpack_require__(531);
+
+	var _MainMenu2 = _interopRequireDefault(_MainMenu);
+
+	var _Sidebar = __webpack_require__(532);
+
+	var _Sidebar2 = _interopRequireDefault(_Sidebar);
+
+	var _Footer = __webpack_require__(533);
+
+	var _Footer2 = _interopRequireDefault(_Footer);
+
+	var _Header = __webpack_require__(534);
+
+	var _Header2 = _interopRequireDefault(_Header);
+
+	var _Alert = __webpack_require__(535);
+
+	var _Alert2 = _interopRequireDefault(_Alert);
+
+	var _CardSimple = __webpack_require__(536);
+
+	var _CardSimple2 = _interopRequireDefault(_CardSimple);
+
+	var _Modal = __webpack_require__(537);
+
+	var _Modal2 = _interopRequireDefault(_Modal);
+
+	var _TableData = __webpack_require__(538);
+
+	var _TableData2 = _interopRequireDefault(_TableData);
+
+	var _TableSimple = __webpack_require__(539);
+
+	var _TableSimple2 = _interopRequireDefault(_TableSimple);
+
+	var _ChangeEmail = __webpack_require__(540);
+
+	var _ChangeEmail2 = _interopRequireDefault(_ChangeEmail);
+
+	var _ChangePassword = __webpack_require__(541);
+
+	var _ChangePassword2 = _interopRequireDefault(_ChangePassword);
+
+	var _EditProfile = __webpack_require__(542);
+
+	var _EditProfile2 = _interopRequireDefault(_EditProfile);
+
+	var _ForgotPassword = __webpack_require__(543);
+
+	var _ForgotPassword2 = _interopRequireDefault(_ForgotPassword);
+
+	var _Login = __webpack_require__(544);
+
+	var _Login2 = _interopRequireDefault(_Login);
+
+	var _LoginFacebook = __webpack_require__(545);
+
+	var _LoginFacebook2 = _interopRequireDefault(_LoginFacebook);
+
+	var _Registration = __webpack_require__(546);
+
+	var _Registration2 = _interopRequireDefault(_Registration);
+
+	var _RegistrationConfirm = __webpack_require__(547);
+
+	var _RegistrationConfirm2 = _interopRequireDefault(_RegistrationConfirm);
+
+	var _UserNotConfirmed = __webpack_require__(548);
+
+	var _UserNotConfirmed2 = _interopRequireDefault(_UserNotConfirmed);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.CreateFundingSource = _CreateFundingSource2.default;
+
+	// finance
+
+	// bank
+
+	exports.AddAccount = _AddAccount2.default;
+	exports.DebitAccounts = _DebitAccounts2.default;
+	exports.DebtAccounts = _DebtAccounts2.default;
+	exports.AccountRemove = _AccountRemove2.default;
+	exports.ShareEdit = _ShareEdit2.default;
+	exports.Transactions = _Transactions2.default;
+
+	// form
+
+	exports.Button2 = _Button2.default;
+	exports.Checkbox = _Checkbox2.default;
+	exports.ErrorBlock = _ErrorBlock2.default;
+	exports.Input = _Input2.default;
+	exports.Input2 = _Input4.default;
+	exports.InputAutocomplete = _InputAutocomplete2.default;
+	exports.InputAutocompleteAsync = _InputAutocompleteAsync2.default;
+	exports.SelectClean = _SelectClean2.default;
+	exports.SelectSimple = _SelectSimple2.default;
+
+	// layout
+
+	exports.HomeMiniCharts = _HomeMiniCharts2.default;
+	exports.HomeTransfer = _HomeTransfer2.default;
+	exports.Loading = _Loading2.default;
+	exports.LoadingInline = _LoadingInline2.default;
+	exports.MainMenu = _MainMenu2.default;
+	exports.Sidebar = _Sidebar2.default;
+	exports.Footer = _Footer2.default;
+	exports.Header = _Header2.default;
+	exports.Alert = _Alert2.default;
+	exports.CardSimple = _CardSimple2.default;
+	exports.Modal = _Modal2.default;
+	exports.TableData = _TableData2.default;
+	exports.TableSimple = _TableSimple2.default;
+
+	// user
+
+	exports.ChangeEmail = _ChangeEmail2.default;
+	exports.ChangePassword = _ChangePassword2.default;
+	exports.EditProfile = _EditProfile2.default;
+	exports.ForgotPassword = _ForgotPassword2.default;
+	exports.Login = _Login2.default;
+	exports.LoginFacebook = _LoginFacebook2.default;
+	exports.Registration = _Registration2.default;
+	exports.RegistrationConfirm = _RegistrationConfirm2.default;
+	exports.UserNotConfirmed = _UserNotConfirmed2.default;
+	;
+
+	var _temp = function () {
+	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	    return;
+	  }
+	}();
+
+	;
+
+/***/ },
+/* 10 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -5530,233 +5757,6 @@
 	  __REACT_HOT_LOADER__.register(changePassword, 'changePassword', '/home/vlad/dev/web/dj/d/donkies/project/donkies/react/src/actions/index.js');
 
 	  __REACT_HOT_LOADER__.register(editProfile, 'editProfile', '/home/vlad/dev/web/dj/d/donkies/project/donkies/react/src/actions/index.js');
-	}();
-
-	;
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.UserNotConfirmed = exports.RegistrationConfirm = exports.Registration = exports.LoginFacebook = exports.Login = exports.ForgotPassword = exports.EditProfile = exports.ChangePassword = exports.ChangeEmail = exports.TableSimple = exports.TableData = exports.Modal = exports.CardSimple = exports.Alert = exports.Header = exports.Footer = exports.Sidebar = exports.MainMenu = exports.LoadingInline = exports.Loading = exports.HomeTransfer = exports.HomeMiniCharts = exports.SelectSimple = exports.SelectClean = exports.InputAutocompleteAsync = exports.InputAutocomplete = exports.Input2 = exports.Input = exports.ErrorBlock = exports.Checkbox = exports.Button2 = exports.Transactions = exports.ShareEdit = exports.AccountRemove = exports.DebtAccounts = exports.DebitAccounts = exports.AddAccount = exports.CreateFundingSource = undefined;
-
-	var _CreateFundingSource = __webpack_require__(508);
-
-	var _CreateFundingSource2 = _interopRequireDefault(_CreateFundingSource);
-
-	var _AddAccount = __webpack_require__(514);
-
-	var _AddAccount2 = _interopRequireDefault(_AddAccount);
-
-	var _DebitAccounts = __webpack_require__(510);
-
-	var _DebitAccounts2 = _interopRequireDefault(_DebitAccounts);
-
-	var _DebtAccounts = __webpack_require__(511);
-
-	var _DebtAccounts2 = _interopRequireDefault(_DebtAccounts);
-
-	var _AccountRemove = __webpack_require__(509);
-
-	var _AccountRemove2 = _interopRequireDefault(_AccountRemove);
-
-	var _ShareEdit = __webpack_require__(512);
-
-	var _ShareEdit2 = _interopRequireDefault(_ShareEdit);
-
-	var _Transactions = __webpack_require__(513);
-
-	var _Transactions2 = _interopRequireDefault(_Transactions);
-
-	var _Button = __webpack_require__(518);
-
-	var _Button2 = _interopRequireDefault(_Button);
-
-	var _Checkbox = __webpack_require__(519);
-
-	var _Checkbox2 = _interopRequireDefault(_Checkbox);
-
-	var _ErrorBlock = __webpack_require__(520);
-
-	var _ErrorBlock2 = _interopRequireDefault(_ErrorBlock);
-
-	var _Input = __webpack_require__(521);
-
-	var _Input2 = _interopRequireDefault(_Input);
-
-	var _Input3 = __webpack_require__(522);
-
-	var _Input4 = _interopRequireDefault(_Input3);
-
-	var _InputAutocomplete = __webpack_require__(523);
-
-	var _InputAutocomplete2 = _interopRequireDefault(_InputAutocomplete);
-
-	var _InputAutocompleteAsync = __webpack_require__(524);
-
-	var _InputAutocompleteAsync2 = _interopRequireDefault(_InputAutocompleteAsync);
-
-	var _SelectClean = __webpack_require__(525);
-
-	var _SelectClean2 = _interopRequireDefault(_SelectClean);
-
-	var _SelectSimple = __webpack_require__(526);
-
-	var _SelectSimple2 = _interopRequireDefault(_SelectSimple);
-
-	var _HomeMiniCharts = __webpack_require__(527);
-
-	var _HomeMiniCharts2 = _interopRequireDefault(_HomeMiniCharts);
-
-	var _HomeTransfer = __webpack_require__(528);
-
-	var _HomeTransfer2 = _interopRequireDefault(_HomeTransfer);
-
-	var _Loading = __webpack_require__(529);
-
-	var _Loading2 = _interopRequireDefault(_Loading);
-
-	var _LoadingInline = __webpack_require__(530);
-
-	var _LoadingInline2 = _interopRequireDefault(_LoadingInline);
-
-	var _MainMenu = __webpack_require__(531);
-
-	var _MainMenu2 = _interopRequireDefault(_MainMenu);
-
-	var _Sidebar = __webpack_require__(532);
-
-	var _Sidebar2 = _interopRequireDefault(_Sidebar);
-
-	var _Footer = __webpack_require__(533);
-
-	var _Footer2 = _interopRequireDefault(_Footer);
-
-	var _Header = __webpack_require__(534);
-
-	var _Header2 = _interopRequireDefault(_Header);
-
-	var _Alert = __webpack_require__(535);
-
-	var _Alert2 = _interopRequireDefault(_Alert);
-
-	var _CardSimple = __webpack_require__(536);
-
-	var _CardSimple2 = _interopRequireDefault(_CardSimple);
-
-	var _Modal = __webpack_require__(537);
-
-	var _Modal2 = _interopRequireDefault(_Modal);
-
-	var _TableData = __webpack_require__(538);
-
-	var _TableData2 = _interopRequireDefault(_TableData);
-
-	var _TableSimple = __webpack_require__(539);
-
-	var _TableSimple2 = _interopRequireDefault(_TableSimple);
-
-	var _ChangeEmail = __webpack_require__(540);
-
-	var _ChangeEmail2 = _interopRequireDefault(_ChangeEmail);
-
-	var _ChangePassword = __webpack_require__(541);
-
-	var _ChangePassword2 = _interopRequireDefault(_ChangePassword);
-
-	var _EditProfile = __webpack_require__(542);
-
-	var _EditProfile2 = _interopRequireDefault(_EditProfile);
-
-	var _ForgotPassword = __webpack_require__(543);
-
-	var _ForgotPassword2 = _interopRequireDefault(_ForgotPassword);
-
-	var _Login = __webpack_require__(544);
-
-	var _Login2 = _interopRequireDefault(_Login);
-
-	var _LoginFacebook = __webpack_require__(545);
-
-	var _LoginFacebook2 = _interopRequireDefault(_LoginFacebook);
-
-	var _Registration = __webpack_require__(546);
-
-	var _Registration2 = _interopRequireDefault(_Registration);
-
-	var _RegistrationConfirm = __webpack_require__(547);
-
-	var _RegistrationConfirm2 = _interopRequireDefault(_RegistrationConfirm);
-
-	var _UserNotConfirmed = __webpack_require__(548);
-
-	var _UserNotConfirmed2 = _interopRequireDefault(_UserNotConfirmed);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.CreateFundingSource = _CreateFundingSource2.default;
-
-	// finance
-
-	// bank
-
-	exports.AddAccount = _AddAccount2.default;
-	exports.DebitAccounts = _DebitAccounts2.default;
-	exports.DebtAccounts = _DebtAccounts2.default;
-	exports.AccountRemove = _AccountRemove2.default;
-	exports.ShareEdit = _ShareEdit2.default;
-	exports.Transactions = _Transactions2.default;
-
-	// form
-
-	exports.Button2 = _Button2.default;
-	exports.Checkbox = _Checkbox2.default;
-	exports.ErrorBlock = _ErrorBlock2.default;
-	exports.Input = _Input2.default;
-	exports.Input2 = _Input4.default;
-	exports.InputAutocomplete = _InputAutocomplete2.default;
-	exports.InputAutocompleteAsync = _InputAutocompleteAsync2.default;
-	exports.SelectClean = _SelectClean2.default;
-	exports.SelectSimple = _SelectSimple2.default;
-
-	// layout
-
-	exports.HomeMiniCharts = _HomeMiniCharts2.default;
-	exports.HomeTransfer = _HomeTransfer2.default;
-	exports.Loading = _Loading2.default;
-	exports.LoadingInline = _LoadingInline2.default;
-	exports.MainMenu = _MainMenu2.default;
-	exports.Sidebar = _Sidebar2.default;
-	exports.Footer = _Footer2.default;
-	exports.Header = _Header2.default;
-	exports.Alert = _Alert2.default;
-	exports.CardSimple = _CardSimple2.default;
-	exports.Modal = _Modal2.default;
-	exports.TableData = _TableData2.default;
-	exports.TableSimple = _TableSimple2.default;
-
-	// user
-
-	exports.ChangeEmail = _ChangeEmail2.default;
-	exports.ChangePassword = _ChangePassword2.default;
-	exports.EditProfile = _EditProfile2.default;
-	exports.ForgotPassword = _ForgotPassword2.default;
-	exports.Login = _Login2.default;
-	exports.LoginFacebook = _LoginFacebook2.default;
-	exports.Registration = _Registration2.default;
-	exports.RegistrationConfirm = _RegistrationConfirm2.default;
-	exports.UserNotConfirmed = _UserNotConfirmed2.default;
-	;
-
-	var _temp = function () {
-	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
-	    return;
-	  }
 	}();
 
 	;
@@ -6230,7 +6230,7 @@
 
 	var _effects = __webpack_require__(54);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var _configureStore = __webpack_require__(89);
 
@@ -42966,7 +42966,7 @@
 
 	var _reactRedux = __webpack_require__(5);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43085,13 +43085,17 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var _api = __webpack_require__(19);
 
 	var _configureStore = __webpack_require__(89);
 
+	var _components = __webpack_require__(9);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -43099,6 +43103,14 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	/**
+	 * Component's flow.
+	 *
+	 * On component init get "account" from "GET" params,
+	 * check account and if account passes all checks,
+	 * send request to get iav token from API,
+	 * and set iav token to state.
+	 */
 	var CreateFundingSource = function (_Component) {
 	    _inherits(CreateFundingSource, _Component);
 
@@ -43110,7 +43122,9 @@
 	        (0, _reactAutobind2.default)(_this);
 
 	        _this.state = {
-	            error: null
+	            account: null,
+	            error: null,
+	            iavToken: null
 	        };
 	        return _this;
 	    }
@@ -43121,9 +43135,34 @@
 	            dwolla.configure(_configureStore.DWOLLA_MODE);
 	        }
 	    }, {
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(nextProps) {
+	            var account = this.state.account;
+
+	            if (account) {
+	                return;
+	            }
+
+	            var user = nextProps.user,
+	                accounts = nextProps.accounts,
+	                location = nextProps.location;
+
+	            if (!user || !accounts) {
+	                return;
+	            }
+
+	            var a = this.getAccount(accounts, location);
+	            this.setState({ account: a });
+	            var result = this.checkAccount(a, user);
+	            if (result) {
+	                this.getIAVTokenRequest();
+	            }
+	        }
+	    }, {
 	        key: 'onClickStart',
 	        value: function onClickStart() {
-	            var iavToken = '4adF858jPeQ9RnojMHdqSD2KwsvmhO7Ti7cI5woOiBGCpH5krY';
+	            var iavToken = this.state.iavToken;
+
 	            dwolla.configure('uat');
 	            dwolla.iav.start(iavToken, 'iavContainer', function (err, res) {
 	                console.log(' -- Response: ' + JSON.stringify(res));
@@ -43143,44 +43182,43 @@
 
 	    }, {
 	        key: 'checkAccount',
-	        value: function checkAccount(account) {
-	            var _props = this.props,
-	                user = _props.user,
-	                navigate = _props.navigate;
+	        value: function checkAccount(account, user) {
+	            var navigate = this.props.navigate;
 
 
 	            if (account.type_ds !== 'debit') {
 	                this.setState({
 	                    error: 'You can not use Debt account as funding source.'
 	                });
-	                return;
+	                return false;
 	            }
 
 	            if (account.is_dwolla_created) {
 	                navigate('/accounts');
-	                return;
+	                return false;
 	            }
 
-	            if (account.type !== 'CHECKING' || account.type !== 'SAVINGS') {
+	            if (!['CHECKING', 'SAVINGS'].includes(account.type)) {
 	                this.setState({
 	                    error: 'You can not use this account as funding source. The account type should be Checking or Savings.'
 	                });
-	                return;
+	                return false;
 	            }
 
 	            if (!user.dwolla_customer.dwolla_id) {
 	                this.setState({
 	                    error: 'Customer is not yet created in Dwolla.'
 	                });
-	                return;
+	                return false;
 	            }
 
 	            if (user.dwolla_customer.status !== 'verified') {
 	                this.setState({
 	                    error: 'Customer is not yet verified in Dwolla.'
 	                });
-	                return;
+	                return false;
 	            }
+	            return true;
 	        }
 
 	        /**
@@ -43189,11 +43227,8 @@
 
 	    }, {
 	        key: 'getAccount',
-	        value: function getAccount() {
-	            var _props2 = this.props,
-	                accounts = _props2.accounts,
-	                location = _props2.location,
-	                navigate = _props2.navigate;
+	        value: function getAccount(accounts, location) {
+	            var navigate = this.props.navigate;
 
 	            if (location.query.hasOwnProperty('account_uid')) {
 	                var uid = location.query.account_uid;
@@ -43206,7 +43241,6 @@
 	                        var account = _step.value;
 
 	                        if (account.uid === uid) {
-	                            //this.checkAccount(account)
 	                            return account;
 	                        }
 	                    }
@@ -43228,18 +43262,93 @@
 	            navigate('/accounts');
 	        }
 	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _props3 = this.props,
-	                accounts = _props3.accounts,
-	                user = _props3.user;
+	        key: 'getIAVTokenRequest',
+	        value: function () {
+	            var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+	                var user, url, data, response, result;
+	                return regeneratorRuntime.wrap(function _callee$(_context) {
+	                    while (1) {
+	                        switch (_context.prev = _context.next) {
+	                            case 0:
+	                                user = this.props.user;
+	                                url = _api.GET_IAV_TOKEN_URL + '/' + user.dwolla_customer.dwolla_id;
+	                                data = {};
+	                                _context.next = 5;
+	                                return (0, _api.apiCall3)(url, data, true);
 
+	                            case 5:
+	                                response = _context.sent;
 
-	            if (!accounts || !user) {
-	                return null;
+	                                if (!(response.status === 500)) {
+	                                    _context.next = 9;
+	                                    break;
+	                                }
+
+	                                this.setState({ error: 'Server error.' });
+	                                return _context.abrupt('return');
+
+	                            case 9:
+	                                _context.next = 11;
+	                                return response.json();
+
+	                            case 11:
+	                                result = _context.sent;
+
+	                                if (response.status === 200) {
+	                                    this.setState({ iavToken: result.token });
+	                                } else if (response.status === 400) {
+	                                    this.setState({ error: result.message });
+	                                }
+
+	                            case 13:
+	                            case 'end':
+	                                return _context.stop();
+	                        }
+	                    }
+	                }, _callee, this);
+	            }));
+
+	            function getIAVTokenRequest() {
+	                return _ref.apply(this, arguments);
 	            }
 
-	            var account = this.getAccount();
+	            return getIAVTokenRequest;
+	        }()
+	    }, {
+	        key: 'renderIAV',
+	        value: function renderIAV() {
+	            var iavToken = this.state.iavToken;
+
+	            if (!iavToken) {
+	                return _react2.default.createElement(_components.LoadingInline, null);
+	            }
+
+	            return _react2.default.createElement(
+	                'wrap',
+	                null,
+	                _react2.default.createElement(
+	                    'div',
+	                    { id: 'mainContainer' },
+	                    _react2.default.createElement('input', {
+	                        onClick: this.onClickStart,
+	                        type: 'button',
+	                        value: 'Create funding source' })
+	                ),
+	                _react2.default.createElement('div', { id: 'iavContainer' })
+	            );
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _state = this.state,
+	                account = _state.account,
+	                error = _state.error,
+	                iavToken = _state.iavToken;
+
+
+	            if (!account) {
+	                return _react2.default.createElement(_components.LoadingInline, null);
+	            }
 
 	            return _react2.default.createElement(
 	                'wrap',
@@ -43250,15 +43359,11 @@
 	                    account.name,
 	                    ': create funding source'
 	                ),
-	                _react2.default.createElement(
+	                error ? _react2.default.createElement(
 	                    'div',
-	                    { id: 'mainContainer' },
-	                    _react2.default.createElement('input', {
-	                        onClick: this.onClickStart,
-	                        type: 'button',
-	                        value: 'Create funding source' })
-	                ),
-	                _react2.default.createElement('div', { id: 'iavContainer' })
+	                    { className: 'custom-error' },
+	                    error
+	                ) : this.renderIAV()
 	            );
 	        }
 	    }]);
@@ -43323,13 +43428,13 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var _api = __webpack_require__(19);
 
 	var _helpers = __webpack_require__(31);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43578,13 +43683,13 @@
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var _api = __webpack_require__(19);
 
 	var _helpers = __webpack_require__(31);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43918,7 +44023,7 @@
 
 	var _helpers = __webpack_require__(31);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -44161,7 +44266,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var _api = __webpack_require__(19);
 
@@ -44439,7 +44544,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -44712,11 +44817,11 @@
 
 	var _helpers = __webpack_require__(31);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var _constants = __webpack_require__(549);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	var _Credentials = __webpack_require__(516);
 
@@ -44999,7 +45104,7 @@
 
 	var _helpers = __webpack_require__(31);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -45191,7 +45296,7 @@
 
 	var _helpers = __webpack_require__(31);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -45513,7 +45618,7 @@
 
 	var _api = __webpack_require__(19);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47306,7 +47411,7 @@
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47426,7 +47531,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47662,7 +47767,7 @@
 
 	var _configureStore = __webpack_require__(89);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47796,7 +47901,7 @@
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -48198,7 +48303,7 @@
 
 	var _helpers = __webpack_require__(31);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -48894,9 +48999,9 @@
 
 	var _helpers = __webpack_require__(31);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -49040,9 +49145,9 @@
 
 	var _helpers = __webpack_require__(31);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -49199,9 +49304,9 @@
 
 	var _helpers = __webpack_require__(31);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -49409,7 +49514,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -49539,9 +49644,9 @@
 
 	var _api = __webpack_require__(19);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -49773,9 +49878,9 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -49930,9 +50035,9 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	var _helpers = __webpack_require__(31);
 
@@ -50163,7 +50268,7 @@
 
 	var _api = __webpack_require__(19);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -50330,7 +50435,7 @@
 
 	var _api = __webpack_require__(19);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -50529,9 +50634,9 @@
 
 	var _Growl2 = _interopRequireDefault(_Growl);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -50971,7 +51076,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51049,7 +51154,7 @@
 
 	var _reactRouter = __webpack_require__(24);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51133,7 +51238,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51204,7 +51309,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51274,7 +51379,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51393,7 +51498,7 @@
 
 	var _reactRouter = __webpack_require__(24);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51583,7 +51688,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51812,7 +51917,7 @@
 
 	var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	var _api = __webpack_require__(19);
 
@@ -51885,7 +51990,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51947,7 +52052,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52014,7 +52119,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52076,7 +52181,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52145,7 +52250,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52207,7 +52312,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52269,7 +52374,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _components = __webpack_require__(10);
+	var _components = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52343,7 +52448,7 @@
 
 	exports.accounts = accounts;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -52436,7 +52541,7 @@
 
 	exports.transactions = transactions;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -52498,7 +52603,7 @@
 
 	exports.alerts = alerts;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -52560,7 +52665,7 @@
 
 	exports.auth = auth;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -52674,7 +52779,7 @@
 
 	exports.formErrors = formErrors;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -52767,7 +52872,7 @@
 
 	exports.growl = growl;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -52829,7 +52934,7 @@
 
 	exports.menu = menu;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -52878,7 +52983,7 @@
 	});
 	exports.settings = settings;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -52923,7 +53028,7 @@
 	});
 	exports.settingsLogin = settingsLogin;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -52971,7 +53076,7 @@
 
 	exports.user = user;
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -53144,7 +53249,7 @@
 
 	var _services = __webpack_require__(239);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -53245,7 +53350,7 @@
 
 	var _effects = __webpack_require__(54);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -53371,7 +53476,7 @@
 
 	var _effects = __webpack_require__(54);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -53501,7 +53606,7 @@
 
 	var _effects = __webpack_require__(54);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -53590,7 +53695,7 @@
 
 	var _effects = __webpack_require__(54);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -53697,7 +53802,7 @@
 
 	var _effects = __webpack_require__(54);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -53809,7 +53914,7 @@
 
 	var _effects = __webpack_require__(54);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -53916,7 +54021,7 @@
 
 	var _effects = __webpack_require__(54);
 
-	var _actions = __webpack_require__(9);
+	var _actions = __webpack_require__(10);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -54319,7 +54424,8 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var API_ROOT_URL = exports.API_ROOT_URL = 'http://localhost:8000/';
+	// export const API_ROOT_URL = 'http://localhost:8000/'
+	var API_ROOT_URL = exports.API_ROOT_URL = 'http://api.donkies.co/';
 	var HOME_PAGE_URL = exports.HOME_PAGE_URL = 'http://localhost:8000/';
 	var DWOLLA_MODE = exports.DWOLLA_MODE = 'sandbox';
 

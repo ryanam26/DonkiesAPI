@@ -402,5 +402,6 @@ funding_source_result = {
     'id': 'dwolla_id',
     'type': 'balance',
     'status': 'verified',
-    'name': 'Balance'}
+    'name': 'Balance'
+}
 """

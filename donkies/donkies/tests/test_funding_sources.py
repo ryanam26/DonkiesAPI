@@ -15,8 +15,9 @@ class TestFundingSource(base.Mixin):
         return AccountFactory(member=m, type=Account.SAVINGS)
 
     @pytest.mark.django_db
-    def test_create(self, client):
+    def test_create_manual(self, client):
         """
+        Manual creation using account_number and routing_number.
         Test API endpoint for creating funding source.
         """
         account = self.get_account('mxbank')
@@ -33,3 +34,29 @@ class TestFundingSource(base.Mixin):
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
         assert response.status_code == 201
+
+    @pytest.mark.django_db
+    def test_create_iav(self, client):
+        """
+        Test when funding source is created
+        by IAV from frontend.
+        """
+        account = self.get_account('mxbank')
+        dwolla_id = 'some-id'
+
+        # Data from real request to Dwolla. (get funding source)
+        dic = {
+            'created': '2017-01-16T08:16:07.000Z',
+            'removed': False,
+            'balance': {
+                'currency': 'USD',
+                'value': '0.00'
+            },
+            'id': 'some-id',
+            'type': 'balance',
+            'status': 'verified',
+            'name': 'Balance'
+        }
+
+        FundingSource.objects.create_funding_source_iav(
+            account.id, dwolla_id, dic)

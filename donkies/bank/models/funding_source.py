@@ -5,19 +5,40 @@ from bank.services.dwolla_api import DwollaApi
 
 
 class FundingSourceManager(models.Manager):
-    def create_funding_source_iav(self, account_id, dwolla_id):
+    def create_funding_source_iav(self, account_id, dwolla_id, test_dic=None):
         """
         User creates funding source via dwolla.js script in iframe
         using username and password.
         At first the funding source is created in Dwolla,
         then calling this function from API funding source created in database.
+
+        test_dic - used for tests not calling Dwolla API.
         """
         Account = apps.get_model('finance', 'Account')
-        account = Account.objects.get(id=account_id)
-        dw = DwollaApi()
-        fs = dw.get_funding_source(dwolla_id)
-        
+        FundingSourceIAVLog = apps.get_model('bank', 'FundingSourceIAVLog')
 
+        fs_log = FundingSourceIAVLog.create(account_id, dwolla_id)
+        account = Account.objects.get(id=account_id)
+
+        if test_dic:
+            d = test_dic
+        else:
+            dw = DwollaApi()
+            d = dw.get_funding_source(dwolla_id)
+
+        fs = self.model(account=account)
+        fs.dwolla_id = d['id']
+        fs.created_at = d['created']
+        fs.status = d['status']
+        fs.is_removed = d['removed']
+        fs.typeb = d['type']
+        fs.name = d['name']
+        fs.save()
+
+        fs_log.is_processed = True
+        fs_log.save()
+
+        return fs
 
     def create_funding_source(
             self, account, account_number, routing_number, name, type):
@@ -125,8 +146,10 @@ class FundingSource(models.Model):
     account = models.OneToOneField('finance.Account')
     dwolla_id = models.CharField(
         max_length=50, null=True, default=None, blank=True, unique=True)
-    account_number = models.CharField(max_length=100)
-    routing_number = models.CharField(max_length=100)
+    account_number = models.CharField(
+        max_length=100, null=True, blank=True, default=None)
+    routing_number = models.CharField(
+        max_length=100, null=True, blank=True, default=None)
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,

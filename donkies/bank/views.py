@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
 from web.views import AuthMixin, r400
+from bank.services.dwolla_api import DwollaApi
 from bank.models import FundingSource
 from finance.models import Account
 
@@ -50,3 +51,13 @@ class FundingSources(AuthMixin, generics.ListCreateAPIView):
         fs = s.save(account=account)
         s = sers.FundingSourceSerializer(fs)
         return Response(s.data, status=201)
+
+
+class GetIAVToken(AuthMixin, APIView):
+    def post(self, request, **kwargs):
+        customer_id = kwargs['dwolla_customer_id']
+        d = DwollaApi()
+        token = d.get_iav_token(customer_id)
+        if token is None:
+            return Response({'message': 'Server error.'}, status=400)
+        return Response({'token': token})

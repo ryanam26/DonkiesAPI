@@ -1,3 +1,8 @@
+// bank
+
+import { default as CreateFundingSource } from './bank/CreateFundingSource'
+export { CreateFundingSource }
+
 // finance
 
 import { default as AddAccount } from './finance/add_account/AddAccount'

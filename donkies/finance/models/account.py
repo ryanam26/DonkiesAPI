@@ -211,6 +211,7 @@ class Account(models.Model):
             'The total share of all accounts should be 100%.'
         )
     )
+    is_dwolla_created = models.BooleanField(default=False)
     is_funding_source = models.BooleanField(
         default=False,
         help_text='Funding source (for debit account).')

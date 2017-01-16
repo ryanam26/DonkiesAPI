@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { Link } from 'react-router'
 import classNames from 'classnames'
-import { apiGetRequest } from 'actions'
+import { apiGetRequest, navigate } from 'actions'
 import { apiCall3, ACCOUNTS_SET_FUNDING_SOURCE_URL } from 'services/api'
 import { getDollarAmount } from 'services/helpers'
 import {
@@ -40,7 +40,11 @@ class DebitAccounts extends Component{
     onClickSetSource(params){
         const { id } = params
         this.setSourceRequest(id)
-        
+    }
+
+    onClickCreateDwolla(params){
+        const { uid } = params
+        this.props.navigate('/create_funding_source?account_uid=' + uid)
     }
 
     async setSourceRequest(id){
@@ -62,6 +66,41 @@ class DebitAccounts extends Component{
             return true
         }
         return false
+    }
+
+    /**
+     * Returns col object for table depends on account.
+     */
+    getCol(account){
+        const { user } = this.props
+        const dwollaCustomerId = user.dwolla_customer_id
+
+        let cn, params, onClick, value, title
+        if (!account.is_dwolla_created){
+            cn = 'zmdi-plus fake-link'
+            params = {uid: account.uid}
+            onClick = this.onClickCreateDwolla
+            title = 'Create funding source'
+        } else if (account.is_funding_source){
+            cn = 'zmdi-money'
+            params = null
+            onClick = null
+            title = 'Active funding source'
+        } else {
+            cn = 'zmdi-assignment fake-link'
+            params = {id: account.id}
+            onClick = this.onClickSetSource
+            title = 'Set funding source'
+        }
+
+        cn = classNames('zmdi', cn)
+        value = <i title={title} style={{fontSize: '25px'}} className={cn} />
+        
+        if (!dwollaCustomerId){
+            value = '-'
+        }
+
+        return {value, onClick, params}
     }
 
     /**
@@ -91,25 +130,12 @@ class DebitAccounts extends Component{
                         </Link>)
             row.cols.push({value: link})
             
-            const cn = classNames(
-                'zmdi',
-                {
-                    'zmdi-money': a.is_funding_source,
-                    'zmdi-assignment fake-link': !a.is_funding_source
-                }
-            )
+            col = this.getCol(a)
 
-            let value = <i title="Set funding source" style={{fontSize: '25px'}} className={cn} />
             if (a.id === this.state.setSourceInProgressId){
-                value = <LoadingInline radius={10} />
+                col.value = <LoadingInline radius={10} />
             }
-
-            col = {
-                value: value,
-                onClick: this.onClickSetSource,
-                params: {id: a.id}}
             row.cols.push(col)
-
             data.rows.push(row)
         }
         return data
@@ -167,13 +193,17 @@ class DebitAccounts extends Component{
 
 DebitAccounts.propTypes = {
     accounts: PropTypes.array,
-    apiGetRequest: PropTypes.func
+    apiGetRequest: PropTypes.func,
+    navigate: PropTypes.func,
+    user: PropTypes.object
 }
 
 const mapStateToProps = (state) => ({
-    accounts: state.accounts.debitAccounts
+    accounts: state.accounts.debitAccounts,
+    user: state.user.item
 })
 
 export default connect(mapStateToProps, {
-    apiGetRequest
+    apiGetRequest,
+    navigate
 })(DebitAccounts)

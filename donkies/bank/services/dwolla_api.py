@@ -72,6 +72,9 @@ class DwollaApi:
     def get_customer_url(self, id):
         return 'customers/{}'.format(id)
 
+    def get_iav_token_url(self, customer_id):
+        return 'customers/{}/iav-token'.format(customer_id)
+
     def get_customer_funding_sources_url(self, customer_id):
         return 'customers/{}/funding-sources'.format(customer_id)
 
@@ -120,6 +123,18 @@ class DwollaApi:
             return r.body['_embedded']['customers'][0]
         except:
             return None
+
+    def get_iav_token(self, customer_id):
+        """
+        Returns token or None (if fails)
+        """
+        url = self.get_iav_token_url(customer_id)
+        try:
+            r = self.token.post(url)
+            token = r.body['token']
+        except:
+            token = None
+        return token
 
     def update_customer(self, id):
         pass
@@ -328,7 +343,12 @@ class DwollaApi:
         # self.init_micro_deposits(fs_id)
         # d = self.get_micro_deposits(fs_id)
         # print(d)
-        self.test_transfer()
+        # self.test_transfer()
+        l = self.get_customers()
+        customer = l[0]
+        id = customer['id']
+        r = self.get_iav_token(id)
+        print(r)
 
 if __name__ == '__main__':
     from subprocess import Popen, PIPE

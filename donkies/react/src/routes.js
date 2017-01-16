@@ -5,6 +5,7 @@ import {
     AccountsPage,
     AddBankPage,
     AddLenderPage,
+    CreateFundingSourcePage,
     ForgotPasswordPage,
     HomePage,
     LoginPage,
@@ -38,6 +39,7 @@ export default (
             <Route component={AccountsPage} path="/accounts" />
             <Route component={AddBankPage} path="/add_bank" />
             <Route component={AddLenderPage} path="/add_lender" />
+            <Route component={CreateFundingSourcePage} path="/create_funding_source" />
             <Route component={SettingsPage} path="/settings" />
             <Route component={TestPage} path="/test_page" />
             <Route component={TransactionsPage} path="/transactions" />

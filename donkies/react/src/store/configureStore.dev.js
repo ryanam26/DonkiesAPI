@@ -6,6 +6,7 @@ import rootReducer from '../reducers'
 
 export const API_ROOT_URL = 'http://localhost:8000/'
 export const HOME_PAGE_URL = 'http://localhost:8000/'
+export const DWOLLA_MODE = 'sandbox'
 
 export default function configureStore(initialState) {
   const sagaMiddleware = createSagaMiddleware()

@@ -11,4 +11,9 @@ urlpatterns = [
         r'^(?P<version>(v1))/funding_sources$',
         v.FundingSources.as_view(),
         name='funding_sources'),
+
+    url(
+        r'^(?P<version>(v1))/get_iav_token/(?P<dwolla_customer_id>\w+)$',
+        v.GetIAVToken.as_view(),
+        name='get_iav_token'),
 ]

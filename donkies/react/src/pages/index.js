@@ -1,3 +1,8 @@
+// bank
+
+import { default as CreateFundingSourcePage } from './bank/CreateFundingSourcePage'
+export { CreateFundingSourcePage }
+
 // finance
 
 import { default as AccountsPage } from './finance/AccountsPage'

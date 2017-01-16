@@ -4,6 +4,7 @@ import rootReducer from '../reducers'
 
 export const API_ROOT_URL = 'http://api.donkies.co/'
 export const HOME_PAGE_URL = 'http://donkies.co/'
+export const DWOLLA_MODE = 'prod'
 
 export default function configureStore(initialState) {
   const sagaMiddleware = createSagaMiddleware()

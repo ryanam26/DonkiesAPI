@@ -157,6 +157,8 @@ class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    dwolla_customer_id = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
@@ -175,7 +177,8 @@ class UserSerializer(serializers.ModelSerializer):
             'postal_code',
             'date_of_birth',
             'ssn',
-            'phone'
+            'phone',
+            'dwolla_customer_id'
         )
         read_only_fields = (
             'id',
@@ -185,3 +188,8 @@ class UserSerializer(serializers.ModelSerializer):
             'encrypted_id',
             'is_confirmed',
         )
+
+    def get_dwolla_customer_id(self, obj):
+        if hasattr(obj, 'customer') and obj.customer.dwolla_id:
+            return obj.customer.dwolla_id
+        return None

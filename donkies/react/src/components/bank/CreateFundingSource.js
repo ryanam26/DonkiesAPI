@@ -25,7 +25,7 @@ import { Alert, LoadingInline } from 'components'
  * After processing user's input, dwolla will send 
  * result and error in callback.
  * If success, dwolla will give JSON with link to created funding_source.
- * Send request to API to save funding_source in database.
+ * Then send request to API to save funding_source in database.
  */
 class CreateFundingSource extends Component{
     constructor(props){
@@ -37,6 +37,7 @@ class CreateFundingSource extends Component{
             error: null,
             iavToken: null,
             isShowStartButton: true,
+            isShowTempMessage: false,
             success: null
         }
     }
@@ -75,7 +76,8 @@ class CreateFundingSource extends Component{
     onClickStart(){
         const { account, iavToken } = this.state
 
-        this.setState({isShowStartButton: false})
+        this.setState({isShowStartButton: false, isShowTempMessage: true})
+        setTimeout(() => {this.setState({isShowTempMessage: false})}, 2000)
 
         dwolla.configure('uat')
         dwolla.iav.start(
@@ -212,7 +214,7 @@ class CreateFundingSource extends Component{
      * Dwolla will render in iavContainer iframe.
      */
     renderIAV(){
-        const { iavToken, isShowStartButton } = this.state
+        const { iavToken, isShowStartButton, isShowTempMessage } = this.state
         if (!iavToken){
             return <LoadingInline />
         }
@@ -226,6 +228,7 @@ class CreateFundingSource extends Component{
                         {'Create funding source'}
                     </button>
                 }
+                {isShowTempMessage && <div>{'Please wait...'}</div>}
                 
                 <div id="iavContainer" />
             </wrap>

@@ -3,6 +3,7 @@ from web.models import User
 from django.contrib import auth
 from django.conf import settings
 from web.exceptions import PasswordsNotMatch
+from bank.serializers import CustomerSerializer
 
 
 class EncIdMixin:
@@ -157,7 +158,7 @@ class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    dwolla_customer_id = serializers.SerializerMethodField()
+    dwolla_customer = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -178,7 +179,7 @@ class UserSerializer(serializers.ModelSerializer):
             'date_of_birth',
             'ssn',
             'phone',
-            'dwolla_customer_id'
+            'dwolla_customer'
         )
         read_only_fields = (
             'id',
@@ -189,7 +190,7 @@ class UserSerializer(serializers.ModelSerializer):
             'is_confirmed',
         )
 
-    def get_dwolla_customer_id(self, obj):
-        if hasattr(obj, 'customer') and obj.customer.dwolla_id:
-            return obj.customer.dwolla_id
+    def get_dwolla_customer(self, obj):
+        if hasattr(obj, 'customer'):
+            return CustomerSerializer(obj.customer).data
         return None

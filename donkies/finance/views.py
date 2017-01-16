@@ -92,7 +92,7 @@ class AccountsEditShare(AuthMixin, APIView):
 
 class AccountsSetFundingSource(AuthMixin, APIView):
     """
-    Set funding source for debit accounts. (is_funding_source)
+    Set funding source for transfer for debit accounts.
     """
     def post(self, request, **kwargs):
         id = kwargs['pk']

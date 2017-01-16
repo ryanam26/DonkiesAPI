@@ -73,7 +73,7 @@ class DebitAccounts extends Component{
      */
     getCol(account){
         const { user } = this.props
-        const dwollaCustomerId = user.dwolla_customer_id
+        const dwollaCustomerId = user.dwolla_customer.id
 
         let cn, params, onClick, value, title
         if (!account.is_dwolla_created){
@@ -81,7 +81,7 @@ class DebitAccounts extends Component{
             params = {uid: account.uid}
             onClick = this.onClickCreateDwolla
             title = 'Create funding source'
-        } else if (account.is_funding_source){
+        } else if (account.is_funding_source_for_transfer){
             cn = 'zmdi-money'
             params = null
             onClick = null

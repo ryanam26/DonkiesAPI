@@ -69,8 +69,9 @@ class AccountManager(models.Manager):
         account = self.model.objects.get(
             id=account_id, type_ds=self.model.DEBIT)
         self.model.objects.filter(
-            member__user=account.member.user).update(is_funding_source=False)
-        account.is_funding_source = True
+            member__user=account.member.user)\
+            .update(is_funding_source_for_transfer=False)
+        account.is_funding_source_for_transfer = True
         account.save()
         return account
 
@@ -211,7 +212,7 @@ class Account(models.Model):
             'The total share of all accounts should be 100%.'
         )
     )
-    is_funding_source = models.BooleanField(
+    is_funding_source_for_transfer = models.BooleanField(
         default=False,
         help_text='For debit account. Funding source for transfer.')
 
@@ -231,7 +232,7 @@ class Account(models.Model):
     @property
     def funding_source(self):
         """
-        Returns associated funding source or None
+        Returns associated funding source or None.
         """
         FundingSource = apps.get_model('bank', 'FundingSource')
         return FundingSource.objects.filter(account=self).first()

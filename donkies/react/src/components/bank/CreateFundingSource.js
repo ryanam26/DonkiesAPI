@@ -28,8 +28,8 @@ class CreateFundingSource extends Component{
     /**
      * Validates account for possibility create in Dwolla.
      * 1) Type should be CHECKING or SAVINGS.
-     * 2) User should have dwolla_customer_id
-     * 3) 
+     * 2) User should have dwolla_customer.id
+     * 3) dwolla_customer should be verified.
      */
     checkAccount(){
 

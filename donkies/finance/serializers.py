@@ -52,9 +52,8 @@ class AccountSerializer(serializers.ModelSerializer):
             'type_ds',
             'updated_at',
             'transfer_share',
-            'is_funding_source',
+            'is_funding_source_for_transfer',
             'is_dwolla_created',
-            # 'funding_source',
             'institution'
         )
 

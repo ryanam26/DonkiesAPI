@@ -143,6 +143,7 @@ class DwollaApi:
 
     def create_funding_source(self, customer_id, data):
         """
+        Manual creation via account_number and routing_number.
         Create funding source for customer.
         Returns id of created funding source or None.
         """
@@ -346,11 +347,12 @@ class DwollaApi:
         # d = self.get_micro_deposits(fs_id)
         # print(d)
         # self.test_transfer()
-        l = self.get_customers()
-        customer = l[0]
-        id = customer['id']
-        r = self.get_iav_token(id)
-        print(r)
+        # l = self.get_customers()
+        # customer = l[0]
+        # print(self.get_funding_sources(customer['id'])[0])
+
+        print(self.get_funding_source('105e7d05-8234-413e-8af5-74f0daf3303f'))
+
 
 if __name__ == '__main__':
     from subprocess import Popen, PIPE
@@ -364,3 +366,41 @@ if __name__ == '__main__':
 
     p = Popen(['scp', src, cmd], stdout=PIPE)
     p.communicate()[0]
+
+
+"""
+funding_source_result = {
+    'channels': [],
+    '_links': {
+        'balance': {
+            'type': 'application/vnd.dwolla.v1.hal+json',
+            'resource-type': 'balance',
+            'href': 'https://api-uat.dwolla.com/funding-sources/../balance'
+        },
+        'self': {
+            'type': 'application/vnd.dwolla.v1.hal+json',
+            'resource-type': 'funding-source',
+            'href': 'https://api-uat.dwolla.com/funding-sources/..'
+        },
+        'with-available-balance': {
+            'type': 'application/vnd.dwolla.v1.hal+json',
+            'resource-type': 'funding-source',
+            'href': 'https://api-uat.dwolla.com/funding-sources/..'
+        },
+        'customer': {
+            'type': 'application/vnd.dwolla.v1.hal+json',
+            'resource-type': 'customer',
+            'href': 'https://api-uat.dwolla.com/customers/..'
+        }
+    },
+    'created': '2017-01-16T08:16:07.000Z',
+    'removed': False,
+    'balance': {
+        'currency': 'USD',
+        'value': '0.00'
+    },
+    'id': 'dwolla_id',
+    'type': 'balance',
+    'status': 'verified',
+    'name': 'Balance'}
+"""

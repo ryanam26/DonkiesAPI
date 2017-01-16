@@ -1,4 +1,6 @@
- import * as actions from 'actions'
+import * as actions from 'actions'
+import { DEBIT, DEBT } from 'constants'
+
 
 const iState = {
     allAccounts: null,
@@ -19,11 +21,11 @@ export function accounts(state=iState, action){
             let debitAccounts = []
 
             for (let obj of action.payload){
-                if (obj.type_ds === 'debt'){
+                if (obj.type_ds === DEBT){
                     debtAccounts.push(obj)    
                 }
 
-                if (obj.type_ds === 'debit'){
+                if (obj.type_ds === DEBIT){
                     debitAccounts.push(obj)    
                 }
             }

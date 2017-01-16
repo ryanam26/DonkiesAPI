@@ -21,11 +21,12 @@ def create_customers():
         Customer.objects.init_dwolla_customer(c.id)
 
 
-@periodic_task(run_every=crontab(minute='*'))
-@rs_singleton(rs, 'CREATE_FUNDING_SOURCES_IS_PROCESSING')
+# @periodic_task(run_every=crontab(minute='*'))
+# @rs_singleton(rs, 'CREATE_FUNDING_SOURCES_IS_PROCESSING')
 def create_funding_sources():
     """
     Task that creates and inits funding sources in Dwolla.
+    Manual creation using account_number and routing_number.
     """
     FundingSource = apps.get_model('bank', 'FundingSource')
     for fs in FundingSource.objects.filter(created_at=None):
@@ -33,8 +34,8 @@ def create_funding_sources():
         FundingSource.objects.init_dwolla_funding_source(fs.id)
 
 
-@periodic_task(run_every=crontab())
-@rs_singleton(rs, 'MICRO_DEPOSITS_IS_PROCESSING')
+# @periodic_task(run_every=crontab())
+# @rs_singleton(rs, 'MICRO_DEPOSITS_IS_PROCESSING')
 def micro_deposits():
     """
     Task that init micro-deposits and updates status.

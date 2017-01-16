@@ -5,6 +5,7 @@ import { navigate } from 'actions'
 import { apiCall3, GET_IAV_TOKEN_URL } from 'services/api'
 import { DWOLLA_MODE } from 'store/configureStore'
 import { LoadingInline } from 'components'
+import { DEBIT, SAVINGS, CHECKING } from 'constants'
 
 
 /**
@@ -95,7 +96,7 @@ class CreateFundingSource extends Component{
     checkAccount(account, user){
         const { navigate } = this.props
 
-        if (account.type_ds !== 'debit'){
+        if (account.type_ds !== DEBIT){
             this.setState({
                 error: 'You can not use Debt account as funding source.'
             })
@@ -107,7 +108,7 @@ class CreateFundingSource extends Component{
             return false  
         }
 
-        if (!['CHECKING', 'SAVINGS'].includes(account.type)){
+        if (![CHECKING, SAVINGS].includes(account.type)){
             this.setState({
                 error: 'You can not use this account as funding source. The account type should be Checking or Savings.'
             })

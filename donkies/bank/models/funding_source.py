@@ -1,12 +1,29 @@
 from django.db import models
 from django.contrib import admin
+from django.apps import apps
 from bank.services.dwolla_api import DwollaApi
 
 
 class FundingSourceManager(models.Manager):
+    def create_funding_source_iav(self, account_id, dwolla_id):
+        """
+        User creates funding source via dwolla.js script in iframe
+        using username and password.
+        At first the funding source is created in Dwolla,
+        then calling this function from API funding source created in database.
+        """
+        Account = apps.get_model('finance', 'Account')
+        account = Account.objects.get(id=account_id)
+        dw = DwollaApi()
+        fs = dw.get_funding_source(dwolla_id)
+        
+
+
     def create_funding_source(
             self, account, account_number, routing_number, name, type):
-
+        """
+        Create funding source manually using account_number and routing number.
+        """
         fs = self.model(
             account=account, account_number=account_number,
             routing_number=routing_number, name=name, type=type)
@@ -14,6 +31,10 @@ class FundingSourceManager(models.Manager):
         return fs
 
     def create_dwolla_funding_source(self, id):
+        """
+        Create funding source in Dwolla from manually
+        created account.
+        """
         fs = self.model.objects.get(id=id)
         if fs.dwolla_id is not None:
             return
@@ -31,6 +52,10 @@ class FundingSourceManager(models.Manager):
             fs.save()
 
     def init_dwolla_funding_source(self, id):
+        """
+        Init funding source in Dwolla from manually
+        created account.
+        """
         fs = self.model.objects.get(id=id)
         if fs.dwolla_id is not None and fs.created_at is None:
             dw = DwollaApi()

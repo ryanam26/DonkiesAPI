@@ -100,10 +100,6 @@ if __name__ == '__main__':
     # user = User.objects.get(email='alex@donkies.co')
     # User.objects.create_atrium_user(user.id)
 
-    # from bank.services.dwolla_api import DwollaApi
-    # d = DwollaApi()
-    # d.test()
-
-    from finance.models import Account
-    a = Account.objects.get(id=3)
-    print(a.is_dwolla_created)
+    from bank.services.dwolla_api import DwollaApi
+    d = DwollaApi()
+    d.test()

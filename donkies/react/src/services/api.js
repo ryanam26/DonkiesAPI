@@ -9,6 +9,7 @@ export const ACCOUNTS_SET_FUNDING_SOURCE_URL = `${API_ROOT_URL}v1/accounts/set_f
 export const CHANGE_EMAIL_URL = `${API_ROOT_URL}v1/user/change/email`
 export const CHANGE_EMAIL_CONFIRM_URL = `${API_ROOT_URL}v1/user/change/email/confirm`
 export const CHANGE_PASSWORD_URL = `${API_ROOT_URL}v1/user/change/password`
+export const CREATE_FUNDING_SOURCE_BY_IAV_URL = `${API_ROOT_URL}v1/create_funding_source_by_iav`
 export const CREDENTIALS_BY_CODE_URL = `${API_ROOT_URL}v1/credentials/code`
 export const CREDENTIALS_BY_ID_URL = `${API_ROOT_URL}v1/credentials/id`
 export const GET_IAV_TOKEN_URL = `${API_ROOT_URL}v1/get_iav_token`

@@ -7,8 +7,12 @@ class FundingSourceIAVLogManager(models.Manager):
     def create(self, account_id, dwolla_id):
         Account = apps.get_model('finance', 'Account')
         account = Account.objects.get(id=account_id)
-        fs_log = self.model(account=account, dwolla_id=dwolla_id)
-        fs_log.save()
+
+        fs_log = self.model.objects.filter(
+            account=account, dwolla_id=dwolla_id).first()
+        if not fs_log:
+            fs_log = self.model(account=account, dwolla_id=dwolla_id)
+            fs_log.save()
         return fs_log
 
 
@@ -28,7 +32,7 @@ class FundingSourceIAVLog(models.Model):
     we save log info to this model.
     """
     account = models.ForeignKey('finance.Account')
-    dwolla_id = models.CharField(max_length=255)
+    dwolla_id = models.CharField(max_length=255, unique=True)
     is_processed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -39,6 +43,7 @@ class FundingSourceIAVLog(models.Model):
         verbose_name = 'funding source iav log'
         verbose_name_plural = 'funding source iav logs'
         ordering = ['-created_at']
+        unique_together = ['account', 'dwolla_id']
 
     def __str__(self):
         return self.dwolla_id

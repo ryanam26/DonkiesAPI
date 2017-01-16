@@ -3,7 +3,7 @@ import pytest
 from .import base
 from .factories import (
     AccountFactory, InstitutionFactory, MemberFactory, UserFactory)
-from bank.models import FundingSource
+from bank.models import FundingSource, FundingSourceIAVLog
 from finance.models import Account
 
 
@@ -45,18 +45,23 @@ class TestFundingSource(base.Mixin):
         dwolla_id = 'some-id'
 
         # Data from real request to Dwolla. (get funding source)
-        dic = {
+        test_dic = {
             'created': '2017-01-16T08:16:07.000Z',
             'removed': False,
             'balance': {
                 'currency': 'USD',
                 'value': '0.00'
             },
-            'id': 'some-id',
+            'id': dwolla_id,
             'type': 'balance',
             'status': 'verified',
             'name': 'Balance'
         }
 
-        FundingSource.objects.create_funding_source_iav(
-            account.id, dwolla_id, dic)
+        fs = FundingSource.objects.create_funding_source_iav(
+            account.id, dwolla_id, test_dic)
+
+        assert fs.dwolla_id == test_dic['id']
+
+        fs_log = FundingSourceIAVLog.objects.get(dwolla_id=test_dic['id'])
+        assert fs_log.is_processed is True

@@ -8,16 +8,19 @@ class FundingSourceManager(models.Manager):
     def create_funding_source_iav(self, account_id, dwolla_id, test_dic=None):
         """
         User creates funding source via dwolla.js script in iframe
-        using username and password.
+        using username and password on frontend.
         At first the funding source is created in Dwolla,
         then calling this function from API funding source created in database.
 
         test_dic - used for tests not calling Dwolla API.
+
+        If Dwolla API fail, we can run this method later.
+        FundingSourceIAVLog will contain failed data.
         """
         Account = apps.get_model('finance', 'Account')
         FundingSourceIAVLog = apps.get_model('bank', 'FundingSourceIAVLog')
 
-        fs_log = FundingSourceIAVLog.create(account_id, dwolla_id)
+        fs_log = FundingSourceIAVLog.objects.create(account_id, dwolla_id)
         account = Account.objects.get(id=account_id)
 
         if test_dic:
@@ -33,6 +36,7 @@ class FundingSourceManager(models.Manager):
         fs.is_removed = d['removed']
         fs.typeb = d['type']
         fs.name = d['name']
+        fs.verification_type = self.model.IAV
         fs.save()
 
         fs_log.is_processed = True

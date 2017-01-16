@@ -3,6 +3,11 @@ from .import views as v
 
 urlpatterns = [
     url(
+        r'^(?P<version>(v1))/create_funding_source_by_iav$',
+        v.CreateFundingSourceByIAV.as_view(),
+        name='create_funding_source_by_iav'),
+
+    url(
         r'^(?P<version>(v1))/customer$',
         v.CustomerDetail.as_view(),
         name='customer'),

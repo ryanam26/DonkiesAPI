@@ -12,6 +12,22 @@ from finance.models import Account
 logger = logging.getLogger('app')
 
 
+class CreateFundingSourceByIAV(AuthMixin, APIView):
+    """
+    At first frontend creates funding source in Dwolla.
+    Then it sends account_id and dwolla_id to API
+    to save funding source in database.
+    """
+    def post(self, request, **kwargs):
+        account_id = request.data.pop('account_id')
+        dwolla_id = request.data.pop('dwolla_id')
+
+        fs = FundingSource.objects.create_funding_source_iav(
+            account_id, dwolla_id)
+        s = sers.FundingSourceSerializer(fs)
+        return Response(s.data, status=201)
+
+
 class CustomerDetail(AuthMixin, APIView):
     """
     GET - get customer detail.
@@ -35,6 +51,10 @@ class FundingSources(AuthMixin, generics.ListCreateAPIView):
             account__member__user=self.request.user)
 
     def post(self, request, **kwargs):
+        """
+        Create funding source manually by
+        account_number and routing number.
+        """
         d = request.data
         account_id = d.pop('account_id', None)
         if not account_id:

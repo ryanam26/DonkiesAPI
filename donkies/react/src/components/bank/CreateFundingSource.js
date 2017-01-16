@@ -2,10 +2,13 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { navigate } from 'actions'
-import { apiCall3, GET_IAV_TOKEN_URL } from 'services/api'
+import {
+    apiCall3,
+    GET_IAV_TOKEN_URL,
+    CREATE_FUNDING_SOURCE_BY_IAV_URL } from 'services/api'
 import { DWOLLA_MODE } from 'store/configureStore'
-import { LoadingInline } from 'components'
 import { DEBIT, SAVINGS, CHECKING } from 'constants'
+import { Alert, LoadingInline } from 'components'
 
 
 /**
@@ -31,7 +34,8 @@ class CreateFundingSource extends Component{
         this.state = {
             account: null,
             error: null,
-            iavToken: null
+            iavToken: null,
+            success: null
         }
     }
 
@@ -67,7 +71,7 @@ class CreateFundingSource extends Component{
     }
 
     onClickStart(){
-        const { iavToken } = this.state
+        const { account, iavToken } = this.state
 
         dwolla.configure('uat')
         dwolla.iav.start(
@@ -79,7 +83,8 @@ class CreateFundingSource extends Component{
         (err, res) => {
             if (err === null){
                 const href = res['_links']['funding-source']['href']
-                // send to server href, account, prepare API endpoint
+                const dwollaId = this.getIdFromHref(href)
+                this.saveFundingSourceRequest(account, dwollaId)
             }
         })
     }
@@ -132,6 +137,15 @@ class CreateFundingSource extends Component{
     }
 
     /**
+     * @param {string} href, example: http://uat.dwolla.com/funding_source/abcd
+     * @returns {string} id - chunk after last slash, example: abcd
+     */
+    getIdFromHref(href){
+        const ind = href.lastIndexOf('/')
+        return href.slice(ind + 1)
+    }
+
+    /**
      * Get account by "GET" param or redirect to /accounts page.
      */
     getAccount(accounts, location){
@@ -165,6 +179,32 @@ class CreateFundingSource extends Component{
         }
     }
 
+    /**
+     * After funding source is created in Dwolla, we need
+     * to save it in database.
+     */
+    async saveFundingSourceRequest(account, dwollaId){
+        console.log('!!!!!!!!!!!!!!!!!!!!!!')
+        console.log(account, dwollaId)
+
+        const url = CREATE_FUNDING_SOURCE_BY_IAV_URL
+        const data = {
+            account_id: account.id,
+            dwolla_id: dwollaId
+        }
+        let response = await apiCall3(url, data, true)
+        if (response.status > 400){
+            this.setState({error: 'Server error.'})
+        } else if (response.status === 201){
+            this.setState({
+                success: 'The funding source account has been created.'
+            })
+        }
+
+        const result = await response.json()
+        
+    }
+
     renderIAV(){
         const { iavToken } = this.state
         if (!iavToken){
@@ -187,10 +227,14 @@ class CreateFundingSource extends Component{
     }
 
     render(){
-        const { account, error, iavToken } = this.state
+        const { account, error, iavToken, success } = this.state
 
         if (!account){
             return <LoadingInline />
+        }
+
+        if (success){
+            return <Alert type="success" value={success} />
         }
 
         return (

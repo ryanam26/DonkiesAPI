@@ -4,20 +4,54 @@ import autoBind from 'react-autobind'
 import { navigate } from 'actions'
 import { apiCall3, GET_IAV_TOKEN_URL } from 'services/api'
 import { DWOLLA_MODE } from 'store/configureStore'
+import { LoadingInline } from 'components'
 
 
+/**
+ * Component's flow.
+ *
+ * On component init get "account" from "GET" params,
+ * check account and if account passes all checks,
+ * send request to get iav token from API,
+ * and set iav token to state.
+ */
 class CreateFundingSource extends Component{
     constructor(props){
         super(props)
         autoBind(this)
+
+        this.state = {
+            account: null,
+            error: null,
+            iavToken: null
+        }
     }
 
     componentDidMount(){
         dwolla.configure(DWOLLA_MODE)   
     }
 
+    componentWillReceiveProps(nextProps){
+        const { account } = this.state
+        if (account){
+            return
+        }
+
+        const { user, accounts, location } = nextProps
+        if (!user || !accounts){
+            return
+        }
+
+        const a = this.getAccount(accounts, location)
+        this.setState({account: a})
+        const result = this.checkAccount(a, user)
+        if (result){
+            this.getIAVTokenRequest()    
+        }
+    }
+
     onClickStart(){
-        let iavToken = '4adF858jPeQ9RnojMHdqSD2KwsvmhO7Ti7cI5woOiBGCpH5krY'
+        const { iavToken } = this.state
         dwolla.configure('uat')
         dwolla.iav.start(iavToken, 'iavContainer', (err, res) => {
             console.log(' -- Response: ' + JSON.stringify(res))
@@ -27,16 +61,56 @@ class CreateFundingSource extends Component{
 
     /**
      * Validates account for possibility create in Dwolla.
-     * 1) Type should be CHECKING or SAVINGS.
-     * 2) User should have dwolla_customer.id
-     * 3) dwolla_customer should be verified.
+     *
+     * 1) Account should be debit.
+     * 2) Account not created yet in Dwolla. 
+     * 3) Type should be CHECKING or SAVINGS.
+     * 4) User should have dwolla_customer.dwolla_id
+     * 5) dwolla_customer should be verified.
      */
-    checkAccount(){
+    checkAccount(account, user){
+        const { navigate } = this.props
 
+        if (account.type_ds !== 'debit'){
+            this.setState({
+                error: 'You can not use Debt account as funding source.'
+            })
+            return false
+        }
+
+        if (account.is_dwolla_created){
+            navigate('/accounts')
+            return false  
+        }
+
+        if (!['CHECKING', 'SAVINGS'].includes(account.type)){
+            this.setState({
+                error: 'You can not use this account as funding source. The account type should be Checking or Savings.'
+            })
+            return false
+        }
+
+        if (!user.dwolla_customer.dwolla_id){
+            this.setState({
+                error: 'Customer is not yet created in Dwolla.'
+            })
+            return false
+        }
+
+        if (user.dwolla_customer.status !== 'verified'){
+            this.setState({
+                error: 'Customer is not yet verified in Dwolla.'
+            })   
+            return false
+        }
+        return true
     }
 
-    getAccount(){
-        const { accounts, location, navigate } = this.props
+    /**
+     * Get account by "GET" param or redirect to /accounts page.
+     */
+    getAccount(accounts, location){
+        const { navigate } = this.props
         if (location.query.hasOwnProperty('account_uid')){
             const uid = location.query.account_uid
             for (let account of accounts){
@@ -48,20 +122,32 @@ class CreateFundingSource extends Component{
         navigate('/accounts')
     }
 
-    render(){
-        const { accounts } = this.props
-        
-        if (!accounts){
-            return null
+    async getIAVTokenRequest(){
+        const { user } = this.props
+        const url = `${GET_IAV_TOKEN_URL}/${user.dwolla_customer.dwolla_id}`  
+        const data = {}
+        let response = await apiCall3(url, data, true)
+        if (response.status === 500){
+            this.setState({error: 'Server error.'})
+            return
         }
 
-        const account = this.getAccount()
-        console.log(account)
+        const result = await response.json()
+        if (response.status === 200){
+            this.setState({iavToken: result.token})
+        } else if (response.status === 400){
+            this.setState({error: result.message})
+        }
+    }
+
+    renderIAV(){
+        const { iavToken } = this.state
+        if (!iavToken){
+            return <LoadingInline />
+        }
 
         return (
             <wrap>
-                <h3>{account.name}{': create funding source'}</h3>
-
                 <div id="mainContainer">
                     <input
                         onClick={this.onClickStart}
@@ -70,7 +156,26 @@ class CreateFundingSource extends Component{
                 </div>  
 
                 <div id="iavContainer" />
+            </wrap>
+        )
+    }
 
+    render(){
+        const { account, error, iavToken } = this.state
+
+        if (!account){
+            return <LoadingInline />
+        }
+
+        return (
+            <wrap>
+                <h3>{account.name}{': create funding source'}</h3>
+
+                {error ? 
+                    <div className="custom-error">{error}</div>
+                :
+                    this.renderIAV()
+                }
             </wrap>
         )
     }
@@ -80,11 +185,13 @@ class CreateFundingSource extends Component{
 CreateFundingSource.propTypes = {
     accounts: PropTypes.array,
     location: PropTypes.object,
-    navigate: PropTypes.func
+    navigate: PropTypes.func,
+    user: PropTypes.object
 }
 
 const mapStateToProps = (state) => ({
     accounts: state.accounts.debitAccounts,
+    user: state.user.item
 })
 
 export default connect(mapStateToProps, {

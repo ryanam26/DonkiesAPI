@@ -13,7 +13,7 @@ urlpatterns = [
         name='funding_sources'),
 
     url(
-        r'^(?P<version>(v1))/get_iav_token/(?P<dwolla_customer_id>\w+)$',
+        r'^(?P<version>(v1))/get_iav_token/(?P<dwolla_customer_id>[a-z0-9-]+)$',
         v.GetIAVToken.as_view(),
         name='get_iav_token'),
 ]

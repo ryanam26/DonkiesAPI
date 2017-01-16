@@ -4,7 +4,8 @@ import createSagaMiddleware, { END } from 'redux-saga'
 import DevTools from '../containers/DevTools'
 import rootReducer from '../reducers'
 
-export const API_ROOT_URL = 'http://localhost:8000/'
+// export const API_ROOT_URL = 'http://localhost:8000/'
+export const API_ROOT_URL = 'http://api.donkies.co/'
 export const HOME_PAGE_URL = 'http://localhost:8000/'
 export const DWOLLA_MODE = 'sandbox'
 

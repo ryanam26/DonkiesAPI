@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
 import { navigate } from 'actions'
+import { apiCall3, GET_IAV_TOKEN_URL } from 'services/api'
 import { DWOLLA_MODE } from 'store/configureStore'
 
 
@@ -22,6 +23,16 @@ class CreateFundingSource extends Component{
             console.log(' -- Response: ' + JSON.stringify(res))
             console.log(' -- Error: ' + JSON.stringify(err))
         })
+    }
+
+    /**
+     * Validates account for possibility create in Dwolla.
+     * 1) Type should be CHECKING or SAVINGS.
+     * 2) User should have dwolla_customer_id
+     * 3) 
+     */
+    checkAccount(){
+
     }
 
     getAccount(){

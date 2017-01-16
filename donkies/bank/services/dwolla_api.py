@@ -97,7 +97,9 @@ class DwollaApi:
                 return self.get_id_from_headers(r.headers)
         except dwollav2.Error as e:
             if self.is_duplicate(e):
-                return self.get_customer_by_email(data['email'])['id']
+                res = self.get_customer_by_email(data['email'])
+                if res is not None:
+                    return res['id']
             self.set_logs(
                 'Create customer', json.dumps(data), str(e))
         return None
@@ -118,7 +120,7 @@ class DwollaApi:
         """
         Returns customer or None.
         """
-        r = self.token.get('customers', search=email)
+        r = self.token.get('customers', email=email)
         try:
             return r.body['_embedded']['customers'][0]
         except:

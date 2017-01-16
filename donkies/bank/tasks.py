@@ -15,7 +15,8 @@ def create_customers():
     Task that creates and inits customers in Dwolla.
     """
     Customer = apps.get_model('bank', 'Customer')
-    for c in Customer.objects.filter(created_at=None, user__is_admin=False):
+    # TODO  user__is_admin=False
+    for c in Customer.objects.filter(created_at=None):
         Customer.objects.create_dwolla_customer(c.id)
         Customer.objects.init_dwolla_customer(c.id)
 

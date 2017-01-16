@@ -211,10 +211,9 @@ class Account(models.Model):
             'The total share of all accounts should be 100%.'
         )
     )
-    is_dwolla_created = models.BooleanField(default=False)
     is_funding_source = models.BooleanField(
         default=False,
-        help_text='Funding source (for debit account).')
+        help_text='For debit account. Funding source for transfer.')
 
     objects = AccountManager()
 
@@ -228,6 +227,23 @@ class Account(models.Model):
         if self.name:
             return self.name
         return self.uid
+
+    @property
+    def funding_source(self):
+        """
+        Returns associated funding source or None
+        """
+        FundingSource = apps.get_model('bank', 'FundingSource')
+        return FundingSource.objects.filter(account=self).first()
+
+    @property
+    def is_dwolla_created(self):
+        fs = self.funding_source
+        if fs is None:
+            return False
+        if fs.dwolla_id is None:
+            return False
+        return True
 
     def save(self, *args, **kwargs):
         """

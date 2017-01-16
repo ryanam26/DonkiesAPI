@@ -90,7 +90,7 @@ class DebitAccounts extends Component{
             cn = 'zmdi-assignment fake-link'
             params = {id: account.id}
             onClick = this.onClickSetSource
-            title = 'Set funding source'
+            title = 'Set account as funding source'
         }
 
         cn = classNames('zmdi', cn)

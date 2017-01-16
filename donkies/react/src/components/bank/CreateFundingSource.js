@@ -1,7 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 import { connect } from 'react-redux'
 import autoBind from 'react-autobind'
-import { navigate } from 'actions'
+import { Link } from 'react-router'
+import { apiGetRequest, navigate } from 'actions'
 import {
     apiCall3,
     GET_IAV_TOKEN_URL,
@@ -35,6 +36,7 @@ class CreateFundingSource extends Component{
             account: null,
             error: null,
             iavToken: null,
+            isShowStartButton: true,
             success: null
         }
     }
@@ -72,6 +74,8 @@ class CreateFundingSource extends Component{
 
     onClickStart(){
         const { account, iavToken } = this.state
+
+        this.setState({isShowStartButton: false})
 
         dwolla.configure('uat')
         dwolla.iav.start(
@@ -184,9 +188,6 @@ class CreateFundingSource extends Component{
      * to save it in database.
      */
     async saveFundingSourceRequest(account, dwollaId){
-        console.log('!!!!!!!!!!!!!!!!!!!!!!')
-        console.log(account, dwollaId)
-
         const url = CREATE_FUNDING_SOURCE_BY_IAV_URL
         const data = {
             account_id: account.id,
@@ -199,29 +200,49 @@ class CreateFundingSource extends Component{
             this.setState({
                 success: 'The funding source account has been created.'
             })
+            // Update accounts in Redux state.
+            this.props.apiGetRequest('accounts')
         }
 
         const result = await response.json()
         
     }
 
+    /**
+     * Dwolla will render in iavContainer iframe.
+     */
     renderIAV(){
-        const { iavToken } = this.state
+        const { iavToken, isShowStartButton } = this.state
         if (!iavToken){
             return <LoadingInline />
         }
 
         return (
             <wrap>
-                <div id="mainContainer">
+                {isShowStartButton &&
                     <button
                         className="btn btn-primary btn-sm waves-effect"
                         onClick={this.onClickStart}>
                         {'Create funding source'}
                     </button>
-                </div>  
-
+                }
+                
                 <div id="iavContainer" />
+            </wrap>
+        )
+    }
+
+    renderSuccess(){
+        const { success } = this.state
+
+        return (
+            <wrap>
+                <Alert type="success" value={success} />   
+                <Link
+                    to="/accounts"
+                    className="btn btn-primary btn-sm waves-effect">
+                    {'Back to accounts'}
+                </Link> 
             </wrap>
         )
     }
@@ -233,13 +254,11 @@ class CreateFundingSource extends Component{
             return <LoadingInline />
         }
 
-        if (success){
-            return <Alert type="success" value={success} />
-        }
-
         return (
             <wrap>
                 <h3>{account.name}{': create funding source'}</h3>
+
+                {success && this.renderSuccess()}
 
                 {error ? 
                     <div className="custom-error">{error}</div>
@@ -254,6 +273,7 @@ class CreateFundingSource extends Component{
 
 CreateFundingSource.propTypes = {
     accounts: PropTypes.array,
+    apiGetRequest: PropTypes.func,
     location: PropTypes.object,
     navigate: PropTypes.func,
     user: PropTypes.object
@@ -265,5 +285,6 @@ const mapStateToProps = (state) => ({
 })
 
 export default connect(mapStateToProps, {
+    apiGetRequest,
     navigate
 })(CreateFundingSource)

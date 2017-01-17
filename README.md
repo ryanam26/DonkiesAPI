@@ -178,3 +178,21 @@ some scheduler that will request accounts and transactions
 
 Or consider Web Sockets.
 But not for MVP.
+
+### Testing add bank in sandbox.
+
+Bank name: MX Bank
+Username: test_atrium
+Password: any
+
+To test Challenges:
+Password: challenge
+Correct answer: correct
+
+### Testing add funding source to Dwolla in sandbox.
+
+After user has been sign up to system, Dwolla customers created
+in background. User profile should look like real profile with good data.
+Otherwise, Dwolla customer can not be created.
+
+As soon as Dwolla customer is created, and user has accounts, frontend will have link to create funding source.

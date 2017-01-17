@@ -73,7 +73,11 @@ class DebitAccounts extends Component{
      */
     getCol(account){
         const { user } = this.props
-        const dwollaCustomerId = user.dwolla_customer.dwolla_id
+        let dwollaCustomerId = null
+
+        if (user.dwolla_customer){
+            dwollaCustomerId = user.dwolla_customer.dwolla_id    
+        }
 
         let cn, params, onClick, value, title
         if (!account.is_dwolla_created){

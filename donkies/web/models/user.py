@@ -55,7 +55,7 @@ class UserManager(BaseUserManager):
         a = AtriumApi()
         a.delete_user(guid)
 
-    def clean_atrium(self):
+    def clear_atrium(self):
         """
         Delete all users in Atrium.
         TODO: processing errors.

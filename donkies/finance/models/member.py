@@ -61,6 +61,12 @@ class MemberManager(models.Manager):
         a = AtriumApi()
         a.resume_member(member.user.guid, member.guid, challenges)
 
+    def delete_member(self, member_id):
+        member = self.model.objects.get(id=member_id)
+        a = AtriumApi()
+        a.delete_member(member.user.guid, member.guid)
+        member.delete()
+
 
 class Member(models.Model):
     SUCCESS = 'SUCCESS'
@@ -154,34 +160,39 @@ class Member(models.Model):
             return {
                 'name': self.PROCESSING,
                 'message': 'Processing...',
-                'is_completed': False
+                'is_completed': False,
+                'status': self.status
             }
 
         if self.status == self.CHALLENGED:
             return {
                 'name': self.CHALLENGED,
                 'message': 'Please provide additional info.',
-                'is_completed': True
+                'is_completed': True,
+                'status': self.status
             }
 
         if self.status == self.DENIED:
             return {
                 'name': self.ERROR,
                 'message': 'Incorrect credentials.',
-                'is_completed': True
+                'is_completed': True,
+                'status': self.status
             }
 
         if self.status == self.COMPLETED:
             return {
                 'name': self.SUCCESS,
                 'message': 'Bank account has been created!',
-                'is_completed': True
+                'is_completed': True,
+                'status': self.status
             }
 
         return {
             'name': self.ERROR,
             'message': 'Other error.',
-            'is_completed': True
+            'is_completed': True,
+            'status': self.status
         }
 
     def save(self, *args, **kwargs):

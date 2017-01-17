@@ -94,6 +94,12 @@ class AtriumApi:
             d['challenges'] = challenges
         return self.api.resumeMemberAgg(user_guid, member_guid, payload=d)
 
+    def delete_member(self, user_guid, member_guid):
+        """
+        TODO: Processing errors.
+        """
+        return self.api.deleteMember(user_guid, member_guid)
+
     def get_accounts(self, user_guid):
         """
         TODO: processing errors.

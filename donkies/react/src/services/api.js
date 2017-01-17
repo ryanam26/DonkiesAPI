@@ -18,6 +18,7 @@ export const INSTITUTIONS_SUGGEST_URL = `${API_ROOT_URL}v1/institutions_suggest`
 export const LOGIN_URL = `${API_ROOT_URL}v1/auth/login`
 export const LOGIN_FACEBOOK_URL = `${API_ROOT_URL}v1/auth/facebook`
 export const MEMBERS_URL = `${API_ROOT_URL}v1/members`
+export const MEMBERS_RESUME_URL = `${API_ROOT_URL}v1/members/resume`
 export const REGISTRATION_URL = `${API_ROOT_URL}v1/auth/signup`
 export const REGISTRATION_CONFIRM_URL = `${API_ROOT_URL}v1/auth/signup/confirm`
 export const RESEND_REG_CONFIRMATION_URL = `${API_ROOT_URL}v1/user/resend_reg_confirmation_link`

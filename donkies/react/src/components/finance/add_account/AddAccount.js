@@ -14,14 +14,15 @@ import Institution from './Institution'
 /**
  * Main component that controls adding bank account.
  * Flow: 
- * 1) Select institution and set it to state
- * 2) Fetch credentials for institution.
+ * 1) Select institution and set it to state. (Institution)
+ * 2) Fetch credentials for institution. (Credentials)
  * 3) Submit credentials to server.
  * 4) Wait for member status.
  * 5) If member has completed status and success - show success message.
  *    and hide Credentials component.
  * 6) If member has completed status and error - show error message.
  * 7) If status is challenged, fetch challenges and resume member.
+ *    (Challenges)
  * 8) Wait for status again, back to 4th step.
  *
  */
@@ -39,6 +40,55 @@ class AddAccount extends Component{
             successMessage: null
         }
     }
+
+    
+    componentWillMount(){
+        this.debugChallenges()    
+    }
+
+    /**
+     * Debug challenges to render challenges form.
+     * Set state without all steps required to reach challenges.
+     */
+    debugChallenges(){
+        const i = {
+            id: 2,
+            code: 'mxbank',
+            name: 'MX Bank',
+            url: 'https://www.mx.com'
+        }
+
+        const m = {
+            id: 4,
+            aggregated_at: '2017-01-17T19:09:49',
+            challenges: [{
+                guid: 'some_guid',
+                label: 'What city were you born in?',
+                type: 'TEXT'
+            }],
+            identifier: 'c97362c5f77a477abee05330bdc5e7a5',
+            institution: 'mxbank',
+            name: 'MX Bank',
+            status: 'CHALLENGED',
+            status_info: {
+                is_completed: true,
+                message: 'Please provide additional info.',
+                name: 'CHALLENGED',
+                status: 'CHALLENGED'
+            },
+            successfully_aggregated_at: null,
+
+        }
+
+        this.setState({
+            institution: i,
+            isInstitutionChosen: true,
+            isShowCredentials: false,
+            isShowChallenge: true,
+            member: m
+        })
+    }
+
 
     /**
      * User not yet selected institution in Autocomplete.
@@ -76,6 +126,7 @@ class AddAccount extends Component{
      * Receives member after status is completed
      */
     onCompleteMember(member){
+        this.setState({member: member})
         const s = member.status_info
 
         if (s.name === MEMBER_STATUS.SUCCESS){
@@ -86,6 +137,7 @@ class AddAccount extends Component{
             })
         
         } else if (s.name === MEMBER_STATUS.CHALLENGED){
+            console.log(this.state.institution)
             this.setState({
                 isShowCredentials: false,
                 isShowChallenge: true

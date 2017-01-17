@@ -202,8 +202,7 @@ class MemberResume(AuthMixin, APIView):
         except Member.DoesNotExist:
             raise Http404()
 
-        s = sers.MemberResumeSerializer(
-            data=request.data, context={'member': m})
+        s = sers.MemberResumeSerializer(data=request.data)
         s.is_valid(raise_exception=True)
 
         Member.objects.resume_member(

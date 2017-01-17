@@ -4,4 +4,4 @@ from web.models import User
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        User.objects.clean_atrium()
+        User.objects.clear_atrium()

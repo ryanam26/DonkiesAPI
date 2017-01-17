@@ -97,9 +97,16 @@ if __name__ == '__main__':
     # tm = TestMember()
     # tm.run()
 
-    # user = User.objects.get(email='alex@donkies.co')
+    # user = User.objects.get(email='test@donkies.co')
     # User.objects.create_atrium_user(user.id)
 
-    from bank.services.dwolla_api import DwollaApi
-    d = DwollaApi()
-    d.test()
+    from finance.models import Member
+
+    user = User.objects.get(email='test@donkies.co')
+    qs = Member.objects.filter(user=user)
+    for member in qs:
+        Member.objects.delete_member(member.id)
+
+    # from bank.services.dwolla_api import DwollaApi
+    # d = DwollaApi()
+    # d.test()

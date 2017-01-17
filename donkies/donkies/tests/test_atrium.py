@@ -46,7 +46,7 @@ class TestAtrium(base.Mixin):
         Run on each test.
         """
         print('--- Clean Atrium data.')
-        User.objects.clean_atrium()
+        User.objects.clear_atrium()
 
         self.user = UserFactory(email='bob@gmail.com')
         self.create_mx_bank()

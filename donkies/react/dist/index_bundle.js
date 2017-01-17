@@ -54,7 +54,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "6781e373a7320683a496"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "49cf687183eb7cdc29f2"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -45308,18 +45308,15 @@
 	/**
 	 * Third step of add bank form.
 	 * If member has status challenge - we need to submit answers.
+	 * Database will have challenges row(s) for member. 
 	 *
 	 * Flow:
-	 * 1) Submit answers to server
-	 * 2) Request server for every 5 seconds until completed status
-	 * 3) As soon as member is completed, call onCompleteMember(member)
-	 *    exactly the same scenario as has Credentials component.
+	 * 1) Request challenges list from API.
+	 * 2) Submit answers to server
+	 * 3) Request server for every 5 seconds until completed status
+	 * 4) As soon as member is completed, call onCompleteMember(member)
+	 *    exactly the same scenario as Credentials component.
 	 */
-
-	//
-	// NOT COMPLETED
-	//
-
 
 	var Challenges = function (_Component) {
 	    _inherits(Challenges, _Component);
@@ -45424,7 +45421,21 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            return null;
+	            var isFetchingMember = this.state.isFetchingMember;
+	            var member = this.props.member;
+
+
+	            console.log(member);
+
+	            if (isFetchingMember) {
+	                return _react2.default.createElement(_components.LoadingInline, null);
+	            }
+
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                'Challenge'
+	            );
 	        }
 	    }]);
 

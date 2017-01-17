@@ -41,14 +41,10 @@ class AddAccount extends Component{
         }
     }
 
-    
-    componentWillMount(){
-        this.debugChallenges()    
-    }
-
     /**
      * Debug challenges to render challenges form.
      * Set state without all steps required to reach challenges.
+     * When debug is required, call this method from ComponentWillMount.
      */
     debugChallenges(){
         const i = {

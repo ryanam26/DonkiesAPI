@@ -54,7 +54,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "c75378da568bd0dab059"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "6781e373a7320683a496"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43184,6 +43184,7 @@
 	            error: null,
 	            iavToken: null,
 	            isShowStartButton: true,
+	            isShowTempMessage: false,
 	            success: null
 	        };
 	        return _this;
@@ -43238,7 +43239,10 @@
 	                iavToken = _state.iavToken;
 
 
-	            this.setState({ isShowStartButton: false });
+	            this.setState({ isShowStartButton: false, isShowTempMessage: true });
+	            setTimeout(function () {
+	                _this2.setState({ isShowTempMessage: false });
+	            }, 2000);
 
 	            dwolla.configure('uat');
 	            dwolla.iav.start(iavToken, {
@@ -43474,7 +43478,8 @@
 	        value: function renderIAV() {
 	            var _state2 = this.state,
 	                iavToken = _state2.iavToken,
-	                isShowStartButton = _state2.isShowStartButton;
+	                isShowStartButton = _state2.isShowStartButton,
+	                isShowTempMessage = _state2.isShowTempMessage;
 
 	            if (!iavToken) {
 	                return _react2.default.createElement(_components.LoadingInline, null);
@@ -43489,6 +43494,11 @@
 	                        className: 'btn btn-primary btn-sm waves-effect',
 	                        onClick: this.onClickStart },
 	                    'Create funding source'
+	                ),
+	                isShowTempMessage && _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    'Please wait...'
 	                ),
 	                _react2.default.createElement('div', { id: 'iavContainer' })
 	            );
@@ -54574,8 +54584,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	// export const API_ROOT_URL = 'http://localhost:8000/'
-	var API_ROOT_URL = exports.API_ROOT_URL = 'http://api.donkies.co/';
+	var API_ROOT_URL = exports.API_ROOT_URL = 'http://localhost:8000/';
 	var HOME_PAGE_URL = exports.HOME_PAGE_URL = 'http://localhost:8000/';
 	var DWOLLA_MODE = exports.DWOLLA_MODE = 'sandbox';
 

@@ -32,3 +32,15 @@ INTERNAL_IPS = ('127.0.0.1',)
 FACEBOOK_APP_ID = '1825754931027785'
 FACEBOOK_APP_SECRET = '8f19d96855a9295c06271f6c9e26ae20'
 FACEBOOK_REDIRECT_URI = 'http://donkies.com:8080/account/login_facebook'
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': SERVER_IP,
+        'PORT': '5432'
+    }
+}

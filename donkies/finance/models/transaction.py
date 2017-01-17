@@ -34,8 +34,12 @@ class TransactionManager(models.Manager):
         Account = apps.get_model('finance', 'Account')
         d = api_response
 
-        d.pop('user_guid')
-        d.pop('member_guid')
+        print(d)
+        print('---')
+        return
+
+        d.pop('user_guid', None)
+        d.pop('member_guid', None)
         d['account'] = Account.objects.get(guid=d.pop('account_guid'))
 
         try:

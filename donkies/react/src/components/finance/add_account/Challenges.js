@@ -9,17 +9,15 @@ import { Button2, Input2, LoadingInline } from 'components'
 /**
  * Third step of add bank form.
  * If member has status challenge - we need to submit answers.
+ * Database will have will have challenges row(s) for member. 
  *
  * Flow:
- * 1) Submit answers to server
- * 2) Request server for every 5 seconds until completed status
- * 3) As soon as member is completed, call onCompleteMember(member)
- *    exactly the same scenario as has Credentials component.
+ * 1) Request challenges list from API.
+ * 2) Submit answers to server
+ * 3) Request server for every 5 seconds until completed status
+ * 4) As soon as member is completed, call onCompleteMember(member)
+ *    exactly the same scenario as Credentials component.
  */
-
-//
-// NOT COMPLETED
-//
 
 
 class Challenges extends Component{

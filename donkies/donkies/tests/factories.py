@@ -61,13 +61,3 @@ class AccountFactory(factory.django.DjangoModelFactory):
     created_at = timezone.now()
     type = Account.LOAN
     updated_at = timezone.now()
-
-
-# class ApplicationFactory(factory.django.DjangoModelFactory):
-#     class Meta:
-#         model = Application
-#         django_get_or_create = ('user',)
-
-#     name = 'Web app'
-#     client_type = Application.CLIENT_CONFIDENTIAL
-#     authorization_grant_type = Application.GRANT_PASSWORD

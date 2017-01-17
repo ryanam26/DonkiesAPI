@@ -105,7 +105,7 @@ class TestAtrium(base.Mixin):
         ]
 
     @pytest.mark.django_db
-    def notest_create_member01(self):
+    def test_create_member01(self):
         """
         Test API endpoint - create member.
         Call to Atrium API in Member manager.
@@ -124,7 +124,7 @@ class TestAtrium(base.Mixin):
         assert response.status_code == 201
 
     @pytest.mark.django_db
-    def notest_create_member02(self):
+    def test_create_member02(self):
         """
         Create member with correct credentials.
         Should get status COMPLETED.
@@ -147,7 +147,7 @@ class TestAtrium(base.Mixin):
             assert False
 
     @pytest.mark.django_db
-    def notest_create_member03(self):
+    def test_create_member03(self):
         """
         Create member with incorrect credentials.
         Should get status DENIED.
@@ -170,7 +170,7 @@ class TestAtrium(base.Mixin):
             assert False
 
     @pytest.mark.django_db
-    def notest_create_member04(self):
+    def test_create_member04(self):
         """
         Test CHALLENGED status.
         Create member with credentials to get CHALLENGE.

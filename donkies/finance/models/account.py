@@ -32,6 +32,11 @@ class AccountManager(models.Manager):
         d.pop('institution_code')
         d['member'] = Member.objects.get(guid=d.pop('member_guid'))
 
+        m_fields = self.model._meta.get_fields()
+        m_fields = [f.name for f in m_fields]
+
+        d = {k: v for (k, v) in d.items() if k in m_fields}
+
         try:
             acc = self.model.objects.get(guid=d['guid'])
             acc.__dict__.update(d)

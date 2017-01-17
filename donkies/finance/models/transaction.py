@@ -34,13 +34,14 @@ class TransactionManager(models.Manager):
         Account = apps.get_model('finance', 'Account')
         d = api_response
 
-        print(d)
-        print('---')
-        return
-
         d.pop('user_guid', None)
         d.pop('member_guid', None)
         d['account'] = Account.objects.get(guid=d.pop('account_guid'))
+
+        m_fields = self.model._meta.get_fields()
+        m_fields = [f.name for f in m_fields]
+
+        d = {k: v for (k, v) in d.items() if k in m_fields}
 
         try:
             dt = timezone.now() - datetime.timedelta(days=14)
@@ -76,6 +77,8 @@ class Transaction(models.Model):
     amount = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, default=None)
     check_number = models.IntegerField(null=True, default=None)
+    check_number_string = models.CharField(
+        max_length=255, null=True, default=None, blank=True)
     category = models.CharField(max_length=255, null=True, default=None)
     created_at = models.DateTimeField(null=True, default=None)
     date = models.DateField(null=True, default=None)

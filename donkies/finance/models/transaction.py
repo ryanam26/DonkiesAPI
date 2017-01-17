@@ -139,4 +139,14 @@ class Transaction(models.Model):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        'created_at',
+        'account',
+        'status',
+        'amount',
+        'roundup',
+        'is_expense',
+        'category',
+        'description',
+    )
+    list_filter = ('account',)

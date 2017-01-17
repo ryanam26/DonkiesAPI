@@ -51,20 +51,12 @@ Member object will contain atrium status and aggregated status.
 
 Param: "challenges": list of challenges.
 Example: challenges = [
-    {'label': ..., 'value': ...}
+    {'guid': ..., 'value': ...}
 ]
 
 ### List of transactions
 
 /v1/transactions
-
-### Pytrium
-
-It seems there is some bug in Pytrium.
-When I test separately respond on challenge with incorrect answer and correct answer, they works fine. When one after another - get error. But probably because it is the same test session and maybe on production that bug won't appear.
-
-Incorrect answer produce DENIED status.
-Correct answer produce COMPLETED status.
 
 ### settings/data.json (that in gitignore) looks:
 
@@ -173,3 +165,16 @@ The message:
 sandbox / prod
 Set on server for API.
 Set on React in configureStore (dwolla.js depends on mode)
+
+### Add bank
+
+After adding bank successfully, member has status COMPLETED,
+but accounts and transactions still processing by celery task
+and not ready yet.
+
+So, after a few minutes user need to refresh site or create 
+some scheduler that will request accounts and transactions
+(will increase load to API)
+
+Or consider Web Sockets.
+But not for MVP.

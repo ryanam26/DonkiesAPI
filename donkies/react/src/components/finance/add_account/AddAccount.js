@@ -132,7 +132,6 @@ class AddAccount extends Component{
 
         if (s.name === MEMBER_STATUS.SUCCESS){
             this.setState({successMessage: s.message})
-        
         } else if (s.name === MEMBER_STATUS.CHALLENGED){
             this.setState({isShowChallenge: true})
 

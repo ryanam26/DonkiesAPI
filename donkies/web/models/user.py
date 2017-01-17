@@ -474,6 +474,7 @@ class User(AbstractBaseUser):
             user.last_name = user.fb_last_name
 
         user.is_confirmed = True
+        user.confirmed_at = timezone.now()
         user.save()
 
         # save picture

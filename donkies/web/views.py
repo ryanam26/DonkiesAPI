@@ -1,7 +1,6 @@
 import logging
 from django.shortcuts import render
 from django.utils import timezone
-from django.conf import settings
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response

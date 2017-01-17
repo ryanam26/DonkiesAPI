@@ -230,9 +230,11 @@ class Account(models.Model):
         ordering = ['type_ds', 'member']
 
     def __str__(self):
+        s = self.member.name
         if self.name:
-            return self.name
-        return self.uid
+            s += ' {}'.format(self.name)
+        s += ' ({})'.format(self.member.user.email)
+        return s
 
     @property
     def funding_source(self):

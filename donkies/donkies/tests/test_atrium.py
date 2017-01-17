@@ -93,7 +93,7 @@ class TestAtrium(base.Mixin):
 
     def get_credentials_for_api(self, passwd):
         """
-        Credentials for API.
+        Credentials for API [{field_name: ..., value: ...}].
         """
         login = Credentials.objects.get(
             institution__code='mxbank', field_name='LOGIN')
@@ -205,7 +205,7 @@ class TestAtrium(base.Mixin):
 
         challenges = []
         for ch in qs:
-            d = {'label': ch.label, 'value': self.TEST_CORRECT_ANSWER}
+            d = {'guid': ch.guid, 'value': self.TEST_CORRECT_ANSWER}
             challenges.append(d)
 
         # Call API to resume member.

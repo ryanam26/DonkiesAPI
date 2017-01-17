@@ -122,22 +122,19 @@ class AddAccount extends Component{
      * Receives member after status is completed
      */
     onCompleteMember(member){
-        this.setState({member: member})
+        this.setState({
+            member: member,
+            isShowCredentials: false,
+            isShowChallenge: false
+        })
+
         const s = member.status_info
 
         if (s.name === MEMBER_STATUS.SUCCESS){
-            this.setState({
-                isShowCredentials: false,
-                isShowChallenge: false,
-                successMessage: s.message
-            })
+            this.setState({successMessage: s.message})
         
         } else if (s.name === MEMBER_STATUS.CHALLENGED){
-            console.log(this.state.institution)
-            this.setState({
-                isShowCredentials: false,
-                isShowChallenge: true
-            })
+            this.setState({isShowChallenge: true})
 
         } else if (s.name === MEMBER_STATUS.ERROR){
             const id = createUUID()

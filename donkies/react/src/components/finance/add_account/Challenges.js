@@ -71,7 +71,6 @@ class Challenges extends Component{
         let response = await apiCall3(url, data, true) 
         if (response.status === 204){
             this.setState({'isFetchingMember': true})
-            member.status_info.is_completed = false
             this.fetchMemberUntilCompleted(member)
         } else {
             this.setState({errorSubmit: 'Server responded with error.'})

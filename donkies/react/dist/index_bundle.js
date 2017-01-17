@@ -54,7 +54,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "49cf687183eb7cdc29f2"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "f2c131fc6f79a23f00c1"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -6219,7 +6219,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.USER_URL = exports.TRANSACTIONS_URL = exports.SETTINGS_LOGIN_URL = exports.SETTINGS_URL = exports.RESEND_REG_CONFIRMATION_URL = exports.REGISTRATION_CONFIRM_URL = exports.REGISTRATION_URL = exports.MEMBERS_URL = exports.LOGIN_FACEBOOK_URL = exports.LOGIN_URL = exports.INSTITUTIONS_SUGGEST_URL = exports.INSTITUTIONS_URL = exports.GET_IAV_TOKEN_URL = exports.CREDENTIALS_BY_ID_URL = exports.CREDENTIALS_BY_CODE_URL = exports.CREATE_FUNDING_SOURCE_BY_IAV_URL = exports.CHANGE_PASSWORD_URL = exports.CHANGE_EMAIL_CONFIRM_URL = exports.CHANGE_EMAIL_URL = exports.ACCOUNTS_SET_FUNDING_SOURCE_URL = exports.ACCOUNTS_EDIT_SHARE_URL = exports.ACCOUNTS_URL = undefined;
+	exports.USER_URL = exports.TRANSACTIONS_URL = exports.SETTINGS_LOGIN_URL = exports.SETTINGS_URL = exports.RESEND_REG_CONFIRMATION_URL = exports.REGISTRATION_CONFIRM_URL = exports.REGISTRATION_URL = exports.MEMBERS_RESUME_URL = exports.MEMBERS_URL = exports.LOGIN_FACEBOOK_URL = exports.LOGIN_URL = exports.INSTITUTIONS_SUGGEST_URL = exports.INSTITUTIONS_URL = exports.GET_IAV_TOKEN_URL = exports.CREDENTIALS_BY_ID_URL = exports.CREDENTIALS_BY_CODE_URL = exports.CREATE_FUNDING_SOURCE_BY_IAV_URL = exports.CHANGE_PASSWORD_URL = exports.CHANGE_EMAIL_CONFIRM_URL = exports.CHANGE_EMAIL_URL = exports.ACCOUNTS_SET_FUNDING_SOURCE_URL = exports.ACCOUNTS_EDIT_SHARE_URL = exports.ACCOUNTS_URL = undefined;
 	exports.apiCall = apiCall;
 	exports.apiCall2 = apiCall2;
 	exports.apiCall3 = apiCall3;
@@ -6251,6 +6251,7 @@
 	var LOGIN_URL = exports.LOGIN_URL = _configureStore.API_ROOT_URL + 'v1/auth/login';
 	var LOGIN_FACEBOOK_URL = exports.LOGIN_FACEBOOK_URL = _configureStore.API_ROOT_URL + 'v1/auth/facebook';
 	var MEMBERS_URL = exports.MEMBERS_URL = _configureStore.API_ROOT_URL + 'v1/members';
+	var MEMBERS_RESUME_URL = exports.MEMBERS_RESUME_URL = _configureStore.API_ROOT_URL + 'v1/members/resume';
 	var REGISTRATION_URL = exports.REGISTRATION_URL = _configureStore.API_ROOT_URL + 'v1/auth/signup';
 	var REGISTRATION_CONFIRM_URL = exports.REGISTRATION_CONFIRM_URL = _configureStore.API_ROOT_URL + 'v1/auth/signup/confirm';
 	var RESEND_REG_CONFIRMATION_URL = exports.RESEND_REG_CONFIRMATION_URL = _configureStore.API_ROOT_URL + 'v1/user/resend_reg_confirmation_link';
@@ -6566,6 +6567,8 @@
 	    __REACT_HOT_LOADER__.register(LOGIN_FACEBOOK_URL, 'LOGIN_FACEBOOK_URL', '/home/vlad/dev/web/dj/d/donkies/project/donkies/react/src/services/api.js');
 
 	    __REACT_HOT_LOADER__.register(MEMBERS_URL, 'MEMBERS_URL', '/home/vlad/dev/web/dj/d/donkies/project/donkies/react/src/services/api.js');
+
+	    __REACT_HOT_LOADER__.register(MEMBERS_RESUME_URL, 'MEMBERS_RESUME_URL', '/home/vlad/dev/web/dj/d/donkies/project/donkies/react/src/services/api.js');
 
 	    __REACT_HOT_LOADER__.register(REGISTRATION_URL, 'REGISTRATION_URL', '/home/vlad/dev/web/dj/d/donkies/project/donkies/react/src/services/api.js');
 
@@ -45035,14 +45038,15 @@
 	/**
 	 * Main component that controls adding bank account.
 	 * Flow: 
-	 * 1) Select institution and set it to state
-	 * 2) Fetch credentials for institution.
+	 * 1) Select institution and set it to state. (Institution)
+	 * 2) Fetch credentials for institution. (Credentials)
 	 * 3) Submit credentials to server.
 	 * 4) Wait for member status.
 	 * 5) If member has completed status and success - show success message.
 	 *    and hide Credentials component.
 	 * 6) If member has completed status and error - show error message.
 	 * 7) If status is challenged, fetch challenges and resume member.
+	 *    (Challenges)
 	 * 8) Wait for status again, back to 4th step.
 	 *
 	 */
@@ -45068,11 +45072,58 @@
 	    }
 
 	    /**
-	     * User not yet selected institution in Autocomplete.
+	     * Debug challenges to render challenges form.
+	     * Set state without all steps required to reach challenges.
+	     * When debug is required, call this method from ComponentWillMount.
 	     */
 
 
 	    _createClass(AddAccount, [{
+	        key: 'debugChallenges',
+	        value: function debugChallenges() {
+	            var i = {
+	                id: 2,
+	                code: 'mxbank',
+	                name: 'MX Bank',
+	                url: 'https://www.mx.com'
+	            };
+
+	            var m = {
+	                id: 4,
+	                aggregated_at: '2017-01-17T19:09:49',
+	                challenges: [{
+	                    guid: 'some_guid',
+	                    label: 'What city were you born in?',
+	                    type: 'TEXT'
+	                }],
+	                identifier: 'c97362c5f77a477abee05330bdc5e7a5',
+	                institution: 'mxbank',
+	                name: 'MX Bank',
+	                status: 'CHALLENGED',
+	                status_info: {
+	                    is_completed: true,
+	                    message: 'Please provide additional info.',
+	                    name: 'CHALLENGED',
+	                    status: 'CHALLENGED'
+	                },
+	                successfully_aggregated_at: null
+
+	            };
+
+	            this.setState({
+	                institution: i,
+	                isInstitutionChosen: true,
+	                isShowCredentials: false,
+	                isShowChallenge: true,
+	                member: m
+	            });
+	        }
+
+	        /**
+	         * User not yet selected institution in Autocomplete.
+	         */
+
+	    }, {
 	        key: 'onFailInstitution',
 	        value: function onFailInstitution() {
 	            this.setState({ institution: null });
@@ -45119,19 +45170,18 @@
 	    }, {
 	        key: 'onCompleteMember',
 	        value: function onCompleteMember(member) {
+	            this.setState({
+	                member: member,
+	                isShowCredentials: false,
+	                isShowChallenge: false
+	            });
+
 	            var s = member.status_info;
 
 	            if (s.name === _constants.MEMBER_STATUS.SUCCESS) {
-	                this.setState({
-	                    isShowCredentials: false,
-	                    isShowChallenge: false,
-	                    successMessage: s.message
-	                });
+	                this.setState({ successMessage: s.message });
 	            } else if (s.name === _constants.MEMBER_STATUS.CHALLENGED) {
-	                this.setState({
-	                    isShowCredentials: false,
-	                    isShowChallenge: true
-	                });
+	                this.setState({ isShowChallenge: true });
 	            } else if (s.name === _constants.MEMBER_STATUS.ERROR) {
 	                var id = (0, _helpers.createUUID)();
 	                this.props.growlAddRequest({
@@ -45308,12 +45358,13 @@
 	/**
 	 * Third step of add bank form.
 	 * If member has status challenge - we need to submit answers.
-	 * Database will have challenges row(s) for member. 
+	 * "member" object that has status CHALLENGED and passed to
+	 * this component, has "challenges" array.
 	 *
 	 * Flow:
-	 * 1) Request challenges list from API.
-	 * 2) Submit answers to server
-	 * 3) Request server for every 5 seconds until completed status
+	 * 1) Render form with challenges (on init component).
+	 * 1) Submit user answers (challenges) to server.
+	 * 3) Request server for every 5 seconds until completed status.
 	 * 4) As soon as member is completed, call onCompleteMember(member)
 	 *    exactly the same scenario as Credentials component.
 	 */
@@ -45329,29 +45380,71 @@
 	        (0, _reactAutobind2.default)(_this);
 
 	        _this.state = {
+	            errorSubmit: null,
 	            isFetchingMember: false
 	        };
 	        return _this;
 	    }
 
+	    /**
+	     * Process form.
+	     */
+
+
 	    _createClass(Challenges, [{
 	        key: 'onSubmit',
 	        value: function onSubmit(e) {
 	            e.preventDefault();
+	            this.setState({ errorSubmit: null });
+
+	            var form = (0, _helpers.formToObject)(e.target);
+	            var data = { challenges: [] };
+
+	            for (var key in form) {
+	                if (key.length === 0) {
+	                    continue;
+	                }
+
+	                if (form[key].trim().length === 0) {
+	                    return;
+	                }
+
+	                var obj = { guid: key, value: form[key].trim() };
+	                data.challenges.push(obj);
+	            }
+	            this.submitChallenges(data);
 	        }
 
 	        /**
 	         * Submit to server user's filled challenges.
+	         * (resume member)
 	         */
 
 	    }, {
 	        key: 'submitChallenges',
 	        value: function () {
 	            var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(data) {
+	                var member, url, response;
 	                return regeneratorRuntime.wrap(function _callee$(_context) {
 	                    while (1) {
 	                        switch (_context.prev = _context.next) {
 	                            case 0:
+	                                member = this.props.member;
+	                                url = _api.MEMBERS_RESUME_URL + '/' + member.identifier;
+	                                _context.next = 4;
+	                                return (0, _api.apiCall3)(url, data, true);
+
+	                            case 4:
+	                                response = _context.sent;
+
+	                                if (response.status === 204) {
+	                                    this.setState({ 'isFetchingMember': true });
+	                                    this.fetchMemberUntilCompleted(member);
+	                                } else {
+	                                    this.setState({ errorSubmit: 'Server responded with error.' });
+	                                }
+
+	                            case 6:
 	                            case 'end':
 	                                return _context.stop();
 	                        }
@@ -45421,11 +45514,11 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var isFetchingMember = this.state.isFetchingMember;
+	            var _state = this.state,
+	                isFetchingMember = _state.isFetchingMember,
+	                errorSubmit = _state.errorSubmit;
 	            var member = this.props.member;
 
-
-	            console.log(member);
 
 	            if (isFetchingMember) {
 	                return _react2.default.createElement(_components.LoadingInline, null);
@@ -45434,7 +45527,25 @@
 	            return _react2.default.createElement(
 	                'div',
 	                null,
-	                'Challenge'
+	                _react2.default.createElement(
+	                    'form',
+	                    { onSubmit: this.onSubmit },
+	                    member.challenges.map(function (obj, index) {
+	                        var type = obj.type.toLowerCase() === 'password' ? 'password' : 'text';
+	                        return _react2.default.createElement(_components.Input2, {
+	                            key: index,
+	                            type: type,
+	                            name: obj.guid,
+	                            label: obj.label,
+	                            placeholder: obj.label });
+	                    }),
+	                    _react2.default.createElement(_components.Button2, null),
+	                    errorSubmit && _react2.default.createElement(
+	                        'p',
+	                        { className: 'custom-errors' },
+	                        errorSubmit
+	                    )
+	                )
 	            );
 	        }
 	    }]);
@@ -54595,7 +54706,8 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var API_ROOT_URL = exports.API_ROOT_URL = 'http://localhost:8000/';
+	var API_ROOT_URL = exports.API_ROOT_URL = 'http://api.donkies.co/';
+	// export const API_ROOT_URL = 'http://localhost:8000/'
 	var HOME_PAGE_URL = exports.HOME_PAGE_URL = 'http://localhost:8000/';
 	var DWOLLA_MODE = exports.DWOLLA_MODE = 'sandbox';
 

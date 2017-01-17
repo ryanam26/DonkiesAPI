@@ -208,6 +208,9 @@ class MemberResume(AuthMixin, APIView):
         Member.objects.resume_member(
             m.guid, challenges=s.data['challenges'])
 
+        m.status = Member.REQUESTED
+        m.save()
+
         # Call celery task, that should update member's status
         tasks.get_member.delay(m.id)
 

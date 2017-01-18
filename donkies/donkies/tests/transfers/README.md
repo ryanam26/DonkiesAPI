@@ -46,13 +46,13 @@ Later Celery task can look at Members, Accounts, and Transactions and items that
 * When user delete account, we look if account's member has only this account, it also should be deleted.
 * TestAccount.test_delete04, TestAccount.test_delete05
 
-* We do not control accounts when we still have member. When user's member has multiple accounts, after deleting one account, member still available. And deleted account will be available again by API. So, when accounts and transactions are updated, we should update only active accounts.
-* Test not implemented yet.
+* We do not control accounts when we still have member. When user's member has multiple accounts, after deleting one account, member still available. This is confusing situation. When user creates account in Atrium, actually it creates member. 
+And if member has multiple accounts - user actually will create multiple accounts.
 
-* When user deletes account and then create it again, if member is still in Atrium,
-this will be existing account. So, on creating account look if it exists and set is_active=True
-* Test not implemented yet.
+But in Donkies user operates with accounts (not members). This is rare situation, so to avoid confusions, proposal:
 
+If user wants to delete account and account's member has other account (For example 2 accounts in Chase bank under single credentials), give user the message that both accounts will be deleted and if it confirms, delete both accounts. (Proposal not implemented yet.)
+* Test not implemented yet.
 
 
 

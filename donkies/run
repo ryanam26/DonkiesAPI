@@ -64,7 +64,6 @@ python manage.py pgdownload
 elif [ "$1" == "test" ]
 then
 clear
-# py.test -s donkies/tests/test_oauth.py  # not used
 # py.test -s donkies/tests/test_accounts.py
 # py.test -s donkies/tests/test_auth.py
 # py.test -s donkies/tests/test_atrium.py
@@ -78,8 +77,8 @@ clear
 
 # Transfers
 py.test -s donkies/tests/transfers/test_accounts.py
-# py.test -s donkies/tests/transfers/test_members.py
-# py.test -s donkies/tests/transfers/test_transactions.py
+py.test -s donkies/tests/transfers/test_members.py
+py.test -s donkies/tests/transfers/test_transactions.py
 
 else
 clear

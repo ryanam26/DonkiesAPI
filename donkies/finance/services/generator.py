@@ -87,7 +87,7 @@ class Generator:
 
     def create_accounts(self):
         Member = apps.get_model('finance', 'Member')
-        for member in Member.objects.filter(user=self.user):
+        for member in Member.objects.active().filter(user=self.user):
             self.create_account(member, 'debit')
             self.create_account(member, 'debt')
 
@@ -101,7 +101,7 @@ class Generator:
 
     def generate_transactions(self):
         Account = apps.get_model('finance', 'Account')
-        for account in Account.objects.filter(member__user=self.user):
+        for account in Account.objects.active().filter(member__user=self.user):
             self.create_transactions(account)
 
     def create_transactions(self, account):
@@ -139,8 +139,8 @@ class Generator:
     def clean(self):
         Account = apps.get_model('finance', 'Account')
         Member = apps.get_model('finance', 'Member')
-        Account.objects.filter(member__user=self.user).delete()
-        Member.objects.filter(user=self.user).delete()
+        Account.objects.active().filter(member__user=self.user).delete()
+        Member.objects.active().filter(user=self.user).delete()
 
     @transaction.atomic
     def run(self):

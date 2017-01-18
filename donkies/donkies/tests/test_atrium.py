@@ -242,8 +242,9 @@ class TestAtrium(base.Mixin):
         m = Member.objects.get_or_create_member(
             self.user.guid, 'mxbank', self.get_credentials(self.TEST_PASSWORD))
 
-        assert Account.objects.filter(member=m).count() == 0
-        assert Transaction.objects.filter(account__member=m).count() == 0
+        assert Account.objects.active().filter(member=m).count() == 0
+        assert Transaction.objects.active().filter(
+            account__member=m).count() == 0
 
         success_result = False
         for _ in range(7):
@@ -259,5 +260,6 @@ class TestAtrium(base.Mixin):
 
         tasks.update_user(self.user.id)
 
-        assert Account.objects.filter(member=m).count() > 0
-        assert Transaction.objects.filter(account__member=m).count() > 0
+        assert Account.objects.active().filter(member=m).count() > 0
+        assert Transaction.objects.active().filter(
+            account__member=m).count() > 0

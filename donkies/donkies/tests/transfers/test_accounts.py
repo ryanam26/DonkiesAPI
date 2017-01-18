@@ -26,10 +26,10 @@ class TestAccount(base.Mixin):
         AccountFactory.get_account()
 
         assert Account.objects.count() == 2
-        Account.objects.all().delete()
+        Account.objects.active().all().delete()
         assert Account.objects.count() == 2
 
-        for a in Account.objects.all():
+        for a in Account.objects.active().all():
             assert a.is_active is False
 
     @pytest.mark.django_db
@@ -48,7 +48,7 @@ class TestAccount(base.Mixin):
 
         Account.objects.delete_account(a.id, is_test=True)
 
-        for obj in Account.objects.all():
+        for obj in Account.objects.active().all():
             assert obj.is_active is False
 
         for obj in Transaction.objects.all():

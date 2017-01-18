@@ -103,7 +103,7 @@ if __name__ == '__main__':
     from finance.models import Member
 
     user = User.objects.get(email='test@donkies.co')
-    qs = Member.objects.filter(user=user)
+    qs = Member.objects.active().filter(user=user)
     for member in qs:
         Member.objects.delete_member(member.id)
 

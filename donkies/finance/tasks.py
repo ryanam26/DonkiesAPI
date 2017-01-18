@@ -92,13 +92,13 @@ def update_user(user_id):
     res = Account.objects.get_atrium_accounts(user.guid)
     l = res['accounts']
 
-    Account.objects.create_accounts(user.guid, l)
+    Account.objects.create_or_update_accounts(user.guid, l)
     print('Accounts created.')
 
     res = Transaction.objects.get_atrium_transactions(user.guid)
     l = res['transactions']
 
-    Transaction.objects.create_transactions(user.guid, l)
+    Transaction.objects.create_or_update_transactions(user.guid, l)
     print('Transactions created.')
 
 
@@ -111,7 +111,7 @@ def update_users_data():
     with COMPLETED status.
     """
     Member = apps.get_model('finance', 'Member')
-    qs = Member.objects.filter(status=Member.COMPLETED)\
+    qs = Member.objects.active().filter(status=Member.COMPLETED)\
         .values_list('user_id', flat=True).distinct()
     for user_id in qs:
         update_user(user_id)

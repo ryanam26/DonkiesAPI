@@ -55,7 +55,7 @@ class TestMember(base.Mixin):
         for obj in Member.objects.all():
             assert obj.is_active is False
 
-        for obj in Account.objects.all():
+        for obj in Account.objects.active().all():
             assert obj.is_active is False
 
         for obj in Transaction.objects.all():

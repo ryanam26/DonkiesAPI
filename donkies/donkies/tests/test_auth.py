@@ -287,7 +287,8 @@ class TestAuth(base.Mixin):
     @pytest.mark.django_db
     def test_login08(self, client):
         """
-        User can't login if is_confirmed=False
+        User can login if is_confirmed=False
+        The restriction logic after login is on frontend.
         """
         user = UserFactory(email='bob@gmail.com')
         user.set_password('111')
@@ -301,7 +302,7 @@ class TestAuth(base.Mixin):
         }
 
         response = client.post(url, data)
-        assert response.status_code == 400
+        assert response.status_code == 200
 
     @pytest.mark.django_db
     def test_reset_require01(self, client):

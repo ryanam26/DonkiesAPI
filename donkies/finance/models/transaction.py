@@ -12,7 +12,7 @@ from web.models import ActiveModel, ActiveManager
 
 class TransactionManager(ActiveManager):
     @transaction.atomic
-    def create_transactions(self, user_guid, l):
+    def create_or_update_transactions(self, user_guid, l):
         """
         Input: all user transactions from atrium API.
 
@@ -31,6 +31,8 @@ class TransactionManager(ActiveManager):
     def create_or_update_transaction(self, api_response):
         """
         api_response is dictionary with response result.
+        If transaction's account is deleted (is_active=False),
+        do not process this transaction.
         """
         Account = apps.get_model('finance', 'Account')
         d = api_response
@@ -38,6 +40,8 @@ class TransactionManager(ActiveManager):
         d.pop('user_guid', None)
         d.pop('member_guid', None)
         d['account'] = Account.objects.get(guid=d.pop('account_guid'))
+        if not d['account'].is_active:
+            return None
 
         m_fields = self.model._meta.get_fields()
         m_fields = [f.name for f in m_fields]
@@ -67,7 +71,7 @@ class TransactionManager(ActiveManager):
         """
         Returns transactions from database.
         """
-        return self.model.objects.filter(
+        return self.model.objects.active().filter(
             account__member__user__guid=user_guid)
 
 

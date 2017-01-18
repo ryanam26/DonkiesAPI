@@ -3,30 +3,12 @@ import pytest
 from .import base
 from .factories import (
     AccountFactory, InstitutionFactory, MemberFactory, UserFactory)
-from finance.models import Account, Member
+from finance.models import Account
 
 
 class TestAccounts(base.Mixin):
     @pytest.mark.django_db
-    def no_test_delete_account01(self, client):
-        """
-        Test post_delete signal.
-        When delete account, check if member connected
-        only to this account and delete member also.
-        """
-        user = UserFactory(email='bob@gmail.com')
-
-        i = InstitutionFactory(code='mxbank')
-        m = MemberFactory(user=user, institution=i)
-        a = AccountFactory(member=m)
-
-        a.delete()
-
-        qs = Member.objects.filter(id=m.id)
-        assert qs.count() == 0
-
-    @pytest.mark.django_db
-    def test_delete_account02(self, client):
+    def test_delete_account01(self, client):
         """
         Should get success.
         """
@@ -42,7 +24,7 @@ class TestAccounts(base.Mixin):
         assert response.status_code == 204
 
     @pytest.mark.django_db
-    def test_delete_account03(self, client):
+    def test_delete_account02(self, client):
         """
         Try to delete non-existing account.
         Should get error.
@@ -55,7 +37,7 @@ class TestAccounts(base.Mixin):
         assert response.status_code == 404
 
     @pytest.mark.django_db
-    def test_delete_account04(self, client):
+    def test_delete_account03(self, client):
         """
         Try to delete account that belongs to other user.
         Should get error.

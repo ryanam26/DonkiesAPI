@@ -18,7 +18,7 @@ class Accounts(AuthMixin, ListAPIView):
     serializer_class = sers.AccountSerializer
 
     def get_queryset(self):
-        return Account.objects.filter(
+        return Account.objects.active().filter(
             member__user=self.request.user)
 
 
@@ -26,7 +26,7 @@ class AccountDetail(AuthMixin, RetrieveDestroyAPIView):
     serializer_class = sers.AccountSerializer
 
     def get_queryset(self):
-        return Account.objects.filter(
+        return Account.objects.active().filter(
             member__user=self.request.user)
 
 
@@ -42,7 +42,7 @@ class AccountsEditShare(AuthMixin, APIView):
     Frontend checks everything before sending data.
     """
     def get_queryset(self):
-        return Account.objects.filter(
+        return Account.objects.active().filter(
             member__user=self.request.user,
             type_ds=Account.DEBT)
 
@@ -76,7 +76,7 @@ class AccountsEditShare(AuthMixin, APIView):
 
     def update(self, l):
         for id, share in l:
-            Account.objects.filter(id=id).update(transfer_share=share)
+            Account.objects.active().filter(id=id).update(transfer_share=share)
 
     def put(self, request, **kwargs):
         l = self.get_list(request.data)
@@ -167,7 +167,7 @@ class Members(AuthMixin, ListAPIView):
     serializer_class = sers.MemberSerializer
 
     def get_queryset(self):
-        return Member.objects.filter(user=self.request.user)
+        return Member.objects.active().filter(user=self.request.user)
 
     def post(self, request, **kwargs):
         s = sers.MemberCreateSerializer(data=request.data)
@@ -188,7 +188,7 @@ class MemberDetail(AuthMixin, RetrieveAPIView):
     lookup_field = 'identifier'
 
     def get_queryset(self):
-        return Member.objects.filter(user=self.request.user)
+        return Member.objects.active().filter(user=self.request.user)
 
 
 class MemberResume(AuthMixin, APIView):
@@ -218,8 +218,11 @@ class MemberResume(AuthMixin, APIView):
 
 
 class Transactions(AuthMixin, ListAPIView):
+    """
+    All user's transactions.
+    """
     serializer_class = sers.TransactionSerializer
 
     def get_queryset(self):
-        return Transaction.objects.filter(
+        return Transaction.objects.active().filter(
             account__member__user=self.request.user)

@@ -196,3 +196,6 @@ in background. User profile should look like real profile with good data.
 Otherwise, Dwolla customer can not be created.
 
 As soon as Dwolla customer is created, and user has accounts, frontend will have link to create funding source.
+
+### Transfers TDD
+donkies/tests/transfers/README.md

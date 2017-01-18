@@ -11,7 +11,7 @@ from web.models import ActiveModel, ActiveManager
 
 class AccountManager(ActiveManager):
     @transaction.atomic
-    def create_accounts(self, user_guid, l):
+    def create_or_update_accounts(self, user_guid, l):
         """
         Input: all user accounts from atrium API.
 
@@ -19,13 +19,13 @@ class AccountManager(ActiveManager):
               Before passing accounts, should collect
               all of them for each user.
         """
-        self.model.objects.filter(member__user__guid=user_guid).delete()
         for acc in l:
             self.create_or_update_account(acc)
 
     def create_or_update_account(self, api_response):
         """
         api_response is dictionary with response result.
+        If account is deleted in Donkies (is_active=False), do not process.
         """
         Member = apps.get_model('finance', 'Member')
         d = api_response
@@ -40,6 +40,8 @@ class AccountManager(ActiveManager):
 
         try:
             acc = self.model.objects.get(guid=d['guid'])
+            if not acc.is_active:
+                return None
             acc.__dict__.update(d)
         except self.model.DoesNotExist:
             acc = self.model(**d)
@@ -58,7 +60,7 @@ class AccountManager(ActiveManager):
         """
         Returns user accounts from database.
         """
-        return self.model.objects.filter(
+        return self.model.objects.active().filter(
             member__user__guid=user_guid)
 
     def debit_accounts(self):
@@ -75,7 +77,8 @@ class AccountManager(ActiveManager):
         Transaction = apps.get_model('finance', 'Transaction')
 
         account = self.model.objects.get(id=account_id)
-        Transaction.objects.filter(account=account).update(is_active=False)
+        Transaction.objects.active().filter(
+            account=account).update(is_active=False)
 
         qs = self.model.objects.active().filter(member=account.member)
         if qs.count() == 1:
@@ -89,7 +92,7 @@ class AccountManager(ActiveManager):
         """
         account = self.model.objects.get(
             id=account_id, type_ds=self.model.DEBIT)
-        self.model.objects.filter(
+        self.model.objects.active().filter(
             member__user=account.member.user)\
             .update(is_funding_source_for_transfer=False)
         account.is_funding_source_for_transfer = True
@@ -296,10 +299,11 @@ def apply_transfer_share(sender, instance, created, **kwargs):
     If user adds first debt account, set transfer_share to 100%.
     """
     if instance.type_ds == Account.DEBT:
-        qs = Account.objects.filter(
+        qs = Account.objects.active().filter(
             member__user=instance.member.user, type_ds=Account.DEBT)
         if qs.count() == 1:
-            Account.objects.filter(id=instance.id).update(transfer_share=100)
+            Account.objects.active().filter(
+                id=instance.id).update(transfer_share=100)
 
 
 @admin.register(Account)

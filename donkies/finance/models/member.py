@@ -8,6 +8,33 @@ from web.models import ActiveModel, ActiveManager
 
 
 class MemberManager(ActiveManager):
+    def get_or_create_member(self, user_guid, code, credentials):
+        """
+        Called from create member serializer.
+        TODO: Processing errors.
+        """
+        Account = apps.get_model('finance', 'Account')
+        Member = apps.get_model('finance', 'Member')
+
+        # Check if member exists.
+        # Even if it was deleted previously (is_active=False).
+        qs = Member.objects.filter(
+            institution__code=code, user__guid=user_guid)
+        if qs.exists():
+            member = qs.first()
+            if not member.is_active:
+                member.is_active = True
+                member.save()
+
+                Account.objects.filter(
+                    member=member, is_active=False).update(is_active=True)
+            return member
+
+        a = AtriumApi()
+        result = a.create_member(user_guid, code, credentials)
+        m = self.create_member(result)
+        return m
+
     def create_member(self, api_response):
         """
         api_response is dictionary with response result.
@@ -24,22 +51,9 @@ class MemberManager(ActiveManager):
         m.save()
         return m
 
-    def get_or_create_member(self, user_guid, code, credentials):
-        """
-        TODO: Processing errors.
-        """
-        Member = apps.get_model('finance', 'Member')
-
-        # Check if member exists
-        qs = Member.objects.filter(
-            institution__code=code, user__guid=user_guid)
-        if qs.exists():
-            return qs.first()
-
+    def get_atrium_members(self, user_guid):
         a = AtriumApi()
-        result = a.create_member(user_guid, code, credentials)
-        m = self.create_member(result)
-        return m
+        return a.get_members(user_guid)
 
     def get_atrium_member(self, member):
         """
@@ -48,10 +62,6 @@ class MemberManager(ActiveManager):
         a = AtriumApi()
         member = a.get_member(member.user.guid, member.guid)
         return member
-
-    def get_atrium_members(self, user_guid):
-        a = AtriumApi()
-        return a.get_members(user_guid)
 
     def resume_member(self, member_guid, challenges=[]):
         """
@@ -72,8 +82,8 @@ class MemberManager(ActiveManager):
             a = AtriumApi()
             a.delete_member(member.user.guid, member.guid)
 
-        Account.objects.filter(member=member).update(is_active=False)
-        Transaction.objects.filter(
+        Account.objects.active().filter(member=member).update(is_active=False)
+        Transaction.objects.active().filter(
             account__member=member).update(is_active=False)
         member.delete()
 

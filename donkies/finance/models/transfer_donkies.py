@@ -1,5 +1,3 @@
-import calendar
-import datetime
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
@@ -12,11 +10,12 @@ class TransferDonkiesManager(models.Manager):
         Called by celery scheduled task.
         Process TransferPrepare to TransferDonkies model.
         """
-        TransferPrepare = apps.get_model('finance', TransferPrepare)
+        TransferPrepare = apps.get_model('finance', 'TransferPrepare')
         qs = TransferPrepare.objects.filter(is_processed=False)
+        qs.order_by().values(
+            'account__member__user').distinct()
 
 
-   
 class TransferDonkies(models.Model):
     """
     If user set funding source debit account, transfer all

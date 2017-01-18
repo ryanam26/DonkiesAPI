@@ -50,8 +50,9 @@ class MemberFactory(factory.django.DjangoModelFactory):
     status = Member.SUCCESS
 
     @staticmethod
-    def get_member(name=None):
-        user = UserFactory(email=Faker().email())
+    def get_member(user=None, name=None):
+        if not user:
+            user = UserFactory(email=Faker().email())
         institution = InstitutionFactory(code=Faker().word())
         if not name:
             name = Faker().word()

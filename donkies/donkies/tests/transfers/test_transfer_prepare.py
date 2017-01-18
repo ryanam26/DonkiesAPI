@@ -4,10 +4,7 @@ from ..factories import TransactionFactory
 from finance.models import TransferPrepare
 
 
-class TestTransferInternal(base.Mixin):
-    """
-    Test transfers to internal models: TransferPrepare, Transfer.
-    """
+class TestTransferPrepare(base.Mixin):
     @pytest.mark.django_db
     def test(self):
         print(TransferPrepare.objects.get_transfer_date())

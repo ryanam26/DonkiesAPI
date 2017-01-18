@@ -3,11 +3,7 @@ from .. import base
 from ..factories import TransactionFactory
 
 
-class TestTransferDwolla(base.Mixin):
-    """
-    Test transfers from finance.Transfer model to Dwolla.
-    """
-
+class TestTransferUser(base.Mixin):
     @pytest.mark.django_db
     def test(self):
         pass

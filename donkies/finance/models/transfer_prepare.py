@@ -37,16 +37,20 @@ class TransferPrepareManager(models.Manager):
         """
         Process all not processed transactions for account.
         """
+        total = 0
         for tr in account.transactions.filter(is_processed=False):
             if tr.roundup == 0:
                 tr.is_processed = True
                 tr.save()
                 continue
-            tpe = self.model(account=account, roundup=tr.roundup)
-            tpe.save()
 
+            total += tr.roundup
             tr.is_processed = True
             tr.save()
+
+        if total > 0:
+            tpe = self.model(account=account, roundup=total)
+            tpe.save()
 
     def get_transfer_date(self, is_test=False):
         """

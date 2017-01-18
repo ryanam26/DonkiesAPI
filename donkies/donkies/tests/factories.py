@@ -1,9 +1,10 @@
+import decimal
 import factory
-# from oauth2_provider.models import Application
+import random
 from django.utils import timezone
 from faker import Faker
 from web.models import User, Email
-from finance.models import Account, Member, Institution
+from finance.models import Account, Member, Institution, Transaction
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -48,6 +49,15 @@ class MemberFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'name{0}'.format(n))
     status = Member.SUCCESS
 
+    @staticmethod
+    def get_member(name=None):
+        user = UserFactory(email=Faker().email())
+        institution = InstitutionFactory(code=Faker().word())
+        if not name:
+            name = Faker().word()
+        return MemberFactory(
+            user=user, institution=institution, name=name)
+
 
 class AccountFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -61,3 +71,34 @@ class AccountFactory(factory.django.DjangoModelFactory):
     created_at = timezone.now()
     type = Account.LOAN
     updated_at = timezone.now()
+
+    @staticmethod
+    def get_account(member=None):
+        if not member:
+            member = MemberFactory.get_member()
+        return AccountFactory(member=member)
+
+
+class TransactionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Transaction
+
+    account = factory.SubFactory(AccountFactory)
+    guid = factory.Sequence(lambda n: 'guid{0}'.format(n))
+    uid = factory.Sequence(lambda n: 'uid{0}'.format(n))
+
+    @staticmethod
+    def generate_amount():
+        dollars = random.randint(3, 30)
+        cents = random.randint(0, 99)
+        return decimal.Decimal('{}.{}'.format(dollars, cents))
+
+    @staticmethod
+    def get_transaction(account=None):
+        if not account:
+            account = AccountFactory.get_account()
+
+        return TransactionFactory(
+            account=account,
+            amount=TransactionFactory.generate_amount()
+        )

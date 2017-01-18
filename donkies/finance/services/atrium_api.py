@@ -2,6 +2,7 @@ import json
 import requests
 from django.conf import settings
 from atrium import Api
+from atrium.errors import NotFoundError
 
 
 class AtriumApi:
@@ -98,7 +99,10 @@ class AtriumApi:
         """
         TODO: Processing errors.
         """
-        return self.api.deleteMember(user_guid, member_guid)
+        try:
+            self.api.deleteMember(user_guid, member_guid)
+        except NotFoundError:
+            pass
 
     def get_accounts(self, user_guid):
         """

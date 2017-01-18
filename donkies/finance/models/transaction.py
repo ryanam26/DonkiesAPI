@@ -7,9 +7,10 @@ from django.apps import apps
 from django.utils import timezone
 from django.db import transaction
 from finance.services.atrium_api import AtriumApi
+from web.models import ActiveModel, ActiveManager
 
 
-class TransactionManager(models.Manager):
+class TransactionManager(ActiveManager):
     @transaction.atomic
     def create_transactions(self, user_guid, l):
         """
@@ -70,7 +71,7 @@ class TransactionManager(models.Manager):
             account__member__user__guid=user_guid)
 
 
-class Transaction(models.Model):
+class Transaction(ActiveModel):
     account = models.ForeignKey('Account')
     guid = models.CharField(max_length=100, unique=True)
     uid = models.CharField(max_length=50, unique=True)

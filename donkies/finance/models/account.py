@@ -6,9 +6,10 @@ from django.apps import apps
 from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from web.models import ActiveModel, ActiveManager
 
 
-class AccountManager(models.Manager):
+class AccountManager(ActiveManager):
     @transaction.atomic
     def create_accounts(self, user_guid, l):
         """
@@ -66,6 +67,13 @@ class AccountManager(models.Manager):
     def debt_accounts(self):
         return self.model.objects.filter(type_ds=self.model.DEBT)
 
+    def delete_account(self, account_id):
+        Transaction = apps.get_model('finance', 'Transaction')
+
+        account = self.model.objects.get(id=account_id)
+        Transaction.objects.filter(account=account).update(is_active=False)
+        account.delete()
+
     @transaction.atomic
     def set_funding_source(self, account_id):
         """
@@ -81,7 +89,7 @@ class AccountManager(models.Manager):
         return account
 
 
-class Account(models.Model):
+class Account(ActiveModel):
     """
     type - Atrium MX type.
     type_ds - Donkies type.

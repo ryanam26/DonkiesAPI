@@ -4,9 +4,10 @@ from django.contrib import admin
 from django.apps import apps
 from django.contrib.postgres.fields import JSONField
 from finance.services.atrium_api import AtriumApi
+from web.models import ActiveModel, ActiveManager
 
 
-class MemberManager(models.Manager):
+class MemberManager(ActiveManager):
     def create_member(self, api_response):
         """
         api_response is dictionary with response result.
@@ -61,14 +62,23 @@ class MemberManager(models.Manager):
         a = AtriumApi()
         a.resume_member(member.user.guid, member.guid, challenges)
 
-    def delete_member(self, member_id):
+    def delete_member(self, member_id, is_test=False):
+        Account = apps.get_model('finance', 'Account')
+        Transaction = apps.get_model('finance', 'Transaction')
+
         member = self.model.objects.get(id=member_id)
-        a = AtriumApi()
-        a.delete_member(member.user.guid, member.guid)
+
+        if not is_test:
+            a = AtriumApi()
+            a.delete_member(member.user.guid, member.guid)
+
+        Account.objects.filter(member=member).update(is_active=False)
+        Transaction.objects.filter(
+            account__member=member).update(is_active=False)
         member.delete()
 
 
-class Member(models.Model):
+class Member(ActiveModel):
     SUCCESS = 'SUCCESS'
     PROCESSING = 'PROCESSING'
     ERROR = 'ERROR'

@@ -1,8 +1,0 @@
-coreapi==2.0.0
-django>=1.10
-django-cors-middleware==1.3.1
-django-oauth-toolkit==0.10.0
-djangorestframework==3.4.6
-psycopg2==2.6.2
-python-social-auth==0.2.21
-Pytrium==0.1.2

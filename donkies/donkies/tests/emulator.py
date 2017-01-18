@@ -47,21 +47,23 @@ class Emulator:
             a.save()
 
     def fill_debit_accounts(self):
-        for _ in self.num_debit_accounts:
+        for _ in range(self.num_debit_accounts):
             m = MemberFactory.get_member(user=self.user)
-            a = AccountFactory.get_account(member=m, account=Account.CHECKING)
+            a = AccountFactory.get_account(member=m, type=Account.CHECKING)
+
             self.members.append(m)
             self.debit_accounts.append(a)
 
     def fill_debt_accounts(self):
-        for _ in self.num_debt_accounts:
+        for _ in range(self.num_debt_accounts):
             m = MemberFactory.get_member(user=self.user)
-            a = AccountFactory.get_account(member=m, account=Account.LOAN)
+            a = AccountFactory.get_account(member=m, type=Account.LOAN)
+
             self.members.append(m)
             self.debt_accounts.append(a)
 
     def fill_transactions(self):
         for a in self.debit_accounts:
-            for _ in self.num_transactions:
-                tr = TransactionFactory(account=a)
+            for _ in range(self.num_transactions):
+                tr = TransactionFactory.get_transaction(account=a)
                 self.transactions.append(tr)

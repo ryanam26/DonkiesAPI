@@ -134,7 +134,7 @@ class Transaction(ActiveModel):
         return self.uid
 
     def calculate_roundup(self, value):
-        top = math.ceil(value)
+        top = math.ceil(float(value))
         return top - value
 
     def save(self, *args, **kwargs):

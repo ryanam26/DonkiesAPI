@@ -70,11 +70,11 @@ class AccountFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'name{0}'.format(n))
     balance = 1000
     created_at = timezone.now()
-    type = Account.LOAN
+    type = Account.CHECKING
     updated_at = timezone.now()
 
     @staticmethod
-    def get_account(member=None):
+    def get_account(member=None, type=Account.CHECKING):
         if not member:
             member = MemberFactory.get_member()
         return AccountFactory(member=member)
@@ -87,6 +87,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     account = factory.SubFactory(AccountFactory)
     guid = factory.Sequence(lambda n: 'guid{0}'.format(n))
     uid = factory.Sequence(lambda n: 'uid{0}'.format(n))
+    amount = decimal.Decimal('10.56')
 
     @staticmethod
     def generate_amount():

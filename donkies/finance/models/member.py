@@ -231,3 +231,6 @@ class MemberAdmin(admin.ModelAdmin):
             return obj.name
         return obj.guid
     show_name.short_description = 'name'
+
+    def has_delete_permission(self, request, obj=None):
+        return False

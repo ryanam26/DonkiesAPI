@@ -62,16 +62,24 @@ class AccountManager(ActiveManager):
             member__user__guid=user_guid)
 
     def debit_accounts(self):
-        return self.model.objects.filter(type_ds=self.model.DEBIT)
+        return self.model.objects.active().filter(type_ds=self.model.DEBIT)
 
     def debt_accounts(self):
-        return self.model.objects.filter(type_ds=self.model.DEBT)
+        return self.model.objects.active().filter(type_ds=self.model.DEBT)
 
-    def delete_account(self, account_id):
+    def delete_account(self, account_id, is_test=False):
+        """
+        If account's member has only this account, delete member also.
+        """
+        Member = apps.get_model('finance', 'Member')
         Transaction = apps.get_model('finance', 'Transaction')
 
         account = self.model.objects.get(id=account_id)
         Transaction.objects.filter(account=account).update(is_active=False)
+
+        qs = self.model.objects.active().filter(member=account.member)
+        if qs.count() == 1:
+            Member.objects.delete_member(account.member.id, is_test=is_test)
         account.delete()
 
     @transaction.atomic
@@ -294,21 +302,7 @@ def apply_transfer_share(sender, instance, created, **kwargs):
             Account.objects.filter(id=instance.id).update(transfer_share=100)
 
 
-# Got error with multiple accounts in generator "clean".
-
-# @receiver(post_delete, sender=Account)
-# def delete_account(sender, instance, **kwargs):
-#     """
-#     If account's member connected only to this account,
-#     remove member also.
-#     """
-#     Member = apps.get_model('finance', 'Member')
-#     qs = Account.objects.filter(member_id=instance.member.id)
-#     if qs.count() == 0:
-#         member = Member.objects.get(id=instance.member.id)
-#         member.delete()
-
-
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
-    pass
+    def has_delete_permission(self, request, obj=None):
+        return False

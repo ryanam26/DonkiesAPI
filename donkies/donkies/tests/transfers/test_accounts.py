@@ -6,7 +6,7 @@ from finance.models import Account, Transaction
 
 class TestAccount(base.Mixin):
     @pytest.mark.django_db
-    def test_delete01(self):
+    def notest_delete01(self):
         """
         Instead of deleting object should set is_active=False
         """
@@ -18,7 +18,7 @@ class TestAccount(base.Mixin):
         assert a.is_active is False
 
     @pytest.mark.django_db
-    def test_delete02(self):
+    def notest_delete02(self):
         """
         Instead of deleting queryset, should set is_active=False
         """
@@ -33,7 +33,7 @@ class TestAccount(base.Mixin):
             assert a.is_active is False
 
     @pytest.mark.django_db
-    def test_delete03(self):
+    def notest_delete03(self):
         """
         Test calling Account.objects.delete_account method.
         All Transactions of deleted Account should be set
@@ -46,10 +46,49 @@ class TestAccount(base.Mixin):
         assert Account.objects.count() == 1
         assert Transaction.objects.count() == 2
 
-        Account.objects.delete_account(a.id)
+        Account.objects.delete_account(a.id, is_test=True)
 
         for obj in Account.objects.all():
             assert obj.is_active is False
 
         for obj in Transaction.objects.all():
             assert obj.is_active is False
+
+    @pytest.mark.django_db
+    def notest_delete04(self):
+        """
+        When delete account, if account's member has only this account,
+        member also should be deleted.
+        """
+        a = AccountFactory.get_account()
+        m = a.member
+
+        assert a.is_active is True
+        assert m.is_active is True
+
+        Account.objects.delete_account(a.id, is_test=True)
+        a.refresh_from_db()
+        m.refresh_from_db()
+
+        assert a.is_active is False
+        assert m.is_active is False
+
+    @pytest.mark.django_db
+    def test_delete05(self):
+        """
+        When delete account, if account's member has multiple accounts,
+        member still should be available.
+        """
+        m = MemberFactory.get_member()
+        a1 = AccountFactory.get_account(member=m)
+        a2 = AccountFactory.get_account(member=m)
+
+        for obj in (m, a1, a2):
+            assert getattr(obj, 'is_active') is True
+
+        Account.objects.delete_account(a1.id, is_test=True)
+        a1.refresh_from_db()
+        m.refresh_from_db()
+
+        assert a1.is_active is False
+        assert m.is_active is True

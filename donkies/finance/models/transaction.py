@@ -151,3 +151,6 @@ class TransactionAdmin(admin.ModelAdmin):
         'description',
     )
     list_filter = ('account',)
+
+    def has_delete_permission(self, request, obj=None):
+        return False

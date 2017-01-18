@@ -76,7 +76,12 @@ class TransactionManager(ActiveManager):
 
 
 class Transaction(ActiveModel):
-    account = models.ForeignKey('Account')
+    """
+    On save signal calculate and save roundup, but if roundup
+    already has been processed (is_processed), then skip saving
+    roundup even if transaction amount has been changed.
+    """
+    account = models.ForeignKey('Account', related_name='transactions')
     guid = models.CharField(max_length=100, unique=True)
     uid = models.CharField(max_length=50, unique=True)
     amount = models.DecimalField(
@@ -95,9 +100,6 @@ class Transaction(ActiveModel):
     is_income = models.NullBooleanField()
     is_overdraft_fee = models.NullBooleanField()
     is_payroll_advance = models.NullBooleanField()
-    is_processed = models.BooleanField(
-        default=False,
-        help_text='Internal flag. Change has been transferred to debt account')
     latitude = models.DecimalField(
         max_digits=10, decimal_places=6, null=True, default=None)
     longitude = models.DecimalField(
@@ -107,15 +109,18 @@ class Transaction(ActiveModel):
     original_description = models.CharField(
         max_length=3000, null=True, default=None)
     posted_at = models.DateTimeField(null=True, default=None)
-    roundup = models.DecimalField(
-        max_digits=5, decimal_places=2, null=True, default=None,
-        help_text='Internal field. "Change" amount.')
     status = models.CharField(max_length=50)
     top_level_category = models.CharField(
         max_length=255, null=True, default=None)
     transacted_at = models.DateTimeField(null=True, default=None)
     type = models.CharField(max_length=50)
     updated_at = models.DateTimeField(null=True, default=None)
+    roundup = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, default=None,
+        help_text='Internal field. "Change" amount.')
+    is_processed = models.BooleanField(
+        default=False,
+        help_text='Internal flag. Roundup has been transferred')
 
     objects = TransactionManager()
 
@@ -137,7 +142,7 @@ class Transaction(ActiveModel):
         if not self.pk:
             self.uid = uuid.uuid4().hex
 
-        if self.account.type_ds == Account.DEBIT:
+        if self.account.type_ds == Account.DEBIT and not self.is_processed:
             self.roundup = self.calculate_roundup(self.amount)
         super().save(*args, **kwargs)
 

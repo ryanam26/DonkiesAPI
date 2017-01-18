@@ -8,25 +8,6 @@ BASE_DIR = abspath(join(dirname(abspath(__file__)), '..', '..', '..'))
 data_path = os.path.join(BASE_DIR, 'donkies/donkies/settings/data.json')
 data = json.loads(open(data_path).read())
 
-
-FACEBOOK_APP_ID = data['FACEBOOK_APP_ID']
-FACEBOOK_APP_SECRET = data['FACEBOOK_APP_SECRET']
-FACEBOOK_REDIRECT_URI = data['FACEBOOK_REDIRECT_URI']
-
-SOCIAL_AUTH_FACEBOOK_KEY = data['SOCIAL_AUTH_FACEBOOK_KEY']
-SOCIAL_AUTH_FACEBOOK_SECRET = data['SOCIAL_AUTH_FACEBOOK_SECRET']
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = data['SOCIAL_AUTH_GOOGLE_OAUTH2_KEY']
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = data['SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET']
-SOCIAL_AUTH_TWITTER_KEY = data['SOCIAL_AUTH_TWITTER_KEY']
-SOCIAL_AUTH_TWITTER_SECRET = data['SOCIAL_AUTH_TWITTER_SECRET']
-
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': (
-        'id, name, email, age_range, first_name, last_name, link, gender,'
-        'locale, timezone, picture, updated_time, verified')
-}
-
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/social_login/'
 
@@ -47,6 +28,10 @@ DWOLLA_ID_DEV = data['DWOLLA_ID_DEV']
 DWOLLA_SECRET_DEV = data['DWOLLA_SECRET_DEV']
 DWOLLA_ID_PROD = data['DWOLLA_ID_PROD']
 DWOLLA_SECRET_PROD = data['DWOLLA_SECRET_PROD']
+
+FACEBOOK_APP_ID = data['FACEBOOK_APP_ID']
+FACEBOOK_APP_SECRET = data['FACEBOOK_APP_SECRET']
+FACEBOOK_REDIRECT_URI = data['FACEBOOK_REDIRECT_URI']
 
 BACKEND_DOMAIN = 'api.donkies.co'
 BACKEND_URL = 'http://api.donkies.co'
@@ -256,28 +241,10 @@ LOGGING = {
     }
 }
 
-
 # Custom token auth.
 TOKEN_EXPIRE_MINUTES = 1400
 
 REDIS_DB = redis.StrictRedis(host='127.0.0.1', port=6379, db=2)
-
-
-SOCIAL_AUTH_PIPELINE = (
-    'social.pipeline.social_auth.social_details',
-    'social.pipeline.social_auth.social_uid',
-    'social.pipeline.social_auth.auth_allowed',
-    'social.pipeline.social_auth.social_user',
-    'social.pipeline.social_auth.associate_user',
-    'social.pipeline.social_auth.load_extra_data',
-    'social.pipeline.user.user_details',
-    'web.services.social_auth.save_user_facebook',
-    'web.services.social_auth.save_user_google',
-)
-
-# Return url to frontend with result after login
-FACEBOOK_SUCCESS_URL = 'http://donkies.co'
-FACEBOOK_FAIL_URL = 'http://donkies.co'
 
 # Atrium API mode PROD/DEV
 ATRIUM_API_MODE = 'DEV'
@@ -288,6 +255,9 @@ DWOLLA_API_MODE = 'DEV'
 # User for real tests.
 TEST_USER_EMAIL = 'test@donkies.co'
 TEST_USER_PASSWORD = '111'
+
+# Integer. In US dollars.
+MINIMUM_TRANSFER_AMOUNT = 50
 
 US_STATES = (
     ('AL', 'Alabama'),

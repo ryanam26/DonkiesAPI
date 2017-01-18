@@ -162,6 +162,9 @@ class User(AbstractBaseUser):
     fb_age_range = models.IntegerField(default=0)
     fb_timezone = models.IntegerField(default=0)
     fb_verified = models.BooleanField(default=False)
+    minimum_transfer_amount = models.IntegerField(
+        default=settings.MINIMUM_TRANSFER_AMOUNT,
+        help_text='Minimum amount for transfer.')
     is_atrium_created = models.BooleanField(default=False)
 
     objects = UserManager()
@@ -328,6 +331,15 @@ class User(AbstractBaseUser):
         )
         link = '{url}/account/change_email_confirm?id={id}&token={token}'
         return link.format(**dic)
+
+    def get_funding_source_account(self):
+        """
+        Returns user's funding source debit account or None
+        if user has not set funding source account yet.
+        """
+        Account = apps.get_model('finance', 'Account')
+        return Account.objects.active().filter(
+            member__user=self, is_funding_source_for_transfer=True).first()
 
     @property
     def new_email_expired(self):

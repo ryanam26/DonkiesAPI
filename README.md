@@ -58,30 +58,6 @@ Example: challenges = [
 
 /v1/transactions
 
-### settings/data.json (that in gitignore) looks:
-
-Instead of *** - real credentials.
-
-{
-    "ALLOWED_HOSTS": ["*"],
-    "SECRET_KEY": "***",
-    "DB_NAME": "donkies",
-    "DB_USER": "udonkies",
-    "DB_PASSWORD": "***",
-    "DB_HOST": "127.0.0.1",
-    "SERVER_IP": "159.203.137.132",
-    "SOCIAL_AUTH_FACEBOOK_KEY": "***",
-    "SOCIAL_AUTH_FACEBOOK_SECRET": "***",
-    "SOCIAL_AUTH_GOOGLE_OAUTH2_KEY": "***",
-    "SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET": "***",
-    "SOCIAL_AUTH_TWITTER_KEY": "***",
-    "SOCIAL_AUTH_TWITTER_SECRET": "***",
-    "ATRIUM_CLIENT_ID_DEV": "***",
-    "ATRIUM_KEY_DEV": "***",
-    "ATRIUM_CLIENT_ID_PROD": "***",
-    "ATRIUM_KEY_PROD": "***"
-}
-
 ### Possible transfer scenarios (info from forum)
 
 Account -> unverified Customer
@@ -199,3 +175,12 @@ As soon as Dwolla customer is created, and user has accounts, frontend will have
 
 ### Transfers TDD
 donkies/tests/transfers/README.md
+
+### Transfer flow.
+
+First we collect roundup to TransferPrepare.
+Then from TransferPrepare total user's roundup amount processed to TransferDonkies model (if user set funding source account).
+Then from TransferDonkies model we send transfer to Donkies LLC (via Dwolla).
+As soon as money received by Donkies LLC (checked by API), we process received amount to debt user's accounts to TransferUser model.
+
+From TransferUser model currently send cheques manually.

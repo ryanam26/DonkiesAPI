@@ -5,4 +5,7 @@ from .institution import Institution
 from .link_debt import LinkDebt
 from .member import Member
 from .transaction import Transaction
-from .transfer import Transfer
+from .transfer_user import TransferUser
+from .transfer_donkies import TransferDonkies
+from .transfer_prepare import TransferPrepare
+

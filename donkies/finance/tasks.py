@@ -125,3 +125,28 @@ def update_institutions():
     Institution = apps.get_model('finance', 'Institution')
     Institution.objects.update_list()
     Institution.objects.update_credentials()
+
+
+# @periodic_task(run_every=crontab())
+# @rs_singleton(rs, 'INITIATE_DWOLLA_TRANSFERS_IS_PROCESSING')
+def initiate_dwolla_transfers():
+    """
+    Initiate all transfers in finance.TransferDonkies model.
+    TODO: increase periodic interval on production.
+    """
+    TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+    for tds in TransferDonkies.objects.filter(is_initiated=False):
+        TransferDonkies.objects.initiate_dwolla_transfer(tds.id)
+
+
+# @periodic_task(run_every=crontab())
+# @rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
+def update_dwolla_transfers():
+    """
+    Updates status of Donkies transfers.
+    (Can be also implemented by WebHooks API.)
+    TODO: increase periodic interval on production.
+    """
+    TransferDonkies = apps.get_model('bank', 'TransferDonkies')
+    for t in Transfer.objects.filter(dwolla_id__is_null=False, is_done=False):
+        Transfer.objects.update_transfer(t.id)

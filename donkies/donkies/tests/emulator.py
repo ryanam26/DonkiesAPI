@@ -63,7 +63,20 @@ class Emulator:
             self.debt_accounts.append(a)
 
     def fill_transactions(self):
-        for a in self.debit_accounts:
+        l = self.debit_accounts + self.debt_accounts
+        for a in l:
             for _ in range(self.num_transactions):
                 tr = TransactionFactory.get_transaction(account=a)
                 self.transactions.append(tr)
+
+    def get_total_roundup(self, l):
+        """
+        Input: list of transactions.
+        Returns: the sum of roundup of not processed transactions.
+        """
+        total = 0
+        for tr in l:
+            if tr.is_processed is True or tr.is_processed is None:
+                continue
+            total += tr.roundup
+        return total

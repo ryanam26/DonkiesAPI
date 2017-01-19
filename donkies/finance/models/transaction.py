@@ -118,7 +118,7 @@ class Transaction(ActiveModel):
     roundup = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, default=None,
         help_text='Internal field. "Change" amount.')
-    is_processed = models.BooleanField(
+    is_processed = models.NullBooleanField(
         default=False,
         help_text='Internal flag. Roundup has been transferred')
 
@@ -144,6 +144,10 @@ class Transaction(ActiveModel):
 
         if self.account.type_ds == Account.DEBIT and not self.is_processed:
             self.roundup = self.calculate_roundup(self.amount)
+
+        if self.account.type_ds != Account.DEBIT:
+            self.is_processed = None
+
         super().save(*args, **kwargs)
 
 

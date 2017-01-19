@@ -64,3 +64,15 @@ If user wants to delete account and account's member has other account (For exam
 * "delete" method on QuerySet should not delete objects, instead set is_active=False
 * TestTransaction.test_delete02
 
+
+# TESTS FOR TRANSFERS
+
+
+## TransferPrepare
+
+* Test "process_roundups" manager's method. The number of TransferPrepare rows after processing should be equal to number of debit accounts.
+* TransferPrepare.test01
+
+* Test "process_roundups" manager's method. The sum of roundup of not processed transactions should be equal to sum that inserted TransferPrepare. All transactions after that should be marked as processed.
+* TransferPrepare.test02
+

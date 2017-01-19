@@ -27,9 +27,10 @@ class TransferPrepareManager(models.Manager):
         """
         Account = apps.get_model('finance', 'Account')
 
-        dt = datetime.today() if is_test else self.get_transfer_date()
-        if dt == datetime.today():
-            for account in Account.objects.active():
+        dt = datetime.date.today() if is_test else self.get_transfer_date()
+        if dt == datetime.date.today():
+            qs = Account.objects.active().filter(type_ds=Account.DEBIT)
+            for account in qs:
                 self.process_roundup(account)
 
     @transaction.atomic
@@ -65,7 +66,7 @@ class TransferPrepareManager(models.Manager):
 class TransferPrepare(models.Model):
     """
     This model contains data for transfers by dates.
-    All roundup that were collected from debit account saved to model.
+    All roundups that were collected from debit account saved to model.
     All transactions that provide roundup set to is_processed=True
     """
     account = models.ForeignKey(

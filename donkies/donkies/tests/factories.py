@@ -53,7 +53,8 @@ class MemberFactory(factory.django.DjangoModelFactory):
     def get_member(user=None, name=None):
         if not user:
             user = UserFactory(email=Faker().email())
-        institution = InstitutionFactory(code=Faker().word())
+        code = Faker().word() + str(random.randint(1000, 9999))
+        institution = InstitutionFactory(code=code)
         if not name:
             name = Faker().word()
         return MemberFactory(
@@ -77,7 +78,7 @@ class AccountFactory(factory.django.DjangoModelFactory):
     def get_account(member=None, type=Account.CHECKING):
         if not member:
             member = MemberFactory.get_member()
-        return AccountFactory(member=member)
+        return AccountFactory(member=member, type=type)
 
 
 class TransactionFactory(factory.django.DjangoModelFactory):

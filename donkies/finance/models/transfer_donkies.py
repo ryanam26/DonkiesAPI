@@ -22,7 +22,7 @@ class TransferDonkies(models.Model):
     amount for particular user from TransferPrepare to this model.
     Then send money to Donkeys LLC (via Dwolla)
 
-    As soon as money send to Donkeys - set is_sent = True
+    As soon as money has been sent to Donkeys - set is_sent = True
     Check by API receiving money to Donkeys LLC account and as
     soon as money received - set is_received = True
 

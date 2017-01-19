@@ -21,6 +21,9 @@ class Command(BaseCommand):
 
         self.stdout.write('New remote database initialized.')
 
+        cur.execute('create database test_{}'.format(settings.DB_NAME))
+        self.stdout.write('New remote test database initialized.')
+
         try:
             con, cur = get_remote_db_connection()
         except:

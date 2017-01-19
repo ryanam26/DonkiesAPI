@@ -2,18 +2,11 @@ import dwollav2
 import json
 import logging
 import os
-import time
 import uuid
 from django.conf import settings
 
 
 class DwollaApi:
-    """
-    Set manually DONKIES_ACCESS_TOKEN and DONKIES_REFRESH_TOKEN
-    to Redis. Tokens are received in dashboard.
-    Then refresh tokens by celery every half hour.
-    """
-
     def __init__(self):
         self.rs = settings.REDIS_DB
 
@@ -26,19 +19,15 @@ class DwollaApi:
         self.client_id = getattr(settings, 'DWOLLA_ID_{}'.format(mode))
         self.client_secret = getattr(settings, 'DWOLLA_SECRET_{}'.format(mode))
 
+        # Recepient Donkies LLC bank account's email.
+        self.donkies_email = getattr(
+            settings, 'DONKIES_DWOLLA_EMAIL_{}'.format(mode))
+
         self.client = dwollav2.Client(
             id=self.client_id,
             secret=self.client_secret,
             environment=environment)
         self.token = self.client.Auth.client()
-
-    @property
-    def access_token(self):
-        return self.rs.get('DONKIES_ACCESS_TOKEN')
-
-    @property
-    def refresh_token(self):
-        return self.rs.get('DONKIES_REFRESH_TOKEN')
 
     def is_duplicate(self, e):
         if isinstance(e, dwollav2.ValidationError):
@@ -232,14 +221,14 @@ class DwollaApi:
         except dwollav2.Error as e:
             return r.status, str(e)
 
-    def create_transfer(self, src_id, dst_id, amount, currency='USD'):
+    def initiate_transfer(self, src_id, amount, currency='USD'):
         """
         Source: funding source.
         Destination: funding source.
         Returns id of created transfer or None.
         """
         src_url = '{}funding-sources/{}'.format(self.get_api_url(), src_id)
-        dst_url = '{}funding-sources/{}'.format(self.get_api_url(), dst_id)
+        dst_url = 'mailto:{}'.format(self.donkies_email)
         d = {
             '_links': {
                 'source': {
@@ -261,10 +250,10 @@ class DwollaApi:
         except dwollav2.Error as e:
             print(str(e))
             self.set_logs(
-                'Create transfer', json.dumps(d), str(e))
+                'Initiate transfer fail', json.dumps(d), str(e))
         return None
 
-    def get_transfer(self, id):
+    def get_transfer_info(self, id):
         """
         Returns transfer by id.
         """
@@ -272,7 +261,7 @@ class DwollaApi:
         r = self.token.get(url)
         return r.body
 
-    def get_transfer_failure(self, id):
+    def get_transfer_failure_code(self, id):
         """
         Returns 3-letters failure code.
         All codes listed in docs:
@@ -280,10 +269,14 @@ class DwollaApi:
         """
         url = self.get_transfer_url(id)
         url += '/failure'
-        r = self.token.get(url)
-        return r.body['code']
+        try:
+            r = self.token.get(url)
+            code = r.body['code']
+        except:
+            code = None
+        return code
 
-    def test_create_customer(self):
+    def create_test_customer(self):
         d = {
             'firstName': 'John',
             'lastName': 'Doe',
@@ -297,14 +290,11 @@ class DwollaApi:
             'ssn': '1234'
         }
         id = self.create_customer(d)
-        # print('Created customer id', id)
-        # print('---')
         if id is not None:
-            c = self.get_customer(id)
-            # print(c)
+            return self.get_customer(id)
         return id
 
-    def test_create_funding_source(self, customer_id):
+    def create_test_funding_source(self, customer_id):
         data = {
             'routingNumber': '222222226',
             'accountNumber': '123456789',
@@ -312,57 +302,6 @@ class DwollaApi:
             'name': 'My Bank'
         }
         id = self.create_funding_source(customer_id, data)
-        # print('Created funding source id:', id)
-        # print('---')
         if id is not None:
-            fs = self.get_funding_source(id)
-            # print(fs)
+            return self.get_funding_source(id)
         return id
-
-    def test_transfer(self):
-        customer1_id = self.test_create_customer()
-        src_id = self.test_create_funding_source(customer1_id)
-        self.init_micro_deposits(src_id)
-        time.sleep(1)
-        d = self.get_micro_deposits(src_id)
-        if d['status'] != 'processed':
-            print('Micro-deposits not processed (for src)')
-            return
-
-        customer2_id = self.test_create_customer()
-        dst_id = self.test_create_funding_source(customer2_id)
-        self.init_micro_deposits(dst_id)
-        time.sleep(1)
-        d = self.get_micro_deposits(dst_id)
-        if d['status'] != 'processed':
-            print('Micro-deposits not processed (for dst)')
-            return
-
-        self.create_transfer(src_id, dst_id, '1.00')
-
-    def test(self):
-        # customer_id = self.test_create_customer()
-        # fs_id = self.test_create_funding_source(customer_id)
-        # self.init_micro_deposits(fs_id)
-        # d = self.get_micro_deposits(fs_id)
-        # print(d)
-        # self.test_transfer()
-        # l = self.get_customers()
-        # customer = l[0]
-        # print(self.get_funding_sources(customer['id'])[0])
-
-        print(self.get_funding_source('105e7d05-8234-413e-8af5-74f0daf3303f'))
-
-
-if __name__ == '__main__':
-    from subprocess import Popen, PIPE
-
-    src = '/home/vlad/dev/web/dj/d/donkies/project/donkies/bank/services/'
-    src += 'dwolla_api.py'
-
-    dst = '/home/alex/dj/donkies/donkies/bank/services/'
-
-    cmd = 'alex@159.203.137.132:{}'.format(dst)
-
-    p = Popen(['scp', src, cmd], stdout=PIPE)
-    p.communicate()[0]

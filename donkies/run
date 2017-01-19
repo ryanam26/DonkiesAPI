@@ -79,7 +79,8 @@ clear
 # py.test -s donkies/tests/transfers/test_accounts.py
 # py.test -s donkies/tests/transfers/test_members.py
 # py.test -s donkies/tests/transfers/test_transactions.py
-py.test -s donkies/tests/transfers/test_transfer_donkies.py
+# py.test -s donkies/tests/transfers/test_transfer_donkies.py
+py.test -s donkies/tests/transfers/test_transfer_donkies_dwolla.py
 # py.test -s donkies/tests/transfers/test_transfer_prepare.py
 # py.test -s donkies/tests/transfers/test_transfer_user.py
 

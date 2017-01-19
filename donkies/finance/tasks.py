@@ -147,6 +147,19 @@ def update_dwolla_transfers():
     (Can be also implemented by WebHooks API.)
     TODO: increase periodic interval on production.
     """
-    TransferDonkies = apps.get_model('bank', 'TransferDonkies')
-    for t in Transfer.objects.filter(dwolla_id__is_null=False, is_done=False):
-        Transfer.objects.update_transfer(t.id)
+    TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+    qs = TransferDonkies.objects.filter(is_initiated=True, is_sent=False)
+    for tds in qs:
+        TransferDonkies.objects.update_dwolla_transfer(tds.id)
+
+
+# @periodic_task(run_every=crontab())
+# @rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
+def update_dwolla_failure_codes():
+    """
+    Updates failure codes in TransferDonkiesFailed.
+    TODO: increase periodic interval on production.
+    """
+    TransferDonkiesFailed = apps.get_model('finance', 'TransferDonkiesFailed')
+    for tdf in TransferDonkiesFailed.objects.filter(failure_code=None):
+        TransferDonkiesFailed.objects.update_dwolla_failure_code(tdf.id)

@@ -1,6 +1,21 @@
 from django.db import models
 from django.contrib import admin
 from finance.models import TransferDwolla
+from bank.services.dwolla_api import DwollaApi
+
+
+class TransferDonkiesFailedManager(models.Manager):
+    def update_dwolla_failure_code(self, id):
+        tdf = self.models.objects.get(id=id)
+        if tdf.failure_code is not None:
+            return
+
+        dw = DwollaApi()
+        code = dw.get_transfer_failure_code(tdf.dwolla_id)
+
+        if code is not None:
+            tdf.failure_code = code
+            tdf.save()
 
 
 class TransferDonkiesFailed(TransferDwolla):
@@ -21,6 +36,8 @@ class TransferDonkiesFailed(TransferDwolla):
     failure_code = models.CharField(
         max_length=4, null=True, default=None, blank=True)
     failed_at = models.DateTimeField(null=True, default=None, blank=True)
+
+    objects = TransferDonkiesFailedManager()
 
     class Meta:
         app_label = 'finance'

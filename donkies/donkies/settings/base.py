@@ -252,6 +252,10 @@ ATRIUM_API_MODE = 'DEV'
 # Dwolla API mode PROD/DEV
 DWOLLA_API_MODE = 'DEV'
 
+# Donkies LLC email in Dwolla to receive transfers.
+DONKIES_DWOLLA_EMAIL_DEV = 'vladigris@gmail.com'
+DONKIES_DWOLLA_EMAIL_PROD = 'bank@donkies.co'
+
 # User for real tests.
 TEST_USER_EMAIL = 'test@donkies.co'
 TEST_USER_PASSWORD = '111'

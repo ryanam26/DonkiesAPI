@@ -1,24 +1,52 @@
 """
-Info about transfers and failure codes:
+Info about Dwolla transfers and failure codes:
 https://developers.dwolla.com/resources/bank-transfer-workflow/transfer-failures.html
 
 Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
 
 1) Celery scheduled task "initiate_dwolla_transfers" look at all transfers
-   that is_initiated = False and runs manager's method
-   "initiate_dwolla_transfer" for all transfers.
+   that is_initiated = False and run manager's method
+   "initiate_dwolla_transfer" for each transfer.
 
    Before initiate transfer in Dwolla, look if balance of source account
    has sufficient amount.
 
    When get success respond from Dwolla, set
     is_initiated = True
-    intiated_at = now()
-    dwolla_id = received dwollaid
+    intiated_at = now
+    updated_at = now
+    dwolla_id = received dwolla id
 
-2) 
+2) Celery scheduled task "update_dwolla_transfers" look at all transfers
+   that is_initiated = True, is_sent = False and run manager's method
+   "update_dwolla_transfer" for each transfer.
 
+   If less than 15 minutes from last check, do nothing.
 
+   Send request to Dwolla to get status of transfer.
+
+   1) If status == pending, set:
+      updated_at = now
+
+   2) If status == processed, set:
+      is_sent = True
+      sent_at = the date of transfer
+      updated_at = now
+
+   3) If other status, it means something bad happens.
+      Move TransferDonkies item to TransferDonkiesFailed for manual
+      processing. Set:
+
+      updated_at = now
+      failed_at = failed date
+      status = status of transfer
+
+3) Celery task "update_dwolla_failure_codes" look at all transfers
+   in TransferDonkiesFailed with failure_code = None and runs manager's
+   method "update_dwolla_failure_code".
+
+   Send request to Dwolla and set:
+   failure_code = code
 """
 
 
@@ -27,6 +55,7 @@ from django.contrib import admin
 from django.apps import apps
 from django.db import transaction
 from django.db.models import Sum
+from django.utils import timezone
 from bank.services.dwolla_api import DwollaApi
 from finance.models import TransferDwolla
 
@@ -74,21 +103,22 @@ class TransferDonkiesManager(models.Manager):
         tds.save()
 
     def initiate_dwolla_transfer(self, id):
-        t = self.model.objects.get(id)
-        if t.dwolla_id is not None:
+        tds = self.model.objects.get(id)
+        if tds.is_initiated:
             return
 
-        dw = DwollaApi()
-        id = dw.create_transfer(
-            t.source.dwolla_id, t.destination.dwolla_id, str(t.amount))
-        if id is not None:
-            t.dwolla_id = id
-            t.save()
+        fs = tds.account.funding_source
 
-    def update_dwolla_transfer(self, id):
-        """
-        TODO: update created_at, when know total format of data.
-        """
+        dw = DwollaApi()
+        id = dw.initiate_transfer(fs.dwolla_id, str(tds.amount))
+        if id is not None:
+            tds.dwolla_id = id
+            tds.is_initiated = True
+            tds.intiated_at = timezone.now()
+            tds.updated_at = timezone.now()
+            tds.save()
+
+    def update_dwolla_transfer(self, id, is_test=False):
         t = self.model.objects.get(id)
         if t.is_done:
             return
@@ -127,14 +157,11 @@ class TransferDonkies(TransferDwolla):
     initiated_at = models.DateTimeField(null=True, default=None, blank=True)
     updated_at = models.DateTimeField(null=True, default=None, blank=True)
     sent_at = models.DateTimeField(null=True, default=None, blank=True)
-    received_at = models.DateTimeField(null=True, default=None, blank=True)
     processed_at = models.DateTimeField(null=True, default=None, blank=True)
     is_initiated = models.BooleanField(
         default=False, help_text='Transfer initiated in Dwolla')
     is_sent = models.BooleanField(
         default=False, help_text='Money sent to Donkies LLC')
-    is_received = models.BooleanField(
-        default=False, help_text='Money received by Donkies LLC')
     is_processed_to_user = models.BooleanField(
         default=False, help_text='Funds processed to TransferUser model.')
 
@@ -157,11 +184,9 @@ class TransferDonkiesAdmin(admin.ModelAdmin):
         'amount',
         'created_at',
         'sent_at',
-        'received_at',
         'processed_at',
         'is_initiated',
         'is_sent',
-        'is_received',
         'is_processed_to_user'
     )
     readonly_fields = (
@@ -171,11 +196,9 @@ class TransferDonkiesAdmin(admin.ModelAdmin):
         'created_at',
         'initiated_at',
         'sent_at',
-        'received_at',
         'processed_at',
         'is_initiated',
         'is_sent',
-        'is_received',
         'is_processed_to_user'
     )
 

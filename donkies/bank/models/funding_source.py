@@ -57,6 +57,7 @@ class FundingSourceManager(models.Manager):
 
     def create_dwolla_funding_source(self, id):
         """
+        Currently not used.
         Create funding source in Dwolla from manually
         created account.
         """
@@ -78,6 +79,7 @@ class FundingSourceManager(models.Manager):
 
     def init_dwolla_funding_source(self, id):
         """
+        Currently not used.
         Init funding source in Dwolla from manually
         created account.
         """

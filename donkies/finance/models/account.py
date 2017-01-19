@@ -1,4 +1,5 @@
 import uuid
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib import admin
 from finance.services.atrium_api import AtriumApi
@@ -88,10 +89,18 @@ class AccountManager(ActiveManager):
     @transaction.atomic
     def set_funding_source(self, account_id):
         """
-        Set account as funding source for user.
+        Set debit account as funding source for user.
+        Account should exist in FundingSource.
         """
+        FundingSource = apps.get_model('bank', 'FundingSource')
         account = self.model.objects.get(
             id=account_id, type_ds=self.model.DEBIT)
+
+        if not FundingSource.objects.filter(account=account).exists():
+            message = 'Attempt to set "is_funding_source_for_transfer" '
+            message += 'for account that not exists in bank.FundingSource.'
+            raise ValidationError(message)
+
         self.model.objects.active().filter(
             member__user=account.member.user)\
             .update(is_funding_source_for_transfer=False)

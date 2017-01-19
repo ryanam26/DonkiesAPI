@@ -9,12 +9,14 @@ class TestTransferPrepare(base.Mixin):
     @pytest.mark.django_db
     def test01(self):
         e = Emulator()
+        e.init()
         TransferPrepare.objects.process_roundups(is_test=True)
         assert len(e.debit_accounts) == TransferPrepare.objects.count()
 
     @pytest.mark.django_db
     def test02(self):
         e = Emulator()
+        e.init()
         total_should_be = e.get_total_roundup(e.transactions)
         TransferPrepare.objects.process_roundups(is_test=True)
         sum = TransferPrepare.objects.aggregate(Sum('roundup'))['roundup__sum']

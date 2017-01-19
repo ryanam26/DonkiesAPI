@@ -21,6 +21,7 @@ def create_customers():
         Customer.objects.init_dwolla_customer(c.id)
 
 
+# Currently not used.
 # @periodic_task(run_every=crontab(minute='*'))
 # @rs_singleton(rs, 'CREATE_FUNDING_SOURCES_IS_PROCESSING')
 def create_funding_sources():
@@ -34,6 +35,7 @@ def create_funding_sources():
         FundingSource.objects.init_dwolla_funding_source(fs.id)
 
 
+# Currently not used.
 # @periodic_task(run_every=crontab())
 # @rs_singleton(rs, 'MICRO_DEPOSITS_IS_PROCESSING')
 def micro_deposits():

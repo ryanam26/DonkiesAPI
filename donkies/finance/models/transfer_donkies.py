@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib import admin
 from django.apps import apps
 from django.db import transaction
+from django.db.models import Sum
 
 
 class TransferDonkiesManager(models.Manager):
@@ -11,9 +12,40 @@ class TransferDonkiesManager(models.Manager):
         Process TransferPrepare to TransferDonkies model.
         """
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
-        qs = TransferPrepare.objects.filter(is_processed=False)
-        qs.order_by().values(
-            'account__member__user').distinct()
+
+        users = TransferPrepare.objects.filter(is_processed=False)\
+            .order_by('account__member__user_id')\
+            .values_list('account__member__user_id', flat=True)\
+            .distinct()
+
+        for user_id in users:
+            self.process_prepare_user(user_id)
+
+    @transaction.atomic
+    def process_prepare_user(self, user_id):
+        """
+        If user has not set funding source yet, do not move
+        funds from TransferPrepare to TransferDonkies.
+        """
+        TransferPrepare = apps.get_model('finance', 'TransferPrepare')
+        User = apps.get_model('web', 'User')
+
+        user = User.objects.get(id=user_id)
+        fs = user.get_funding_source_account()
+        if fs is None:
+            return
+
+        sum = TransferPrepare.objects.filter(
+            is_processed=False,
+            account__member__user=user)\
+            .aggregate(Sum('roundup'))['roundup__sum']
+
+        TransferPrepare.objects.filter(
+            is_processed=False,
+            account__member__user=user).update(is_processed=True)
+
+        tds = self.model(account=fs, amount=sum)
+        tds.save()
 
 
 class TransferDonkies(models.Model):

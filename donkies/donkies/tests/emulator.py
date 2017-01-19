@@ -1,4 +1,6 @@
-from finance.models import Account
+import random
+from finance.models import Account, TransferPrepare, TransferDonkies
+from bank.models import FundingSource
 from .factories import (
     AccountFactory, MemberFactory, TransactionFactory, UserFactory)
 
@@ -26,19 +28,36 @@ class Emulator:
         self.debit_accounts = []
         self.debt_accounts = []
         self.transactions = []
+
+    def init(self):
         self.fill()
+        self.set_funding_source()
+
+    def run_transfer_prepare(self):
+        """
+        Collect not processed roundups to TransferPrepare model.
+        """
+        TransferPrepare.objects.process_roundups(is_test=True)
+
+    def run_transfer_donkies_process_prepare(self):
+        TransferDonkies.objects.process_prepare()
 
     def fill(self):
         self.fill_debit_accounts()
         self.fill_debt_accounts()
         self.fill_transactions()
-        self.set_funding_source()
 
     def set_funding_source(self):
         """
         Set funding source for user.
         """
         account = self.debit_accounts[0]
+        dwolla_id = 'some-dwolla-id-{}'.format(random.randint(10000, 99999))
+        test_dic = self.get_funding_source_dic(dwolla_id)
+
+        FundingSource.objects.create_funding_source_iav(
+            account.id, dwolla_id, test_dic)
+
         Account.objects.set_funding_source(account.id)
 
     def clear_funding_source(self):
@@ -80,3 +99,21 @@ class Emulator:
                 continue
             total += tr.roundup
         return total
+
+    def get_funding_source_dic(self, dwolla_id):
+        """
+        When user creates funding source account in Dwolla (via dwolla.js),
+        Dwolla respond with similar dict.
+        """
+        return {
+            'created': '2017-01-16T08:16:07.000Z',
+            'removed': False,
+            'balance': {
+                'currency': 'USD',
+                'value': '0.00'
+            },
+            'id': dwolla_id,
+            'type': 'balance',
+            'status': 'verified',
+            'name': 'Balance'
+        }

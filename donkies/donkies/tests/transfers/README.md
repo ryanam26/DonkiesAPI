@@ -76,3 +76,20 @@ If user wants to delete account and account's member has other account (For exam
 * Test "process_roundups" manager's method. The sum of roundup of not processed transactions should be equal to sum that inserted TransferPrepare. All transactions after that should be marked as processed.
 * TransferPrepare.test02
 
+
+
+## TransferDonkies
+
+* Test "process_prepare" manager's method. If user does not set funding source debit account, do not process. TransferDonkies should have zero rows.
+* TestDonkies.test01
+
+* Test "process_prepare" manager's method. Each user should get only one aggregated row for TransferDonkies model.
+* TestDonkies.test02
+
+* Test "process_prepare" manager's method. The total amount for each user in all  TransferPrepare should be equal the amount in TransferDonkies row.
+* TestDonkies.test03
+
+* Test "process_prepare" manager's method. After moving funds from TransferPrepare to TransferDonkies all items in TransferPrepare should be set to is_processed=True
+* TestDonkies.test04
+
+

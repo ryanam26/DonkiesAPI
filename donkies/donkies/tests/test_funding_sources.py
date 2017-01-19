@@ -1,6 +1,7 @@
 import json
 import pytest
 from .import base
+from .emulator import Emulator
 from .factories import (
     AccountFactory, InstitutionFactory, MemberFactory, UserFactory)
 from bank.models import FundingSource, FundingSourceIAVLog
@@ -44,19 +45,8 @@ class TestFundingSource(base.Mixin):
         account = self.get_account('mxbank')
         dwolla_id = 'some-id'
 
-        # Data from real request to Dwolla. (get funding source)
-        test_dic = {
-            'created': '2017-01-16T08:16:07.000Z',
-            'removed': False,
-            'balance': {
-                'currency': 'USD',
-                'value': '0.00'
-            },
-            'id': dwolla_id,
-            'type': 'balance',
-            'status': 'verified',
-            'name': 'Balance'
-        }
+        e = Emulator()
+        test_dic = e.get_funding_source_dic(dwolla_id)
 
         fs = FundingSource.objects.create_funding_source_iav(
             account.id, dwolla_id, test_dic)

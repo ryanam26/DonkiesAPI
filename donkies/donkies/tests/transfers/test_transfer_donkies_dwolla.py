@@ -15,7 +15,7 @@ class TestTransferDonkiesDwolla(base.Mixin):
         """
         Setup customer and funding source for all tests.
         Get or create verified customer.
-        Get or create funding source account of customer.
+        Get or create customer's verified funding source account.
         """
         self.dw = DwollaApi()
         c = self.get_dwolla_customer()
@@ -32,6 +32,8 @@ class TestTransferDonkiesDwolla(base.Mixin):
                 raise ValueError('Can not create funding source')
 
         self.funding_source = fs
+        print(fs)
+        print(self.dw.get_funding_source_balance(fs['id']))
 
     def get_dwolla_customer(self):
         for c in self.dw.get_customers():

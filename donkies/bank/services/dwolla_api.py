@@ -70,6 +70,12 @@ class DwollaApi:
     def get_funding_source_url(self, id):
         return 'funding-sources/{}'.format(id)
 
+    def get_balance_url(self, id):
+        """
+        Funding source balance.
+        """
+        return 'funding-sources/{}/balance'.format(id)
+
     def get_micro_deposit_url(self, id):
         return 'funding-sources/{}/micro-deposits'.format(id)
 
@@ -177,6 +183,15 @@ class DwollaApi:
 
     def remove_funding_source(self, id):
         self.token.delete(self.get_funding_source_url(id))
+
+    def get_funding_source_balance(self, id):
+        """
+        Method not trusted.
+        Through error: The supplied credentials are
+        not authorized for this resource.
+        """
+        r = self.token.get(self.get_balance_url(id))
+        return r.body
 
     def init_micro_deposits(self, id):
         """

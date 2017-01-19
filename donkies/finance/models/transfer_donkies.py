@@ -8,9 +8,6 @@ Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
    that is_initiated = False and run manager's method
    "initiate_dwolla_transfer" for each transfer.
 
-   Before initiate transfer in Dwolla, look if balance of source account
-   has sufficient amount.
-
    When get success respond from Dwolla, set
     is_initiated = True
     intiated_at = now
@@ -18,7 +15,8 @@ Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
     dwolla_id = received dwolla id
 
 2) Celery scheduled task "update_dwolla_transfers" look at all transfers
-   that is_initiated = True, is_sent = False and run manager's method
+   that is_initiated = True, is_sent = False, is_failed=False
+   and run manager's method
    "update_dwolla_transfer" for each transfer.
 
    If less than 15 minutes from last check, do nothing.
@@ -33,23 +31,34 @@ Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
       sent_at = the date of transfer
       updated_at = now
 
-   3) If other status, it means something bad happens.
-      Move TransferDonkies item to TransferDonkiesFailed for manual
-      processing. Set:
-
+   3) If other status, set:
       updated_at = now
-      failed_at = failed date
-      status = status of transfer
+      is_failed = True
 
-3) Celery task "update_dwolla_failure_codes" look at all transfers
-   in TransferDonkiesFailed with failure_code = None and runs manager's
-   method "update_dwolla_failure_code".
+3) Celery scheduled task "update_dwolla_failure_codes" look at all transfers
+   that is_failed = True and failure_code = None and run
+   manager's method "update_dwolla_failure_code".
 
    Send request to Dwolla and set:
+
    failure_code = code
+   updated_at = now
+
+   If failure_code == R01, it means "Insufficient funds", other task will
+   reinitiate this transfer after 24 hours.
+
+   Else: something bad happened, move all data from TransferDonkies to
+   TransferDonkiesFailed for manual processing.
+
+4) Celery scheduled task "reinitiate_dwolla_transfers" look at all transfers
+   that failure_code = R01 and today date > updated_at + 24 hours. Set:
+
+   is_initiated = False
+   is_failed = False
+   failure_code = None
 """
 
-
+import datetime
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
@@ -104,7 +113,7 @@ class TransferDonkiesManager(models.Manager):
 
     def initiate_dwolla_transfer(self, id):
         tds = self.model.objects.get(id)
-        if tds.is_initiated:
+        if not tds.can_initiate:
             return
 
         fs = tds.account.funding_source
@@ -119,22 +128,43 @@ class TransferDonkiesManager(models.Manager):
             tds.save()
 
     def update_dwolla_transfer(self, id, is_test=False):
-        t = self.model.objects.get(id)
-        if t.is_done:
+        """
+        If less than 15 minutes from last check, do nothing.
+        """
+        tds = self.model.objects.get(id)
+        if not tds.can_update:
+            return
+
+        now = timezone.now()
+        if tds.updated_at + datetime.timedelta(minutes=15) > now:
+            if not is_test:
+                return
+
+        dw = DwollaApi()
+        d = dw.get_transfer(tds.dwolla_id)
+        if d['status'] == self.model.FAILED:
+            dw.get_transfer_failure(tds.dwolla_id)
+            tds.status = d['status']
+            tds.failure_code = dw.get_transfer_failure(tds.dwolla_id)
+            tds.save()
+            return
+
+        if tds.status != d['status']:
+            tds.status = d['status']
+            tds.save()
+
+    def update_dwolla_failure_code(self, id):
+        tds = self.models.objects.get(id=id)
+        if tds.failure_code is not None:
             return
 
         dw = DwollaApi()
-        d = dw.get_transfer(t.dwolla_id)
-        if d['status'] == self.model.FAILED:
-            dw.get_transfer_failure(t.dwolla_id)
-            t.status = d['status']
-            t.failure_code = dw.get_transfer_failure(t.dwolla_id)
-            t.save()
-            return
+        code = dw.get_transfer_failure_code(tds.dwolla_id)
 
-        if t.status != d['status']:
-            t.status = d['status']
-            t.save()
+        if code is not None:
+            tds.failure_code = code
+            tds.updated_at = timezone.now()
+            tds.save()
 
 
 class TransferDonkies(TransferDwolla):
@@ -154,12 +184,8 @@ class TransferDonkies(TransferDwolla):
         'Account',
         related_name='transfers_donkies',
         help_text='Funding source user debit account.')
-    initiated_at = models.DateTimeField(null=True, default=None, blank=True)
-    updated_at = models.DateTimeField(null=True, default=None, blank=True)
     sent_at = models.DateTimeField(null=True, default=None, blank=True)
     processed_at = models.DateTimeField(null=True, default=None, blank=True)
-    is_initiated = models.BooleanField(
-        default=False, help_text='Transfer initiated in Dwolla')
     is_sent = models.BooleanField(
         default=False, help_text='Money sent to Donkies LLC')
     is_processed_to_user = models.BooleanField(
@@ -175,6 +201,20 @@ class TransferDonkies(TransferDwolla):
 
     def __str__(self):
         return str(self.id)
+
+    @property
+    def can_initiate(self):
+        if self.is_initiated:
+            return False
+        return True
+
+    @property
+    def can_update(self):
+        if self.is_sent or self.is_failed or not self.is_initiated:
+            return False
+        if not self.dwolla_id:
+            return False
+        return True
 
 
 @admin.register(TransferDonkies)

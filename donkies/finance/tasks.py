@@ -1,3 +1,5 @@
+import datetime
+from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
 from donkies import capp
@@ -157,9 +159,23 @@ def update_dwolla_transfers():
 # @rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
 def update_dwolla_failure_codes():
     """
-    Updates failure codes in TransferDonkiesFailed.
+    Updates failure codes in TransferDonkies.
     TODO: increase periodic interval on production.
     """
-    TransferDonkiesFailed = apps.get_model('finance', 'TransferDonkiesFailed')
-    for tdf in TransferDonkiesFailed.objects.filter(failure_code=None):
-        TransferDonkiesFailed.objects.update_dwolla_failure_code(tdf.id)
+    TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+    qs = TransferDonkies.objects.filter(is_failed=True, failure_code=None)
+    for tds in qs:
+        TransferDonkies.objects.update_dwolla_failure_code(tds.id)
+
+
+@periodic_task(run_every=crontab())
+def reinitiate_dwolla_transfers():
+    """
+    Reinitiate failed transfers with "R01" failure_code after
+    24 hours.
+    """
+    TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+    dt = timezone.now() - datetime.timedelta(hours=24)
+    TransferDonkies.objects\
+        .filter(failure_code='R01', updated_at__lt=dt)\
+        .update(is_initiated=False, is_failed=False, failure_code=None)

@@ -59,6 +59,7 @@ Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
 """
 
 import datetime
+import logging
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
@@ -67,6 +68,8 @@ from django.db.models import Sum
 from django.utils import timezone
 from bank.services.dwolla_api import DwollaApi
 from finance.models import TransferDwolla
+
+logger = logging.getLogger('app')
 
 
 class TransferDonkiesManager(models.Manager):
@@ -120,12 +123,16 @@ class TransferDonkiesManager(models.Manager):
 
         dw = DwollaApi()
         id = dw.initiate_transfer(fs.dwolla_id, str(tds.amount))
-        if id is not None:
-            tds.dwolla_id = id
-            tds.is_initiated = True
-            tds.intiated_at = timezone.now()
-            tds.updated_at = timezone.now()
-            tds.save()
+        if id is None:
+            logger.error(
+                'Can not initiate transfer: {}'.format(tds.dwolla_id))
+            return
+
+        tds.dwolla_id = id
+        tds.is_initiated = True
+        tds.intiated_at = timezone.now()
+        tds.updated_at = timezone.now()
+        tds.save()
 
     def update_dwolla_transfer(self, id, is_test=False):
         """
@@ -142,16 +149,23 @@ class TransferDonkiesManager(models.Manager):
 
         dw = DwollaApi()
         d = dw.get_transfer(tds.dwolla_id)
-        if d['status'] == self.model.FAILED:
-            dw.get_transfer_failure(tds.dwolla_id)
-            tds.status = d['status']
-            tds.failure_code = dw.get_transfer_failure(tds.dwolla_id)
-            tds.save()
+        if d is None:
+            logger.error(
+                'Can not retrieve transfer: {}'.format(tds.dwolla_id))
             return
 
-        if tds.status != d['status']:
-            tds.status = d['status']
-            tds.save()
+        if d['status'] == self.model.PENDING:
+            tds.updated_at = timezone.now()
+
+        elif d['status'] == self.model.PROCESSED:
+            tds.is_sent = True
+            tds.updated_at = timezone.now()
+            tds.sent_at = timezone.now()
+
+        else:
+            tds.updated_at = timezone.now()
+            tds.is_failed = True
+        tds.save()
 
     def update_dwolla_failure_code(self, id):
         tds = self.models.objects.get(id=id)
@@ -204,7 +218,7 @@ class TransferDonkies(TransferDwolla):
 
     @property
     def can_initiate(self):
-        if self.is_initiated:
+        if self.is_initiated or self.is_sent or self.is_failed:
             return False
         return True
 

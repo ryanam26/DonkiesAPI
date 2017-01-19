@@ -268,13 +268,17 @@ class DwollaApi:
                 'Initiate transfer fail', json.dumps(d), str(e))
         return None
 
-    def get_transfer_info(self, id):
+    def get_transfer(self, id):
         """
-        Returns transfer by id.
+        Returns transfer by id or None.
         """
         url = self.get_transfer_url(id)
-        r = self.token.get(url)
-        return r.body
+        try:
+            r = self.token.get(url)
+            transfer = r.body
+        except:
+            transfer = None
+        return transfer
 
     def get_transfer_failure_code(self, id):
         """

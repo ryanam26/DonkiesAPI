@@ -6,8 +6,8 @@ from finance.models import TransferDwolla
 class TransferDonkiesFailed(TransferDwolla):
     """
     When transfer failure_code != R01
-    it means something serious and rare happened.
-    (Most likelybank account removed from Dwolla.)
+    it means something bad happened.
+    (Most likely bank account removed from Dwolla.)
 
     Therefore move this items from TransferDonkies to TransferDonkiesFailed
     and process this cases manually.

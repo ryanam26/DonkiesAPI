@@ -92,4 +92,12 @@ If user wants to delete account and account's member has other account (For exam
 * Test "process_prepare" manager's method. After moving funds from TransferPrepare to TransferDonkies all items in TransferPrepare should be set to is_processed=True
 * TestDonkies.test04
 
+* Test "move_failed" manager's method. After moving TransferDonkies item to TransferDonkiesFailed, all fields should be equal, TransferDonkies should be removed.
+* TestDonkies.test05
+
+## TransferDonkies with calling Dwolla API
+
+* Test "initiate_dwolla_transfer" manager's method. After TransferDonkies is initiated, should get everything that described in TransferDonkies model.
+* TestDonkiesDwolla.test01
+
 

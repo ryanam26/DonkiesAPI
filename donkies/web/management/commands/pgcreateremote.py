@@ -12,6 +12,10 @@ class Command(BaseCommand):
         con, cur = get_remote_root_connection()
 
         cur.execute('drop database if exists {}'.format(settings.DB_NAME))
+        # database for tests
+        cur.execute('drop database if exists test_{}'.format(
+            settings.DB_NAME))
+
         cur.execute('drop user if exists {}'.format(settings.DB_USER))
 
         cur.execute('create database {}'.format(settings.DB_NAME))

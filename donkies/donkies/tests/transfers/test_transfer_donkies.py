@@ -2,7 +2,8 @@ import pytest
 from django.db.models import Sum
 from .. import base
 from ..emulator import Emulator
-from finance.models import TransferPrepare, TransferDonkies
+from finance.models import (
+    TransferPrepare, TransferDonkies, TransferDonkiesFailed)
 
 
 class TestTransferDonkies(base.Mixin):
@@ -52,3 +53,32 @@ class TestTransferDonkies(base.Mixin):
 
         qs = TransferPrepare.objects.filter(is_processed=False)
         assert qs.count() == 0
+
+    @pytest.mark.django_db
+    def test05(self):
+        e = Emulator(num_debit_accounts=1)
+        e.init()
+        e.run_transfer_prepare()
+        e.run_transfer_donkies_process_prepare()
+
+        tds = TransferDonkies.objects.first()
+        tds.failure_code = 'R99'
+        tds.is_failed = True
+        tds.save()
+
+        TransferDonkies.objects.move_failed(tds.id)
+
+        tdf = TransferDonkiesFailed.objects.first()
+
+        assert tds.dwolla_id == tdf.dwolla_id
+        assert tds.amount == tdf.amount
+        assert tds.status == tdf.status
+        assert tds.created_at == tdf.created_at
+        assert tds.initiated_at == tdf.initiated_at
+        assert tds.updated_at == tdf.updated_at
+        assert tds.failure_code == tdf.failure_code
+        assert tds.is_initiated == tdf.is_initiated
+        assert tds.is_failed == tdf.is_failed
+        assert tds.account == tdf.account
+
+        assert TransferDonkies.objects.filter(id=tds.id).exists() is False

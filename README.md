@@ -184,3 +184,5 @@ Then from TransferDonkies model we send transfer to Donkies LLC (via Dwolla).
 As soon as money received by Donkies LLC (checked by API), we process received amount to debt user's accounts to TransferUser model.
 
 From TransferUser model currently send cheques manually.
+
+### Transfer flow of money from user's funding source to Donkies LLC in TransferDonkies model.

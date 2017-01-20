@@ -32,8 +32,6 @@ class TestTransferDonkiesDwolla(base.Mixin):
                 raise ValueError('Can not create funding source')
 
         self.funding_source = fs
-        print(fs)
-        print(self.dw.get_funding_source_balance(fs['id']))
 
     def get_dwolla_customer(self):
         for c in self.dw.get_customers():
@@ -53,10 +51,20 @@ class TestTransferDonkiesDwolla(base.Mixin):
         e.init()
         e.run_transfer_prepare()
         e.run_transfer_donkies_process_prepare()
-        return
-        # Exchange dwolla_id for generated debit account with
+
+        # Exchange dwolla_id for mock debit account with
         # real funding source dwolla_id from API
         account = e.debit_accounts[0]
         fs = account.funding_source
         fs.dwolla_id = self.funding_source['id']
         fs.save()
+
+        tds = TransferDonkies.objects.first()
+        TransferDonkies.objects.initiate_dwolla_transfer(tds.id)
+
+        tds.refresh_from_db()
+
+        assert tds.is_initiated is True
+        assert tds.initiated_at is not None
+        assert tds.updated_at is not None
+        assert tds.dwolla_id is not None

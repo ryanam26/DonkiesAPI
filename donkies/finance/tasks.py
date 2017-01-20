@@ -150,7 +150,8 @@ def update_dwolla_transfers():
     TODO: increase periodic interval on production.
     """
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
-    qs = TransferDonkies.objects.filter(is_initiated=True, is_sent=False)
+    qs = TransferDonkies.objects.filter(
+        is_initiated=True, is_sent=False, is_failed=False)
     for tds in qs:
         TransferDonkies.objects.update_dwolla_transfer(tds.id)
 

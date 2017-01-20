@@ -10,7 +10,7 @@ Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
 
    When get success respond from Dwolla, set
     is_initiated = True
-    intiated_at = now
+    initiated_at = now
     updated_at = now
     dwolla_id = received dwolla id
 
@@ -115,7 +115,7 @@ class TransferDonkiesManager(models.Manager):
         tds.save()
 
     def initiate_dwolla_transfer(self, id):
-        tds = self.model.objects.get(id)
+        tds = self.model.objects.get(id=id)
         if not tds.can_initiate:
             return
 
@@ -130,7 +130,7 @@ class TransferDonkiesManager(models.Manager):
 
         tds.dwolla_id = id
         tds.is_initiated = True
-        tds.intiated_at = timezone.now()
+        tds.initiated_at = timezone.now()
         tds.updated_at = timezone.now()
         tds.save()
 
@@ -138,7 +138,7 @@ class TransferDonkiesManager(models.Manager):
         """
         If less than 15 minutes from last check, do nothing.
         """
-        tds = self.model.objects.get(id)
+        tds = self.model.objects.get(id=id)
         if not tds.can_update:
             return
 
@@ -175,10 +175,44 @@ class TransferDonkiesManager(models.Manager):
         dw = DwollaApi()
         code = dw.get_transfer_failure_code(tds.dwolla_id)
 
-        if code is not None:
-            tds.failure_code = code
-            tds.updated_at = timezone.now()
-            tds.save()
+        if code is None:
+            logger.error(
+                'Can not get failure code for: {}'.format(tds.dwolla_id))
+            return
+
+        tds.failure_code = code
+        tds.updated_at = timezone.now()
+        tds.save()
+
+        if code != 'R01':
+            self.move_failed(tds.id)
+
+    @transaction.atomic
+    def move_failed(self, id):
+        """
+        Moves failed transfer from TransferDonkies to TransferDonkiesFailed.
+        """
+        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        TransferDonkiesFailed = apps.get_model(
+            'finance', 'TransferDonkiesFailed')
+
+        tds = self.model.objects.get(id=id)
+        if not tds.can_move:
+            return
+
+        fields1 = TransferDonkies._meta.get_fields()
+        fields1 = [f.name for f in fields1]
+
+        fields2 = TransferDonkiesFailed._meta.get_fields()
+        fields2 = [f.name for f in fields2]
+
+        # Both models have this fields
+        fields = [f for f in fields1 if f in fields2 and f != 'id']
+        tdf = TransferDonkiesFailed()
+        for field in fields:
+            setattr(tdf, field, getattr(tds, field))
+        tdf.save()
+        tds.delete()
 
 
 class TransferDonkies(TransferDwolla):
@@ -229,6 +263,12 @@ class TransferDonkies(TransferDwolla):
         if not self.dwolla_id:
             return False
         return True
+
+    @property
+    def can_move(self):
+        if self.failure_code != 'R01':
+            return True
+        return False
 
 
 @admin.register(TransferDonkies)

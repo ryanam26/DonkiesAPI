@@ -234,8 +234,8 @@ LOGGING = {
         },
 
         'dwolla': {
-            'level': 'ERROR',
-            'handlers': ['db'],
+            'level': 'DEBUG',
+            'handlers': ['console', 'db'],
             'propagate': False,
         }
     }

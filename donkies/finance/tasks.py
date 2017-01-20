@@ -129,11 +129,26 @@ def update_institutions():
     Institution.objects.update_credentials()
 
 
-# @periodic_task(run_every=crontab())
-# @rs_singleton(rs, 'INITIATE_DWOLLA_TRANSFERS_IS_PROCESSING')
+# --- Transfers to Dwolla
+
+@periodic_task(run_every=crontab(minute=0, hour='*'))
+@rs_singleton(rs, 'PROCESS_ROUNDUPS_IS_PROCESSING')
+def process_roundups():
+    TransferPrepare = apps.get_model('finance', 'TransferPrepare')
+    TransferPrepare.objects.process_roundups()
+
+
+@periodic_task(run_every=crontab(minute=5, hour='*'))
+@rs_singleton(rs, 'PROCESS_PREPARE_IS_PROCESSING')
+def process_prepare():
+    TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+    TransferDonkies.objects.process_prepare()
+
+
+@periodic_task(run_every=crontab())
+@rs_singleton(rs, 'INITIATE_DWOLLA_TRANSFERS_IS_PROCESSING')
 def initiate_dwolla_transfers():
     """
-    Initiate all transfers in finance.TransferDonkies model.
     TODO: increase periodic interval on production.
     """
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
@@ -141,8 +156,8 @@ def initiate_dwolla_transfers():
         TransferDonkies.objects.initiate_dwolla_transfer(tds.id)
 
 
-# @periodic_task(run_every=crontab())
-# @rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
+@periodic_task(run_every=crontab())
+@rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
 def update_dwolla_transfers():
     """
     Updates status of Donkies transfers.
@@ -156,8 +171,8 @@ def update_dwolla_transfers():
         TransferDonkies.objects.update_dwolla_transfer(tds.id)
 
 
-# @periodic_task(run_every=crontab())
-# @rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
+@periodic_task(run_every=crontab())
+@rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
 def update_dwolla_failure_codes():
     """
     Updates failure codes in TransferDonkies.
@@ -179,4 +194,9 @@ def reinitiate_dwolla_transfers():
     dt = timezone.now() - datetime.timedelta(hours=24)
     TransferDonkies.objects\
         .filter(failure_code='R01', updated_at__lt=dt)\
-        .update(is_initiated=False, is_failed=False, failure_code=None)
+        .update(
+            is_initiated=False,
+            is_failed=False,
+            failure_code=None,
+            status=None
+        )

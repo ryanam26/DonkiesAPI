@@ -25,15 +25,18 @@ Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
 
    1) If status == pending, set:
       updated_at = now
+      status = status
 
    2) If status == processed, set:
       is_sent = True
       sent_at = the date of transfer
       updated_at = now
+      status = status
 
    3) If other status, set:
       updated_at = now
       is_failed = True
+      status = status
 
 3) Celery scheduled task "update_dwolla_failure_codes" look at all transfers
    that is_failed = True and failure_code = None and run
@@ -56,6 +59,7 @@ Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
    is_initiated = False
    is_failed = False
    failure_code = None
+   status = None
 """
 
 import datetime
@@ -134,10 +138,9 @@ class TransferDonkiesManager(models.Manager):
         tds.updated_at = timezone.now()
         tds.save()
 
-    def update_dwolla_transfer(self, id, test_status=None):
+    def update_dwolla_transfer(self, id):
         """
         If less than 15 minutes from last check, do nothing.
-        test_status not None means testing.
         """
         tds = self.model.objects.get(id=id)
         if not tds.can_update:
@@ -145,8 +148,7 @@ class TransferDonkiesManager(models.Manager):
 
         now = timezone.now()
         if tds.updated_at + datetime.timedelta(minutes=15) > now:
-            if test_status is None:
-                return
+            return
 
         dw = DwollaApi()
         d = dw.get_transfer(tds.dwolla_id)
@@ -156,9 +158,6 @@ class TransferDonkiesManager(models.Manager):
             return
 
         status = d['status']
-
-        if test_status is not None:
-            status = test_status
 
         if status == self.model.PENDING:
             tds.updated_at = timezone.now()
@@ -171,6 +170,8 @@ class TransferDonkiesManager(models.Manager):
         else:
             tds.updated_at = timezone.now()
             tds.is_failed = True
+
+        tds.status = status
         tds.save()
 
     def update_dwolla_failure_code(self, id):

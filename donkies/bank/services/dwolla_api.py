@@ -5,23 +5,26 @@ import os
 import uuid
 from django.conf import settings
 
+logger = logging.getLogger('dwolla')
+
 
 class DwollaApi:
     def __init__(self):
         self.rs = settings.REDIS_DB
 
-        mode = settings.DWOLLA_API_MODE
-        if mode not in ['PROD', 'DEV']:
+        self.mode = settings.DWOLLA_API_MODE
+        if self.mode not in ['PROD', 'DEV']:
             raise ValueError('Dwolla API mode should be "PROD" or "DEV"')
 
-        environment = 'sandbox' if mode == 'DEV' else 'production'
+        environment = 'sandbox' if self.mode == 'DEV' else 'production'
 
-        self.client_id = getattr(settings, 'DWOLLA_ID_{}'.format(mode))
-        self.client_secret = getattr(settings, 'DWOLLA_SECRET_{}'.format(mode))
+        self.client_id = getattr(settings, 'DWOLLA_ID_{}'.format(self.mode))
+        self.client_secret = getattr(settings, 'DWOLLA_SECRET_{}'.format(
+            self.mode))
 
         # Recepient Donkies LLC bank account's email.
         self.donkies_email = getattr(
-            settings, 'DONKIES_DWOLLA_EMAIL_{}'.format(mode))
+            settings, 'DONKIES_DWOLLA_EMAIL_{}'.format(self.mode))
 
         self.client = dwollav2.Client(
             id=self.client_id,
@@ -40,9 +43,13 @@ class DwollaApi:
         return False
 
     def set_logs(self, *args):
-        logger = logging.getLogger('dwolla')
-        s = '-------\n'.join(args)
+        """
+        In py.tests logger doesn't print to console.
+        """
+        s = '\n---\n'.join(args)
         logger.error(s)
+        if self.mode == 'DEV':
+            print(s)
 
     def get_api_url(self):
         """
@@ -96,7 +103,10 @@ class DwollaApi:
                 if res is not None:
                     return res['id']
             self.set_logs(
-                'Create customer', json.dumps(data), str(e))
+                '"create_customer" failed',
+                json.dumps(data),
+                str(e)
+            )
         return None
 
     def get_customers(self):
@@ -108,8 +118,17 @@ class DwollaApi:
         Returns customer by id.
         """
         url = self.get_customer_url(id)
-        r = self.token.get(url)
-        return r.body
+        try:
+            r = self.token.get(url)
+            customer = r.body
+        except dwollav2.Error as e:
+            customer = None
+            self.set.logs(
+                '"get_customer" failed.',
+                'Customer id: {}'.format(id),
+                str(e)
+            )
+        return customer
 
     def get_customer_by_email(self, email):
         """
@@ -117,9 +136,15 @@ class DwollaApi:
         """
         r = self.token.get('customers', email=email)
         try:
-            return r.body['_embedded']['customers'][0]
-        except:
-            return None
+            customer = r.body['_embedded']['customers'][0]
+        except Exception as e:
+            customer = None
+            self.set.logs(
+                '"get_customer_by_email" failed.',
+                'Email: {}'.format(email),
+                str(e)
+            )
+        return customer
 
     def get_iav_token(self, customer_id):
         """
@@ -129,8 +154,13 @@ class DwollaApi:
         try:
             r = self.token.post(url)
             token = r.body['token']
-        except:
+        except dwollav2.Error as e:
             token = None
+            self.set.logs(
+                '"get_iav_token" failed.',
+                'Customer id: {}'.format(customer_id),
+                str(e)
+            )
         return token
 
     def update_customer(self, id):
@@ -152,9 +182,10 @@ class DwollaApi:
                 return self.get_funding_source_by_name(
                     customer_id, data['name'])['id']
             self.set_logs(
-                'Create funding source',
-                'Customer: {}'.format(customer_id),
-                json.dumps(data), str(e))
+                '"create_funding_source" failed.',
+                'Customer id: {}'.format(customer_id),
+                json.dumps(data),
+                str(e))
         return None
 
     def get_funding_sources(self, customer_id):
@@ -169,8 +200,17 @@ class DwollaApi:
         """
         Returns funding source by id.
         """
-        r = self.token.get(self.get_funding_source_url(id))
-        return r.body
+        try:
+            r = self.token.get(self.get_funding_source_url(id))
+            fs = r.body
+        except dwollav2.Error as e:
+            fs = None
+            self.set.logs(
+                '"get_funding_source" failed.',
+                'Funding source id: {}'.format(id),
+                str(e)
+            )
+        return fs
 
     def get_funding_source_by_name(self, customer_id, name):
         """
@@ -182,11 +222,18 @@ class DwollaApi:
         return None
 
     def remove_funding_source(self, id):
-        self.token.delete(self.get_funding_source_url(id))
+        try:
+            self.token.delete(self.get_funding_source_url(id))
+        except dwollav2.Error as e:
+            self.set.logs(
+                '"remove_funding_source" failed.',
+                'Funding source id: {}'.format(id),
+                str(e)
+            )
 
     def get_funding_source_balance(self, id):
         """
-        Method not trusted.
+        Method is not trusted.
         Through error: The supplied credentials are
         not authorized for this resource.
         """
@@ -261,23 +308,35 @@ class DwollaApi:
         try:
             r = self.token.post('transfers', d)
             if r.status == 201:
-                return self.get_id_from_headers(r.headers)
+                result = self.get_id_from_headers(r.headers)
+            else:
+                result = None
+                self.set_logs('"initiate_transfer" failed: None')
         except dwollav2.Error as e:
-            print(str(e))
+            result = None
             self.set_logs(
-                'Initiate transfer fail', json.dumps(d), str(e))
-        return None
+                '"initiate_transfer" failed.',
+                json.dumps(d),
+                str(e)
+            )
+        return result
 
     def get_transfer(self, id):
         """
         Returns transfer by id or None.
         """
         url = self.get_transfer_url(id)
+        r = self.token.get(url)
         try:
             r = self.token.get(url)
             transfer = r.body
-        except:
+        except dwollav2.Error as e:
             transfer = None
+            self.set_logs(
+                '"get_transfer" failed.',
+                'Transfer id: {}'.format(id),
+                str(e)
+            )
         return transfer
 
     def get_transfer_failure_code(self, id):
@@ -291,8 +350,13 @@ class DwollaApi:
         try:
             r = self.token.get(url)
             code = r.body['code']
-        except:
+        except dwollav2.Error as e:
             code = None
+            self.set_logs(
+                '"get_transfer_failure_code" failed.',
+                'Transfer id: {}'.format(id),
+                str(e)
+            )
         return code
 
     def create_test_customer(self):

@@ -5,6 +5,7 @@ from django.utils import timezone
 from faker import Faker
 from web.models import User, Email
 from finance.models import Account, Member, Institution, Transaction
+from bank.models import Customer
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -12,13 +13,14 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
         django_get_or_create = ('email',)
 
-    address1 = Faker().address()[:50]
+    first_name = Faker().first_name()
+    last_name = Faker().last_name()
+    address1 = Faker().street_address()
     city = Faker().city()
     date_of_birth = '1980-01-01'
     state = Faker().state_abbr()
     postal_code = Faker().postalcode()
     ssn = Faker().ssn()
-    phone = '5613069507'
     is_active = True
     is_confirmed = True
 
@@ -105,3 +107,15 @@ class TransactionFactory(factory.django.DjangoModelFactory):
             account=account,
             amount=TransactionFactory.generate_amount()
         )
+
+
+class CustomerFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Customer
+
+    user = factory.SubFactory(UserFactory)
+
+    @staticmethod
+    def get_customer():
+        user = UserFactory(email=Faker().email())
+        return Customer.objects.create_customer(user)

@@ -22,9 +22,22 @@ class CustomerManager(models.Manager):
         """
         Celery task POST call to dwolla to create customer.
         """
-        c = self.model.objects.get(id=id)
-        if c.dwolla_id is not None:
+        customer = self.model.objects.get(id=id)
+        if customer.dwolla_id is not None:
             return
+
+        dic = self.get_customer_data_for_create_request(customer)
+
+        dw = DwollaApi()
+        id = dw.create_customer(dic)
+        if id is not None:
+            customer.dwolla_id = id
+            customer.save()
+
+    def get_customer_data_for_create_request(self, customer):
+        """
+        Returns dict with data to create customer in Dwolla.
+        """
         fields = [
             'first_name', 'last_name', 'email', 'type', 'address1',
             'city', 'state', 'postal_code', 'date_of_birth', 'ssn',
@@ -32,31 +45,27 @@ class CustomerManager(models.Manager):
 
         d = {}
         for field in fields:
-            value = getattr(c, field)
+            value = getattr(customer, field)
             if value:
                 if isinstance(value, datetime.date):
                     value = value.strftime('%Y-%m-%d')
                 d[to_camel(field)] = value
+        return d
 
-        dw = DwollaApi()
-        id = dw.create_customer(d)
-        if id is not None:
-            c.dwolla_id = id
-            c.save()
-
-    def init_dwolla_customer(self, id):
+    def initiate_dwolla_customer(self, id):
         """
-        Get data of created, but not inited yet customer.
+        Get data of created, but not initiated yet customer.
         """
         c = self.model.objects.get(id=id)
         if c.dwolla_id is not None and c.created_at is None:
             dw = DwollaApi()
             d = dw.get_customer(c.dwolla_id)
-            c.dwolla_id = d['id']
-            c.dwolla_type = d['type']
-            c.status = d['status']
-            c.created_at = d['created']
-            c.save()
+            if d is not None:
+                assert d['id'] == c.dwolla_id
+                c.dwolla_type = d['type']
+                c.status = d['status']
+                c.created_at = d['created']
+                c.save()
 
 
 class Customer(models.Model):

@@ -44,9 +44,11 @@ class DwollaApi:
 
     def set_logs(self, *args):
         """
-        In py.tests logger doesn't print to console.
+        As py.tests logger doesn't print to console
+        do it manually.
         """
-        s = '\n---\n'.join(args)
+        s = '\n'.join(args)
+        s += '\n-------'
         logger.error(s)
         if self.mode == 'DEV':
             print(s)
@@ -123,7 +125,7 @@ class DwollaApi:
             customer = r.body
         except dwollav2.Error as e:
             customer = None
-            self.set.logs(
+            self.set_logs(
                 '"get_customer" failed.',
                 'Customer id: {}'.format(id),
                 str(e)
@@ -139,7 +141,7 @@ class DwollaApi:
             customer = r.body['_embedded']['customers'][0]
         except Exception as e:
             customer = None
-            self.set.logs(
+            self.set_logs(
                 '"get_customer_by_email" failed.',
                 'Email: {}'.format(email),
                 str(e)
@@ -156,7 +158,7 @@ class DwollaApi:
             token = r.body['token']
         except dwollav2.Error as e:
             token = None
-            self.set.logs(
+            self.set_logs(
                 '"get_iav_token" failed.',
                 'Customer id: {}'.format(customer_id),
                 str(e)
@@ -205,7 +207,7 @@ class DwollaApi:
             fs = r.body
         except dwollav2.Error as e:
             fs = None
-            self.set.logs(
+            self.set_logs(
                 '"get_funding_source" failed.',
                 'Funding source id: {}'.format(id),
                 str(e)
@@ -222,10 +224,19 @@ class DwollaApi:
         return None
 
     def remove_funding_source(self, id):
+        """
+        Dwolla can return:
+        {
+            "code":"InvalidResourceState",
+            "message":"Resource cannot be modified."
+        }
+        """
+        d = {'id': id, 'removed': True}
+        url = self.get_funding_source_url(id)
         try:
-            self.token.delete(self.get_funding_source_url(id))
+            self.token.post(url, d)
         except dwollav2.Error as e:
-            self.set.logs(
+            self.set_logs(
                 '"remove_funding_source" failed.',
                 'Funding source id: {}'.format(id),
                 str(e)
@@ -305,6 +316,7 @@ class DwollaApi:
                 'value': amount
             }
         }
+
         try:
             r = self.token.post('transfers', d)
             if r.status == 201:
@@ -358,24 +370,6 @@ class DwollaApi:
                 str(e)
             )
         return code
-
-    def create_test_customer(self):
-        d = {
-            'firstName': 'John',
-            'lastName': 'Doe',
-            'email': '{}@nomail.net'.format(uuid.uuid4().hex),
-            'type': 'personal',
-            'address1': '99-99 33rd St',
-            'city': 'Some City',
-            'state': 'NY',
-            'postalCode': '11101',
-            'dateOfBirth': '1970-01-01',
-            'ssn': '1234'
-        }
-        id = self.create_customer(d)
-        if id is not None:
-            return self.get_customer(id)
-        return id
 
     def create_test_funding_source(self, customer_id):
         data = {

@@ -95,13 +95,24 @@ If user wants to delete account and account's member has other account (For exam
 * Test "move_failed" manager's method. After moving TransferDonkies item to TransferDonkiesFailed, all fields should be equal, TransferDonkies should be removed.
 * TestDonkies.test05
 
-## TransferDonkies with calling Dwolla API
 
-* Test "initiate_dwolla_transfer" manager's method. After TransferDonkies is initiated, should get everything that described in TransferDonkies model.
+
+## TransferDonkies with calling Dwolla API and other Dwolla API items.
+
+* Test "create_dwolla_customer" bank manager's method. Should set dwolla_id to Customer.
 * TestDonkiesDwolla.test01
 
-* Test "update_dwolla_transfer" manager's method. Test successful transfer.
+* Test "initiate_dwolla_customer" bank manager's method. Should set dwolla_type, status, created_at to Customer.
 * TestDonkiesDwolla.test02
 
-* Test "update_dwolla_transfer" manager's method. Test FAILED R01 status.
+* Test "create_customer" DwollaApi method. Try to create the same customer twice. Instead of getting error second time, should get customer.
 * TestDonkiesDwolla.test03
+
+* Test "initiate_dwolla_transfer" manager's method. After TransferDonkies is initiated, should get everything that described in TransferDonkies model.
+* TestDonkiesDwolla.test04
+
+* Test "update_dwolla_transfer" manager's method. Test successful transfer.
+* TestDonkiesDwolla.test05
+
+* Test "update_dwolla_transfer" manager's method. Test FAILED R01 status.
+* TestDonkiesDwolla.test06

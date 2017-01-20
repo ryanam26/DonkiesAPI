@@ -10,15 +10,13 @@ class Command(BaseCommand):
     On init project.
     """
     def create_customer(self, user):
-        fake = Faker()
-
         c = Customer(user=user)
-        user.address1 = fake.address()[:50]
-        user.city = fake.city()
+        user.address1 = Faker().street_address()
+        user.city = Faker().city()
         user.date_of_birth = '1980-01-01'
-        user.state = fake.state_abbr()
-        user.postal_code = fake.postalcode()
-        user.ssn = fake.ssn()
+        user.state = Faker().state_abbr()
+        user.postal_code = Faker().postalcode()
+        user.ssn = Faker().ssn()
         user.save()
         c.save()
 
@@ -27,13 +25,11 @@ class Command(BaseCommand):
         Set first name and last name for users.
         Required by Dwolla.
         """
-        fake = Faker()
-
         for user in User.objects.all():
             if not user.first_name:
-                user.first_name = fake.first_name()
+                user.first_name = Faker().first_name()
             if not user.last_name:
-                user.last_name = fake.last_name()
+                user.last_name = Faker().last_name()
             user.save()
 
     def handle(self, *args, **options):

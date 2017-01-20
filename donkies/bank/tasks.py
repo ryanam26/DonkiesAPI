@@ -16,9 +16,20 @@ def create_customers():
     """
     Customer = apps.get_model('bank', 'Customer')
     # TODO  user__is_admin=False
-    for c in Customer.objects.filter(created_at=None):
+    for c in Customer.objects.filter(dwolla_id=None):
         Customer.objects.create_dwolla_customer(c.id)
-        Customer.objects.init_dwolla_customer(c.id)
+
+
+@periodic_task(run_every=crontab(minute='*'))
+@rs_singleton(rs, 'INIT_CUSTOMERS_IS_PROCESSING')
+def initiate_customers():
+    """
+    Task that initiates created customers.
+    """
+    Customer = apps.get_model('bank', 'Customer')
+    qs = Customer.objects.filter(dwolla_id__is_null=False, created_at=None)
+    for c in qs:
+        Customer.objects.initiate_dwolla_customer(c.id)
 
 
 # Currently not used.

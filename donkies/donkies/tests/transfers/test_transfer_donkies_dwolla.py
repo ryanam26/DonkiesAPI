@@ -8,33 +8,31 @@ from ..emulator import Emulator
 from ..factories import CustomerFactory
 
 
+@pytest.mark.django_db
 class TestTransferDonkiesDwolla(base.Mixin):
     """
     Tests that use Dwolla API.
     Run from US server.
     """
-    customer = None
-    funding_source = None
-
-    @classmethod
-    @pytest.mark.django_db
-    def setup_class(cls):
+    def setup(self):
         """
         Setup customer and funding source for all tests.
+        Run on every test.
+        Can not use setup_class here, because need database access
+        for creating customer.
+
         Get or create verified customer.
         Get or create customer's verified funding source account.
         """
-        self = cls()
+        # self = cls()
         self.dw = DwollaApi()
 
         c = self.get_dwolla_customer()
         if c is None:
-            customer = CustomerFactory.get_customer()
-            Customer.objects.create_dwolla_customer(customer.id)
-            c = self.get_dwolla_customer()
+            c = self.create_customer()
             if not c:
                 raise ValueError('Can not create customer')
-        cls.customer = c
+        self.customer = c
 
         fs = self.get_funding_source()
         if fs is None:
@@ -42,9 +40,24 @@ class TestTransferDonkiesDwolla(base.Mixin):
             if fs is None:
                 raise ValueError('Can not create funding source')
 
-        cls.funding_source = fs
+        self.funding_source = fs
         # print(self.customer)
-        print(self.funding_source)
+        # print(self.funding_source)
+
+        for c in self.dw.get_customers():
+            if c['status'] == 'verified':
+                for fs in self.dw.get_funding_sources(c['id']):
+                    if fs['status'] == 'verified':
+                        print(self.dw.get_funding_source_balance(fs['id']))
+                        print('------------')
+
+
+
+    def create_customer(self):
+        customer = CustomerFactory.get_customer()
+        Customer.objects.create_dwolla_customer(customer.id)
+        customer.refresh_from_db()
+        return self.dw.get_customer(customer.dwolla_id)
 
     def get_dwolla_customer(self):
         for c in self.dw.get_customers():
@@ -59,24 +72,22 @@ class TestTransferDonkiesDwolla(base.Mixin):
         return None
 
     @pytest.mark.django_db
-    def test01(self):
+    def notest01(self):
         """
-        Do not run each time, or too many customers
+        Do not run each time, because too many customers
         will be created in Dwolla.
         """
-        return
         customer = CustomerFactory.get_customer()
         Customer.objects.create_dwolla_customer(customer.id)
         customer.refresh_from_db()
         assert customer.dwolla_id is not None
 
     @pytest.mark.django_db
-    def test02(self):
+    def notest02(self):
         """
-        Do not run each time, or too many customers
+        Do not run each time, because too many customers
         will be created in Dwolla.
         """
-        return
         customer = CustomerFactory.get_customer()
         Customer.objects.create_dwolla_customer(customer.id)
         customer.refresh_from_db()
@@ -89,8 +100,7 @@ class TestTransferDonkiesDwolla(base.Mixin):
         assert customer.status is not None
 
     @pytest.mark.django_db
-    def test03(self):
-        return
+    def notest03(self):
         customer = CustomerFactory.get_customer()
         data = Customer.objects.get_customer_data_for_create_request(customer)
         c1 = self.dw.create_customer(data)
@@ -99,6 +109,7 @@ class TestTransferDonkiesDwolla(base.Mixin):
 
     @pytest.mark.django_db
     def test04(self):
+        return
         e = Emulator(num_debit_accounts=1)
         e.init()
         e.run_transfer_prepare()
@@ -112,12 +123,9 @@ class TestTransferDonkiesDwolla(base.Mixin):
         fs.save()
 
         tds = TransferDonkies.objects.first()
-        tds.amount = 1
         tds.save()
 
         TransferDonkies.objects.initiate_dwolla_transfer(tds.id)
-        print('Transfer initiated')
-
         tds.refresh_from_db()
 
         assert tds.is_initiated is True

@@ -14,6 +14,9 @@ Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
     updated_at = now
     dwolla_id = received dwolla id
 
+   !!! Init transfer can fail with not sufficient funds.
+   !!! Process this case. Delay for next init.
+
 2) Celery scheduled task "update_dwolla_transfers" look at all transfers
    that is_initiated = True, is_sent = False, is_failed=False
    and run manager's method

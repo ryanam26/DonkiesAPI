@@ -100,4 +100,11 @@ If user wants to delete account and account's member has other account (For exam
 * Test "initiate_dwolla_transfer" manager's method. After TransferDonkies is initiated, should get everything that described in TransferDonkies model.
 * TestDonkiesDwolla.test01
 
+* Test "update_dwolla_transfer" manager's method. Test PENDING status.
+* TestDonkiesDwolla.test02
 
+* Test "update_dwolla_transfer" manager's method. Test PROCESSED status.
+* TestDonkiesDwolla.test03
+
+* Test "update_dwolla_transfer" manager's method. Test FAILED status.
+* TestDonkiesDwolla.test04

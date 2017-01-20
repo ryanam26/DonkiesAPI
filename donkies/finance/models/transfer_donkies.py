@@ -134,9 +134,10 @@ class TransferDonkiesManager(models.Manager):
         tds.updated_at = timezone.now()
         tds.save()
 
-    def update_dwolla_transfer(self, id, is_test=False):
+    def update_dwolla_transfer(self, id, test_status=None):
         """
         If less than 15 minutes from last check, do nothing.
+        test_status not None means testing.
         """
         tds = self.model.objects.get(id=id)
         if not tds.can_update:
@@ -144,7 +145,7 @@ class TransferDonkiesManager(models.Manager):
 
         now = timezone.now()
         if tds.updated_at + datetime.timedelta(minutes=15) > now:
-            if not is_test:
+            if test_status is None:
                 return
 
         dw = DwollaApi()
@@ -154,10 +155,15 @@ class TransferDonkiesManager(models.Manager):
                 'Can not retrieve transfer: {}'.format(tds.dwolla_id))
             return
 
-        if d['status'] == self.model.PENDING:
+        status = d['status']
+
+        if test_status is not None:
+            status = test_status
+
+        if status == self.model.PENDING:
             tds.updated_at = timezone.now()
 
-        elif d['status'] == self.model.PROCESSED:
+        elif status == self.model.PROCESSED:
             tds.is_sent = True
             tds.updated_at = timezone.now()
             tds.sent_at = timezone.now()

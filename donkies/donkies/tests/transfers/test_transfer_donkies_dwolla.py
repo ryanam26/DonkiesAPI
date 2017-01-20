@@ -68,3 +68,20 @@ class TestTransferDonkiesDwolla(base.Mixin):
         assert tds.initiated_at is not None
         assert tds.updated_at is not None
         assert tds.dwolla_id is not None
+
+    @pytest.mark.django_db
+    def test02(self):
+        e = Emulator(num_debit_accounts=1)
+        e.init()
+        e.run_transfer_prepare()
+        e.run_transfer_donkies_process_prepare()
+
+        # Exchange dwolla_id for mock debit account with
+        # real funding source dwolla_id from API
+        account = e.debit_accounts[0]
+        fs = account.funding_source
+        fs.dwolla_id = self.funding_source['id']
+        fs.save()
+
+        tds = TransferDonkies.objects.first()
+        TransferDonkies.objects.initiate_dwolla_transfer(tds.id)

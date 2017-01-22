@@ -111,8 +111,9 @@ class DwollaApi:
             )
         return None
 
-    def get_customers(self):
-        r = self.token.get('customers')
+    def get_customers(self, removed=False):
+        d = {'removed': removed}
+        r = self.token.get('customers', d)
         return r.body['_embedded']['customers']
 
     def get_customer(self, id):
@@ -190,12 +191,13 @@ class DwollaApi:
                 str(e))
         return None
 
-    def get_funding_sources(self, customer_id):
+    def get_funding_sources(self, customer_id, removed=False):
         """
         Returns customer's funding sources.
         """
+        d = {'removed': removed}
         url = self.get_customer_funding_sources_url(customer_id)
-        r = self.token.get(url)
+        r = self.token.get(url, d)
         return r.body['_embedded']['funding-sources']
 
     def get_funding_source(self, id):
@@ -256,7 +258,12 @@ class DwollaApi:
         Initiates micro-deposits verification for funding source.
         """
         url = self.get_micro_deposit_url(id)
-        self.token.post(url)
+        try:
+            self.token.post(url)
+        except dwollav2.Error as e:
+            # MaxNumberOfResources: already initiated
+            if e.body['code'] != 'MaxNumberOfResources':
+                raise dwollav2.Error(e)
 
     def get_micro_deposits(self, id):
         """
@@ -272,8 +279,10 @@ class DwollaApi:
     def verify_micro_deposits(
             self, id, amount1, amount2, currency1='USD', currency2='USD'):
         """
-        Live method, that calls directly from front-end (not celery)
-        Returns status code and error (if status is not 200)
+        Do not used on frontend.
+        Used for verification bank accounts on tests.
+        Returns HTTP status and error (if error)
+        Status 200 means: micro deposits verified.
         """
         url = self.get_micro_deposit_url(id)
         d = {
@@ -287,7 +296,7 @@ class DwollaApi:
             }
         }
         try:
-            r = self.token(url, d)
+            r = self.token.get(url, d)
             if r.status == 200:
                 return r.status, None
             raise dwollav2.Error('Try again later.')

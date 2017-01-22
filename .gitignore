@@ -4,7 +4,6 @@
 __pycache__/
 db.dump
 
-donkies/react/node_modules/
 donkies/celerybeat-schedule
 donkies/donkies/settings/data.json
 donkies/db.dump

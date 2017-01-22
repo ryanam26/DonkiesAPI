@@ -47,9 +47,14 @@ class TestTransferDonkiesDwolla(base.Mixin):
         for c in self.dw.get_customers():
             if c['status'] == 'verified':
                 for fs in self.dw.get_funding_sources(c['id']):
-                    if fs['status'] == 'verified':
-                        print(self.dw.get_funding_source_balance(fs['id']))
-                        print('------------')
+                    if fs['status'] != 'verified' and fs['type'] == 'bank':
+                        # print(self.dw.get_micro_deposits(fs['id']))
+                        # print(self.dw.verify_micro_deposits(
+                        #     fs['id'], '1.00', '1.00'))
+                        print(fs['name'], fs['status'])
+                        print('-----')
+                        # print(self.dw.get_funding_source_balance(fs['id']))
+                        # print('------------')
 
 
 

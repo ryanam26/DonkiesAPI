@@ -2,6 +2,26 @@
 Info about Dwolla transfers and failure codes:
 https://developers.dwolla.com/resources/bank-transfer-workflow/transfer-failures.html
 
+-----
+
+!!!!! Continue from this.
+
+Funding sources can be:
+1) Balance - balance of account.
+2) Bank - linked bank.
+
+Link bank on frontend is working out of the box via IAV, but to link
+in tests it is required to verify by microdeposits.
+
+In tests micro-deposits can be verified with any amount.
+
+I verified all funding sources (bank accounts) with micro deposits,
+got status 200 (means OK), but funding sources was still unverified.
+Probably need some time.
+
+-----
+
+
 Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
 
 1) Celery scheduled task "initiate_dwolla_transfers" look at all transfers

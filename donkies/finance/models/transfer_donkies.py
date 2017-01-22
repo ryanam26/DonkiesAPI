@@ -13,11 +13,8 @@ Funding sources can be:
 Link bank on frontend is working out of the box via IAV, but to link
 in tests it is required to verify by microdeposits.
 
-In tests micro-deposits can be verified with any amount.
-
-I verified all funding sources (bank accounts) with micro deposits,
-got status 200 (means OK), but funding sources was still unverified.
-Probably need some time.
+In tests micro-deposits can be verified with any amount lees than 0.1.
+Tests have example how to init and verify funding source.
 
 -----
 

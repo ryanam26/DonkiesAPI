@@ -246,12 +246,20 @@ class DwollaApi:
 
     def get_funding_source_balance(self, id):
         """
-        Method is not trusted.
-        Through error: The supplied credentials are
-        not authorized for this resource.
+        Method only works for funding source type = balance
+        Returns balance or None (if error).
         """
-        r = self.token.get(self.get_balance_url(id))
-        return r.body
+        try:
+            r = self.token.get(self.get_balance_url(id))
+            balance = r.body
+        except dwollav2.Error as e:
+            balance = None
+            self.set_logs(
+                '"get_funding_source_balance" failed.',
+                'Funding source id: {}'.format(id),
+                str(e)
+            )
+        return balance
 
     def init_micro_deposits(self, id):
         """

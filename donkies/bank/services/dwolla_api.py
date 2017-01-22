@@ -227,10 +227,11 @@ class DwollaApi:
 
     def remove_funding_source(self, id):
         """
-        Dwolla can return:
+        Can be used to remove type = bank funding sources.
+        type = balance can not be deleted: Error:
         {
-            "code":"InvalidResourceState",
-            "message":"Resource cannot be modified."
+            "code": "InvalidResourceState",
+            "message": "Resource cannot be modified."
         }
         """
         d = {'id': id, 'removed': True}
@@ -261,17 +262,24 @@ class DwollaApi:
             )
         return balance
 
-    def init_micro_deposits(self, id):
+    def initiate_micro_deposits(self, id):
         """
         Initiates micro-deposits verification for funding source.
+        Returns bool.
         """
         url = self.get_micro_deposit_url(id)
         try:
-            self.token.post(url)
+            r = self.token.post(url)
+            if r.status == 201:
+                return True
         except dwollav2.Error as e:
             # MaxNumberOfResources: already initiated
             if e.body['code'] != 'MaxNumberOfResources':
-                raise dwollav2.Error(e)
+                self.set_logs(
+                    '"initiate_micro_deposits"',
+                    str(e)
+                )
+        return False
 
     def get_micro_deposits(self, id):
         """
@@ -287,8 +295,11 @@ class DwollaApi:
     def verify_micro_deposits(
             self, id, amount1, amount2, currency1='USD', currency2='USD'):
         """
-        Do not used on frontend.
+        Do not used on frontend. (Frontend uses IAV).
         Used for verification bank accounts on tests.
+        In the Sandbox environment, any amount below $0.10
+        will allow you to verify the account immediately.
+
         Returns HTTP status and error (if error)
         Status 200 means: micro deposits verified.
         """
@@ -304,12 +315,14 @@ class DwollaApi:
             }
         }
         try:
-            r = self.token.get(url, d)
-            if r.status == 200:
-                return r.status, None
-            raise dwollav2.Error('Try again later.')
+            r = self.token.post(url, d)
         except dwollav2.Error as e:
-            return r.status, str(e)
+            return None, str(e)
+
+        if r.status == 200:
+            return r.status, None
+
+        return r.status, str(e)
 
     def initiate_transfer(self, src_id, amount, currency='USD'):
         """
@@ -387,15 +400,3 @@ class DwollaApi:
                 str(e)
             )
         return code
-
-    def create_test_funding_source(self, customer_id):
-        data = {
-            'routingNumber': '222222226',
-            'accountNumber': '123456789',
-            'type': 'savings',
-            'name': 'My Bank'
-        }
-        id = self.create_funding_source(customer_id, data)
-        if id is not None:
-            return self.get_funding_source(id)
-        return id

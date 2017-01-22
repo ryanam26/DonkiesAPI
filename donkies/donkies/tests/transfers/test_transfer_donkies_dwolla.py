@@ -26,53 +26,72 @@ class TestTransferDonkiesDwolla(base.Mixin):
         # self = cls()
         self.dw = DwollaApi()
 
-        c = self.get_dwolla_customer()
-        if c is None:
-            c = self.create_customer()
-            if not c:
-                raise ValueError('Can not create customer')
-        self.customer = c
+        self.customer = self.get_or_create_customer()
+        print(self.customer['id'])
 
-        fs = self.get_funding_source()
-        if fs is None:
-            fs = self.dw.create_test_funding_source(self.customer['id'])
-            if fs is None:
-                raise ValueError('Can not create funding source')
+        self.funding_source = self.get_or_create_funding_source()
+        print(self.funding_source)
 
-        self.funding_source = fs
-        # print(self.customer)
-        # print(self.funding_source)
-
+    def temp(self):
         for c in self.dw.get_customers():
             if c['status'] == 'verified':
                 for fs in self.dw.get_funding_sources(c['id']):
-                    print(fs['name'], fs['type'], fs['status'])
-                    # if fs['status'] != 'verified' and fs['type'] == 'bank':
-                    #     # print(self.dw.get_micro_deposits(fs['id']))
-                    #     # print(self.dw.verify_micro_deposits(
-                    #     #     fs['id'], '1.00', '1.00'))
-                    #     print(fs['name'], fs['status'])
-                    #     print('-----')
-                    #     # print(self.dw.get_funding_source_balance(fs['id']))
-                    #     # print('------------')
+                    print(fs['name'], fs['status'])
+                    if fs['status'] != 'verified' and fs['type'] == 'bank':
+                        # print(self.dw.get_micro_deposits(fs['id']))
+                        print(self.dw.verify_micro_deposits(
+                            fs['id'], '0.05', '0.05'))
+                        # print(fs['name'], fs['status'])
+                        print('-----')
+                        # print(self.dw.get_funding_source_balance(fs['id']))
+                        # print('------------')
 
-    def create_customer(self):
+    def get_or_create_customer(self):
+        for c in self.dw.get_customers():
+            if c['status'] == 'verified':
+                return c
+
         customer = CustomerFactory.get_customer()
         Customer.objects.create_dwolla_customer(customer.id)
         customer.refresh_from_db()
         return self.dw.get_customer(customer.dwolla_id)
 
-    def get_dwolla_customer(self):
-        for c in self.dw.get_customers():
-            if c['status'] == 'verified':
-                return c
-        return None
-
-    def get_funding_source(self):
+    def get_or_create_funding_source(self):
+        """
+        Returns funding source (bank) or creates verified
+        funding source (bank).
+        """
         for fs in self.dw.get_funding_sources(self.customer['id']):
-            if fs['status'] == 'verified':
+            if fs['status'] == 'verified' and fs['type'] == 'bank':
                 return fs
-        return None
+
+        data = {
+            'routingNumber': '222222226',
+            'accountNumber': '123456789',
+            'type': 'savings',
+            'name': 'My Bank'
+        }
+        print('Creating funding source --------')
+        id = self.dw.create_funding_source(self.customer['id'], data)
+        fs = self.dw.get_funding_source(id)
+        print(fs)
+
+        print('Initiating micro-deposits -------')
+        res = self.dw.initiate_micro_deposits(fs['id'])
+        print(res)
+
+        print('Get status of micro-deposits -------')
+        res = self.dw.get_micro_deposits(fs['id'])
+
+        print('Verifying funding source -------')
+        res = self.dw.verify_micro_deposits(
+            fs['id'], '0.05', '0.05')
+        print(res)
+
+        print('Checking the status of funding source -------')
+        fs = self.dw.get_funding_source(id)
+        print(fs['status'])
+        return fs
 
     @pytest.mark.django_db
     def notest01(self):

@@ -37,7 +37,7 @@ class MemberManager(ActiveManager):
 
     def create_member(self, api_response):
         """
-        api_response is dictionary with response result.
+        api_response is dictionary with response result from Atrium.
         """
         User = apps.get_model('web', 'User')
         Institution = apps.get_model('finance', 'Institution')

@@ -256,16 +256,23 @@ DWOLLA_API_MODE = 'DEV'
 DONKIES_DWOLLA_EMAIL_DEV = 'vladigris@gmail.com'
 DONKIES_DWOLLA_EMAIL_PROD = 'bank@donkies.co'
 
-# User for real tests.
+# Users for real tests.
 TEST_USERS = [
     {
-        'email': '',
+        'email': 'test@donkies.co',
         'guid': 'USR-f4bc90ba-4504-6fda-b07c-5aa965832a06',
-        'password': ''
+        'password': '111',
+        'first_name': 'Vladimir',
+        'last_name': 'Grischenko'
+    },
+    {
+        'email': 'alex@donkies.co',
+        'guid': 'USR-bd2621a6-bdcb-c671-3079-f3ad8cd2b501',
+        'password': '111',
+        'first_name': 'Alex',
+        'last_name': 'Arias'
     },
 ]
-TEST_USER_EMAIL = 'test@donkies.co'
-TEST_USER_PASSWORD = '111'
 
 # Integer. In US dollars.
 MINIMUM_TRANSFER_AMOUNT = 50

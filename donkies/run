@@ -19,12 +19,12 @@ python manage.py makemigrations finance
 python manage.py makemigrations bank
 python manage.py migrate
 
+python manage.py loaddata institutions
+
 python manage.py createemails
 python manage.py createsuperuser
-python manage.py createtestuser
+python manage.py createtestusers
 python manage.py createcustomers
-
-python manage.py loaddata institutions
 
 
 elif [ "$1" == "migr" ]
@@ -63,7 +63,7 @@ then
 clear
 # py.test -s donkies/tests/test_accounts.py
 # py.test -s donkies/tests/test_auth.py
-py.test -s donkies/tests/test_atrium.py
+# py.test -s donkies/tests/test_atrium.py
 # py.test -s donkies/tests/test_customers.py
 # py.test -s donkies/tests/test_funding_sources.py
 # py.test -s donkies/tests/test_institutions.py

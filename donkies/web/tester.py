@@ -106,7 +106,4 @@ if __name__ == '__main__':
     # qs = Member.objects.active().filter(user=user)
     # for member in qs:
     #     Member.objects.delete_member(member.id)
-
-    user = User.objects.get(email='john@gmail.com')
-    user.is_confirmed = True
-    user.save()
+    pass

@@ -69,8 +69,8 @@ class AtriumApi:
         """
         return self.api.getCredentials(code)
 
-    def get_members(self, user_guid):
-        return self.api.getMembers(user_guid)
+    def get_members(self, user_guid, **kw):
+        return self.api.getMembers(user_guid, queryParams=kw)
 
     def create_member(self, user_guid, code, credentials):
         """

@@ -1,0 +1,17 @@
+{% extends 'web/emails/base.html' %}
+{% load email_tags %}
+
+{% block title %}
+    <title>{{ domain }}</title>
+{% endblock %}
+
+{% block content %}
+    <p>Dear {{ user.first_name }}!</p>
+
+    <p>Please click the button below to confirm your registration.</p>
+
+    {% email_button_link link_href=link_href link_text=link_text %}
+
+    <p>Regards, {{ domain }} team!</p>
+{% endblock %}
+

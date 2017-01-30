@@ -122,8 +122,7 @@ class User(AbstractBaseUser):
                 regex='^\d{10}$',
                 message='Should be 10 digits')],
         null=True,
-        default=None,
-        blank=True
+        default=None
     )
     confirmation_token = models.CharField(max_length=255, blank=True)
     confirmed_at = models.DateTimeField(blank=True, default=None, null=True)
@@ -196,6 +195,28 @@ class User(AbstractBaseUser):
     def is_staff(self):
         return self.is_admin
 
+    @property
+    def is_profile_completed(self):
+        """
+        Profile completed. After profile has been completed,
+        user can not it change.
+        """
+        fields = (
+            'first_name',
+            'last_name',
+            'address1',
+            'city',
+            'state',
+            'postal_code',
+            'date_of_birth',
+            'ssn',
+            'phone'
+        )
+        for field in fields:
+            if getattr(self, field) is None:
+                return False
+        return True
+
     def encrypt(self, value):
         s = '{}-{}'.format(settings.SECRET_KEY, value)
         return get_md5(s)
@@ -241,7 +262,7 @@ class User(AbstractBaseUser):
     def signup(self):
         Emailer = apps.get_model('web', 'Emailer')
         Email = apps.get_model('web', 'Email')
-        Emailer.objects.mail_user(self, Email.SIGNUP)
+        Emailer.objects.process_email(Email.SIGNUP, user=self)
 
     def signup_confirm(self):
         """
@@ -267,7 +288,8 @@ class User(AbstractBaseUser):
 
         self.confirmation_resend_count += 1
         self.save()
-        Emailer.objects.mail_user(self, Email.RESEND_REG_CONFIRMATION)
+        Emailer.objects.process_email(
+            Email.RESEND_REG_CONFIRMATION, user=self)
 
     def reset_require(self):
         Emailer = apps.get_model('web', 'Emailer')
@@ -275,7 +297,7 @@ class User(AbstractBaseUser):
         self.reset_token = self.generate_token()
         self.reset_at = timezone.now()
         self.save()
-        Emailer.objects.mail_user(self, Email.RESET_PASSWORD)
+        Emailer.objects.process_email(Email.RESET_PASSWORD, user=self)
 
     def reset_password(self, new_password):
         """
@@ -294,7 +316,7 @@ class User(AbstractBaseUser):
         self.new_email_expire_at =\
             timezone.now() + datetime.timedelta(hours=1)
         self.save()
-        Emailer.objects.mail_user(self, Email.CHANGE_EMAIL)
+        Emailer.objects.process_email(Email.CHANGE_EMAIL, user=self)
 
     def change_email_confirm(self, token):
         """

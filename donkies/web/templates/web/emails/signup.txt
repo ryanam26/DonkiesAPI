@@ -1,0 +1,9 @@
+Dear {{ user.first_name }}!
+
+To complete your registration, please click on the following URL (or copy-paste it into your browser):
+
+{{ link_href }}
+
+Regards, {{ domain }} team!
+
+

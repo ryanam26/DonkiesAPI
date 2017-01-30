@@ -132,6 +132,9 @@ class UserDetail(AuthMixin, APIView):
         return Response(s.data)
 
     def put(self, request, **kwargs):
+        if self.request.user.is_profile_completed:
+            return r400('Profile is completed and can not be changed.')
+
         s = sers.UserSerializer(self.request.user, data=request.data)
         s.is_valid(raise_exception=True)
         s.save()

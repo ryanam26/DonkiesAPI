@@ -58,6 +58,7 @@ class TestAuth(base.Mixin):
 
         em = Emailer.objects.first()
         assert user.confirmation_token in em.txt
+        self.print_emailer()
 
     @pytest.mark.django_db
     def test_signup02(self, client):

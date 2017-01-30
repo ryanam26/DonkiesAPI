@@ -1,16 +1,46 @@
+import copy
 import datetime
 from django.db import models
 from django.contrib import admin
 from django.conf import settings
 from django.apps import apps
 from django.core.exceptions import ValidationError
-from django.template import Template, Context
+from django.utils.translation import ugettext_lazy as _
+from django.template import Context
 
 
 class EmailerManager(models.Manager):
-    def mail_user(self, user, code):
+    def get_common_context(self):
+        return {'domain': settings.FRONTEND_DOMAIN}
+
+    def change_email_context(self, **kwargs):
+        d = self.get_common_context()
+        d['link_href'] = kwargs['user'].get_change_email_link()
+        d['link_text'] = _('Confirm new email')
+        return d
+
+    def resend_reg_confirmation_context(self, **kwargs):
+        d = self.get_common_context()
+        d['link_href'] = kwargs['user'].get_confirmation_link()
+        d['link_text'] = _('Confirm registration')
+        return d
+
+    def reset_password_context(self, **kwargs):
+        d = self.get_common_context()
+        d['link_href'] = kwargs['user'].get_reset_link()
+        d['link_text'] = _('Reset password')
+        return d
+
+    def signup_context(self, **kwargs):
+        d = self.get_common_context()
+        d['link_href'] = kwargs['user'].get_confirmation_link()
+        d['link_text'] = _('Verify')
+        return d
+
+    def process_email(self, code, **kwargs):
         """
-        code: list Email.CODE_CHOICES
+        kwargs should have user object or
+        email (email_to).
         """
         Email = apps.get_model('web', 'Email')
         try:
@@ -18,12 +48,23 @@ class EmailerManager(models.Manager):
         except Email.DoesNotExist:
             raise ValidationError('Wrong code')
 
-        txt = Template(email.txt)
-        html = Template(email.html)
+        txt = email.get_txt_template()
+        html = email.get_html_template()
 
-        ctx = Context({'user': user})
+        d = copy.deepcopy(kwargs)
+        addtitional_context = getattr(
+            self, '{}_context'.format(email.code), None)
+        if addtitional_context is not None:
+            d.update(addtitional_context(**kwargs))
+
+        if 'user' in kwargs:
+            email_to = kwargs['user'].email
+        else:
+            email_to = kwargs['email']
+
+        ctx = Context(d)
         em = self.model(
-            email_to=user.email,
+            email_to=email_to,
             email_from=settings.DEFAULT_FROM_EMAIL,
             subject=email.subject,
             html=html.render(ctx),
@@ -52,8 +93,8 @@ class Emailer(models.Model):
 
     class Meta:
         app_label = 'web'
-        verbose_name = 'Email'
-        verbose_name_plural = 'Emails'
+        verbose_name = 'email report'
+        verbose_name_plural = 'email reports'
         ordering = ['-created_at']
 
 

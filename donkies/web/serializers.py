@@ -179,7 +179,8 @@ class UserSerializer(serializers.ModelSerializer):
             'date_of_birth',
             'ssn',
             'phone',
-            'dwolla_customer'
+            'dwolla_customer',
+            'is_profile_completed'
         )
         read_only_fields = (
             'id',

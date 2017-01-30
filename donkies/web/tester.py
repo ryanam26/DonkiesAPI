@@ -107,6 +107,6 @@ if __name__ == '__main__':
     # for member in qs:
     #     Member.objects.delete_member(member.id)
 
-    from bank.services.dwolla_api import DwollaApi
-    d = DwollaApi()
-    d.test()
+    user = User.objects.get(email='john@gmail.com')
+    user.is_confirmed = True
+    user.save()

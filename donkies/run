@@ -25,10 +25,7 @@ python manage.py createtestuser
 python manage.py createcustomers
 
 python manage.py loaddata institutions
-python manage.py loaddata credentials
-python manage.py generatetransactions
 
-python manage.py updateinstitutions
 
 elif [ "$1" == "migr" ]
 then
@@ -65,11 +62,11 @@ elif [ "$1" == "test" ]
 then
 clear
 # py.test -s donkies/tests/test_accounts.py
-py.test -s donkies/tests/test_auth.py
+# py.test -s donkies/tests/test_auth.py
 # py.test -s donkies/tests/test_atrium.py
 # py.test -s donkies/tests/test_customers.py
 # py.test -s donkies/tests/test_funding_sources.py
-# py.test -s donkies/tests/test_institutions.py
+py.test -s donkies/tests/test_institutions.py
 # py.test -s donkies/tests/test_linking.py
 # py.test -s donkies/tests/test_transactions.py
 # py.test -s donkies/tests/test_facebook.py

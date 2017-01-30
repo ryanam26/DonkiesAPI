@@ -119,14 +119,14 @@ def update_users_data():
         update_user(user_id)
 
 
-@periodic_task(run_every=crontab(minute=0, hour='*/6'))
+# @periodic_task(run_every=crontab(minute=0, hour='*/6'))
 def update_institutions():
     """
     Updates institutions and their credentials.
     """
     Institution = apps.get_model('finance', 'Institution')
     Institution.objects.update_list()
-    Institution.objects.update_credentials()
+    # Institution.objects.update_credentials()
 
 
 # --- Transfers to Dwolla

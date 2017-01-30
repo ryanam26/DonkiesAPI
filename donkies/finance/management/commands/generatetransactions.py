@@ -5,6 +5,8 @@ from finance.services.generator import Generator
 class Command(BaseCommand):
     """
     Generates fake transactions for admin user.
+    Works only on "DEV" Atrium environment.
+    Do not run on "PROD" environment.
     """
     def handle(self, *args, **options):
         g = Generator()

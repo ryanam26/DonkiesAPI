@@ -1,0 +1,22 @@
+[
+  {
+    "model": "finance.institution",
+    "pk": 1,
+    "fields": {
+      "code": "chase",
+      "name": "Chase Bank",
+      "url": "https://www.chase.com",
+      "last_update": "2016-11-11T17:12:36+00:00"
+    }
+  },
+  {
+    "model": "finance.institution",
+    "pk": 2,
+    "fields": {
+      "code": "mxbank",
+      "name": "MX Bank",
+      "url": "https://www.mx.com",
+      "last_update": "2016-11-11T17:12:36+00:00"
+    }
+  }
+]

@@ -44,3 +44,5 @@ DATABASES = {
         'PORT': '5432'
     }
 }
+
+ATRIUM_API_MODE = 'PROD'

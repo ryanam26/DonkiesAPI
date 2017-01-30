@@ -1,43 +1,106 @@
 import pytest
-from .import base
+from django.conf import settings
 from finance.models import Institution, Credentials
+from finance.services.atrium_api import AtriumApi
 from .factories import InstitutionFactory, UserFactory
+from .import base
+
+
+@pytest.fixture(scope='module')
+def institutions():
+    a = AtriumApi()
+    d = a.search_institutions(name='Wells Fargo')
+    return {'list': d['institutions']}
 
 
 class TestInstitutions(base.Mixin):
     """
-    Tests fetching and updating institutions
-    and their credentials.
-    nd can be queried from atrium.
+    Test institutions and credentials on Atrium
+    PRODUCTION credentials.
+    Only fetching data from Atrium.
     """
+    WELLS_FARGO_CODE = 'wells_fargo'
+
+    def setup(self):
+        """
+        Data available for all tests.
+        """
+        settings.ATRIUM_API_MODE = 'PROD'
+
+    def init(self, institutions):
+        for d in institutions:
+            Institution.objects.update(**d)
+
     @pytest.mark.django_db
-    def notest_01(self, client):
-        # Test update institution
+    def test_update(self, client, institutions):
+        """
+        Test manager's method "update".
+        """
         assert Institution.objects.count() == 0
-        Institution.objects.update_list()
+        self.init(institutions['list'])
+
         assert Institution.objects.count() > 0
 
-        # Test update credentials
-        Institution.objects.all().update(is_update=True)
-        assert Credentials.objects.all().count() == 0
-        Institution.objects.update_credentials()
-        assert Credentials.objects.all().count() > 0
+        qs = Institution.objects.filter(code=self.WELLS_FARGO_CODE)
+        assert qs.exists() is True
 
     @pytest.mark.django_db
-    def test_suggest(self, client):
+    def test_suggest(self, client, institutions):
         """
         Test institutions suggest endpoint.
         """
-        InstitutionFactory(code='code1', name='name1')
-        InstitutionFactory(code='code2', name='name2')
-        InstitutionFactory(code='code3', name='name3')
-
+        self.init(institutions['list'])
         user = UserFactory(email='bob@gmail.com')
         client = self.get_auth_client(user)
 
-        url = '/v1/institutions_suggest?value=na'
+        url = '/v1/institutions_suggest?value=we'
         response = client.get(url)
         assert response.status_code == 200
 
         rd = response.json()
-        assert len(rd) == 3
+        assert len(rd) > 0
+
+    @pytest.mark.django_db
+    def test_get_credentials(self, client):
+        """
+        Get credentials from Atrium for particular institution.
+        """
+        a = AtriumApi()
+        res = a.get_credentials(self.WELLS_FARGO_CODE)
+        assert len(res) > 0
+
+    @pytest.mark.django_db
+    def test_get_credentials_by_id(self, client, institutions):
+        """
+        Test API endpoint.
+        """
+        self.init(institutions['list'])
+        user = UserFactory(email='bob@gmail.com')
+        client = self.get_auth_client(user)
+
+        i = Institution.objects.get(code=self.WELLS_FARGO_CODE)
+
+        url = '/v1/credentials/live/id/{}'.format(i.id)
+        response = client.get(url)
+        assert response.status_code == 200
+
+        l = response.json()
+        assert len(l) > 0
+
+    @pytest.mark.django_db
+    def test_get_credentials_by_code(self, client, institutions):
+        """
+        Test API endpoint.
+        """
+        self.init(institutions['list'])
+        user = UserFactory(email='bob@gmail.com')
+        client = self.get_auth_client(user)
+
+        i = Institution.objects.get(code=self.WELLS_FARGO_CODE)
+
+        url = '/v1/credentials/live/code/{}'.format(i.code)
+        response = client.get(url)
+        assert response.status_code == 200
+
+        l = response.json()
+        assert len(l) > 0

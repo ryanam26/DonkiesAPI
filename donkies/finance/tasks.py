@@ -125,8 +125,8 @@ def update_institutions():
     Updates institutions and their credentials.
     """
     Institution = apps.get_model('finance', 'Institution')
-    Institution.objects.update_list()
-    Institution.objects.update_credentials()
+    # Institution.objects.update_list()
+    # Institution.objects.update_credentials()
 
 
 # --- Transfers to Dwolla

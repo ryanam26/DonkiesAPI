@@ -1,4 +1,5 @@
 import logging
+import time
 from django.db import models
 from django.contrib import admin
 from django.db import transaction
@@ -38,6 +39,7 @@ class InstitutionManager(models.Manager):
         fields = ['name', 'code', 'url', 'small_logo_url', 'medium_logo_url']
 
         while True:
+            time.sleep(1)
             res = a.search_institutions(
                 records_per_page=records_per_page, page=page)
 
@@ -47,16 +49,19 @@ class InstitutionManager(models.Manager):
                         d.pop(k)
                 self.update(**d)
 
-            if res['pagination']['total_pages'] >= page:
+            if res['pagination']['total_pages'] <= page:
                 break
 
             page += 1
 
     def update(
             self, code, name, url, small_logo_url=None, medium_logo_url=None):
+
+        if not code:
+            return
+
         try:
-            print(name, small_logo_url)
-            print('---')
+            logger.info('{} {}'.format(name, small_logo_url))
             i = Institution.objects.get(code=code)
             is_update = False
             for field in ['name', 'url', 'small_logo_url', 'medium_logo_url']:

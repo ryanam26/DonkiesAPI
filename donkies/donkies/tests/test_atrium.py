@@ -91,19 +91,6 @@ class TestAtrium(base.Mixin):
             {'guid': password.guid, 'value': passwd},
         ]
 
-    def get_credentials_for_api(self, passwd):
-        """
-        Credentials for API [{field_name: ..., value: ...}].
-        """
-        login = Credentials.objects.get(
-            institution__code='mxbank', field_name='LOGIN')
-        password = Credentials.objects.get(
-            institution__code='mxbank', field_name='PASSWORD')
-        return [
-            {'field_name': login.field_name, 'value': self.TEST_USERNAME},
-            {'field_name': password.field_name, 'value': passwd},
-        ]
-
     @pytest.mark.django_db
     def test_create_member01(self):
         """
@@ -116,7 +103,7 @@ class TestAtrium(base.Mixin):
         url = '/v1/members'
         dic = {
             'institution_code': 'mxbank',
-            'credentials': self.get_credentials_for_api(self.TEST_PASSWORD)
+            'credentials': self.get_credentials(self.TEST_PASSWORD)
         }
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')

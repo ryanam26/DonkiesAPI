@@ -257,6 +257,13 @@ DONKIES_DWOLLA_EMAIL_DEV = 'vladigris@gmail.com'
 DONKIES_DWOLLA_EMAIL_PROD = 'bank@donkies.co'
 
 # User for real tests.
+TEST_USERS = [
+    {
+        'email': '',
+        'guid': 'USR-f4bc90ba-4504-6fda-b07c-5aa965832a06',
+        'password': ''
+    },
+]
 TEST_USER_EMAIL = 'test@donkies.co'
 TEST_USER_PASSWORD = '111'
 

@@ -16,11 +16,15 @@ from finance import tasks
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password):
+    def create_user(self, email, password, guid=None):
         if not email:
             raise ValueError('Please input email.')
         user = self.model(email=email)
         user.set_password(password)
+
+        if guid is not None:
+            user.guid = guid
+
         user.save(using=self._db)
         return user
 
@@ -40,7 +44,7 @@ class UserManager(BaseUserManager):
         """
         User = apps.get_model('web', 'User')
         user = User.objects.get(id=user_id)
-        if user.is_admin:
+        if user.is_admin or user.guid:
             return
 
         a = AtriumApi()
@@ -57,13 +61,14 @@ class UserManager(BaseUserManager):
 
     def clear_atrium(self):
         """
+        DEV mode only.
         Delete all users in Atrium.
-        TODO: processing errors.
         """
-        a = AtriumApi()
-        res = a.get_users()
-        for d in res['users']:
-            a.delete_user(d['guid'])
+        if settings.ATRIUM_API_MODE == 'DEV':
+            a = AtriumApi()
+            res = a.get_users()
+            for d in res['users']:
+                a.delete_user(d['guid'])
 
 
 class User(AbstractBaseUser):

@@ -67,6 +67,14 @@ unverified Customer -> verified Customer
 verified Customer -> verified Customer
 verified Customer -> unverified Customer
 
+
+### Credentials
+
+Credentials can be stored in database, then Celery task will need to update them constantly. Or they can be requested from Atrium on demand.
+
+The current implementation - request on demand.
+
+
 ### Nginx
 
 server {
@@ -186,3 +194,4 @@ As soon as money received by Donkies LLC (checked by API), we process received a
 From TransferUser model currently send cheques manually.
 
 ### Transfer flow of money from user's funding source to Donkies LLC in TransferDonkies model.
+

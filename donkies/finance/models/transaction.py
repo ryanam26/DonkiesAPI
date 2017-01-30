@@ -59,13 +59,25 @@ class TransactionManager(ActiveManager):
         tr.save()
         return tr
 
-    def get_atrium_transactions(self, user_guid):
+    def get_atrium_transactions(self, user_guid, from_date=None, to_date=None):
         """
         Queries atrium API for user's transactions.
+        from_date and to_date: datetime.date objects.
         TODO: processing errors.
         """
+        today = datetime.date.today()
+        if from_date is None:
+            from_date = today - datetime.timedelta(days=14)
+
+        if to_date is None:
+            to_date = today
+
+        from_date = from_date.strftime('%Y-%m-%d')
+        to_date = to_date.strftime('%Y-%m-%d')
+
         a = AtriumApi()
-        return a.get_transactions(user_guid)
+        return a.get_transactions(
+            user_guid, from_date=from_date, to_date=to_date)
 
     def get_transactions(self, user_guid):
         """

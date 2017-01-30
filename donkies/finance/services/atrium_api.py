@@ -112,10 +112,10 @@ class AtriumApi:
         """
         return self.api.getAccounts(user_guid)
 
-    def get_transactions(self, user_guid):
+    def get_transactions(self, user_guid, **kw):
         """
         TODO: processing errors.
               processing paginations.
               add query params.
         """
-        return self.api.getTransactions(user_guid)
+        return self.api.getTransactions(user_guid, queryParams=kw)

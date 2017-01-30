@@ -104,13 +104,13 @@ class AtriumApi:
         except NotFoundError:
             pass
 
-    def get_accounts(self, user_guid):
+    def get_accounts(self, user_guid, **kw):
         """
         TODO: processing errors.
               processing paginations.
               add query params.
         """
-        return self.api.getAccounts(user_guid)
+        return self.api.getAccounts(user_guid, queryParams=kw)
 
     def get_transactions(self, user_guid, **kw):
         """

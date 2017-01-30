@@ -39,7 +39,7 @@ class InstitutionManager(models.Manager):
         fields = ['name', 'code', 'url', 'small_logo_url', 'medium_logo_url']
 
         while True:
-            time.sleep(1)
+            time.sleep(0.5)
             res = a.search_institutions(
                 records_per_page=records_per_page, page=page)
 

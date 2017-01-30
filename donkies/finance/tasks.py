@@ -91,15 +91,11 @@ def update_user(user_id):
     User = apps.get_model('web', 'User')
     user = User.objects.get(id=user_id)
 
-    res = Account.objects.get_atrium_accounts(user.guid)
-    l = res['accounts']
-
+    l = Account.objects.get_atrium_accounts(user.guid)
     Account.objects.create_or_update_accounts(user.guid, l)
     print('Accounts created.')
 
-    res = Transaction.objects.get_atrium_transactions(user.guid)
-    l = res['transactions']
-
+    l = Transaction.objects.get_atrium_transactions(user.guid)
     Transaction.objects.create_or_update_transactions(user.guid, l)
     print('Transactions created.')
 

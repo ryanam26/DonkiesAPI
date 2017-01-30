@@ -1,6 +1,7 @@
 import datetime
 import math
 import uuid
+import time
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
@@ -26,6 +27,7 @@ class TransactionManager(ActiveManager):
               all of them for each user.
         """
         for tr in l:
+            print(tr)
             self.create_or_update_transaction(tr)
 
     def create_or_update_transaction(self, api_response):
@@ -65,6 +67,9 @@ class TransactionManager(ActiveManager):
         from_date and to_date: datetime.date objects.
         TODO: processing errors.
         """
+        page = 1
+        per_page = 100
+
         today = datetime.date.today()
         if from_date is None:
             from_date = today - datetime.timedelta(days=14)
@@ -75,9 +80,25 @@ class TransactionManager(ActiveManager):
         from_date = from_date.strftime('%Y-%m-%d')
         to_date = to_date.strftime('%Y-%m-%d')
 
-        a = AtriumApi()
-        return a.get_transactions(
-            user_guid, from_date=from_date, to_date=to_date)
+        l = []
+
+        while True:
+            time.sleep(0.5)
+
+            a = AtriumApi()
+            res = a.get_transactions(
+                user_guid,
+                from_date=from_date,
+                to_date=to_date,
+                records_per_page=per_page,
+                page=page)
+
+            l += res['transactions']
+            if res['pagination']['total_pages'] <= page:
+                break
+            page += 1
+
+        return l
 
     def get_transactions(self, user_guid):
         """
@@ -97,7 +118,7 @@ class Transaction(ActiveModel):
     guid = models.CharField(max_length=100, unique=True)
     uid = models.CharField(max_length=50, unique=True)
     amount = models.DecimalField(
-        max_digits=5, decimal_places=2, null=True, default=None)
+        max_digits=10, decimal_places=2, null=True, default=None)
     check_number = models.IntegerField(null=True, default=None)
     check_number_string = models.CharField(
         max_length=255, null=True, default=None, blank=True)
@@ -140,7 +161,7 @@ class Transaction(ActiveModel):
         app_label = 'finance'
         verbose_name = 'transaction'
         verbose_name_plural = 'transactions'
-        ordering = ['account']
+        ordering = ['account', '-transacted_at']
 
     def __str__(self):
         return self.uid

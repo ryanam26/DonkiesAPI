@@ -6,7 +6,7 @@ from finance.models import Account, Transaction
 
 class TestAccount(base.Mixin):
     @pytest.mark.django_db
-    def notest_delete01(self):
+    def test_delete01(self):
         """
         Instead of deleting object should set is_active=False
         """
@@ -18,7 +18,7 @@ class TestAccount(base.Mixin):
         assert a.is_active is False
 
     @pytest.mark.django_db
-    def notest_delete02(self):
+    def test_delete02(self):
         """
         Instead of deleting queryset, should set is_active=False
         """
@@ -33,7 +33,7 @@ class TestAccount(base.Mixin):
             assert a.is_active is False
 
     @pytest.mark.django_db
-    def notest_delete03(self):
+    def test_delete03(self):
         """
         Test calling Account.objects.delete_account method.
         All Transactions of deleted Account should be set
@@ -55,7 +55,7 @@ class TestAccount(base.Mixin):
             assert obj.is_active is False
 
     @pytest.mark.django_db
-    def notest_delete04(self):
+    def test_delete04(self):
         """
         When delete account, if account's member has only this account,
         member also should be deleted.

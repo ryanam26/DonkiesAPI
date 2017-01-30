@@ -54,8 +54,11 @@ class AccountManager(ActiveManager):
         Queries atrium API for user's accounts.
         TODO: processing errors.
         """
+        per_page = 100
+
         a = AtriumApi()
-        return a.get_accounts(user_guid)
+        res = a.get_accounts(user_guid, records_per_page=per_page)
+        return res['accounts']
 
     def get_accounts(self, user_guid):
         """

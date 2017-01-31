@@ -1,6 +1,6 @@
 import pytest
 from django.db.models import Sum
-from finance.services.emulator import Emulator
+from donkies.tests.services.emulator import Emulator
 from finance.models import (
     TransferPrepare, TransferDonkies, TransferDonkiesFailed)
 from .. import base

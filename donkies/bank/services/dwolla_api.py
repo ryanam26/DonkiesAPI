@@ -202,7 +202,7 @@ class DwollaApi:
 
     def get_funding_source(self, id):
         """
-        Returns funding source by id.
+        Returns funding source by id or None.
         """
         try:
             r = self.token.get(self.get_funding_source_url(id))

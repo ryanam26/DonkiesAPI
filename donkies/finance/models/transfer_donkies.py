@@ -2,22 +2,19 @@
 Info about Dwolla transfers and failure codes:
 https://developers.dwolla.com/resources/bank-transfer-workflow/transfer-failures.html
 
------
-
-!!!!! Continue from this.
-
 Funding sources can be:
-1) Balance - balance of account.
-2) Bank - linked bank.
+1) "Balance" - balance of account.
+2) "Bank" - linked bank.
+
+"Balance" is by default when funding source is created.
+"Bank" after linking bank to funding source.
 
 Link bank on frontend is working out of the box via IAV, but to link
 in tests it is required to verify by microdeposits.
 
-In tests micro-deposits can be verified with any amount lees than 0.1.
-Tests have example how to init and verify funding source.
-
------
-
+In tests micro-deposits can be verified with any amount less than 0.1.
+Tests have example how to init and verify funding source
+(get_or_create_funding_source).
 
 Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
 
@@ -31,8 +28,8 @@ Transfer flow from TransferDonkies to Donkies LLC on Dwolla.
     updated_at = now
     dwolla_id = received dwolla id
 
-   !!! Init transfer can fail with not sufficient funds.
-   !!! Process this case. Delay for next init.
+   Warning: Init transfer can fail with not sufficient funds from "Balance".
+            But in Donkies currently "Balance" is not used for transfers.
 
 2) Celery scheduled task "update_dwolla_transfers" look at all transfers
    that is_initiated = True, is_sent = False, is_failed=False

@@ -116,6 +116,9 @@ class CustomerFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
 
     @staticmethod
-    def get_customer():
-        user = UserFactory(email=Faker().email())
+    def get_customer(email=None):
+        if email is None:
+            email = Faker().email()
+
+        user = UserFactory(email=email)
         return Customer.objects.create_customer(user)

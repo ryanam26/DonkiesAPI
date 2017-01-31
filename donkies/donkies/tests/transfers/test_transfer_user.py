@@ -1,6 +1,6 @@
 import pytest
 from .. import base
-from finance.services.emulator import Emulator
+from donkies.tests.services.emulator import Emulator
 from finance.models import TransferUser
 
 

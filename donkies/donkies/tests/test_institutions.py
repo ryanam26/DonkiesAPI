@@ -1,8 +1,8 @@
 import pytest
 from django.conf import settings
-from finance.models import Institution, Credentials
+from finance.models import Institution
 from finance.services.atrium_api import AtriumApi
-from .factories import InstitutionFactory, UserFactory
+from .factories import UserFactory
 from .import base
 
 

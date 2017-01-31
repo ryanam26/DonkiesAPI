@@ -66,7 +66,7 @@ class TestTransferDonkies(base.Mixin):
         """
         After processing transfers from TransferPrepare to
         TransferFonkies, Transfer prepare shouldn't have
-        is_processed=False, eberything should be processed.
+        is_processed=False, everything should be processed.
         """
         e = Emulator()
         e.init()
@@ -84,7 +84,7 @@ class TestTransferDonkies(base.Mixin):
         """
         Test moving TransferDonkies item to TransferDonkiesFailed.
         TransferDonkiesFailed should have the copy of the item.
-        Item should be deleted from TransferDonkies.
+        Original item should be deleted from TransferDonkies.
         """
         e = Emulator(num_debit_accounts=1)
         e.init()

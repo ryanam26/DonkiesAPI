@@ -1,5 +1,6 @@
 import random
 from faker import Faker
+from django.utils import timezone
 from finance.models import Account, TransferPrepare, TransferDonkies
 from bank.models import FundingSource
 from .factories import (
@@ -120,3 +121,19 @@ class Emulator:
     @staticmethod
     def run_transfer_donkies_prepare():
         TransferDonkies.objects.process_prepare()
+
+    @staticmethod
+    def emulate_dwolla_transfers():
+        """
+        Emulate that all transfers have been sent to Dwolla
+        from TransferDonkies.
+        """
+        for td in TransferDonkies.objects.all():
+            td.status = TransferDonkies.PROCESSED
+            td.is_sent = True
+            td.sent_at = timezone.now()
+            td.created_at = timezone.now()
+            td.updated_at = timezone.now()
+            td.processed_at = timezone.now()
+            td.dwolla_id = 'some-dwolla-id'
+            td.save()

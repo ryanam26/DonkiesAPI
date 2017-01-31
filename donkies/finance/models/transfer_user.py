@@ -1,9 +1,62 @@
+import decimal
+import logging
 from django.db import models
 from django.contrib import admin
+from django.apps import apps
+
+logger = logging.getLogger('app')
 
 
 class TransferUserManager(models.Manager):
-    pass
+    def process_to_model(self):
+        """
+        Process all transfers, that have been sent from
+        TransferDonkies model to Donkies LLC to TransferUser model.
+        All processed items in TransferDonkies
+        is_processed_to_user should be set to True.
+        """
+        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+
+        qs = TransferDonkies.objects.filter(
+            is_sent=True, is_processed_to_user=False)
+
+        for td in qs:
+            self.process_td_to_model(td)
+
+    def process_td_to_model(self, td):
+        """
+        Process TransferDonkies item to TransferUser debt accounts.
+        """
+        Account = apps.get_model('finance', 'Account')
+
+        user = td.account.member.user
+        qs = Account.objects.debt_accounts().filter(member__user=user)
+
+        l = []
+        sum = 0
+        for account in qs:
+            tu = self.model(
+                account=account, td=td, share=account.transfer_share)
+
+            target = td.amount * account.transfer_share / 100
+            tu.amount = target.quantize(decimal.Decimal('.01'))
+
+            sum += tu.amount
+            l.append(tu)
+
+        if sum != td.amount:
+            message = (
+                'Error in TransferUserManager.process_td_to_model'
+                ' td_id: {}'
+                ' td.amount: {}'
+                ' sum: {}'
+            ).format(td.id, td.amount, sum)
+            logger.error(message)
+            return
+
+        for tu in l:
+            if tu.amount > 0:
+                tu.save()
 
 
 class TransferUser(models.Model):

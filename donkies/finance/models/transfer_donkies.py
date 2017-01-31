@@ -249,11 +249,9 @@ class TransferDonkies(TransferDwolla):
     Then send money to Donkeys LLC (via Dwolla)
 
     As soon as money has been sent to Donkeys - set is_sent = True
-    Check by API receiving money to Donkeys LLC account and as
-    soon as money received - set is_received = True
-
-    Process received amount to user debt's accounts accordingly to share
-    to TransferUser model.
+    Periodically check by API receiving money to Donkeys LLC account and as
+    soon as money received - process received amount to
+    user debt's accounts accordingly to share to TransferUser model.
     """
     account = models.ForeignKey(
         'Account',
@@ -296,6 +294,17 @@ class TransferDonkies(TransferDwolla):
         if self.failure_code != 'R01':
             return True
         return False
+
+    @property
+    def is_transfer_received(self):
+        """
+        Check transfer that has been sent to Donkies LLC
+        is received.
+        TODO: implement real check if needed.
+              Probably when Dwolla respond with success,
+              it means that transfer is successful.
+        """
+        return True
 
 
 @admin.register(TransferDonkies)

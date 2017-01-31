@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 
 class TransferService:
     """
+    Does not used in current implementation.
+
     Service that distributes transactions to accounts.
     Init:
         transactions - list of transactions dicts

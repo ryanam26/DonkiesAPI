@@ -2,6 +2,7 @@ import logging
 from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Q
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -109,10 +110,12 @@ class SignupConfirm(APIView):
 
 class Settings(AuthMixin, APIView):
     """
-    Settings for auth users.
+    Global settings for auth users.
     """
     def get(self, request, **kwargs):
-        d = {}
+        d = {
+            'transfer_amounts': [t[0] for t in User.TRANSFER_AMOUNT_CHOICES]
+        }
         return Response(d, status=200)
 
 
@@ -197,3 +200,13 @@ class UserChangeEmailConfirm(APIView):
             return r400('Incorrect link or expired token.')
 
         return Response({'message': self.message})
+
+
+class UserSettings(AuthMixin, generics.UpdateAPIView):
+    serializer_class = sers.UserSettingsSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
+
+    def get_object(self):
+        return User.objects.get(id=self.request.user.id)

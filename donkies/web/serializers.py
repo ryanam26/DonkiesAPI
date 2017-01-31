@@ -195,3 +195,11 @@ class UserSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'customer'):
             return CustomerSerializer(obj.customer).data
         return None
+
+
+class UserSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'minimum_transfer_amount',
+        )

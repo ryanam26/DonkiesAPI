@@ -274,9 +274,6 @@ TEST_USERS = [
     },
 ]
 
-# Integer. In US dollars.
-MINIMUM_TRANSFER_AMOUNT = 50
-
 US_STATES = (
     ('AL', 'Alabama'),
     ('AK', 'Alaska'),

@@ -72,6 +72,14 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    TRANSFER_AMOUNT_CHOICES = (
+        (5, 5),
+        (10, 10),
+        (20, 20),
+        (50, 50),
+        (100, 100)
+    )
+
     encrypted_id = models.CharField(max_length=32, default='')
     guid = models.CharField(
         max_length=100,
@@ -167,7 +175,8 @@ class User(AbstractBaseUser):
     fb_timezone = models.IntegerField(default=0)
     fb_verified = models.BooleanField(default=False)
     minimum_transfer_amount = models.IntegerField(
-        default=settings.MINIMUM_TRANSFER_AMOUNT,
+        choices=TRANSFER_AMOUNT_CHOICES,
+        default=TRANSFER_AMOUNT_CHOICES[0][0],
         help_text='Minimum amount for transfer.')
     is_atrium_created = models.BooleanField(default=False)
 

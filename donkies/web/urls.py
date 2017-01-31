@@ -70,11 +70,15 @@ urlpatterns = [
         v.UserChangeEmailConfirm.as_view(),
         name='user_change_email_confirm'),
 
-
     url(
         r'^(?P<version>(v1))/user$',
         v.UserDetail.as_view(),
         name='user_detail'),
+
+    url(
+        r'^(?P<version>(v1))/user_settings$',
+        v.UserSettings.as_view(),
+        name='user_settings'),
 
     url(r'^$', v.home, name='home'),
 ]

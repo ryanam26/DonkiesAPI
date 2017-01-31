@@ -229,3 +229,27 @@ class TestUsers(base.Mixin):
         url = '/v1/user/resend_reg_confirmation_link'
         response = client.get(url, content_type='application/json')
         assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_edit_settings(self, client):
+        """
+        Test edit user settings.
+        Should get success.
+        """
+        user = UserFactory(email='bob@gmail.com')
+        user.minimum_transfer_amount = 5
+        user.save()
+
+        client = self.get_auth_client(user)
+
+        url = '/v1/user_settings'
+        dic = {
+            'minimum_transfer_amount': 100,
+        }
+
+        data = json.dumps(dic)
+        response = client.patch(url, data, content_type='application/json')
+        assert response.status_code == 200
+
+        user.refresh_from_db()
+        assert user.minimum_transfer_amount == 100

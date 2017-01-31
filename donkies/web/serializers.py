@@ -180,7 +180,8 @@ class UserSerializer(serializers.ModelSerializer):
             'ssn',
             'phone',
             'dwolla_customer',
-            'is_profile_completed'
+            'is_profile_completed',
+            'minimum_transfer_amount'
         )
         read_only_fields = (
             'id',

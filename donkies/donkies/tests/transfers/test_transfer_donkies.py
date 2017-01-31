@@ -9,57 +9,87 @@ from finance.models import (
 class TestTransferDonkies(base.Mixin):
     @pytest.mark.django_db
     def test01(self):
-        e = Emulator()
-        e.init()
-        e.run_transfer_prepare()
-        e.clear_funding_source()
-        e.run_transfer_donkies_process_prepare()
-
-        assert TransferDonkies.objects.count() == 0
-
-    @pytest.mark.django_db
-    def test02(self):
+        """
+        After prepare transfer from TransferPrepare to
+        TransferDonkies, TransferDonkies should get 1 row
+        for 1 user. The account is user's funding source.
+        """
+        # User 1
         e1 = Emulator()
         e1.init()
-        e1.run_transfer_prepare()
-        e1.run_transfer_donkies_process_prepare()
 
+        # User 2
         e2 = Emulator()
         e2.init()
-        e2.run_transfer_prepare()
-        e2.run_transfer_donkies_process_prepare()
+
+        Emulator.run_transfer_prepare()
+        Emulator.run_transfer_donkies_prepare()
 
         assert TransferDonkies.objects.count() == 2
 
     @pytest.mark.django_db
-    def test03(self):
-        e = Emulator()
-        e.init()
-        e.run_transfer_prepare()
+    def test02(self):
+        """
+        The amount (total roundup) in TransferDonkies row
+        should be equal to total sum in TransferPrepare rows.
 
-        sum = TransferPrepare.objects.filter(is_processed=False)\
+        Test for 2 users.
+        """
+        e1 = Emulator()
+        e1.init()
+
+        e2 = Emulator()
+        e2.init()
+
+        Emulator.run_transfer_prepare()
+
+        sum1 = TransferPrepare.objects.filter(
+            is_processed=False, account__member__user=e1.user)\
             .aggregate(Sum('roundup'))['roundup__sum']
 
-        e.run_transfer_donkies_process_prepare()
-        assert TransferDonkies.objects.first().amount == sum
-        assert TransferDonkies.objects.count() == 1
+        sum2 = TransferPrepare.objects.filter(
+            is_processed=False, account__member__user=e2.user)\
+            .aggregate(Sum('roundup'))['roundup__sum']
+
+        Emulator.run_transfer_donkies_prepare()
+
+        assert TransferDonkies.objects.count() == 2
+
+        qs = TransferDonkies.objects.filter(account__member__user=e1.user)
+        assert qs.first().amount == sum1
+
+        qs = TransferDonkies.objects.filter(account__member__user=e2.user)
+        assert qs.first().amount == sum2
 
     @pytest.mark.django_db
-    def test04(self):
+    def test03(self):
+        """
+        After processing transfers from TransferPrepare to
+        TransferFonkies, Transfer prepare shouldn't have
+        is_processed=False, eberything should be processed.
+        """
         e = Emulator()
         e.init()
-        e.run_transfer_prepare()
-        e.run_transfer_donkies_process_prepare()
+        Emulator.run_transfer_prepare()
+        qs = TransferPrepare.objects.filter(is_processed=False)
+        assert qs.count() > 0
+
+        Emulator.run_transfer_donkies_prepare()
 
         qs = TransferPrepare.objects.filter(is_processed=False)
         assert qs.count() == 0
 
     @pytest.mark.django_db
-    def test05(self):
+    def test04(self):
+        """
+        Test moving TransferDonkies item to TransferDonkiesFailed.
+        TransferDonkiesFailed should have the copy of the item.
+        Item should be deleted from TransferDonkies.
+        """
         e = Emulator(num_debit_accounts=1)
         e.init()
-        e.run_transfer_prepare()
-        e.run_transfer_donkies_process_prepare()
+        Emulator.run_transfer_prepare()
+        Emulator.run_transfer_donkies_prepare()
 
         tds = TransferDonkies.objects.first()
         tds.failure_code = 'R99'

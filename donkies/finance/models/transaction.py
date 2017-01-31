@@ -27,7 +27,6 @@ class TransactionManager(ActiveManager):
               all of them for each user.
         """
         for tr in l:
-            print(tr)
             self.create_or_update_transaction(tr)
 
     def create_or_update_transaction(self, api_response):
@@ -168,7 +167,10 @@ class Transaction(ActiveModel):
 
     def calculate_roundup(self, value):
         top = math.ceil(float(value))
-        return top - value
+        roundup = top - value
+        if roundup == 0 and value > 0:
+            return 1
+        return roundup
 
     def save(self, *args, **kwargs):
         Account = apps.get_model('finance', 'Account')

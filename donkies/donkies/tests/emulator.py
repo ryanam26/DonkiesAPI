@@ -1,4 +1,5 @@
 import random
+from faker import Faker
 from finance.models import Account, TransferPrepare, TransferDonkies
 from bank.models import FundingSource
 from .factories import (
@@ -19,7 +20,7 @@ class Emulator:
         On init fill class with user, members, accounts, transactions.
 
         """
-        self.user = UserFactory(email='bob@gmail.com')
+        self.user = UserFactory(email=Faker().email())
         self.num_debit_accounts = num_debit_accounts
         self.num_debt_accounts = num_debt_accounts
         self.num_transactions = num_transactions
@@ -32,15 +33,6 @@ class Emulator:
     def init(self):
         self.fill()
         self.set_funding_source()
-
-    def run_transfer_prepare(self):
-        """
-        Collect not processed roundups to TransferPrepare model.
-        """
-        TransferPrepare.objects.process_roundups(is_test=True)
-
-    def run_transfer_donkies_process_prepare(self):
-        TransferDonkies.objects.process_prepare()
 
     def fill(self):
         self.fill_debit_accounts()
@@ -117,3 +109,14 @@ class Emulator:
             'status': 'verified',
             'name': 'Balance'
         }
+
+    @staticmethod
+    def run_transfer_prepare():
+        """
+        Collect not processed roundups to TransferPrepare model.
+        """
+        TransferPrepare.objects.process_roundups()
+
+    @staticmethod
+    def run_transfer_donkies_prepare():
+        TransferDonkies.objects.process_prepare()

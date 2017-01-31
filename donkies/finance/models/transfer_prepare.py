@@ -10,8 +10,6 @@ debt user's accounts to TransferUser model.
 
 From TransferUser model currently send cheques manually.
 """
-import calendar
-import datetime
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
@@ -19,19 +17,31 @@ from django.db import transaction
 
 
 class TransferPrepareManager(models.Manager):
-    def process_roundups(self, is_test=False):
+    def process_roundups(self):
         """
         Called by celery scheduled task.
-        Check if current date is date of transfer, process
-        all roundups for all users to TransferPrepare.
+        Processes all roundups for all users to TransferPrepare.
+
+        1) If user didn't set funding source, do not process user.
+
+        2) Calculates total roundup from user's accounts.
+           If sum less than user set in minimum_transfer_amount,
+           do not process user.
         """
         Account = apps.get_model('finance', 'Account')
+        User = apps.get_model('web', 'User')
+        for user in User.objects.all():
+            fs = user.get_funding_source_account()
+            if not fs:
+                continue
 
-        dt = datetime.date.today() if is_test else self.get_transfer_date()
-        if dt == datetime.date.today():
-            qs = Account.objects.active().filter(type_ds=Account.DEBIT)
-            for account in qs:
-                self.process_roundup(account)
+            sum = user.get_not_processed_roundup_sum()
+            if sum >= user.minimum_transfer_amount:
+                qs = Account.objects.active().filter(
+                    type_ds=Account.DEBIT, member__user=user)
+
+                for account in qs:
+                    self.process_roundup(account)
 
     @transaction.atomic
     def process_roundup(self, account):
@@ -52,15 +62,6 @@ class TransferPrepareManager(models.Manager):
         if total > 0:
             tpe = self.model(account=account, roundup=total)
             tpe.save()
-
-    def get_transfer_date(self, is_test=False):
-        """
-        Returns the date when all transfers should be made.
-        The last day of the month.
-        """
-        today = datetime.date.today()
-        _, last = calendar.monthrange(today.year, today.month)
-        return last
 
 
 class TransferPrepare(models.Model):

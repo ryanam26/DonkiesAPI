@@ -134,8 +134,8 @@ class TestTransferDonkiesDwolla(base.Mixin):
         return
         e = Emulator(num_debit_accounts=1)
         e.init()
-        e.run_transfer_prepare()
-        e.run_transfer_donkies_process_prepare()
+        Emulator.run_transfer_prepare()
+        Emulator.run_transfer_donkies_prepare()
 
         # Exchange dwolla_id for mock debit account with
         # real funding source dwolla_id from API
@@ -159,8 +159,8 @@ class TestTransferDonkiesDwolla(base.Mixin):
     def notestxx(self):
         e = Emulator(num_debit_accounts=1)
         e.init()
-        e.run_transfer_prepare()
-        e.run_transfer_donkies_process_prepare()
+        Emulator.run_transfer_prepare()
+        Emulator.run_transfer_donkies_prepare()
 
         # Exchange dwolla_id for mock debit account with
         # real funding source dwolla_id from API

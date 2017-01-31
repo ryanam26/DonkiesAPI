@@ -40,6 +40,7 @@ class MyUserAdmin(PopupMixin, UserAdmin):
                     'date_of_birth',
                     'ssn',
                     'phone',
+                    'minimum_transfer_amount',
                     'is_confirmed',
                     'is_active')}
         ),

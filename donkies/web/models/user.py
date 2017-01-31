@@ -7,6 +7,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
+from django.db.models import Sum
 from django.core.validators import RegexValidator
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
@@ -376,6 +377,21 @@ class User(AbstractBaseUser):
         Account = apps.get_model('finance', 'Account')
         return Account.objects.active().filter(
             member__user=self, is_funding_source_for_transfer=True).first()
+
+    def get_not_processed_roundup_sum(self):
+        """
+        Returns total roundup of all user's accounts
+        where roundup has not been processed yet.
+        """
+        Transaction = apps.get_model('finance', 'Transaction')
+        sum = Transaction.objects.active()\
+            .filter(
+                account__is_active=True,
+                account__member__user_id=self.id,
+                is_processed=False)\
+            .aggregate(Sum('roundup'))['roundup__sum']
+        sum = 0 if sum is None else sum
+        return sum
 
     @property
     def new_email_expired(self):

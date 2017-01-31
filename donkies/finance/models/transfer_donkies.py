@@ -217,7 +217,7 @@ class TransferDonkiesManager(models.Manager):
         Reinitiate failure transfers with code "R01".
         """
         tds = self.model.objects.get(id=id)
-        if tds.is_failed and tds.status == 'R01':
+        if tds.is_failed and tds.failure_code == 'R01':
             tds.is_initiated = False
             tds.is_failed = False
             tds.failure_code = None

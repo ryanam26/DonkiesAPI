@@ -4,6 +4,7 @@ from django.db.models import Q
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 from web.services.helpers import rs_singleton
+from bank.services.dwolla_api import DwollaApi
 
 rs = settings.REDIS_DB
 
@@ -30,6 +31,16 @@ def initiate_customers():
     qs = Customer.objects.filter(dwolla_id__is_null=False, created_at=None)
     for c in qs:
         Customer.objects.initiate_dwolla_customer(c.id)
+
+
+@periodic_task(run_every=crontab(minute='*/10'))
+def process_sandbox_transfers():
+    """
+    For sandbox transfers.
+    They are not processed by default.
+    """
+    dw = DwollaApi()
+    dw.press_sandbox_button()
 
 
 # Currently not used.

@@ -188,6 +188,7 @@ def reinitiate_dwolla_transfers():
     """
     Reinitiate failed transfers with "R01" failure_code after
     24 hours.
+    TODO: increase periodic interval on production.
     """
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
     dt = timezone.now() - datetime.timedelta(hours=24)

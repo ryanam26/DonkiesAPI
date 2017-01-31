@@ -177,7 +177,7 @@ class TestTransferDonkiesDwolla(base.Mixin):
         assert tds.dwolla_id is not None
 
     @pytest.mark.django_db
-    def notest05(self, dwolla):
+    def test05(self, dwolla):
         """
         Test initiate and update transfer with success status.
         """

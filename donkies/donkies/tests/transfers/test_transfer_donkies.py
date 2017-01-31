@@ -1,9 +1,9 @@
 import pytest
 from django.db.models import Sum
-from .. import base
-from ..emulator import Emulator
+from finance.services.emulator import Emulator
 from finance.models import (
     TransferPrepare, TransferDonkies, TransferDonkiesFailed)
+from .. import base
 
 
 class TestTransferDonkies(base.Mixin):

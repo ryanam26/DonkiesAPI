@@ -3,9 +3,9 @@ import time
 from bank.services.dwolla_api import DwollaApi
 from finance.models import TransferDonkies
 from bank.models import Customer
-from .. import base
-from ..emulator import Emulator
+from finance.services.emulator import Emulator
 from ..factories import CustomerFactory
+from .. import base
 
 
 class TestTransferDonkiesDwolla(base.Mixin):

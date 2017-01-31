@@ -1,7 +1,7 @@
 import json
 import pytest
 from .import base
-from .emulator import Emulator
+from finance.services.emulator import Emulator
 from .factories import (
     AccountFactory, InstitutionFactory, MemberFactory, UserFactory)
 from bank.models import FundingSource, FundingSourceIAVLog

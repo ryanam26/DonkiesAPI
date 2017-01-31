@@ -3,7 +3,7 @@ from faker import Faker
 from django.utils import timezone
 from finance.models import Account, TransferPrepare, TransferDonkies
 from bank.models import FundingSource
-from .factories import (
+from donkies.tests.factories import (
     AccountFactory, MemberFactory, TransactionFactory, UserFactory)
 
 

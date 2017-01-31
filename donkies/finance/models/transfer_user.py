@@ -1,10 +1,7 @@
 import decimal
-import logging
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
-
-logger = logging.getLogger('app')
 
 
 class TransferUserManager(models.Manager):
@@ -44,15 +41,24 @@ class TransferUserManager(models.Manager):
             sum += tu.amount
             l.append(tu)
 
-        if sum != td.amount:
-            message = (
-                'Error in TransferUserManager.process_td_to_model'
-                ' td_id: {}'
-                ' td.amount: {}'
-                ' sum: {}'
-            ).format(td.id, td.amount, sum)
-            logger.error(message)
+        if not l:
             return
+
+        # Fix 0.01 precision
+        if sum != td.amount:
+            tu = l[-1]
+            if sum > td.amount:
+                diff = sum - td.amount
+                tu.amount -= diff
+            else:
+                diff = td.amount - sum
+                tu.amount += diff
+
+        # Checking
+        sum = 0
+        for tu in l:
+            sum += tu.amount
+        assert sum == td.amount  # should never be error, because fixed
 
         for tu in l:
             if tu.amount > 0:

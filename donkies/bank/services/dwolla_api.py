@@ -9,6 +9,11 @@ logger = logging.getLogger('dwolla')
 
 
 class DwollaApi:
+    """
+    If for some reason access_token will be required manually:
+    self.token.access_token is access_token.
+    """
+
     def __init__(self):
         self.rs = settings.REDIS_DB
 
@@ -31,6 +36,20 @@ class DwollaApi:
             secret=self.client_secret,
             environment=environment)
         self.token = self.client.Auth.client()
+
+    def press_sandbox_button(self):
+        """
+        By default in Sandbox environment in order to process
+        all initiated transfers, it is required to login to
+        Sandbox account and press button to process transfers.
+        This method presses this button programatically.
+
+        It doesn't work real-time. After calling this method,
+        it may take more than 30 seconds to process transfers.
+        """
+        url = 'https://api-uat.dwolla.com/sandbox-simulations'
+        resp = self.token.post(url)
+        assert resp.status == 200
 
     def is_duplicate(self, e):
         if isinstance(e, dwollav2.ValidationError):
@@ -89,7 +108,7 @@ class DwollaApi:
         return 'funding-sources/{}/micro-deposits'.format(id)
 
     def get_transfer_url(self, id):
-        return 'transfers/{}'.format(self.id)
+        return 'transfers/{}'.format(id)
 
     def create_customer(self, data):
         """
@@ -224,6 +243,12 @@ class DwollaApi:
             if d['name'] == name:
                 return d
         return None
+
+    def edit_funding_source_name(self, id, name):
+        url = self.get_funding_source_url(id)
+        d = {'name': name}
+        resp = self.token.post(url, d)
+        assert resp.body['name'] == name
 
     def remove_funding_source(self, id):
         """

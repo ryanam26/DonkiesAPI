@@ -155,7 +155,7 @@ class TransferDonkiesManager(models.Manager):
         tds.updated_at = timezone.now()
         tds.save()
 
-    def update_dwolla_transfer(self, id):
+    def update_dwolla_transfer(self, id, is_test=False):
         """
         If less than 15 minutes from last check, do nothing.
         """
@@ -163,9 +163,10 @@ class TransferDonkiesManager(models.Manager):
         if not tds.can_update:
             return
 
-        now = timezone.now()
-        if tds.updated_at + datetime.timedelta(minutes=15) > now:
-            return
+        if not is_test:
+            now = timezone.now()
+            if tds.updated_at + datetime.timedelta(minutes=15) > now:
+                return
 
         dw = DwollaApi()
         d = dw.get_transfer(tds.dwolla_id)
@@ -192,8 +193,8 @@ class TransferDonkiesManager(models.Manager):
         tds.save()
 
     def update_dwolla_failure_code(self, id):
-        tds = self.models.objects.get(id=id)
-        if tds.failure_code is not None:
+        tds = self.model.objects.get(id=id)
+        if not tds.is_failed or tds.failure_code is not None:
             return
 
         dw = DwollaApi()
@@ -211,12 +212,23 @@ class TransferDonkiesManager(models.Manager):
         if code != 'R01':
             self.move_failed(tds.id)
 
+    def reinitiate_transfer(self, id):
+        """
+        Reinitiate failure transfers with code "R01".
+        """
+        tds = self.model.objects.get(id=id)
+        if tds.is_failed and tds.status == 'R01':
+            tds.is_initiated = False
+            tds.is_failed = False
+            tds.failure_code = None
+            tds.status = None
+            tds.save()
+
     @transaction.atomic
     def move_failed(self, id):
         """
         Moves failed transfer from TransferDonkies to TransferDonkiesFailed.
         """
-        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
         TransferDonkiesFailed = apps.get_model(
             'finance', 'TransferDonkiesFailed')
 
@@ -224,7 +236,7 @@ class TransferDonkiesManager(models.Manager):
         if not tds.can_move:
             return
 
-        fields1 = TransferDonkies._meta.get_fields()
+        fields1 = self.model._meta.get_fields()
         fields1 = [f.name for f in fields1]
 
         fields2 = TransferDonkiesFailed._meta.get_fields()

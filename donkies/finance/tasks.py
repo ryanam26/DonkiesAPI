@@ -192,7 +192,7 @@ def reinitiate_dwolla_transfers():
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
     dt = timezone.now() - datetime.timedelta(hours=24)
     TransferDonkies.objects\
-        .filter(failure_code='R01', updated_at__lt=dt)\
+        .filter(is_failed=True, failure_code='R01', updated_at__lt=dt)\
         .update(
             is_initiated=False,
             is_failed=False,

@@ -18,3 +18,4 @@ uWSGI==2.0.14
 pytrium==0.1.2
 dwollav2
 selenium
+freezegun

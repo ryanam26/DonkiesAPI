@@ -33,17 +33,19 @@ import decimal
 import random
 import uuid
 
+from freezegun import freeze_time
 from django.db import connection
 from django.db import transaction
 from django.utils import timezone
 from django.conf import settings
 from django.apps import apps
+from bank.models import Customer, FundingSource
 from finance.models import (
     Account, Member, Transaction, Institution, TransferPrepare,
     TransferDonkies, TransferUser)
 
 
-NUM_DAYS = 100
+NUM_DAYS = 10
 
 
 class Generator:
@@ -96,10 +98,28 @@ class Generator:
             random.randint(0, 59))
 
     def create_customer(self):
-        pass
+        c = Customer.objects.create_customer(self.user)
+        c.dwolla_id = uuid.uuid4().hex
+        c.created_at = timezone.now()
+        c.status = Customer.VERIFIED
+        c.save()
+        self.customer = c
 
     def create_funding_source(self):
-        pass
+        account = Account.objects.filter(member__user=self.user).first()
+        fs = FundingSource(
+            account=account,
+            dwolla_id=uuid.uuid4().hex,
+            status=FundingSource.VERIFIED,
+            type=FundingSource.CHECKING,
+            typeb=FundingSource.BANK,
+            name=account.name,
+            created_at=timezone.now(),
+            verification_type=FundingSource.IAV
+        )
+        fs.save()
+
+        Account.objects.set_funding_source(account.id)
 
     def create_member(self, institution_code):
         m = Member(user=self.user)
@@ -117,7 +137,7 @@ class Generator:
         for code in self.institutions:
             self.create_member(code)
 
-    def create_account(self, member, account_type):
+    def create_account(self, member, account_type, share):
         """
         account_type: debit/debt
         """
@@ -140,10 +160,18 @@ class Generator:
         a.available_balance = a.balance
         a.save()
 
+        if account_type == 'debt':
+            print('set share')
+            a.transfer_share = share
+            a.save()
+
     def create_accounts(self):
+        count = 0
         for member in Member.objects.active().filter(user=self.user):
-            self.create_account(member, 'debit')
-            self.create_account(member, 'debt')
+            self.create_account(member, 'debit', 0)
+            share = 65 if count == 0 else 35
+            self.create_account(member, 'debt', share)
+            count += 1
 
     def generate_amount(self):
         """
@@ -188,7 +216,8 @@ class Generator:
             t.description = self.get_description()
             t.save()
 
-            self.make_transfers(dt)
+            with freeze_time(dt.strftime('%Y-%m-%d %H:%M:%S')):
+                self.make_transfers(dt)
 
     def make_transfers(self, dt):
         """
@@ -202,6 +231,7 @@ class Generator:
         self.emulate_dwolla_transfers(dt)
 
         TransferUser.objects.process_to_model()
+        self.emulate_transfers_to_user()
 
     def emulate_dwolla_transfers(self, dt):
         """
@@ -212,6 +242,7 @@ class Generator:
         qs = TransferDonkies.objects.filter(account__member__user=self.user)
         for td in qs:
             td.status = TransferDonkies.PROCESSED
+            td.is_initiated = True
             td.is_sent = True
             td.sent_at = timezone.make_aware(dt)
             td.created_at = timezone.make_aware(dt)
@@ -220,12 +251,19 @@ class Generator:
             td.dwolla_id = uuid.uuid4().hex
             td.save()
 
+    def emulate_transfers_to_user(self):
+        TransferUser.objects\
+            .filter(is_processed=False, account__member__user=self.user)\
+            .update(is_processed=True, processed_at=timezone.now())
+
     def clean(self):
         """
         By default: Member, Account and Transactions are not deleted
         from database, but set is_active=False.
         In clean method they should be really deleted, so use raw queries.
         """
+        Customer.objects.filter(user=self.user).delete()
+        FundingSource.objects.filter(account__member__user=self.user).delete()
         TransferUser.objects.filter(
             account__member__user=self.user).delete()
         TransferDonkies.objects.filter(
@@ -260,7 +298,11 @@ class Generator:
     def run(self):
         self.create_members()
         self.create_accounts()
+        self.create_customer()
+        self.create_funding_source()
+
         self.generate_transactions()
+
         print(Member.objects.filter(user=self.user))
         print(Account.objects.filter(member__user=self.user).count())
         print(Transaction.objects.filter(

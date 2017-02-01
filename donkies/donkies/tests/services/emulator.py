@@ -130,6 +130,7 @@ class Emulator:
         """
         for td in TransferDonkies.objects.all():
             td.status = TransferDonkies.PROCESSED
+            td.is_initiated = True
             td.is_sent = True
             td.sent_at = timezone.now()
             td.created_at = timezone.now()

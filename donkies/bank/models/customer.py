@@ -1,3 +1,13 @@
+"""
+Customers in model created by periodic celery task.
+Customer can be created as soon as user completed profile.
+
+Also customers can be created by API. There is API endpoint.
+
+Customers created in Dwolla by periodic celery task.
+"""
+
+
 import datetime
 from django.db import models
 from django.contrib import admin
@@ -7,10 +17,6 @@ from bank.services.dwolla_api import DwollaApi
 
 class CustomerManager(models.Manager):
     def create_customer(self, user, type=None):
-        """
-        Customer is created by API from frontend.
-        Then periodic celery task will create customer in Dwolla.
-        """
         if type is None:
             type = self.model.PERSONAL
 
@@ -94,7 +100,7 @@ class Customer(models.Model):
         (UNVERIFIED, 'unverified')
     )
 
-    user = models.OneToOneField('web.User')
+    user = models.OneToOneField('web.User', related_name='customer')
     ip_address = models.CharField(
         max_length=50, null=True, default=None, blank=True)
     type = models.CharField(

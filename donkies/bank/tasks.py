@@ -10,10 +10,24 @@ rs = settings.REDIS_DB
 
 
 @periodic_task(run_every=crontab(minute='*'))
-@rs_singleton(rs, 'CREATE_CUSTOMERS_IS_PROCESSING')
+@rs_singleton(rs, 'CREATE_MODEL_CUSTOMERS_IS_PROCESSING')
 def create_customers():
     """
-    Task that creates and inits customers in Dwolla.
+    Task that creates customers in Customer model as soon
+    as user completed profile.
+    """
+    Customer = apps.get_model('bank', 'Customer')
+    User = apps.get_model('web', 'User')
+    for user in User.objects.filter(customer=None):
+        if user.is_profile_completed:
+            Customer.objects.create_customer(user)
+
+
+@periodic_task(run_every=crontab(minute='*'))
+@rs_singleton(rs, 'CREATE_DWOLLA_CUSTOMERS_IS_PROCESSING')
+def create_dwolla_customers():
+    """
+    Task that creates customers in Dwolla.
     """
     Customer = apps.get_model('bank', 'Customer')
     # TODO  user__is_admin=False
@@ -22,8 +36,8 @@ def create_customers():
 
 
 @periodic_task(run_every=crontab(minute='*'))
-@rs_singleton(rs, 'INIT_CUSTOMERS_IS_PROCESSING')
-def initiate_customers():
+@rs_singleton(rs, 'INIT_DWOLLA_CUSTOMERS_IS_PROCESSING')
+def initiate_dwolla_customers():
     """
     Task that initiates created customers.
     """

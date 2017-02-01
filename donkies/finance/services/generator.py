@@ -1,11 +1,30 @@
 """
-Creates fake Atrium data for admin user.
-By default admin users do not connect to Atrium API.
+Creates fake data for admin user.
 
 2 debit bank accounts: chase and mxbank.
 2 debt bank accounts: chase and mxbank
 
+user.minimum_transfer_amount = 20
+
 Each day has randomly from 3 to 5 transactions from 3 to 30 USD.
+Transfers are made, each time when roundup sum
+more than minimum_transfer_amount.
+
+Atrium users are not created for admin users.
+(User.objects.create_atrium_user)
+
+Atrium data is not updated for admin users.
+(tasks.update_user)
+
+All admin's Atrium data is fake.
+
+Dwolla customers are not created for admin users.
+(Customer.objects.create_dwolla_customer)
+
+Dwolla transfers are not initiated for admin users.
+(TransferDonkies().can_initiate)
+
+All admin's Dwolla data is fake.
 """
 
 import datetime

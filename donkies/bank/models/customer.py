@@ -29,7 +29,9 @@ class CustomerManager(models.Manager):
         Celery task POST call to dwolla to create customer.
         """
         customer = self.model.objects.get(id=id)
-        if customer.dwolla_id is not None:
+        if customer.dwolla_id is not None\
+                or not customer.user.is_profile_completed\
+                or customer.user.is_admin:
             return
 
         dic = self.get_customer_data_for_create_request(customer)

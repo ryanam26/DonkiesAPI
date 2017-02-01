@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db.models import Q
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
-from web.services.helpers import rs_singleton
+from web.services.helpers import rs_singleton, production
 from bank.services.dwolla_api import DwollaApi
 
 rs = settings.REDIS_DB
@@ -24,18 +24,19 @@ def create_customers():
 
 
 @periodic_task(run_every=crontab(minute='*'))
+@production(settings.PRODUCTION)
 @rs_singleton(rs, 'CREATE_DWOLLA_CUSTOMERS_IS_PROCESSING')
 def create_dwolla_customers():
     """
     Task that creates customers in Dwolla.
     """
     Customer = apps.get_model('bank', 'Customer')
-    # TODO  user__is_admin=False
-    for c in Customer.objects.filter(dwolla_id=None):
+    for c in Customer.objects.filter(dwolla_id=None, user__is_admin=False):
         Customer.objects.create_dwolla_customer(c.id)
 
 
 @periodic_task(run_every=crontab(minute='*'))
+@production(settings.PRODUCTION)
 @rs_singleton(rs, 'INIT_DWOLLA_CUSTOMERS_IS_PROCESSING')
 def initiate_dwolla_customers():
     """
@@ -48,6 +49,7 @@ def initiate_dwolla_customers():
 
 
 @periodic_task(run_every=crontab(minute='*/10'))
+@production(settings.PRODUCTION)
 def process_sandbox_transfers():
     """
     For sandbox transfers.
@@ -59,6 +61,7 @@ def process_sandbox_transfers():
 
 # Currently not used.
 # @periodic_task(run_every=crontab(minute='*'))
+# @production(settings.PRODUCTION)
 # @rs_singleton(rs, 'CREATE_FUNDING_SOURCES_IS_PROCESSING')
 def create_funding_sources():
     """
@@ -73,6 +76,7 @@ def create_funding_sources():
 
 # Currently not used.
 # @periodic_task(run_every=crontab())
+# @production(settings.PRODUCTION)
 # @rs_singleton(rs, 'MICRO_DEPOSITS_IS_PROCESSING')
 def micro_deposits():
     """

@@ -24,7 +24,6 @@ python manage.py loaddata institutions
 python manage.py createemails
 python manage.py createsuperuser
 python manage.py createtestusers
-python manage.py createcustomers
 
 
 elif [ "$1" == "migr" ]

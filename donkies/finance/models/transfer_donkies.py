@@ -286,7 +286,8 @@ class TransferDonkies(TransferDwolla):
 
     @property
     def can_initiate(self):
-        if self.is_initiated or self.is_sent or self.is_failed:
+        if self.is_initiated or self.is_sent or self.is_failed\
+                or self.account.member.user.is_admin:
             return False
         return True
 

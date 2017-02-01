@@ -5,7 +5,7 @@ from django.conf import settings
 from donkies import capp
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
-from web.services.helpers import rs_singleton
+from web.services.helpers import rs_singleton, production
 
 rs = settings.REDIS_DB
 
@@ -20,7 +20,7 @@ MAX_ATTEMPTS = 20
 @rs_singleton(rs, 'CREATE_ATRIUM_USER_IS_PROCESSING', exp=300)
 def create_atrium_users():
     """
-    Task that create atrium users, if fo any reason they wasn't
+    Task that creates atrium users, if for any reason they wasn't
     created by regular task.
 
     TODO: on production change to run once per hour.
@@ -90,14 +90,16 @@ def update_user(user_id):
     Transaction = apps.get_model('finance', 'Transaction')
     User = apps.get_model('web', 'User')
     user = User.objects.get(id=user_id)
+    if user.is_admin:
+        return
 
     l = Account.objects.get_atrium_accounts(user.guid)
     Account.objects.create_or_update_accounts(user.guid, l)
-    print('Accounts created.')
+    print('Accounts updated.')
 
     l = Transaction.objects.get_atrium_transactions(user.guid)
     Transaction.objects.create_or_update_transactions(user.guid, l)
-    print('Transactions created.')
+    print('Transactions updated.')
 
 
 @periodic_task(run_every=crontab(minute=0, hour='*'))
@@ -109,7 +111,8 @@ def update_users_data():
     with COMPLETED status.
     """
     Member = apps.get_model('finance', 'Member')
-    qs = Member.objects.active().filter(status=Member.COMPLETED)\
+    qs = Member.objects.active()\
+        .filter(status=Member.COMPLETED, user__is_admin=False)\
         .values_list('user_id', flat=True).distinct()
     for user_id in qs:
         update_user(user_id)
@@ -131,6 +134,7 @@ def update_institutions():
 # --- Transfers to Dwolla
 
 @periodic_task(run_every=crontab(minute=0, hour='*'))
+@production(settings.PRODUCTION)
 @rs_singleton(rs, 'PROCESS_ROUNDUPS_IS_PROCESSING')
 def process_roundups():
     TransferPrepare = apps.get_model('finance', 'TransferPrepare')
@@ -138,6 +142,7 @@ def process_roundups():
 
 
 @periodic_task(run_every=crontab(minute=5, hour='*'))
+@production(settings.PRODUCTION)
 @rs_singleton(rs, 'PROCESS_PREPARE_IS_PROCESSING')
 def process_prepare():
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
@@ -145,6 +150,7 @@ def process_prepare():
 
 
 @periodic_task(run_every=crontab())
+@production(settings.PRODUCTION)
 @rs_singleton(rs, 'INITIATE_DWOLLA_TRANSFERS_IS_PROCESSING')
 def initiate_dwolla_transfers():
     """
@@ -156,6 +162,7 @@ def initiate_dwolla_transfers():
 
 
 @periodic_task(run_every=crontab())
+@production(settings.PRODUCTION)
 @rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
 def update_dwolla_transfers():
     """
@@ -171,6 +178,7 @@ def update_dwolla_transfers():
 
 
 @periodic_task(run_every=crontab())
+@production(settings.PRODUCTION)
 @rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
 def update_dwolla_failure_codes():
     """
@@ -183,12 +191,12 @@ def update_dwolla_failure_codes():
         TransferDonkies.objects.update_dwolla_failure_code(tds.id)
 
 
-@periodic_task(run_every=crontab())
+@periodic_task(run_every=crontab(minute=0, hour='*/6'))
+@production(settings.PRODUCTION)
 def reinitiate_dwolla_transfers():
     """
     Reinitiate failed transfers with "R01" failure_code after
     24 hours.
-    TODO: increase periodic interval on production.
     """
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
     dt = timezone.now() - datetime.timedelta(hours=24)

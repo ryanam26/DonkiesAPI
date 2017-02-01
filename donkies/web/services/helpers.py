@@ -67,6 +67,21 @@ def rs_singleton(rs, key, exp=1800):
     return deco
 
 
+def production(is_production):
+    """
+    Run decorated function if is_production is True
+    """
+    def deco(func):
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            if not is_production:
+                return
+            output = func(*args, **kwargs)
+            return output
+        return inner
+    return deco
+
+
 class cached:
     def __init__(self, *args, **kwargs):
         self.cached_function_responses = {}

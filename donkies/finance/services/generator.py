@@ -304,6 +304,12 @@ class Generator:
                 % ','.join(map(lambda x: '%s', l))
             cur.execute(query, l)
 
+    def stat_info(self):
+        print(Member.objects.filter(user=self.user))
+        print(Account.objects.filter(member__user=self.user).count())
+        print(Transaction.objects.filter(
+            account__member__user=self.user).count())
+
     @transaction.atomic
     def run(self):
         self.create_members()
@@ -313,8 +319,4 @@ class Generator:
         self.create_funding_source()
 
         self.generate_transactions()
-
-        print(Member.objects.filter(user=self.user))
-        print(Account.objects.filter(member__user=self.user).count())
-        print(Transaction.objects.filter(
-            account__member__user=self.user).count())
+        # self.stat_info()

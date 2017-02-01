@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from finance.models import (
     Account, Challenge, Credentials, Institution, LinkDebt, Member,
-    Transaction)
+    Transaction, TransferDonkies, TransferPrepare, TransferUser)
 
 
 class InstitutionSerializer(serializers.ModelSerializer):
@@ -174,7 +174,7 @@ class MemberResumeSerializer(serializers.Serializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-    account = serializers.CharField()
+    account = serializers.CharField(source='account.name', read_only=True)
 
     class Meta:
         model = Transaction
@@ -207,4 +207,48 @@ class TransactionSerializer(serializers.ModelSerializer):
             'type',
             'updated_at',
             'roundup'
+        )
+
+
+class TransferDonkiesSerializer(serializers.ModelSerializer):
+    account = serializers.CharField(source='account.name', read_only=True)
+
+    class Meta:
+        model = TransferDonkies
+        fields = (
+            'id',
+            'account',
+            'amount',
+            'status',
+            'sent_at',
+            'is_sent'
+        )
+
+
+class TransferPrepareSerializer(serializers.ModelSerializer):
+    account = serializers.CharField(source='account.name', read_only=True)
+
+    class Meta:
+        model = TransferPrepare
+        fields = (
+            'id',
+            'account',
+            'roundup',
+            'created_at'
+        )
+
+
+class TransferUserSerializer(serializers.ModelSerializer):
+    account = serializers.CharField(source='account.name', read_only=True)
+
+    class Meta:
+        model = TransferUser
+        fields = (
+            'id',
+            'account',
+            'amount',
+            'share',
+            'created_at',
+            'processed_at',
+            'is_processed'
         )

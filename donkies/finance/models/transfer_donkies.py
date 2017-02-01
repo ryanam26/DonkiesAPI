@@ -279,7 +279,7 @@ class TransferDonkies(TransferDwolla):
         app_label = 'finance'
         verbose_name = 'transfer donkies'
         verbose_name_plural = 'transfers donkies'
-        ordering = ['-created_at']
+        ordering = ['-updated_at']
 
     def __str__(self):
         return str(self.id)

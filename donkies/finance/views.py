@@ -10,7 +10,8 @@ from web.views import AuthMixin, r400
 from finance import tasks
 from finance.services.atrium_api import AtriumApi
 from finance.models import (
-    Account, Credentials, Institution, LinkDebt, Member, Transaction)
+    Account, Credentials, Institution, LinkDebt, Member, Transaction,
+    TransferPrepare, TransferDonkies, TransferUser)
 
 logger = logging.getLogger('app')
 
@@ -252,4 +253,28 @@ class Transactions(AuthMixin, ListAPIView):
 
     def get_queryset(self):
         return Transaction.objects.active().filter(
+            account__member__user=self.request.user)
+
+
+class TransfersDonkies(AuthMixin, ListAPIView):
+    serializer_class = sers.TransferDonkiesSerializer
+
+    def get_queryset(self):
+        return TransferDonkies.objects.filter(
+            account__member__user=self.request.user, is_sent=True)
+
+
+class TransfersPrepare(AuthMixin, ListAPIView):
+    serializer_class = sers.TransferPrepareSerializer
+
+    def get_queryset(self):
+        return TransferPrepare.objects.filter(
+            account__member__user=self.request.user)
+
+
+class TransfersUser(AuthMixin, ListAPIView):
+    serializer_class = sers.TransferUserSerializer
+
+    def get_queryset(self):
+        return TransferUser.objects.filter(
             account__member__user=self.request.user)

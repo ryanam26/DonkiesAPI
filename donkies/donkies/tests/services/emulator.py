@@ -1,7 +1,8 @@
 import random
 from faker import Faker
 from django.utils import timezone
-from finance.models import Account, TransferPrepare, TransferDonkies
+from finance.models import (
+    Account, TransferPrepare, TransferDonkies, TransferUser)
 from bank.models import FundingSource
 from donkies.tests.factories import (
     AccountFactory, MemberFactory, TransactionFactory, UserFactory)
@@ -136,5 +137,12 @@ class Emulator:
             td.created_at = timezone.now()
             td.updated_at = timezone.now()
             td.processed_at = timezone.now()
-            td.dwolla_id = 'some-dwolla-id'
+            td.dwolla_id = 'some-dwolla-id-{}'.format(
+                random.randint(10000, 99999))
             td.save()
+
+    @staticmethod
+    def emulate_transfers_to_user():
+        TransferUser.objects.process_to_model()
+        TransferUser.objects.all().update(
+            is_processed=True, processed_at=timezone.now())

@@ -116,6 +116,3 @@ If user wants to delete account and account's member has other account (For exam
 
 * Test "update_dwolla_transfer" manager's method. Test FAILED R01 status. In testing environment set name = "R01" to funding source and it will respond with that error.
 * TestDonkiesDwolla.test06
-
-!!! Init transfer can fail with not sufficient funds.
-!!! Process this case. Delay for next init.

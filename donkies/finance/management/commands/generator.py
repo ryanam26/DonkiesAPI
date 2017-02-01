@@ -4,6 +4,7 @@ from finance.services.generator import Generator
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        print('Starting to generate data...')
         g = Generator()
         g.clean()
         g.run()

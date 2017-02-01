@@ -45,7 +45,7 @@ from finance.models import (
     TransferDonkies, TransferUser)
 
 
-NUM_DAYS = 10
+NUM_DAYS = 100
 
 
 class Generator:
@@ -76,7 +76,10 @@ class Generator:
 
     def get_user(self):
         User = apps.get_model('web', 'User')
-        return User.objects.filter(is_admin=True).first()
+        user = User.objects.filter(is_admin=True).first()
+        user.minimum_transfer_amount = 20
+        user.save()
+        return user
 
     def get_category(self):
         return random.choice(self.categories)
@@ -137,7 +140,7 @@ class Generator:
         for code in self.institutions:
             self.create_member(code)
 
-    def create_account(self, member, account_type, share):
+    def create_account(self, member, account_type):
         """
         account_type: debit/debt
         """
@@ -160,18 +163,23 @@ class Generator:
         a.available_balance = a.balance
         a.save()
 
-        if account_type == 'debt':
-            print('set share')
-            a.transfer_share = share
-            a.save()
-
     def create_accounts(self):
-        count = 0
         for member in Member.objects.active().filter(user=self.user):
-            self.create_account(member, 'debit', 0)
+            self.create_account(member, 'debit')
+            self.create_account(member, 'debt')
+
+    def set_accounts_share(self):
+        """
+        Set share for DEBT accounts: 65% and 35%
+        """
+        qs = Account.objects.filter(
+            member__user=self.user, type_ds=Account.DEBT)
+
+        count = 0
+        for account in qs:
             share = 65 if count == 0 else 35
-            self.create_account(member, 'debt', share)
             count += 1
+            Account.objects.filter(id=account.id).update(transfer_share=share)
 
     def generate_amount(self):
         """
@@ -216,7 +224,8 @@ class Generator:
             t.description = self.get_description()
             t.save()
 
-            with freeze_time(dt.strftime('%Y-%m-%d %H:%M:%S')):
+            dt_str = dt.strftime('%Y-%m-%d %H:%M:%S')
+            with freeze_time(dt_str):
                 self.make_transfers(dt)
 
     def make_transfers(self, dt):
@@ -239,7 +248,8 @@ class Generator:
         from TransferDonkies.
         """
         dt = dt + datetime.timedelta(minutes=random.randint(10, 100))
-        qs = TransferDonkies.objects.filter(account__member__user=self.user)
+        qs = TransferDonkies.objects.filter(
+            account__member__user=self.user, is_sent=False)
         for td in qs:
             td.status = TransferDonkies.PROCESSED
             td.is_initiated = True
@@ -298,6 +308,7 @@ class Generator:
     def run(self):
         self.create_members()
         self.create_accounts()
+        self.set_accounts_share()
         self.create_customer()
         self.create_funding_source()
 

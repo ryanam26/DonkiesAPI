@@ -173,25 +173,26 @@ To test Challenges:
 Password: challenge
 Correct answer: correct
 
-### Testing add funding source to Dwolla in sandbox.
-
-After user has been sign up to system, Dwolla customers created
-in background. User profile should look like real profile with good data.
-Otherwise, Dwolla customer can not be created.
-
-As soon as Dwolla customer is created, and user has accounts, frontend will have link to create funding source.
-
 ### Transfers TDD
 donkies/tests/transfers/README.md
 
 ### Transfer flow.
+Instructions in TransferPrepare and TransferDonkies model.
 
-First we collect roundup to TransferPrepare.
-Then from TransferPrepare total user's roundup amount processed to TransferDonkies model (if user set funding source account).
-Then from TransferDonkies model we send transfer to Donkies LLC (via Dwolla).
-As soon as money received by Donkies LLC (checked by API), we process received amount to debt user's accounts to TransferUser model.
+### User flow
 
-From TransferUser model currently send cheques manually.
+1) User sign up. After sign up user will get email where it should confirm registration. After confirmation user.is_confirmed = True. If user sign up by facebook, it confirmed automatically.
 
-### Transfer flow of money from user's funding source to Donkies LLC in TransferDonkies model.
+2) After user is created in database it automatically created in Atrium. As we use production Atrium, do not create fake users.
 
+3) User need to add bank accounts (members). As soon as members are created, celery task automatically will fetch all accounts and transactions for these members.
+
+4) Then user need to set funding source. But customer in Dwolla will be created only after user has completed profile. So, the next step, user should complete profile. As soon as profile completed, celery task will create customer in Dwolla. On Sandbox Dwolla user data can be fake, but it should looks like real, otherwise customer can not be created.
+
+5) User need to add funding source (via IAV)
+
+6) In settings User set minimum_transfer_amount (By default $5 and can be changed in settings). As soon as collected roundup >= minimum_transfer_amount celery tasks will automatically send transfer to Donkies LLC in Dwolla. Donkies LLC email is used as a destination in Dwolla. 
+
+7) After Donkies LLC got transfer, it needs to send transfer to user. Celery task will update data and TransferUser model will contain debt accounts and amounts to send.
+
+8) Send money to user's debt accounts from TransferUser model. (Currently manually)

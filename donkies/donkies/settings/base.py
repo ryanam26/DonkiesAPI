@@ -237,6 +237,12 @@ LOGGING = {
             'level': 'DEBUG',
             'handlers': ['console', 'db'],
             'propagate': False,
+        },
+
+        'console': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
         }
     }
 }

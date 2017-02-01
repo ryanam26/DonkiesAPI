@@ -1,4 +1,5 @@
 import datetime
+import logging
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
@@ -8,6 +9,7 @@ from celery.task.schedules import crontab
 from web.services.helpers import rs_singleton, production
 
 rs = settings.REDIS_DB
+logger = logging.getLogger('console')
 
 
 # The number of attempts to get member  before exit.

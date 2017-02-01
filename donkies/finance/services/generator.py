@@ -47,7 +47,7 @@ os.environ.setdefault(
     'DJANGO_SETTINGS_MODULE', 'donkies.settings.development')
 django.setup()
 
-NUM_DAYS = 50
+NUM_DAYS = 100
 
 
 class Generator:

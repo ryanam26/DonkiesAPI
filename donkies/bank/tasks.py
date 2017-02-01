@@ -1,3 +1,4 @@
+import logging
 from django.apps import apps
 from django.conf import settings
 from django.db.models import Q
@@ -7,6 +8,7 @@ from web.services.helpers import rs_singleton, production
 from bank.services.dwolla_api import DwollaApi
 
 rs = settings.REDIS_DB
+logger = logging.getLogger('console')
 
 
 @periodic_task(run_every=crontab(minute='*'))

@@ -106,6 +106,4 @@ if __name__ == '__main__':
     # qs = Member.objects.active().filter(user=user)
     # for member in qs:
     #     Member.objects.delete_member(member.id)
-
-    qs = User.objects.filter(customer=None)
-    print(qs)
+    pass

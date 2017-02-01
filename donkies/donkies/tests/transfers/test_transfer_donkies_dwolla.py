@@ -1,5 +1,4 @@
 import pytest
-import random
 import time
 from bank.services.dwolla_api import DwollaApi
 from finance.models import TransferDonkies
@@ -43,6 +42,7 @@ def get_or_create_funding_source(customer, name='My Bank'):
     dw = DwollaApi()
     for fs in dw.get_funding_sources(customer['id']):
         if fs['status'] == 'verified' and fs['type'] == 'bank':
+            # Set funding source's name.
             dw.edit_funding_source_name(fs['id'], name)
             return fs
 
@@ -222,6 +222,8 @@ class TestTransferDonkiesDwolla(base.Mixin):
     @pytest.mark.django_db
     def test06(self, dwolla):
         """
+        Should be last test as it changes fixture's funding_source to R01.
+
         Test initiate and update transfer with insufficient funds.
         1) Should get failed status.
         2) Update failure_code.

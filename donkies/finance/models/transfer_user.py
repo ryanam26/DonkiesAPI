@@ -7,8 +7,8 @@ from django.apps import apps
 class TransferUserManager(models.Manager):
     def process_to_model(self):
         """
-        Process all transfers, that have been sent from
-        TransferDonkies model to Donkies LLC to TransferUser model.
+        Process all transfers to TransferUser model,
+        that have been sent from TransferDonkies model to Donkies LLC.
         All processed items in TransferDonkies
         is_processed_to_user should be set to True.
         """
@@ -63,6 +63,9 @@ class TransferUserManager(models.Manager):
         for tu in l:
             if tu.amount > 0:
                 tu.save()
+
+        td.is_processed_to_user = True
+        td.save()
 
 
 class TransferUser(models.Model):

@@ -25,7 +25,7 @@ def create_customers():
             Customer.objects.create_customer(user)
 
 
-@periodic_task(run_every=crontab(minute='*'))
+@periodic_task(run_every=crontab())
 @production(settings.PRODUCTION)
 @rs_singleton(rs, 'CREATE_DWOLLA_CUSTOMERS_IS_PROCESSING')
 def create_dwolla_customers():
@@ -34,6 +34,7 @@ def create_dwolla_customers():
     """
     Customer = apps.get_model('bank', 'Customer')
     for c in Customer.objects.filter(dwolla_id=None, user__is_admin=False):
+        logger.debug('Task: create dwolla customer: {}'.format(c.email))
         Customer.objects.create_dwolla_customer(c.id)
 
 
@@ -45,8 +46,10 @@ def initiate_dwolla_customers():
     Task that initiates created customers.
     """
     Customer = apps.get_model('bank', 'Customer')
-    qs = Customer.objects.filter(dwolla_id__is_null=False, created_at=None)
+    qs = Customer.objects.filter(
+        dwolla_id__is_null=False, created_at=None, user__is_admin=False)
     for c in qs:
+        logger.debug('Task: initiate dwolla customer: {}'.format(c.email))
         Customer.objects.initiate_dwolla_customer(c.id)
 
 

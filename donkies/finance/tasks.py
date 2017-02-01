@@ -30,6 +30,7 @@ def create_atrium_users():
     """
     User = apps.get_model('web', 'User')
     for user in User.objects.filter(guid=None, is_admin=False):
+        logger.debug('Task: creating atrium user: {}'.format(user.email))
         User.objects.create_atrium_user(user.id)
 
 
@@ -55,6 +56,8 @@ def get_member(member_id, attempt=0):
         member = Member.objects.get(id=member_id)
     except Member.DoesNotExist:
         return
+
+    logger.debug('Task: resume member.')
 
     try:
         am = Member.objects.get_atrium_member(member)
@@ -95,13 +98,15 @@ def update_user(user_id):
     if user.is_admin:
         return
 
+    logger.debug('Task: update atrium user: {}'.format(user.email))
+
     l = Account.objects.get_atrium_accounts(user.guid)
     Account.objects.create_or_update_accounts(user.guid, l)
-    print('Accounts updated.')
+    logger.debug('Task: accounts updated.')
 
     l = Transaction.objects.get_atrium_transactions(user.guid)
     Transaction.objects.create_or_update_transactions(user.guid, l)
-    print('Transactions updated.')
+    logger.debug('Task: transactions updated.')
 
 
 @periodic_task(run_every=crontab(minute=0, hour='*'))
@@ -135,18 +140,24 @@ def update_institutions():
 
 # --- Transfers to Dwolla
 
-@periodic_task(run_every=crontab(minute=0, hour='*'))
+@periodic_task(run_every=crontab())
 @production(settings.PRODUCTION)
 @rs_singleton(rs, 'PROCESS_ROUNDUPS_IS_PROCESSING')
 def process_roundups():
+    """
+    TODO: increase periodic interval on production.
+    """
     TransferPrepare = apps.get_model('finance', 'TransferPrepare')
     TransferPrepare.objects.process_roundups()
 
 
-@periodic_task(run_every=crontab(minute=5, hour='*'))
+@periodic_task(run_every=crontab())
 @production(settings.PRODUCTION)
 @rs_singleton(rs, 'PROCESS_PREPARE_IS_PROCESSING')
 def process_prepare():
+    """
+    TODO: increase periodic interval on production.
+    """
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
     TransferDonkies.objects.process_prepare()
 

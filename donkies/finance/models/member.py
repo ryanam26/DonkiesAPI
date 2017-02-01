@@ -73,6 +73,9 @@ class MemberManager(ActiveManager):
         a.resume_member(member.user.guid, member.guid, challenges)
 
     def delete_member(self, member_id, is_test=False):
+        """
+        Delete member from Atrium.
+        """
         Account = apps.get_model('finance', 'Account')
         Transaction = apps.get_model('finance', 'Transaction')
 
@@ -232,7 +235,8 @@ class MemberAdmin(admin.ModelAdmin):
         'institution',
         'status',
         'aggregated_at',
-        'successfully_aggregated_at'
+        'successfully_aggregated_at',
+        'is_active'
     )
     exclude = ('metadata',)
 

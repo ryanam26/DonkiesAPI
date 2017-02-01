@@ -65,7 +65,8 @@ class CustomerManager(models.Manager):
         Get data of created, but not initiated yet customer.
         """
         c = self.model.objects.get(id=id)
-        if c.dwolla_id is not None and c.created_at is None:
+        if c.dwolla_id is not None and c.created_at is None\
+                and not c.user.is_admin:
             dw = DwollaApi()
             d = dw.get_customer(c.dwolla_id)
             if d is not None:

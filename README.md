@@ -179,6 +179,10 @@ donkies/tests/transfers/README.md
 ### Transfer flow.
 Instructions in TransferPrepare and TransferDonkies model.
 
+### Admin user.
+
+Admin user contains generated fake data and do not processed by Atrium and Dwolla. More details in generator.py.
+
 ### User flow
 
 1) User sign up. After sign up user will get email where it should confirm registration. After confirmation user.is_confirmed = True. If user sign up by facebook, it confirmed automatically.

@@ -1,8 +1,9 @@
 """
 Creates fake data for admin user.
+python manage.py generator
 
-2 debit bank accounts: chase and mxbank.
-2 debt bank accounts: chase and mxbank
+2 debit bank accounts: Chase and Wells Fargo.
+2 debt bank accounts: Chase and Wells Fargo.
 
 user.minimum_transfer_amount = 20
 
@@ -29,41 +30,78 @@ All admin's Dwolla data is fake.
 
 import datetime
 import decimal
-import django
-import os
 import random
-import sys
 import uuid
 
-from os.path import abspath, dirname, join
+from django.db import connection
 from django.db import transaction
 from django.utils import timezone
+from django.conf import settings
 from django.apps import apps
-from faker import Faker
+from finance.models import (
+    Account, Member, Transaction, Institution, TransferPrepare,
+    TransferDonkies, TransferUser)
 
-path = abspath(join(dirname(abspath(__file__)), '..', '..'))
-sys.path.append(path)
-os.environ.setdefault(
-    'DJANGO_SETTINGS_MODULE', 'donkies.settings.development')
-django.setup()
 
 NUM_DAYS = 100
 
 
 class Generator:
-    institutions = ['chase', 'mxbank']
+    institutions = ['chase', 'wells_fargo']
 
     def __init__(self):
         self.user = self.get_user()
+        self.data_folder = '{}/donkies/finance/services/data'.format(
+            settings.BASE_DIR)
+        self.categories = self.get_categories()
+        self.descriptions = self.get_descriptions()
+
+    def get_categories(self):
+        path = '{}/categories.txt'.format(self.data_folder)
+        l = []
+        with open(path) as f:
+            for line in f:
+                l.append(line.strip())
+        return l
+
+    def get_descriptions(self):
+        path = '{}/descriptions.txt'.format(self.data_folder)
+        l = []
+        with open(path) as f:
+            for line in f:
+                l.append(line.strip())
+        return l
 
     def get_user(self):
         User = apps.get_model('web', 'User')
         return User.objects.filter(is_admin=True).first()
 
-    def create_member(self, institution_code):
-        Institution = apps.get_model('finance', 'Institution')
-        Member = apps.get_model('finance', 'Member')
+    def get_category(self):
+        return random.choice(self.categories)
 
+    def get_description(self):
+        return random.choice(self.descriptions)
+
+    def get_datetime(self, date):
+        """
+        Returns datetime from date, where hours, minutes and seconds
+        are random.
+        """
+        return datetime.datetime(
+            date.year,
+            date.month,
+            date.day,
+            random.randint(0, 23),
+            random.randint(0, 59),
+            random.randint(0, 59))
+
+    def create_customer(self):
+        pass
+
+    def create_funding_source(self):
+        pass
+
+    def create_member(self, institution_code):
         m = Member(user=self.user)
         m.institution = Institution.objects.get(code=institution_code)
         m.guid = uuid.uuid4().hex
@@ -83,8 +121,6 @@ class Generator:
         """
         account_type: debit/debt
         """
-        Account = apps.get_model('finance', 'Account')
-
         if account_type == 'debit':
             name = 'Debit {}'.format(member.name)
             acc_type = Account.CHECKING
@@ -105,7 +141,6 @@ class Generator:
         a.save()
 
     def create_accounts(self):
-        Member = apps.get_model('finance', 'Member')
         for member in Member.objects.active().filter(user=self.user):
             self.create_account(member, 'debit')
             self.create_account(member, 'debt')
@@ -119,13 +154,16 @@ class Generator:
         return decimal.Decimal('{}.{}'.format(dollars, cents))
 
     def generate_transactions(self):
-        Account = apps.get_model('finance', 'Account')
-        for account in Account.objects.active().filter(member__user=self.user):
+        """
+        Generate transactions only for Debit accounts.
+        """
+        for account in Account.objects.active().filter(
+                member__user=self.user, type_ds=Account.DEBIT):
             self.create_transactions(account)
 
     def create_transactions(self, account):
         """
-        Create transactions for account for 2 years.
+        Create transactions for account back for NUM_DAYS.
         """
         today = datetime.date.today()
         l = [today - datetime.timedelta(days=x) for x in range(0, NUM_DAYS)]
@@ -133,42 +171,97 @@ class Generator:
             self.create_transaction(account, date)
 
     def create_transaction(self, account, date):
-        Transaction = apps.get_model('finance', 'Transaction')
-
         num_transactions = random.randint(3, 5)
         for i in range(num_transactions):
-            dt = datetime.datetime(
-                date.year,
-                date.month,
-                date.day,
-                random.randint(0, 23),
-                random.randint(0, 59),
-                random.randint(0, 59))
-
+            dt = self.get_datetime(date)
             t = Transaction(account=account)
             t.guid = uuid.uuid4().hex
             t.uid = uuid.uuid4().hex
             t.date = date
             t.created_at = timezone.make_aware(dt)
+            t.updated_at = timezone.make_aware(dt)
+            t.transacted_at = timezone.make_aware(dt)
+            t.posted_at = timezone.make_aware(dt)
             t.amount = self.generate_amount()
             t.is_expense = True
-            t.description = Faker().sentence()
+            t.category = self.get_category()
+            t.description = self.get_description()
             t.save()
 
+            self.make_transfers(dt)
+
+    def make_transfers(self, dt):
+        """
+        Run transfers logic after every transaction.
+        Transfers should be made when collected roundup
+        equal or more user.minimum_transfer_amount
+        """
+        TransferPrepare.objects.process_roundups()
+        TransferDonkies.objects.process_prepare()
+
+        self.emulate_dwolla_transfers(dt)
+
+        TransferUser.objects.process_to_model()
+
+    def emulate_dwolla_transfers(self, dt):
+        """
+        Emulate that all transfers have been sent to Dwolla
+        from TransferDonkies.
+        """
+        dt = dt + datetime.timedelta(minutes=random.randint(10, 100))
+        qs = TransferDonkies.objects.filter(account__member__user=self.user)
+        for td in qs:
+            td.status = TransferDonkies.PROCESSED
+            td.is_sent = True
+            td.sent_at = timezone.make_aware(dt)
+            td.created_at = timezone.make_aware(dt)
+            td.updated_at = timezone.make_aware(dt)
+            td.processed_at = timezone.make_aware(dt)
+            td.dwolla_id = uuid.uuid4().hex
+            td.save()
+
     def clean(self):
-        Account = apps.get_model('finance', 'Account')
-        Member = apps.get_model('finance', 'Member')
-        Account.objects.active().filter(member__user=self.user).delete()
-        Member.objects.active().filter(user=self.user).delete()
+        """
+        By default: Member, Account and Transactions are not deleted
+        from database, but set is_active=False.
+        In clean method they should be really deleted, so use raw queries.
+        """
+        TransferUser.objects.filter(
+            account__member__user=self.user).delete()
+        TransferDonkies.objects.filter(
+            account__member__user=self.user).delete()
+        TransferPrepare.objects.filter(
+            account__member__user=self.user).delete()
+
+        l = Transaction.objects.filter(
+            account__member__user=self.user).values_list('id', flat=True)
+        if l:
+            cur = connection.cursor()
+            query = 'delete from finance_transaction where id IN (%s)'\
+                % ','.join(map(lambda x: '%s', l))
+            cur.execute(query, l)
+
+        l = Account.objects.filter(
+            member__user=self.user).values_list('id', flat=True)
+        if l:
+            cur = connection.cursor()
+            query = 'delete from finance_account where id IN (%s)'\
+                % ','.join(map(lambda x: '%s', l))
+            cur.execute(query, l)
+
+        l = Member.objects.filter(user=self.user).values_list('id', flat=True)
+        if l:
+            cur = connection.cursor()
+            query = 'delete from finance_member where id IN (%s)'\
+                % ','.join(map(lambda x: '%s', l))
+            cur.execute(query, l)
 
     @transaction.atomic
     def run(self):
         self.create_members()
         self.create_accounts()
         self.generate_transactions()
-
-
-if __name__ == '__main__':
-    g = Generator()
-    g.clean()
-    g.run()
+        print(Member.objects.filter(user=self.user))
+        print(Account.objects.filter(member__user=self.user).count())
+        print(Transaction.objects.filter(
+            account__member__user=self.user).count())

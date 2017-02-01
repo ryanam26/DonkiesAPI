@@ -1,7 +1,7 @@
 import pytest
 from .. import base
 from donkies.tests.services.emulator import Emulator
-from finance.models import TransferUser
+from finance.models import TransferDonkies, TransferUser
 
 
 class TestTransferUser(base.Mixin):
@@ -32,6 +32,8 @@ class TestTransferUser(base.Mixin):
         assert TransferUser.objects.count() == 0
         TransferUser.objects.process_to_model()
         assert TransferUser.objects.count() == 3
+        qs = TransferDonkies.objects.filter(is_processed_to_user=False)
+        assert qs.count() == 0
 
     @pytest.mark.django_db
     def test_process_to_model02(self):
@@ -55,6 +57,8 @@ class TestTransferUser(base.Mixin):
 
         TransferUser.objects.process_to_model()
         assert TransferUser.objects.count() == 2
+        qs = TransferDonkies.objects.filter(is_processed_to_user=False)
+        assert qs.count() == 0
 
     @pytest.mark.django_db
     def test_process_to_model03(self):
@@ -80,6 +84,8 @@ class TestTransferUser(base.Mixin):
 
         TransferUser.objects.process_to_model()
         assert TransferUser.objects.count() == 1
+        qs = TransferDonkies.objects.filter(is_processed_to_user=False)
+        assert qs.count() == 0
 
     @pytest.mark.django_db
     def test_process_to_model04(self):

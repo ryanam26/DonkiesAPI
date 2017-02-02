@@ -1,5 +1,6 @@
 import logging
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
 from rest_framework.response import Response
@@ -95,13 +96,43 @@ class AccountsEditShare(AuthMixin, APIView):
         return Response()
 
 
+class AccountsSetActive(AuthMixin, APIView):
+    """
+    Activate / Deactivate account.
+    Can not deactivate account if member has only 1 active account.
+    """
+    def put(self, request, **kwargs):
+        id = kwargs['pk']
+        account = Account.objects.get(
+            id=id, member__user=request.user)
+        is_active = request.data.get('is_active', None)
+        if is_active is None:
+            return r400('Missing param.')
+
+        if is_active is False:
+            member = account.member
+            if member.accounts.filter(is_active=True).count() <= 1:
+                msg = (
+                    'You can not deactivate account. '
+                    'You should have at least one active account '
+                    'at financial institution'
+                )
+                return r400(msg)
+
+        account.is_active = is_active
+        account.save()
+        return Response(status=204)
+
+
 class AccountsSetFundingSource(AuthMixin, APIView):
     """
     Set funding source for transfer for debit accounts.
     """
     def post(self, request, **kwargs):
         id = kwargs['pk']
-        Account.objects.set_funding_source(id)
+        account = Account.objects.get(
+            id=id, member__user=request.user)
+        Account.objects.set_funding_source(account.id)
         return Response(status=201)
 
 

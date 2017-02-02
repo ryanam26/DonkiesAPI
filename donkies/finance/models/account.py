@@ -143,7 +143,7 @@ class Account(ActiveModel):
         (INVESTMENT, 'investment'),
         (OTHER, 'other'))
 
-    member = models.ForeignKey('Member')
+    member = models.ForeignKey('Member', related_name='accounts')
     guid = models.CharField(max_length=100, unique=True)
     uid = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=255, null=True, default=None)

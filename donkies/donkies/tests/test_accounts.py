@@ -107,3 +107,40 @@ class TestAccounts(base.Mixin):
 
         assert a1.transfer_share == 50
         assert a1.transfer_share == 50
+
+    @pytest.mark.django_db
+    def test_activate_account(self, client):
+        account = AccountFactory.get_account()
+        account.is_active = False
+        account.save()
+        client = self.get_auth_client(account.member.user)
+
+        url = '/v1/accounts/set_active/{}'.format(account.id)
+        dic = {'is_active': True}
+        data = json.dumps(dic)
+        response = client.put(url, data, content_type='application/json')
+        assert response.status_code == 204
+
+        account.refresh_from_db()
+        assert account.is_active is True
+
+    @pytest.mark.django_db
+    def test_deactivate_account(self, client):
+        """
+        1) Can deactivate if there are otehr active accounts.
+        2) Can not deactivate last active account in member.
+        """
+        a1 = AccountFactory.get_account()
+        a2 = AccountFactory.get_account(member=a1.member)
+        client = self.get_auth_client(a1.member.user)
+
+        url = '/v1/accounts/set_active/{}'.format(a1.id)
+        dic = {'is_active': False}
+        data = json.dumps(dic)
+        response = client.put(url, data, content_type='application/json')
+        assert response.status_code == 204
+
+        url = '/v1/accounts/set_active/{}'.format(a2.id)
+        data = json.dumps(dic)
+        response = client.put(url, data, content_type='application/json')
+        assert response.status_code == 400

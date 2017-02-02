@@ -20,7 +20,10 @@ class Accounts(AuthMixin, ListAPIView):
     serializer_class = sers.AccountSerializer
 
     def get_queryset(self):
-        return Account.objects.active().filter(
+        """
+        All accounts including not active.
+        """
+        return Account.objects.filter(
             member__user=self.request.user)
 
 

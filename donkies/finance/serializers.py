@@ -16,52 +16,6 @@ class InstitutionSerializer(serializers.ModelSerializer):
         )
 
 
-class AccountSerializer(serializers.ModelSerializer):
-    member = serializers.StringRelatedField()
-    institution = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Account
-        fields = (
-            'id',
-            'uid',
-            'member',
-            'name',
-            'apr',
-            'apy',
-            'available_balance',
-            'available_credit',
-            'balance',
-            'created_at',
-            'day_payment_is_due',
-            'is_closed',
-            'credit_limit',
-            'interest_rate',
-            'last_payment',
-            'last_payment_at',
-            'matures_on',
-            'minimum_balance',
-            'minimum_payment',
-            'original_balance',
-            'payment_due_at',
-            'payoff_balance',
-            'started_on',
-            'subtype',
-            'total_account_value',
-            'type',
-            'type_ds',
-            'updated_at',
-            'transfer_share',
-            'is_funding_source_for_transfer',
-            'is_dwolla_created',
-            'institution'
-        )
-
-    def get_institution(self, obj):
-        i = obj.member.institution
-        return InstitutionSerializer(i).data
-
-
 class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
@@ -85,17 +39,6 @@ class CredentialsSerializer(serializers.ModelSerializer):
         )
 
 
-class LinkDebtSerializer(serializers.ModelSerializer):
-    account = AccountSerializer()
-
-    class Meta:
-        model = LinkDebt
-        fields = (
-            'account',
-            'share'
-        )
-
-
 class LinkDebtCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = LinkDebt
@@ -113,7 +56,7 @@ class LinkDebtCreateSerializer(serializers.ModelSerializer):
 
 
 class MemberSerializer(serializers.ModelSerializer):
-    institution = serializers.StringRelatedField()
+    institution = InstitutionSerializer()
     challenges = serializers.SerializerMethodField()
 
     class Meta:
@@ -170,6 +113,64 @@ class MemberResumeSerializer(serializers.Serializer):
     class Meta:
         fields = (
             'challenges',
+        )
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    member = MemberSerializer()
+    institution = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Account
+        fields = (
+            'id',
+            'uid',
+            'member',
+            'name',
+            'apr',
+            'apy',
+            'available_balance',
+            'available_credit',
+            'balance',
+            'created_at',
+            'day_payment_is_due',
+            'is_closed',
+            'credit_limit',
+            'interest_rate',
+            'last_payment',
+            'last_payment_at',
+            'matures_on',
+            'minimum_balance',
+            'minimum_payment',
+            'original_balance',
+            'payment_due_at',
+            'payoff_balance',
+            'started_on',
+            'subtype',
+            'total_account_value',
+            'type',
+            'type_ds',
+            'updated_at',
+            'transfer_share',
+            'is_funding_source_for_transfer',
+            'is_dwolla_created',
+            'is_active',
+            'institution'
+        )
+
+    def get_institution(self, obj):
+        i = obj.member.institution
+        return InstitutionSerializer(i).data
+
+
+class LinkDebtSerializer(serializers.ModelSerializer):
+    account = AccountSerializer()
+
+    class Meta:
+        model = LinkDebt
+        fields = (
+            'account',
+            'share'
         )
 
 

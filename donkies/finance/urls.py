@@ -78,6 +78,11 @@ urlpatterns = [
         name='member_resume'),
 
     url(
+        r'^(?P<version>(v1))/stat$',
+        v.StatView.as_view(),
+        name='stat'),
+
+    url(
         r'^(?P<version>(v1))/transactions$',
         v.Transactions.as_view(),
         name='transactions'),

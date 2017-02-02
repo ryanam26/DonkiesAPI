@@ -10,8 +10,8 @@ from web.views import AuthMixin, r400
 from finance import tasks
 from finance.services.atrium_api import AtriumApi
 from finance.models import (
-    Account, Credentials, Institution, LinkDebt, Member, Transaction,
-    TransferPrepare, TransferDonkies, TransferUser)
+    Account, Credentials, Institution, LinkDebt, Member, Stat,
+    Transaction, TransferPrepare, TransferDonkies, TransferUser)
 
 logger = logging.getLogger('app')
 
@@ -243,6 +243,11 @@ class MemberResume(AuthMixin, APIView):
         tasks.get_member.delay(m.id)
 
         return Response(status=204)
+
+
+class StatView(AuthMixin, APIView):
+    def get(self, request, **kwargs):
+        return Response(Stat.objects.get_json(self.request.user.id))
 
 
 class Transactions(AuthMixin, ListAPIView):

@@ -4,6 +4,7 @@ from .credentials import Credentials
 from .institution import Institution
 from .link_debt import LinkDebt
 from .member import Member
+from .stat import Stat
 from .transaction import Transaction
 from .transfer_user import TransferUser
 from .transfer_dwolla import TransferDwolla

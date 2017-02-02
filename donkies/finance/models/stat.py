@@ -31,7 +31,7 @@ class StatManager(models.Manager):
         sum3 = sum3 if sum3 is not None else 0
         return sum1 + sum2 + sum3
 
-    def get_to_donkies_roundup(self, user_id):
+    def get_to_donkies_amount(self, user_id):
         """
         Returns total roundup transferred to Donkis.
         """
@@ -43,7 +43,7 @@ class StatManager(models.Manager):
             return sum
         return 0
 
-    def get_to_user_roundup(self, user_id):
+    def get_to_user_amount(self, user_id):
         """
         Returns total roundup transferred to User.
         """
@@ -55,7 +55,7 @@ class StatManager(models.Manager):
             return sum
         return 0
 
-    def get_available_roundup(self, user_id):
+    def get_available_amount(self, user_id):
         """
         Returns total amount available to transfer.
         """
@@ -76,10 +76,10 @@ class StatManager(models.Manager):
 
     def get_json(self, user_id):
         return {
-            'to_donkies_roundup': self.get_to_donkies_roundup(user_id),
-            'to_user_roundup': self.get_to_user_roundup(user_id),
-            'available_roundup': self.get_available_roundup(user_id),
-            'get_payments_count': self.get_payments_count(user_id)
+            'amount_to_donkies': self.get_to_donkies_amount(user_id),
+            'amount_to_user': self.get_to_user_amount(user_id),
+            'amount_available': self.get_available_amount(user_id),
+            'payments': self.get_payments_count(user_id)
         }
 
 

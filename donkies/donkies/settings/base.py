@@ -116,7 +116,7 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-MEDIA_ROOT = BASE_DIR + '/static/static/media/'
+MEDIA_ROOT = BASE_DIR + '/static/media/'
 STATIC_URL = '/static/'
 MEDIA_URL = '/static/media/'
 
@@ -127,7 +127,7 @@ FILE_UPLOAD_HANDLERS = (
 
 FILE_UPLOAD_TEMP_DIR = MEDIA_ROOT + 'tmp/'
 
-STATICFILES_DIRS = [join(BASE_DIR, 'static/static')]
+STATICFILES_DIRS = [join(BASE_DIR, 'static')]
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',

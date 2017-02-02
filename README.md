@@ -75,51 +75,6 @@ Credentials can be stored in database, then Celery task will need to update them
 The current implementation - request on demand.
 
 
-### Nginx
-
-server {
-    server_name  dev.donkies.co;
-    listen 80;
-    charset utf-8;
-    access_log  /var/log/nginx/sites/access/donkies_frontend.log;
-    error_log   /var/log/nginx/sites/error/donkies_frontend.log crit;
-
-    access_log off;
-    root /home/alex/dj/donkies/donkies/react/dist;
-
-    if ($host = 'www.dev.donkies.co' ) {
-        rewrite  ^/(.*)$  https://dev.donkies.co/$1  permanent;
-    }
-
-    location /account {
-        autoindex off;
-        try_files $uri  $uri/ /index.html;
-    }
-
-    location ^~ /static {
-        autoindex off;
-        root /home/alex/dj/donkies/static;
-    }
-
-    # Attempt to load static files, if not found route to @rootfiles
-    location ~ (.+)\.(html|json|txt|js|css|jpg|jpeg|gif|png|svg|ico|eot|otf|woff|woff2|ttf)$ {
-        try_files $uri @rootfiles;
-    }
-
-    # Check for app route "directories" in the request uri and strip "directories"
-    # from request, loading paths relative to root.
-    location @rootfiles {
-        # rewrite ^/(?:some|foo/bar)/(.*) /$1 redirect;
-        rewrite ^/(.*)/(.*)  /404 redirect;
-    }
-
-    location = / {
-        uwsgi_pass 127.0.0.1:4442;
-        include uwsgi_params;
-        uwsgi_buffers 8 128k;
-    }
-}
-
 ### js/app.js of Material Admin
 
 All changes in file react/dist/js/app.js

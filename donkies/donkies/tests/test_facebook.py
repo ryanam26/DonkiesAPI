@@ -2,7 +2,7 @@
 Testing Facebook and Facebook flow.
 
 donkies.com - development (setup /etc/hosts)
-donkies.co (dev.donkies.co)  - production
+donkies.co (app.donkies.co)  - production
 
 PERMISSIONS
 https://developers.facebook.com/docs/facebook-login/permissions
@@ -40,7 +40,7 @@ PREPARATION:
 7) "PRODUCTS" -> Add product: "Facebook Login"
 8) "PRODUCTS" -> "Facebook Login" -> "Settings"
    set "Valid OAuth redirect URIs"
-   http://donkies.com:8080/account/login_facebook
+   http://donkies.com:8080/login_facebook
 
 USAGE:
 

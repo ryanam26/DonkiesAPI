@@ -18,6 +18,6 @@ DATABASES = {
 
 FACEBOOK_APP_ID = '1825754931027785'
 FACEBOOK_APP_SECRET = '8f19d96855a9295c06271f6c9e26ae20'
-FACEBOOK_REDIRECT_URI = 'http://donkies.com:8080/account/login_facebook'
+FACEBOOK_REDIRECT_URI = 'http://donkies.com:8080/login_facebook'
 
 ATRIUM_API_MODE = 'DEV'

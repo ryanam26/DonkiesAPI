@@ -262,7 +262,7 @@ class User(AbstractBaseUser):
             id=self.encrypted_id,
             token=self.confirmation_token
         )
-        link = '{url}/account/confirm?id={id}&token={token}'
+        link = '{url}/confirm?id={id}&token={token}'
         return link.format(**dic)
 
     def get_reset_link(self):
@@ -271,7 +271,7 @@ class User(AbstractBaseUser):
             id=self.encrypted_id,
             token=self.reset_token
         )
-        link = '{url}/account/reset?id={id}&token={token}'
+        link = '{url}/reset?id={id}&token={token}'
         return link.format(**dic)
 
     def signup(self):
@@ -366,7 +366,7 @@ class User(AbstractBaseUser):
             id=self.encrypted_id,
             token=self.new_email_token
         )
-        link = '{url}/account/change_email_confirm?id={id}&token={token}'
+        link = '{url}/change_email_confirm?id={id}&token={token}'
         return link.format(**dic)
 
     def get_funding_source_account(self):

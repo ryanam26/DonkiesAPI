@@ -2,6 +2,7 @@ import logging
 from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Q
+from django.http import HttpResponse
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -31,8 +32,7 @@ class AuthMixin:
 
 
 def home(request):
-    ctx = {}
-    return render(request, 'web/home.html', ctx)
+    return HttpResponse('API')
 
 
 class AuthFacebook(APIView):

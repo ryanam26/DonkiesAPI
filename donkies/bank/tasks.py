@@ -53,6 +53,16 @@ def initiate_dwolla_customers():
         Customer.objects.initiate_dwolla_customer(c.id)
 
 
+@periodic_task(run_every=crontab(minute='*'))
+@production(settings.PRODUCTION)
+def update_customers():
+    """
+    TODO: increase interval on production
+    """
+    Customer = apps.get_model('bank', 'Customer')
+    Customer.objects.update_customers()
+
+
 @periodic_task(run_every=crontab(minute='*/10'))
 @production(settings.PRODUCTION)
 def process_sandbox_transfers():

@@ -8,6 +8,9 @@ from web.models import User
 
 
 class Command(BaseCommand):
+    """
+    Production Atrium test users.
+    """
     def create_member(self, user_guid):
         """
         Fetch members from Atrium for exisiting Atrium users

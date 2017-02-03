@@ -76,6 +76,21 @@ class CustomerManager(models.Manager):
                 c.created_at = d['created']
                 c.save()
 
+    def update_customers(self):
+        """
+        Currently method updates only status.
+        """
+        dw = DwollaApi()
+        for d in dw.get_customers():
+            try:
+                c = self.model.objects.get(dwolla_id=d['id'])
+            except self.model.DoesNotExist:
+                continue
+
+            if c.status != d['status']:
+                c.status = d['status']
+                c.save()
+
 
 class Customer(models.Model):
     """

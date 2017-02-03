@@ -5,7 +5,7 @@ from web.models import User
 from finance.models import Credentials, Challenge, Member, Account, Transaction
 from finance import tasks
 from .import base
-from .factories import InstitutionFactory, UserFactory, MemberFactory
+from .factories import InstitutionFactory, UserFactory
 
 
 class TestAtrium(base.Mixin):
@@ -92,7 +92,7 @@ class TestAtrium(base.Mixin):
         ]
 
     @pytest.mark.django_db
-    def notest_create_member01(self):
+    def test_create_member01(self):
         """
         Test API endpoint - create member.
         Call to Atrium API in Member manager.
@@ -111,7 +111,7 @@ class TestAtrium(base.Mixin):
         assert response.status_code == 201
 
     @pytest.mark.django_db
-    def notest_create_member02(self):
+    def test_create_member02(self):
         """
         Create member with correct credentials.
         Should get status COMPLETED.
@@ -121,20 +121,19 @@ class TestAtrium(base.Mixin):
         m = Member.objects.get_or_create_member(
             self.user.guid, 'mxbank', self.get_credentials(self.TEST_PASSWORD))
 
-        success_result = False
+        is_success = False
         for _ in range(7):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'COMPLETED':
-                success_result = True
+                is_success = True
                 break
             time.sleep(1)
 
-        if not success_result:
-            assert False
+        assert is_success is True
 
     @pytest.mark.django_db
-    def notest_create_member03(self):
+    def test_create_member03(self):
         """
         Create member with incorrect credentials.
         Should get status DENIED.
@@ -144,20 +143,19 @@ class TestAtrium(base.Mixin):
         m = Member.objects.get_or_create_member(
             self.user.guid, 'mxbank', self.get_credentials(self.TEST_INVALID))
 
-        success_result = False
+        is_success = False
         for _ in range(7):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'DENIED':
-                success_result = True
+                is_success = True
                 break
             time.sleep(1)
 
-        if not success_result:
-            assert False
+        assert is_success is True
 
     @pytest.mark.django_db
-    def notest_create_member04(self):
+    def test_create_member04(self):
         """
         Test CHALLENGED status.
         Create member with credentials to get CHALLENGE.
@@ -173,17 +171,16 @@ class TestAtrium(base.Mixin):
             'mxbank',
             self.get_credentials(self.TEST_CHALLENGE))
 
-        success_result = False
+        is_success = False
         for _ in range(7):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'CHALLENGED':
-                success_result = True
+                is_success = True
                 break
             time.sleep(1)
 
-        if not success_result:
-            assert False
+        assert is_success is True
 
         # Call task manually, after that database should have challenges
         tasks.get_member(m.id)
@@ -204,20 +201,19 @@ class TestAtrium(base.Mixin):
         assert response.status_code == 204
 
         # Should get COMPLETED status
-        success_result = False
+        is_success = False
         for _ in range(7):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'COMPLETED':
-                success_result = True
+                is_success = True
                 break
             time.sleep(1)
 
-        if not success_result:
-            assert False
+        assert is_success is True
 
     @pytest.mark.django_db
-    def notest_accounts_transactions(self):
+    def test_accounts_transactions(self):
         """
         Test fetching accounts and transactions from Atrium.
         1) Create member
@@ -233,20 +229,17 @@ class TestAtrium(base.Mixin):
         assert Transaction.objects.active().filter(
             account__member=m).count() == 0
 
-        success_result = False
+        is_success = False
         for _ in range(7):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'COMPLETED':
-                success_result = True
+                is_success = True
                 break
             time.sleep(1)
 
-        if not success_result:
-            assert False
-
+        assert is_success is True
         tasks.update_user(self.user.id)
-
         assert Account.objects.active().filter(member=m).count() > 0
         # Transactions are not ready
         # assert Transaction.objects.active().filter(
@@ -262,34 +255,59 @@ class TestAtrium(base.Mixin):
         3) Create member again. It should be the same member
             with is_active=True
         """
-        m = MemberFactory.get_member()
-        # print(m)
+        self.init()
+
+        # Create member
+        m = Member.objects.get_or_create_member(
+            self.user.guid, 'mxbank', self.get_credentials(self.TEST_PASSWORD))
+
+        is_success = False
+        for _ in range(7):
+            am = Member.objects.get_atrium_member(m)
+            print(am.status)
+            if am.status == 'COMPLETED':
+                is_success = True
+                break
+            time.sleep(1)
+
+        assert is_success is True
+
+        # Call API endpoint to delete member.
+        # Member should be deleted in Atrium and set is_active=False
+        # in database.
 
         client = self.get_auth_client(m.user)
         url = '/v1/members/{}'.format(m.identifier)
 
         response = client.delete(url)
         assert response.status_code == 204
-        
         m.refresh_from_db()
-        print(m.is_active)
+        assert m.is_active is False
 
-        return
+        res = Member.objects.get_atrium_members(m.user.guid)
+        is_exists = False
+        for d in res['members']:
+            if d['guid'] == m.guid:
+                is_exists = True
+        assert is_exists is False
+        print('Member deleted from Atrium')
 
-
-        self.init()
-        m = Member.objects.get_or_create_member(
+        # Create member again for the same user and the
+        # the same institution.
+        m2 = Member.objects.get_or_create_member(
             self.user.guid, 'mxbank', self.get_credentials(self.TEST_PASSWORD))
 
-        success_result = False
+        is_success = False
         for _ in range(7):
-            am = Member.objects.get_atrium_member(m)
+            am = Member.objects.get_atrium_member(m2)
             print(am.status)
             if am.status == 'COMPLETED':
-                success_result = True
+                is_success = True
                 break
             time.sleep(1)
 
-        if not success_result:
-            assert False
+        assert is_success is True
 
+        m2.refresh_from_db()
+        m2.is_active is True
+        assert m.id == m2.id

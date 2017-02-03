@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.db import transaction
 from django.contrib import admin
 from django.apps import apps
 from django.contrib.postgres.fields import JSONField
@@ -10,30 +11,36 @@ from web.models import ActiveModel, ActiveManager
 class MemberManager(ActiveManager):
     def get_or_create_member(self, user_guid, code, credentials):
         """
-        Called from create member serializer.
-        TODO: Processing errors.
+        1) Returns member, if it exists and is_active=True
+        2) Reactivates member if it was deleted previously.
+           When user delete member, member is deleted from Atrium,
+           but it still exists in database. If user decided to create
+           member for the same institution again, reactivate
+           member with new Atrium guid.
+        3) Creates new member if it doesn't exists.
         """
-        Account = apps.get_model('finance', 'Account')
-        Member = apps.get_model('finance', 'Member')
-
-        # Check if member exists.
-        # Even if it was deleted previously (is_active=False).
-        qs = Member.objects.filter(
+        member = None
+        qs = self.model.objects.filter(
             institution__code=code, user__guid=user_guid)
         if qs.exists():
             member = qs.first()
-            if not member.is_active:
-                member.is_active = True
-                member.save()
+            if member.is_active:
+                return member
 
-                Account.objects.filter(
-                    member=member, is_active=False).update(is_active=True)
-            return member
-
+        # Create member in Atrium
         a = AtriumApi()
         result = a.create_member(user_guid, code, credentials)
-        m = self.create_member(result)
-        return m
+
+        # Reactivate member
+        if member is not None:
+            self.change_active(member.id, True)
+            member.guid = result['guid']
+            member.save()
+            return member
+
+        # Create new member.
+        member = self.create_member(result)
+        return member
 
     def create_member(self, api_response):
         """
@@ -77,19 +84,26 @@ class MemberManager(ActiveManager):
         Set member, accounts and transactions to is_active=False
         Can delete member from Atrium.
         """
-        Account = apps.get_model('finance', 'Account')
-        Transaction = apps.get_model('finance', 'Transaction')
-
         member = self.model.objects.get(id=member_id)
 
         if is_delete_atrium:
             a = AtriumApi()
             a.delete_member(member.user.guid, member.guid)
 
-        Account.objects.active().filter(member=member).update(is_active=False)
-        Transaction.objects.active().filter(
-            account__member=member).update(is_active=False)
-        member.delete()
+        self.change_active(member.id, False)
+
+    @transaction.atomic
+    def change_active(self, member_id, is_active):
+        """
+        is_active = True - besides member itself,
+                    activates also all accounts.
+        is_active = False - besides member itself,
+                    deactivates also all accounts.
+        """
+        Account = apps.get_model('finance', 'Account')
+        for account in Account.objects.filter(member_id=member_id):
+            Account.objects.change_active(account.id, is_active)
+        self.model.objects.filter(id=member_id).update(is_active=is_active)
 
 
 class Member(ActiveModel):

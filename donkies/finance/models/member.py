@@ -72,16 +72,17 @@ class MemberManager(ActiveManager):
         a = AtriumApi()
         a.resume_member(member.user.guid, member.guid, challenges)
 
-    def delete_member(self, member_id, is_test=False):
+    def delete_member(self, member_id, is_delete_atrium=True):
         """
-        Delete member from Atrium.
+        Set member, accounts and transactions to is_active=False
+        Can delete member from Atrium.
         """
         Account = apps.get_model('finance', 'Account')
         Transaction = apps.get_model('finance', 'Transaction')
 
         member = self.model.objects.get(id=member_id)
 
-        if not is_test:
+        if is_delete_atrium:
             a = AtriumApi()
             a.delete_member(member.user.guid, member.guid)
 

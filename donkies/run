@@ -60,21 +60,20 @@ python manage.py pgdownload
 elif [ "$1" == "test" ]
 then
 clear
-py.test -s donkies/tests/test_accounts.py
+# py.test -s donkies/tests/test_accounts.py
 # py.test -s donkies/tests/test_auth.py
-# py.test -s donkies/tests/test_atrium.py
+py.test -s donkies/tests/test_atrium.py
 # py.test -s donkies/tests/test_customers.py
+# py.test -s donkies/tests/test_facebook.py
 # py.test -s donkies/tests/test_funding_sources.py
 # py.test -s donkies/tests/test_institutions.py
 # py.test -s donkies/tests/test_linking.py
+# py.test -s donkies/tests/test_members.py
 # py.test -s donkies/tests/test_transactions.py
-# py.test -s donkies/tests/test_facebook.py
 # py.test -s donkies/tests/test_users.py
 
 # Transfers
-# py.test -s donkies/tests/transfers/test_accounts.py
 # py.test -s donkies/tests/transfers/test_api.py
-# py.test -s donkies/tests/transfers/test_members.py
 # py.test -s donkies/tests/transfers/test_transactions.py
 # py.test -s donkies/tests/transfers/test_transfer_donkies.py
 # py.test -s donkies/tests/transfers/test_transfer_donkies_dwolla.py

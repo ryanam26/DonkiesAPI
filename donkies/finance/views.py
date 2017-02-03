@@ -1,6 +1,5 @@
 import logging
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
 from rest_framework.response import Response
@@ -119,8 +118,7 @@ class AccountsSetActive(AuthMixin, APIView):
                 )
                 return r400(msg)
 
-        account.is_active = is_active
-        account.save()
+        Account.objects.change_active(account.id, is_active)
         return Response(status=204)
 
 
@@ -245,12 +243,15 @@ class Members(AuthMixin, ListAPIView):
         return Response(s.data, status=201)
 
 
-class MemberDetail(AuthMixin, RetrieveAPIView):
+class MemberDetail(AuthMixin, RetrieveDestroyAPIView):
     serializer_class = sers.MemberSerializer
     lookup_field = 'identifier'
 
     def get_queryset(self):
         return Member.objects.active().filter(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        Member.objects.delete_member(instance.id)
 
 
 class MemberResume(AuthMixin, APIView):

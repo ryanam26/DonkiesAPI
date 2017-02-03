@@ -1,7 +1,7 @@
 import pytest
-from .. import base
-from ..factories import AccountFactory, MemberFactory, TransactionFactory
 from finance.models import Account, Member, Transaction
+from . import base
+from .factories import AccountFactory, MemberFactory, TransactionFactory
 
 
 class TestMember(base.Mixin):
@@ -50,7 +50,7 @@ class TestMember(base.Mixin):
         assert Account.objects.count() == 2
         assert Transaction.objects.count() == 1
 
-        Member.objects.delete_member(m.id, is_test=True)
+        Member.objects.delete_member(m.id, is_delete_atrium=False)
 
         for obj in Member.objects.all():
             assert obj.is_active is False

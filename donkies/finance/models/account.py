@@ -73,22 +73,6 @@ class AccountManager(ActiveManager):
     def debt_accounts(self):
         return self.model.objects.active().filter(type_ds=self.model.DEBT)
 
-    def delete_account(self, account_id, is_test=False):
-        """
-        If account's member has only this account, delete member also.
-        """
-        Member = apps.get_model('finance', 'Member')
-        Transaction = apps.get_model('finance', 'Transaction')
-
-        account = self.model.objects.get(id=account_id)
-        Transaction.objects.active().filter(
-            account=account).update(is_active=False)
-
-        qs = self.model.objects.active().filter(member=account.member)
-        if qs.count() == 1:
-            Member.objects.delete_member(account.member.id, is_test=is_test)
-        account.delete()
-
     @transaction.atomic
     def set_funding_source(self, account_id):
         """
@@ -110,6 +94,20 @@ class AccountManager(ActiveManager):
         account.is_funding_source_for_transfer = True
         account.save()
         return account
+
+    @transaction.atomic
+    def change_active(self, account_id, is_active):
+        """
+        is_active = True - besides account itself,
+                    activates also all transactions.
+        is_active = False - besides account itself,
+                    deactivates also all transactions.
+        """
+        Transaction = apps.get_model('finance', 'Transaction')
+        self.model.objects.filter(id=account_id)\
+            .update(is_active=is_active)
+        Transaction.objects.filter(account_id=account_id)\
+            .update(is_active=is_active)
 
 
 class Account(ActiveModel):

@@ -8,51 +8,31 @@ from finance.models import Account
 
 class TestAccounts(base.Mixin):
     @pytest.mark.django_db
-    def test_delete_account01(self, client):
+    def test_delete01(self):
         """
-        Should get success.
+        Instead of deleting object should set is_active=False
         """
-        user = UserFactory(email='bob@gmail.com')
-        client = self.get_auth_client(user)
+        a = AccountFactory.get_account()
+        assert a.is_active is True
 
-        i = InstitutionFactory(code='mxbank')
-        m = MemberFactory(user=user, institution=i)
-        a = AccountFactory(member=m)
-
-        url = '/v1/accounts/{}'.format(a.id)
-        response = client.delete(url)
-        assert response.status_code == 204
+        a.delete()
+        a.refresh_from_db()
+        assert a.is_active is False
 
     @pytest.mark.django_db
-    def test_delete_account02(self, client):
+    def test_delete02(self):
         """
-        Try to delete non-existing account.
-        Should get error.
+        Instead of deleting queryset, should set is_active=False
         """
-        user = UserFactory(email='bob@gmail.com')
-        client = self.get_auth_client(user)
+        AccountFactory.get_account()
+        AccountFactory.get_account()
 
-        url = '/v1/accounts/1000'
-        response = client.delete(url)
-        assert response.status_code == 404
+        assert Account.objects.count() == 2
+        Account.objects.active().all().delete()
+        assert Account.objects.count() == 2
 
-    @pytest.mark.django_db
-    def test_delete_account03(self, client):
-        """
-        Try to delete account that belongs to other user.
-        Should get error.
-        """
-        user = UserFactory(email='bob@gmail.com')
-        i = InstitutionFactory(code='mxbank')
-        m = MemberFactory(user=user, institution=i)
-        a = AccountFactory(member=m)
-
-        user2 = UserFactory(email='john@gmail.com')
-        client = self.get_auth_client(user2)
-
-        url = '/v1/accounts/{}'.format(a.id)
-        response = client.delete(url)
-        assert response.status_code == 404
+        for a in Account.objects.active().all():
+            assert a.is_active is False
 
     @pytest.mark.django_db
     def test_edit_share(self, client):

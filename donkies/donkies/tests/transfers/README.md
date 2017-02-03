@@ -17,7 +17,7 @@ Later Celery task can look at Members, Accounts, and Transactions and items that
 
 * To delete members use only Member.objects.delete_member(member_id)
 
-* To delete accounts use only Account.objects.delete_account(account_id)
+* Accounts are not deleted from user interface. User set them active/not active.
 
 
 ## Members
@@ -39,21 +39,6 @@ Later Celery task can look at Members, Accounts, and Transactions and items that
 
 * "delete" method on QuerySet should not delete objects, instead set is_active=False
 * TestAccount.delete02
-
-* Manager's method "delete_account" should set all related Transactions to is_active=False
-* TestAccount.test_delete03
-
-* When user delete account, we look if account's member has only this account, it also should be deleted.
-* TestAccount.test_delete04, TestAccount.test_delete05
-
-* We do not control accounts when we still have member. When user's member has multiple accounts, after deleting one account, member still available. This is confusing situation. When user creates account in Atrium, actually it creates member. 
-And if member has multiple accounts - user actually will create multiple accounts.
-
-But in Donkies user operates with accounts (not members). This is rare situation, so to avoid confusions, proposal:
-
-If user wants to delete account and account's member has other account (For example 2 accounts in Chase bank under single credentials), give user the message that both accounts will be deleted and if it confirms, delete both accounts. (Proposal not implemented yet.)
-* Test not implemented yet.
-
 
 
 ## Transaction

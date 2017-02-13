@@ -34,9 +34,15 @@ class AtriumApi:
         return d
 
     def get_users(self):
+        """
+        Get directly by requests (Pytrium method doesn't work.)
+        """
         url = self.get_root_url() + 'users'
         res = requests.get(url, headers=self.get_headers())
         return res.json()
+
+    def get_user(self, guid):
+        return self.api.readUser(guid)
 
     def delete_user(self, guid):
         """

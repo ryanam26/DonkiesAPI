@@ -1,37 +1,42 @@
+import datetime
 import time
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
-import datetime
 from django.utils import timezone
-from django.core.mail import EmailMultiAlternatives
-from .models import Emailer, Logging
+from django.conf import settings
+from web.models import Emailer, Logging
+from web.services.sparkpost_service import SparkPostService
 
 
-# @periodic_task(run_every=crontab())
+@periodic_task(run_every=crontab())
 def send_email():
     """
     Runs every minute.
     Checks emails that haven't been sent - and send them.
     """
-    q = Emailer.objects.filter(sent=False)
-    for e in q:
-        msg = EmailMultiAlternatives(
-            e.subject, e.txt, e.email_from, [e.email_to])
-        msg.attach_alternative(e.html, "text/html")
+    if not settings.PRODUCTION:
+        return
 
-        try:
-            msg.send()
-            e.result = True
-            e.report = 'OK'
-        except Exception as e:
-            e.result = False
-            e.report = str(e)
+    sps = SparkPostService()
+    for em in Emailer.objects.filter(sent=False):
+        response = sps.send_email(
+            em.email_to,
+            em.subject,
+            em.txt,
+            html=em.html
+        )
 
-        e.sent_at = datetime.datetime.now()
-        e.sent = True
-        e.save()
+        if sps.check_response(response):
+            em.result = True
+        else:
+            em.result = False
 
-        time.sleep(3)
+        em.sent = True
+        em.sent_at = timezone.now()
+        em.report = str(response)
+        em.save()
+
+        time.sleep(1)
 
 
 @periodic_task(run_every=crontab(minute=0, hour=0))

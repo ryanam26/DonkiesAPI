@@ -33,10 +33,13 @@ FACEBOOK_APP_ID = data['FACEBOOK_APP_ID']
 FACEBOOK_APP_SECRET = data['FACEBOOK_APP_SECRET']
 FACEBOOK_REDIRECT_URI = data['FACEBOOK_REDIRECT_URI']
 
+SPARKPOST_APIKEY = data['SPARKPOST_APIKEY']
+SPARKPOST_FROM_EMAIL = data['SPARKPOST_FROM_EMAIL']
+
 BACKEND_DOMAIN = 'api.donkies.co'
 BACKEND_URL = 'http://api.donkies.co'
-FRONTEND_DOMAIN = 'donkies.co'
-FRONTEND_URL = 'http://donkies.co'
+FRONTEND_DOMAIN = 'app.donkies.co'
+FRONTEND_URL = 'http://app.donkies.co'
 
 AUTH_USER_MODEL = 'web.User'
 APPEND_SLASH = False

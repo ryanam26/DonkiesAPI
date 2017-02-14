@@ -1,3 +1,6 @@
+## As spec changing a little, some info in this README can be outdated.
+## All actual info in model's python files.
+
 # REQUIREMENTS FOR MEMBERS, ACCOUNTS, TRANSACTIONS IN RESPECT TO TRANSFERS.
  
 We can not delete Members, Accounts and Transactions from database.

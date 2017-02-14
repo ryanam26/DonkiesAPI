@@ -150,8 +150,10 @@ Admin user contains generated fake data and do not processed by Atrium and Dwoll
 
 5) User need to add funding source (via IAV)
 
-6) In settings User set minimum_transfer_amount (By default $5 and can be changed in settings). As soon as collected roundup >= minimum_transfer_amount celery tasks will automatically send transfer to Donkies LLC in Dwolla. Donkies LLC email is used as a destination in Dwolla. 
+6) In settings User set minimum_transfer_amount (By default $5 and can be changed in settings) and is_auto_transfer (implemented in model, not implemented in API).
 
-7) After Donkies LLC got transfer, it needs to send transfer to user. Celery task will update data and TransferUser model will contain debt accounts and amounts to send.
+7) Every day (once a day) user's collected roundup is transferred to Donkies LLC.
 
-8) Send money to user's debt accounts from TransferUser model. (Currently manually)
+8) On 15th of current month if user set auto transfer and total amount of previous month more than minimum transfer amount, send money to user (TransferUser model).
+
+8) Send money to user's debt accounts from TransferUser model. (Currently manually by cheques)

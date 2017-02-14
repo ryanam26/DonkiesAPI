@@ -179,6 +179,8 @@ class User(AbstractBaseUser):
         choices=TRANSFER_AMOUNT_CHOICES,
         default=TRANSFER_AMOUNT_CHOICES[0][0],
         help_text='Minimum amount for transfer.')
+    is_auto_transfer = models.BooleanField(
+        default=True, help_text='Auto transfer when reach minimum amount')
     is_atrium_created = models.BooleanField(default=False)
 
     objects = UserManager()

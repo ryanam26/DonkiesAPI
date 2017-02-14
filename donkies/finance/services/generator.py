@@ -1,4 +1,8 @@
 """
+Old implementation based on minimum transfer amount.
+Current implementation is transfer to Donkies once a day.
+For testing frontend and view info doesn't matter.
+
 Creates fake data for admin user.
 python manage.py generator
 

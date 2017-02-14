@@ -53,35 +53,37 @@ class TransferPrepareManager(models.Manager):
             if sum > 0:
                 qs = Account.objects.active().filter(
                     type_ds=Account.DEBIT, member__user=user)
-
-                for account in qs:
-                    self.process_roundup(account)
+                self.process_roundup(list(qs))
 
     @transaction.atomic
-    def process_roundup(self, account):
+    def process_roundup(self, accounts):
         """
-        Process all not processed transactions for account.
+        Process all not processed transactions for
+        user's accounts.
+        "accounts" - accounts  list.
         """
-        if not self.is_transfer_allowed(account):
+        if not accounts or not self.is_transfer_allowed(accounts[0]):
             return
 
         TransferPrepareDate = apps.get_model('finance', 'TransferPrepareDate')
 
-        total = 0
-        for tr in account.transactions.filter(is_processed=False):
-            if tr.roundup == 0:
+        for account in accounts:
+            total = 0
+            for tr in account.transactions.filter(is_processed=False):
+                if tr.roundup == 0:
+                    tr.is_processed = True
+                    tr.save()
+                    continue
+
+                total += tr.roundup
                 tr.is_processed = True
                 tr.save()
-                continue
 
-            total += tr.roundup
-            tr.is_processed = True
-            tr.save()
+            if total > 0:
+                tpe = self.model(account=account, roundup=total)
+                tpe.save()
 
-        if total > 0:
-            tpe = self.model(account=account, roundup=total)
-            tpe.save()
-            TransferPrepareDate.objects.create(user=account.member.user)
+        TransferPrepareDate.objects.create(user=account.member.user)
 
     def is_transfer_allowed(self, account):
         """

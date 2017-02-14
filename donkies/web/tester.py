@@ -25,7 +25,7 @@ class Tester:
 
 if __name__ == '__main__':
     t = Tester()
-    from finance.services.atrium_api import AtriumApi
-    a = AtriumApi()
-    for d in a.get_users()['users']:
-        print(d['guid'])
+    # from finance.services.atrium_api import AtriumApi
+    # a = AtriumApi()
+    # for d in a.get_users()['users']:
+    #     print(d['guid'])

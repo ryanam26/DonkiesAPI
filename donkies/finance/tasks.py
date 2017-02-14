@@ -125,7 +125,7 @@ def update_users_data():
         update_user(user_id)
 
 
-# @periodic_task(run_every=crontab(minute=0, hour='*/6'))
+@periodic_task(run_every=crontab(minute=0, hour=0))
 def update_institutions():
     """
     Updates institutions.
@@ -133,55 +133,43 @@ def update_institutions():
     Institution = apps.get_model('finance', 'Institution')
     Institution.objects.update_list()
 
-    # Not needed in current implementation.
-    # Credentials are not stored in database.
+    # Credentials in db not needed in current implementation.
     # Institution.objects.update_credentials()
 
 
 # --- Transfers to Dwolla
 
-@periodic_task(run_every=crontab())
+@periodic_task(run_every=crontab(minute='*/15', hour='17-22'))
 @production(settings.PRODUCTION)
 @rs_singleton(rs, 'PROCESS_ROUNDUPS_IS_PROCESSING')
 def process_roundups():
-    """
-    TODO: increase periodic interval on production.
-    """
     TransferPrepare = apps.get_model('finance', 'TransferPrepare')
     TransferPrepare.objects.process_roundups()
 
 
-@periodic_task(run_every=crontab())
+@periodic_task(run_every=crontab(minute='*/10'))
 @production(settings.PRODUCTION)
 @rs_singleton(rs, 'PROCESS_PREPARE_IS_PROCESSING')
 def process_prepare():
-    """
-    TODO: increase periodic interval on production.
-    """
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
     TransferDonkies.objects.process_prepare()
 
 
-@periodic_task(run_every=crontab())
+@periodic_task(run_every=crontab(minute='*/10'))
 @production(settings.PRODUCTION)
 @rs_singleton(rs, 'INITIATE_DWOLLA_TRANSFERS_IS_PROCESSING')
 def initiate_dwolla_transfers():
-    """
-    TODO: increase periodic interval on production.
-    """
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
     for tds in TransferDonkies.objects.filter(is_initiated=False):
         TransferDonkies.objects.initiate_dwolla_transfer(tds.id)
 
 
-@periodic_task(run_every=crontab())
+@periodic_task(run_every=crontab(minute='*/10'))
 @production(settings.PRODUCTION)
 @rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
 def update_dwolla_transfers():
     """
     Updates status of Donkies transfers.
-    (Can be also implemented by WebHooks API.)
-    TODO: increase periodic interval on production.
     """
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
     qs = TransferDonkies.objects.filter(
@@ -190,13 +178,12 @@ def update_dwolla_transfers():
         TransferDonkies.objects.update_dwolla_transfer(tds.id)
 
 
-@periodic_task(run_every=crontab())
+@periodic_task(run_every=crontab(minute='*/10'))
 @production(settings.PRODUCTION)
-@rs_singleton(rs, 'UPDATE_DWOLLA_TRANSFERS_IS_PROCESSING')
+@rs_singleton(rs, 'UPDATE_DWOLLA_FAILURE_CODES_IS_PROCESSING')
 def update_dwolla_failure_codes():
     """
     Updates failure codes in TransferDonkies.
-    TODO: increase periodic interval on production.
     """
     TransferDonkies = apps.get_model('finance', 'TransferDonkies')
     qs = TransferDonkies.objects.filter(is_failed=True, failure_code=None)

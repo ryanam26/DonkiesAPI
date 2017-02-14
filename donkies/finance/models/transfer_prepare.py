@@ -5,38 +5,52 @@ First we collect roundup to TransferPrepare.
 Then from TransferPrepare total user's roundup amount
 processed to TransferDonkies model (if user set funding source account).
 From TransferDonkies model we send transfer to Donkies LLC (via Dwolla).
-As soon as money received by Donkies LLC, we process received amount to
-debt user's accounts to TransferUser model.
 
-From TransferUser model currently send cheques manually.
+The money hold on Donkies LLC.
+On 15th of current month all funds that collected for previous month
+(if user set is_auto_transfer
+and if total amount more than minimum_transfer_amount)
+send to TransferUser model.
+
+From TransferUser model currently send cheques to users manually.
 """
+import datetime
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
 from django.db import transaction
+from django.db.models import Q
 
 
 class TransferPrepareManager(models.Manager):
     def process_roundups(self):
         """
+        The current roundup transfer rule - once a day.
+
         Called by celery scheduled task.
         Processes all roundups for all users to TransferPrepare.
 
         1) If user didn't set funding source, do not process user.
 
         2) Calculates total roundup from user's accounts.
-           If sum less than user set in minimum_transfer_amount,
-           do not process user.
+           If sum more than 0 and if transfer hasn't been done today
+           (TransferPrepareDate) - process user.
         """
         Account = apps.get_model('finance', 'Account')
         User = apps.get_model('web', 'User')
-        for user in User.objects.all():
+        TransferPrepareDate = apps.get_model('finance', 'TransferPrepareDate')
+
+        # user's ids that already have been processed today
+        ids = TransferPrepareDate.objects.filter(
+            date=datetime.date.today()).values_list('user_id', flat=True)
+
+        for user in User.objects.filter(~Q(id__in=ids)):
             fs = user.get_funding_source_account()
             if not fs:
                 continue
 
             sum = user.get_not_processed_roundup_sum()
-            if sum >= user.minimum_transfer_amount:
+            if sum > 0:
                 qs = Account.objects.active().filter(
                     type_ds=Account.DEBIT, member__user=user)
 
@@ -48,6 +62,11 @@ class TransferPrepareManager(models.Manager):
         """
         Process all not processed transactions for account.
         """
+        if not self.is_transfer_allowed(account):
+            return
+
+        TransferPrepareDate = apps.get_model('finance', 'TransferPrepareDate')
+
         total = 0
         for tr in account.transactions.filter(is_processed=False):
             if tr.roundup == 0:
@@ -62,6 +81,20 @@ class TransferPrepareManager(models.Manager):
         if total > 0:
             tpe = self.model(account=account, roundup=total)
             tpe.save()
+            TransferPrepareDate.objects.create(user=account.member.user)
+
+    def is_transfer_allowed(self, account):
+        """
+        Returns bool.
+        The current rule for transfer prepare: once a day.
+        Track via TransferPrepareDate.
+        """
+        TransferPrepareDate = apps.get_model('finance', 'TransferPrepareDate')
+        qs = TransferPrepareDate.objects.filter(
+            date=datetime.date.today(), user=account.member.user)
+        if qs.exists():
+            return False
+        return True
 
 
 class TransferPrepare(models.Model):

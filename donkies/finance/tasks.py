@@ -1,5 +1,7 @@
 import datetime
 import logging
+import time
+from atrium.errors import NotFoundError
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
@@ -11,11 +13,8 @@ from web.services.helpers import rs_singleton, production
 rs = settings.REDIS_DB
 logger = logging.getLogger('console')
 
-
-# The number of attempts to get member  before exit.
-# In testing environment 20 is more than enought.
-# In production probably need to be increased.
-MAX_ATTEMPTS = 20
+# The number of attempts to get member before exit.
+MAX_ATTEMPTS = 50
 
 
 @periodic_task(run_every=crontab())
@@ -41,6 +40,19 @@ def create_atrium_user(user_id):
     User.objects.create_atrium_user(user.id)
 
 
+def repeat_get_member(member_id, attempt, status=None):
+    if settings.TESTING:
+        time.sleep(3)
+        if status:
+            print(status)
+        return get_member(member_id, attempt)
+
+    return get_member.apply_async(
+        args=[member_id],
+        kwargs={'attempt': attempt},
+        countdown=5)
+
+
 @capp.task
 def get_member(member_id, attempt=0):
     """
@@ -52,26 +64,38 @@ def get_member(member_id, attempt=0):
     if attempt > MAX_ATTEMPTS:
         return
 
-    try:
-        member = Member.objects.get(id=member_id)
-    except Member.DoesNotExist:
-        return
-
+    member = Member.objects.get(id=member_id)
     logger.debug('Task: resume member.')
 
     try:
         am = Member.objects.get_atrium_member(member)
-    except:
+    except NotFoundError:
+        return
+    except Exception as e:
+        logger.exception(e)
         attempt += 1
         return get_member.apply_async(
-            args=[member_id], kwargs={'attempt': attempt}, countdown=5)
+            args=[member_id],
+            kwargs={'attempt': attempt},
+            countdown=5)
 
     status = am.status
 
     if status not in Member.FINISHED_STATUSES:
         attempt += 1
         return get_member.apply_async(
-            args=[member_id], kwargs={'attempt': attempt}, countdown=5)
+            args=[member_id],
+            kwargs={'attempt': attempt},
+            countdown=5)
+
+    # If status is HALTED, it means some server error
+    # or unavailability. Aggregate member again.
+    if status == Member.HALTED:
+        Member.objects.aggregate_member(member.guid)
+        return get_member.apply_async(
+            args=[member_id],
+            kwargs={'attempt': attempt},
+            countdown=5)
 
     # If status is CHALLENGED, create challenges for member in database
     if status == Member.CHALLENGED:

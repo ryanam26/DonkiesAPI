@@ -4,7 +4,6 @@ import time
 from web.models import User
 from finance.models import Credentials, Challenge, Member, Account, Transaction
 from finance import tasks
-from finance.services.atrium_api import AtriumApi
 from .import base
 from .factories import InstitutionFactory, UserFactory
 
@@ -32,13 +31,13 @@ class TestAtrium(base.Mixin):
     TEST_CHALLENGE = 'challenge'
     TEST_OPTIONS = 'options'
     TEST_IMAGE = 'image'
-    TEST_BAD_REQUEST = 'BAD_REQUEST'
-    TEST_UNAUTHORIZED = 'UNAUTHORIZED'
-    TEST_INVALID = 'INVALID'
-    TEST_LOCKED = 'LOCKED'
-    TEST_DISABLED = 'DISABLED'
-    TEST_SERVER_ERROR = 'SERVER_ERROR'
-    TEST_UNAVAILABLE = 'UNAVAILABLE'
+    TEST_BAD_REQUEST = 'BAD_REQUEST'    # HALTED
+    TEST_UNAUTHORIZED = 'UNAUTHORIZED'  # DENIED
+    TEST_INVALID = 'INVALID'            # DENIED
+    TEST_LOCKED = 'LOCKED'              # DENIED
+    TEST_DISABLED = 'DISABLED'          # DENIED
+    TEST_SERVER_ERROR = 'SERVER_ERROR'  # HALTED
+    TEST_UNAVAILABLE = 'UNAVAILABLE'    # HALTED
 
     TEST_CORRECT_ANSWER = 'correct'
 
@@ -121,7 +120,6 @@ class TestAtrium(base.Mixin):
         print('--- Test success:')
         m = Member.objects.get_or_create_member(
             self.user.guid, 'mxbank', self.get_credentials(self.TEST_PASSWORD))
-        Member.objects.aggregate_member(m.guid)
 
         is_success = False
         for _ in range(20):
@@ -213,6 +211,17 @@ class TestAtrium(base.Mixin):
             time.sleep(1)
 
         assert is_success is True
+
+    @pytest.mark.django_db
+    def test_create_member05(self):
+        """
+        Test HALTED status.
+        Can not be tested on sandbox.
+        As the member is HALTED, after aggregation
+        it is always HALTED.
+        Thought - aggregation works on production.
+        """
+        pass
 
     @pytest.mark.django_db
     def notest_accounts_transactions(self):

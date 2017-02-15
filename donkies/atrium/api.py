@@ -119,13 +119,11 @@ class Api(object):
     # --------------------------------------------------
     # TRANSACTIONS
     # --------------------------------------------------
-    # @cleanData('transactions')
     def getTransactions(self, userGuid, queryParams={}):
         url = 'users/{}/transactions'.format(userGuid)
         url = self._buildQueryParams(url, queryParams)
         return self._makeRequest(url, 'GET')
 
-    # @cleanData('transactions')
     def getTransactionsByAccount(self, userGuid, acctGuid, queryParams={}):
         url = 'users/{}/accounts/{}/transactions'.format(userGuid, acctGuid)
         url = self._buildQueryParams(url, queryParams)
@@ -142,7 +140,6 @@ class Api(object):
     # --------------------------------------------------
     # ACCOUNTS
     # --------------------------------------------------
-    # @cleanData('accounts')
     def getAccounts(self, userGuid, queryParams={}):
         url = 'users/{}/accounts'.format(userGuid)
         url = self._buildQueryParams(url, queryParams)
@@ -156,7 +153,6 @@ class Api(object):
     # --------------------------------------------------
     # INSTITUTIONS
     # --------------------------------------------------
-    # cleanData('institutions')
     def getInstitutions(self, queryParams={}):
         url = 'institutions'
         url = self._buildQueryParams(url, queryParams)
@@ -175,6 +171,7 @@ class Api(object):
     # --------------------------------------------------
     # MEMBERS
     # --------------------------------------------------
+    @cleanData('members')
     def getMembers(self, userGuid, queryParams={}):
         url = 'users/{}/members'.format(userGuid)
         url = self._buildQueryParams(url, queryParams)

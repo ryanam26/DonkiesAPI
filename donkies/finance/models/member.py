@@ -203,7 +203,9 @@ class Member(ActiveModel):
             self.REQUESTED,
             self.RECEIVED,
             self.TRANSFERRED,
-            self.PROCESSED
+            self.PROCESSED,
+            # HALTED considered not processed.
+            self.HALTED
         ]
         if self.status in processing:
             return {

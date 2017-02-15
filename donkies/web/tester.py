@@ -24,21 +24,17 @@ class Tester:
         return a.get_users()
 
     def temp(self):
-        User = apps.get_model('web', 'User')
+        from finance.services.atrium_api import AtriumApi
         Member = apps.get_model('finance', 'Member')
 
-        user = User.objects.get(email='alex@donkies.co')
-        member = Member.objects.filter(
-            user=user, institution__code='wells_fargo').first()
-
-        res = Member.objects.get_atrium_member(member)
-        print(res)
-
-        res = Member.objects.read_atrium_member(member)
-        print(res)
+        a = AtriumApi()
+        for user in a.get_users():
+            for member in Member.objects.get_atrium_members(user.guid):
+                print(member.status, member.name)
+                if member.status == Member.HALTED:
+                    a.aggregate_member(member.user_guid, member.guid)
 
 
 if __name__ == '__main__':
     t = Tester()
-    # t.temp()
-    print(t.get_atrium_users())
+    t.temp()

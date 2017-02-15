@@ -2,6 +2,7 @@ from .base import *
 
 DEBUG = True
 PRODUCTION = False
+TESTING = False
 
 # MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 # INSTALLED_APPS += ('debug_toolbar.apps.DebugToolbarConfig',)

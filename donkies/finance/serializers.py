@@ -98,7 +98,7 @@ class MemberCreateSerializer(serializers.ModelSerializer):
         code = data['institution_code']
         credentials = data['credentials']
         m = Member.objects.get_or_create_member(user.guid, code, credentials)
-        # In case recreate user
+        # In case recreate member
         m.status = Member.REQUESTED
         m.save()
         return m

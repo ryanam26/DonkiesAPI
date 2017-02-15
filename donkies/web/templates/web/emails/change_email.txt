@@ -4,7 +4,7 @@ Please follow the link below to confirm new email.
 
 {{ link_href }}
 
-Regards, {{ domain }} team!
+Regards, donkies.co team!
 
 
 

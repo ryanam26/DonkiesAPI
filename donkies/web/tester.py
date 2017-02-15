@@ -4,6 +4,7 @@ import sys
 
 from os.path import abspath, dirname, join
 from django.apps import apps
+from django.db.models import Q
 
 path = abspath(join(dirname(abspath(__file__)), '..'))
 sys.path.append(path)
@@ -23,7 +24,7 @@ class Tester:
         a = AtriumApi()
         return a.get_users()
 
-    def temp(self):
+    def resume_halted(self):
         from finance.services.atrium_api import AtriumApi
         Member = apps.get_model('finance', 'Member')
 
@@ -34,7 +35,24 @@ class Tester:
                 if member.status == Member.HALTED:
                     a.aggregate_member(member.user_guid, member.guid)
 
+    def clean(self):
+        """
+        Accurate!!!
+        """
+        return
+        from finance.services.atrium_api import AtriumApi
+        User = apps.get_model('web', 'User')
+
+        emails = ['alex@donkies.co', 'a@a.com']
+        good_guids = User.objects.filter(
+            email__in=emails).values_list('guid', flat=True)
+
+        a = AtriumApi()
+        for user in a.get_users():
+            if user.guid not in good_guids:
+                a.delete_user(user.guid)
+
+        User.objects.filter(~Q(email__in=emails)).delete()
 
 if __name__ == '__main__':
     t = Tester()
-    t.temp()

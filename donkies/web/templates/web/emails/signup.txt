@@ -4,6 +4,6 @@ To complete your registration, please click on the following URL (or copy-paste 
 
 {{ link_href }}
 
-Regards, {{ domain }} team!
+Regards, donkies.co team!
 
 

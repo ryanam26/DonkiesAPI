@@ -3,7 +3,6 @@ import time
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 from django.utils import timezone
-from django.conf import settings
 from web.models import Emailer, Logging
 from web.services.sparkpost_service import SparkPostService
 
@@ -14,9 +13,6 @@ def send_email():
     Runs every minute.
     Checks emails that haven't been sent - and send them.
     """
-    if not settings.PRODUCTION:
-        return
-
     sps = SparkPostService()
     for em in Emailer.objects.filter(sent=False):
         response = sps.send_email(

@@ -92,7 +92,7 @@ class TestAtrium(base.Mixin):
         ]
 
     @pytest.mark.django_db
-    def notest_create_member01(self):
+    def test_create_member01(self):
         """
         Test API endpoint - create member.
         Call to Atrium API in Member manager.
@@ -111,7 +111,7 @@ class TestAtrium(base.Mixin):
         assert response.status_code == 201
 
     @pytest.mark.django_db
-    def notest_create_member02(self):
+    def test_create_member02(self):
         """
         Create member with correct credentials.
         Should get status COMPLETED.
@@ -133,7 +133,7 @@ class TestAtrium(base.Mixin):
         assert is_success is True
 
     @pytest.mark.django_db
-    def notest_create_member03(self):
+    def test_create_member03(self):
         """
         Create member with incorrect credentials.
         Should get status DENIED.
@@ -155,7 +155,7 @@ class TestAtrium(base.Mixin):
         assert is_success is True
 
     @pytest.mark.django_db
-    def notest_create_member04(self):
+    def test_create_member04(self):
         """
         Test CHALLENGED status.
         Create member with credentials to get CHALLENGE.
@@ -224,7 +224,7 @@ class TestAtrium(base.Mixin):
         pass
 
     @pytest.mark.django_db
-    def notest_accounts_transactions(self):
+    def test_accounts_transactions(self):
         """
         Test fetching accounts and transactions from Atrium.
         1) Create member
@@ -257,7 +257,7 @@ class TestAtrium(base.Mixin):
         #     account__member=m).count() > 0
 
     @pytest.mark.django_db
-    def notest_delete_recreate_member(self):
+    def test_delete_recreate_member(self):
         """
         1) Create member.
         2) Call API endpoint to delete member. (manager's method delete_member)
@@ -295,9 +295,8 @@ class TestAtrium(base.Mixin):
         m.refresh_from_db()
         assert m.is_active is False
 
-        res = Member.objects.get_atrium_members(m.user.guid)
         is_exists = False
-        for d in res['members']:
+        for d in Member.objects.get_atrium_members(m.user.guid):
             if d['guid'] == m.guid:
                 is_exists = True
         assert is_exists is False

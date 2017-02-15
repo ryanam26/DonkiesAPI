@@ -1,5 +1,4 @@
 import pytest
-from django.conf import settings
 from finance.models import Institution
 from finance.services.atrium_api import AtriumApi
 from .factories import UserFactory
@@ -15,17 +14,9 @@ def institutions():
 
 class TestInstitutions(base.Mixin):
     """
-    Test institutions and credentials on Atrium
-    PRODUCTION credentials.
-    Only fetching data from Atrium.
+    Test institutions and credentials on Atrium.
     """
     WELLS_FARGO_CODE = 'wells_fargo'
-
-    def setup(self):
-        """
-        Data available for all tests.
-        """
-        settings.ATRIUM_API_MODE = 'PROD'
 
     def init(self, institutions):
         for d in institutions:

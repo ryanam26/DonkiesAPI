@@ -67,8 +67,7 @@ class UserManager(BaseUserManager):
         """
         if settings.ATRIUM_API_MODE == 'DEV':
             a = AtriumApi()
-            res = a.get_users()
-            for d in res['users']:
+            for d in a.get_users():
                 a.delete_user(d['guid'])
 
 

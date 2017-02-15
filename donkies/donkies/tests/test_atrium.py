@@ -4,6 +4,7 @@ import time
 from web.models import User
 from finance.models import Credentials, Challenge, Member, Account, Transaction
 from finance import tasks
+from finance.services.atrium_api import AtriumApi
 from .import base
 from .factories import InstitutionFactory, UserFactory
 
@@ -92,7 +93,7 @@ class TestAtrium(base.Mixin):
         ]
 
     @pytest.mark.django_db
-    def test_create_member01(self):
+    def notest_create_member01(self):
         """
         Test API endpoint - create member.
         Call to Atrium API in Member manager.
@@ -111,7 +112,7 @@ class TestAtrium(base.Mixin):
         assert response.status_code == 201
 
     @pytest.mark.django_db
-    def test_create_member02(self):
+    def notest_create_member02(self):
         """
         Create member with correct credentials.
         Should get status COMPLETED.
@@ -120,9 +121,10 @@ class TestAtrium(base.Mixin):
         print('--- Test success:')
         m = Member.objects.get_or_create_member(
             self.user.guid, 'mxbank', self.get_credentials(self.TEST_PASSWORD))
+        Member.objects.aggregate_member(m.guid)
 
         is_success = False
-        for _ in range(7):
+        for _ in range(20):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'COMPLETED':
@@ -133,7 +135,7 @@ class TestAtrium(base.Mixin):
         assert is_success is True
 
     @pytest.mark.django_db
-    def test_create_member03(self):
+    def notest_create_member03(self):
         """
         Create member with incorrect credentials.
         Should get status DENIED.
@@ -144,7 +146,7 @@ class TestAtrium(base.Mixin):
             self.user.guid, 'mxbank', self.get_credentials(self.TEST_INVALID))
 
         is_success = False
-        for _ in range(7):
+        for _ in range(20):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'DENIED':
@@ -155,7 +157,7 @@ class TestAtrium(base.Mixin):
         assert is_success is True
 
     @pytest.mark.django_db
-    def test_create_member04(self):
+    def notest_create_member04(self):
         """
         Test CHALLENGED status.
         Create member with credentials to get CHALLENGE.
@@ -172,7 +174,7 @@ class TestAtrium(base.Mixin):
             self.get_credentials(self.TEST_CHALLENGE))
 
         is_success = False
-        for _ in range(7):
+        for _ in range(20):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'CHALLENGED':
@@ -213,7 +215,7 @@ class TestAtrium(base.Mixin):
         assert is_success is True
 
     @pytest.mark.django_db
-    def test_accounts_transactions(self):
+    def notest_accounts_transactions(self):
         """
         Test fetching accounts and transactions from Atrium.
         1) Create member
@@ -230,7 +232,7 @@ class TestAtrium(base.Mixin):
             account__member=m).count() == 0
 
         is_success = False
-        for _ in range(7):
+        for _ in range(20):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'COMPLETED':
@@ -246,7 +248,7 @@ class TestAtrium(base.Mixin):
         #     account__member=m).count() > 0
 
     @pytest.mark.django_db
-    def test_delete_recreate_member(self):
+    def notest_delete_recreate_member(self):
         """
         1) Create member.
         2) Call API endpoint to delete member. (manager's method delete_member)
@@ -262,7 +264,7 @@ class TestAtrium(base.Mixin):
             self.user.guid, 'mxbank', self.get_credentials(self.TEST_PASSWORD))
 
         is_success = False
-        for _ in range(7):
+        for _ in range(20):
             am = Member.objects.get_atrium_member(m)
             print(am.status)
             if am.status == 'COMPLETED':

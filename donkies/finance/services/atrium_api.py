@@ -1,8 +1,6 @@
 import json
-import requests
 from django.conf import settings
 from atrium import Api
-from atrium.errors import NotFoundError
 
 
 class AtriumApi:
@@ -14,51 +12,28 @@ class AtriumApi:
         self.client_id = getattr(settings, 'ATRIUM_CLIENT_ID_{}'.format(mode))
         self.api_key = getattr(settings, 'ATRIUM_KEY_{}'.format(mode))
 
-        self.api = Api(key=self.api_key, client_id=self.client_id)
-        self.api.root = self.get_root_url()
+        self.api = Api(
+            key=self.api_key, client_id=self.client_id,
+            root=self.get_root_url())
 
     def get_root_url(self):
         if settings.ATRIUM_API_MODE == 'PROD':
             return 'https://atrium.mx.com/'
         return 'https://vestibule.mx.com/'
 
-    def get_headers(self):
-        """
-        Pytrium API does not support all methods.
-        Returns headers to call API manually.
-        """
-        d = {}
-        d['Accept'] = 'application/vnd.mx.atrium.v1+json'
-        d['MX-API-Key'] = self.api_key
-        d['MX-Client-ID'] = self.client_id
-        return d
-
     def get_users(self):
-        """
-        Get directly by requests (Pytrium method doesn't work.)
-        """
-        url = self.get_root_url() + 'users'
-        res = requests.get(url, headers=self.get_headers())
-        return res.json()
+        return self.api.getUsers()
 
     def get_user(self, guid):
         return self.api.readUser(guid)
 
     def delete_user(self, guid):
-        """
-        TODO: processing errors.
-        """
-        url = '{}users/{}'.format(self.get_root_url(), guid)
-        r = requests.delete(url, headers=self.get_headers())
-        if r.status_code == 204:
-            print('Atrium user has been deleted')
-        else:
-            print('Error in deleting atrium user')
+        self.api.deleteUser(guid)
+        print('Atrium user has been deleted')
 
     def create_user(self, identifier, metadata=None):
         """
         Returns guid of created user.
-        TODO: processing errors.
         """
         d = {'identifier': identifier}
         if metadata is not None:
@@ -81,7 +56,10 @@ class AtriumApi:
     def create_member(self, user_guid, code, credentials):
         """
         credentials is the list of dicts: {guid:..., value:...}
-        TODO: processing errors.
+        Note:
+            When we create member in Atrium twice, for same
+            user guid, same institution and even same credentials,
+            Atrium consider it as new member and creates new member.
         """
         member = self.api.createMember(user_guid, payload={
             "institution_code": code,
@@ -91,9 +69,35 @@ class AtriumApi:
 
     def get_member(self, user_guid, member_guid):
         """
-        TODO: processing errors.
+        Provides the status of the member's
+        most recent aggregation.
+
+        Result contains:
+            aggregated_at
+            successfully_aggregated_at
+            status
+            guid
+            has_processed_transactions
+            has_processed_accounts
         """
         return self.api.getMemberStatus(user_guid, member_guid)
+
+    def read_member(self, user_guid, member_guid):
+        """
+        Result contains:
+            aggregated_at
+            successfully_aggregated_at
+            institution_code
+            status
+            guid
+            user_guid
+            name
+            identifier
+        """
+        return self.api.readMember(user_guid, member_guid)
+
+    def aggregate_member(self, user_guid, member_guid):
+        return self.api.startMemberAgg(user_guid, member_guid)
 
     def resume_member(self, user_guid, member_guid, challenges=[]):
         d = {}
@@ -102,26 +106,10 @@ class AtriumApi:
         return self.api.resumeMemberAgg(user_guid, member_guid, payload=d)
 
     def delete_member(self, user_guid, member_guid):
-        """
-        TODO: Processing errors.
-        """
-        try:
-            self.api.deleteMember(user_guid, member_guid)
-        except NotFoundError:
-            pass
+        self.api.deleteMember(user_guid, member_guid)
 
     def get_accounts(self, user_guid, **kw):
-        """
-        TODO: processing errors.
-              processing paginations.
-              add query params.
-        """
         return self.api.getAccounts(user_guid, queryParams=kw)
 
     def get_transactions(self, user_guid, **kw):
-        """
-        TODO: processing errors.
-              processing paginations.
-              add query params.
-        """
         return self.api.getTransactions(user_guid, queryParams=kw)

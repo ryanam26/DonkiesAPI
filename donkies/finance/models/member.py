@@ -11,7 +11,7 @@ from web.models import ActiveModel, ActiveManager
 class MemberManager(ActiveManager):
     def get_or_create_member(self, user_guid, code, credentials):
         """
-        1) Returns member, if it exists and is_active=True
+        1) Returns member from db, if it exists and is_active=True
         2) Reactivates member if it was deleted previously.
            When user delete member, member is deleted from Atrium,
            but it still exists in database. If user decided to create
@@ -63,16 +63,27 @@ class MemberManager(ActiveManager):
         return a.get_members(user_guid)
 
     def get_atrium_member(self, member):
-        """
-        Returns member data from atrium response.
-        """
         a = AtriumApi()
         member = a.get_member(member.user.guid, member.guid)
         return member
 
+    def read_atrium_member(self, member):
+        a = AtriumApi()
+        member = a.read_member(member.user.guid, member.guid)
+        return member
+
+    def aggregate_member(self, member_guid):
+        """
+        Aggregates member.
+        After that celery task for getting member should be called.
+        """
+        member = Member.objects.get(guid=member_guid)
+        a = AtriumApi()
+        a.aggregate_member(member.user.guid, member.guid)
+
     def resume_member(self, member_guid, challenges=[]):
         """
-        Aggregates or resumes member.
+        Resumes member.
         After that celery task for getting member should be called.
         """
         member = Member.objects.get(guid=member_guid)

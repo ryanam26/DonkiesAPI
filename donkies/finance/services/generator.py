@@ -1,7 +1,11 @@
 """
 Old implementation based on minimum transfer amount.
-Current implementation is transfer to Donkies once a day.
-For testing frontend and view info doesn't matter.
+The purpose - test frontend during development.
+Transfer rules were changed and additional model
+was added. If generator needed to implement fake data,
+it should be refactored.
+
+-------
 
 Creates fake data for admin user.
 python manage.py generator

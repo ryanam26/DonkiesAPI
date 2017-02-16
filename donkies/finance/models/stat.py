@@ -47,6 +47,7 @@ class StatManager(models.Manager):
         """
         Returns total roundup transferred to User.
         """
+        return 0
         TransferUser = apps.get_model('finance', 'TransferUser')
         sum = TransferUser.objects\
             .filter(account__member__user_id=user_id, is_processed=True)\

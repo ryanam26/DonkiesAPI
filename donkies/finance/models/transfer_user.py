@@ -7,6 +7,8 @@ from django.apps import apps
 class TransferUserManager(models.Manager):
     def process_to_model(self):
         """
+        !!! REFACTORING REQUIRED
+
         Process all transfers to TransferUser model,
         that have been sent from TransferDonkies model to Donkies LLC.
         All processed items in TransferDonkies
@@ -70,27 +72,23 @@ class TransferUserManager(models.Manager):
 
 class TransferUser(models.Model):
     """
-    As soon as Donkies LLC received money from user to bank account,
-    process all data from TransferDonkies to TransferUser.
-    Received amount should be splitted between all user's Debt accounts
-    accordingly to share.
+    Donkies LLC holds user's money.
+    All transfers from user's debit accounts to TransferDonkies
+    are stored in TransferDonkies model.
 
-    After all data have been processed to TransferUser, send payment to user's
-    debt accounts.
+    On 15th of current month, funds can be transferred to TransferUser
+    model, if user set "is_auto_transfer" and if total amount more than
+    "minimum_transfer_amount".
 
-    In current implementations by cheques manually.
+    TransferUser model delegates funds to TransferDebt model
+    to user's debt accounts accordingly to share.
     """
-    account = models.ForeignKey(
-        'Account',
-        related_name='transfers_user',
-        help_text='Debt account.')
-    td = models.ForeignKey(
-        'TransferDonkies', help_text='Related TransferDonkies amount')
-    share = models.IntegerField(help_text='Current share on processing date.')
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    user = models.ForeignKey('web.User', related_name='transfers')
+    cached_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True,
+        default=None, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    processed_at = models.DateTimeField(null=True, default=None, blank=True)
-    is_processed = models.BooleanField(default=False)
+    items = models.ManyToManyField('TransferDonkies')
 
     objects = TransferUserManager()
 
@@ -103,15 +101,15 @@ class TransferUser(models.Model):
     def __str__(self):
         return str(self.id)
 
+    @property
+    def amount(self):
+        return '0'
+
 
 @admin.register(TransferUser)
 class TransferUserAdmin(admin.ModelAdmin):
     list_display = (
         'created_at',
-        'account',
-        'td',
-        'share',
-        'amount',
-        'processed_at',
-        'is_processed'
+        'user',
+        'amount'
     )

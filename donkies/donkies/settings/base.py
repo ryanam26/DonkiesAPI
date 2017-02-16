@@ -37,9 +37,9 @@ SPARKPOST_APIKEY = data['SPARKPOST_APIKEY']
 SPARKPOST_FROM_EMAIL = data['SPARKPOST_FROM_EMAIL']
 
 BACKEND_DOMAIN = 'api.donkies.co'
-BACKEND_URL = 'http://api.donkies.co'
+BACKEND_URL = 'https://api.donkies.co'
 FRONTEND_DOMAIN = 'app.donkies.co'
-FRONTEND_URL = 'http://app.donkies.co'
+FRONTEND_URL = 'https://app.donkies.co'
 
 AUTH_USER_MODEL = 'web.User'
 APPEND_SLASH = False
@@ -263,13 +263,6 @@ DONKIES_DWOLLA_EMAIL_PROD = 'bank@donkies.co'
 
 # Users for real tests.
 TEST_USERS = [
-    {
-        'email': 'test@donkies.co',
-        'guid': 'USR-f4bc90ba-4504-6fda-b07c-5aa965832a06',
-        'password': '111',
-        'first_name': 'Vladimir',
-        'last_name': 'Grischenko'
-    },
     {
         'email': 'alex@donkies.co',
         'guid': 'USR-bd2621a6-bdcb-c671-3079-f3ad8cd2b501',

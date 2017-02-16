@@ -6,6 +6,7 @@ from .link_debt import LinkDebt
 from .member import Member
 from .stat import Stat
 from .transaction import Transaction
+from .transfer_debt import TransferDebt
 from .transfer_user import TransferUser
 from .transfer_dwolla import TransferDwolla
 from .transfer_donkies import TransferDonkies

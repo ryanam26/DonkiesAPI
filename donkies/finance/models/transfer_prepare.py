@@ -12,7 +12,10 @@ On 15th of current month all funds that collected for previous month
 and if total amount more than minimum_transfer_amount)
 send to TransferUser model.
 
-From TransferUser model currently send cheques to users manually.
+From TransferUser model send funds to TransferDebt to
+different debt accounts accordingly to share.
+
+From TransferDebt currently send cheques to users manually.
 """
 import datetime
 from django.db import models

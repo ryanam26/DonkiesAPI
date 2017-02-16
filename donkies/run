@@ -25,7 +25,6 @@ python manage.py loaddata institutions_test
 python manage.py createsuperuser
 python manage.py createemails
 # python manage.py createproductionusers
-# python manage.py generator
 
 elif [ "$1" == "migr" ]
 then

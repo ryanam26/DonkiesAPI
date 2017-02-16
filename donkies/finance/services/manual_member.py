@@ -11,7 +11,7 @@ class ManualMember:
     Usage:
     > python manual_member.py -u your_username -p your_password
     """
-    API_URL = 'http://api.donkies.co'
+    API_URL = 'https://api.donkies.co'
     USER_EMAIL = 'alex@donkies.co'
     USER_PASSWORD = '111'
     USER_FIRST_NAME = 'Alex'

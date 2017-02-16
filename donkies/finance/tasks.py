@@ -1,6 +1,5 @@
 import datetime
 import logging
-import time
 from atrium.errors import NotFoundError
 from django.utils import timezone
 from django.apps import apps
@@ -38,19 +37,6 @@ def create_atrium_user(user_id):
     User = apps.get_model('web', 'User')
     user = User.objects.get(id=user_id)
     User.objects.create_atrium_user(user.id)
-
-
-def repeat_get_member(member_id, attempt, status=None):
-    if settings.TESTING:
-        time.sleep(3)
-        if status:
-            print(status)
-        return get_member(member_id, attempt)
-
-    return get_member.apply_async(
-        args=[member_id],
-        kwargs={'attempt': attempt},
-        countdown=5)
 
 
 @capp.task
@@ -95,7 +81,7 @@ def get_member(member_id, attempt=0):
         return get_member.apply_async(
             args=[member_id],
             kwargs={'attempt': attempt},
-            countdown=5)
+            countdown=10)
 
     # If status is CHALLENGED, create challenges for member in database
     if status == Member.CHALLENGED:

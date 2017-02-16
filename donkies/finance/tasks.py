@@ -218,3 +218,11 @@ def reinitiate_dwolla_transfers():
             failure_code=None,
             status=None
         )
+
+
+@periodic_task(run_every=crontab(minute=10, hour='*'))
+@production(settings.PRODUCTION)
+@rs_singleton(rs, 'TRANSFER_USER_IS_PROCESSING')
+def transfer_user():
+    TransferUser = apps.get_model('finance', 'TransferUser')
+    TransferUser.objects.process()

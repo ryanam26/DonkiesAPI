@@ -47,9 +47,8 @@ class StatManager(models.Manager):
         """
         Returns total roundup transferred to User.
         """
-        return 0
-        TransferUser = apps.get_model('finance', 'TransferUser')
-        sum = TransferUser.objects\
+        TransferDebt = apps.get_model('finance', 'TransferDebt')
+        sum = TransferDebt.objects\
             .filter(account__member__user_id=user_id, is_processed=True)\
             .aggregate(Sum('amount'))['amount__sum']
         if sum is not None:
@@ -60,20 +59,17 @@ class StatManager(models.Manager):
         """
         Returns total amount available to transfer.
         """
-        return 0
-        TransferUser = apps.get_model('finance', 'TransferUser')
-
-        sum = TransferUser.objects\
-            .filter(account__member__user_id=user_id, is_processed=False)\
+        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        qs = TransferDonkies.objects.get_user_queryset(user_id)
+        sum = qs\
             .aggregate(Sum('amount'))['amount__sum']
         if sum is not None:
             return sum
         return 0
 
     def get_payments_count(self, user_id):
-        return 0
-        TransferUser = apps.get_model('finance', 'TransferUser')
-        return TransferUser.objects\
+        TransferDebt = apps.get_model('finance', 'TransferDebt')
+        return TransferDebt.objects\
             .filter(account__member__user_id=user_id, is_processed=True)\
             .count()
 

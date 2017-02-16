@@ -250,6 +250,38 @@ class TransferDonkiesManager(models.Manager):
         tdf.save()
         tds.delete()
 
+    def get_date_queryset(self):
+        """
+        Returns queryset for available payments.
+        """
+        return self.model.objects.filter(
+            is_processed_to_user=False,
+            is_sent=True,
+            sent_at__lt=self.get_date())
+
+    def get_user_queryset(self, user_id):
+        """
+        Returns queryset for available payments
+        for particular user.
+        """
+        return self.get_date_queryset().filter(
+            account__member__user_id=user_id)
+
+    def get_date(self):
+        """
+        Returns date, for filter TransferDonkies that less
+        than that date.
+
+        If today's date is less than 15th, returns 1st day of last month.
+        If today's date is more or equal 15th, returns
+        1st day of current month.
+        """
+        today = datetime.date.today()
+        if today.day < 15:
+            dt = today.replace(day=1) - datetime.timedelta(days=1)
+            return dt.replace(day=1)
+        return today.replace(day=1)
+
 
 class TransferDonkies(TransferDwolla):
     """

@@ -1,4 +1,3 @@
-import datetime
 import decimal
 from django.db import models
 from django.contrib import admin
@@ -10,7 +9,8 @@ from django.utils import timezone
 
 class TransferUserManager(models.Manager):
     def process(self):
-        users = self.get_base_queryset()\
+        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        users = TransferDonkies.objects.get_date_queryset()\
             .order_by('account__member__user_id')\
             .values_list('account__member__user_id', flat=True)\
             .distinct()
@@ -28,12 +28,14 @@ class TransferUserManager(models.Manager):
             processed_at = now
         4) Create TransferDebt instances accordingly to share.
         """
+        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+
         if not self.can_process_user(user_id):
             return
 
         tu = self.model(user_id=user_id)
         tu.save()
-        for td in self.get_user_queryset(user_id):
+        for td in TransferDonkies.objects.get_user_queryset(user_id):
             td.is_processed_to_user = True
             td.processed_at = timezone.now()
             td.save()
@@ -52,9 +54,10 @@ class TransferUserManager(models.Manager):
            less than aggregated amount.
         """
         Account = apps.get_model('finance', 'Account')
+        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
         User = apps.get_model('web', 'User')
 
-        if not self.get_user_queryset(user_id):
+        if not TransferDonkies.objects.get_user_queryset(user_id):
             return False
 
         Account = apps.get_model('finance', 'Account')
@@ -67,44 +70,12 @@ class TransferUserManager(models.Manager):
         if not user.is_auto_transfer:
             return False
 
-        res = self.get_user_queryset(user_id).aggregate(Sum('amount'))
+        res = TransferDonkies.objects.get_user_queryset(
+            user_id).aggregate(Sum('amount'))
         if res['amount__sum'] < user.minimum_transfer_amount:
             return False
 
         return True
-
-    def get_base_queryset(self):
-        """
-        Returns queryset for available payments.
-        """
-        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
-        return TransferDonkies.objects.filter(
-            is_processed_to_user=False,
-            is_sent=True,
-            sent_at__lt=self.get_date())
-
-    def get_user_queryset(self, user_id):
-        """
-        Returns queryset for available payments
-        for particular user.
-        """
-        return self.get_base_queryset().filter(
-            account__member__user_id=user_id)
-
-    def get_date(self):
-        """
-        Returns date, for filter TransferDonkies that less
-        than that date.
-
-        If today's date is less than 15th, returns 1st day of last month.
-        If today's date is more or equal 15th, returns
-        1st day of current month.
-        """
-        today = datetime.date.today()
-        if today.day < 15:
-            dt = today.replace(day=1) - datetime.timedelta(days=1)
-            return dt.replace(day=1)
-        return today.replace(day=1)
 
 
 class TransferUser(models.Model):

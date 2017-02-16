@@ -1,10 +1,5 @@
 """
-Old implementation based on minimum transfer amount.
-The purpose - test frontend during development.
-Transfer rules were changed and additional model
-was added. If generator needed to implement fake data,
-it should be refactored.
-
+REFACTORING NOT FINISHED YET!!!
 -------
 
 Creates fake data for admin user.
@@ -16,8 +11,7 @@ python manage.py generator
 user.minimum_transfer_amount = 20
 
 Each day has randomly from 3 to 5 transactions from 3 to 30 USD.
-Transfers are made, each time when roundup sum
-more than minimum_transfer_amount.
+Transfers are made to TransferDonkies every day once a day.
 
 Atrium users are not created for admin users.
 (User.objects.create_atrium_user)
@@ -50,7 +44,7 @@ from django.apps import apps
 from bank.models import Customer, FundingSource
 from finance.models import (
     Account, Member, Transaction, Institution, TransferPrepare,
-    TransferDonkies, TransferUser)
+    TransferDonkies, TransferUser, TransferDebt)
 
 
 NUM_DAYS = 100
@@ -107,6 +101,13 @@ class Generator:
             random.randint(0, 23),
             random.randint(0, 59),
             random.randint(0, 59))
+
+    def get_dates_range(self):
+        """
+        Returns list of dates back for NUM_DAYS from today.
+        """
+        today = datetime.date.today()
+        return [today - datetime.timedelta(days=x) for x in range(0, NUM_DAYS)]
 
     def create_customer(self):
         c = Customer.objects.create_customer(self.user)
@@ -209,9 +210,7 @@ class Generator:
         """
         Create transactions for account back for NUM_DAYS.
         """
-        today = datetime.date.today()
-        l = [today - datetime.timedelta(days=x) for x in range(0, NUM_DAYS)]
-        for date in l:
+        for date in self.get_dates_range():
             self.create_transaction(account, date)
 
     def create_transaction(self, account, date):
@@ -247,7 +246,7 @@ class Generator:
 
         self.emulate_dwolla_transfers(dt)
 
-        TransferUser.objects.process_to_model()
+        TransferUser.objects.process()
         self.emulate_transfers_to_user()
 
     def emulate_dwolla_transfers(self, dt):
@@ -270,7 +269,7 @@ class Generator:
             td.save()
 
     def emulate_transfers_to_user(self):
-        TransferUser.objects\
+        TransferDebt.objects\
             .filter(is_processed=False, account__member__user=self.user)\
             .update(is_processed=True, processed_at=timezone.now())
 
@@ -313,10 +312,30 @@ class Generator:
             cur.execute(query, l)
 
     def stat_info(self):
-        print(Member.objects.filter(user=self.user))
-        print(Account.objects.filter(member__user=self.user).count())
-        print(Transaction.objects.filter(
-            account__member__user=self.user).count())
+        print(
+            'members: ', Member.objects.filter(user=self.user))
+        print(
+            'accounts: ',
+            Account.objects.filter(member__user=self.user).count())
+        print(
+            'transactions: ',
+            Transaction.objects.filter(
+                account__member__user=self.user).count())
+        print(
+            'TransferPrepare: ',
+            TransferPrepare.objects.filter(
+                account__member__user=self.user).count())
+        print(
+            'TransferDonkies: ',
+            TransferDonkies.objects.filter(
+                account__member__user=self.user).count())
+        # print(
+        #     'TransferUser: ',
+        #     TransferUser.objects.filter(user=self.user).count())
+        print(
+            'TransferDebt: ',
+            TransferDebt.objects.filter(
+                account__member__user=self.user).count())
 
     @transaction.atomic
     def run(self):
@@ -327,4 +346,4 @@ class Generator:
         self.create_funding_source()
 
         self.generate_transactions()
-        # self.stat_info()
+        self.stat_info()

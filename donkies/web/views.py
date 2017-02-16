@@ -44,8 +44,9 @@ class AuthFacebook(APIView):
         try:
             user = User.objects.get(
                 Q(fb_id=d['id']) | Q(email=d['email']))
-            user.is_confirmed = True
-            user.save()
+            if not user.is_confirmed:
+                user.is_confirmed = True
+                user.save()
         except User.DoesNotExist:
             user = User.create_facebook_user(d)
         return Response({'token': user.get_token().key})

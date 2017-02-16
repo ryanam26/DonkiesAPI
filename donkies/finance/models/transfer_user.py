@@ -1,4 +1,5 @@
 import datetime
+import decimal
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
@@ -27,21 +28,19 @@ class TransferUserManager(models.Manager):
             processed_at = now
         4) Create TransferDebt instances accordingly to share.
         """
-        TransferDebt = apps.get_model('finance', 'TransferDebt')
-
         if not self.can_process_user(user_id):
             return
 
         tu = self.model(user_id=user_id)
         tu.save()
-        for td in self.get_user_queryset():
+        for td in self.get_user_queryset(user_id):
             td.is_processed_to_user = True
             td.processed_at = timezone.now()
             td.save()
 
             tu.items.add(td)
 
-        TransferDebt.objects.create_debts(tu.id)
+        tu.create_debts()
 
     def can_process_user(self, user_id):
         """
@@ -68,7 +67,7 @@ class TransferUserManager(models.Manager):
         if not user.is_auto_transfer:
             return False
 
-        res = self.get_user_queryset().aggregate(Sum('amount'))
+        res = self.get_user_queryset(user_id).aggregate(Sum('amount'))
         if res['amount__sum'] < user.minimum_transfer_amount:
             return False
 
@@ -141,7 +140,8 @@ class TransferUser(models.Model):
 
     @property
     def amount(self, is_update=False):
-        if self.cached_amount > 0 and is_update is False:
+        if self.cached_amount is not None\
+                and self.cached_amount > 0 and is_update is False:
             return self.cached_amount
         res = self.items.all().aggregate(Sum('amount'))
         return res['amount__sum']
@@ -149,6 +149,50 @@ class TransferUser(models.Model):
     def update_cached_amount(self):
         amount = self.amount(is_update=True)
         self.cached_amount = amount
+
+    def create_debts(self):
+        """
+        Process TransferUser to TransferDebt debt accounts
+        accordingly to share.
+        At the time when TransferUser created itself.
+        """
+        Account = apps.get_model('finance', 'Account')
+        TransferDebt = apps.get_model('finance', 'TransferDebt')
+
+        user = self.user
+        qs = Account.objects.debt_accounts().filter(member__user=user)
+
+        l = []
+        sum = 0
+        for account in qs:
+            t_debt = TransferDebt(
+                account=account, tu=self, share=account.transfer_share)
+
+            target = self.amount * account.transfer_share / 100
+            t_debt.amount = target.quantize(decimal.Decimal('.01'))
+
+            sum += t_debt.amount
+            l.append(t_debt)
+
+        # Fix 0.01 precision
+        if sum != self.amount:
+            t_debt = l[-1]
+            if sum > self.amount:
+                diff = sum - self.amount
+                t_debt.amount -= diff
+            else:
+                diff = self.amount - sum
+                t_debt.amount += diff
+
+        # Checking
+        sum = 0
+        for t_debt in l:
+            sum += t_debt.amount
+        assert sum == self.amount  # should never be error, because fixed
+
+        for t_debt in l:
+            if t_debt.amount > 0:
+                t_debt.save()
 
 
 @admin.register(TransferUser)

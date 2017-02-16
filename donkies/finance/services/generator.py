@@ -1,7 +1,4 @@
 """
-REFACTORING NOT FINISHED YET!!!
--------
-
 Creates fake data for admin user.
 python manage.py generator
 
@@ -281,8 +278,9 @@ class Generator:
         """
         Customer.objects.filter(user=self.user).delete()
         FundingSource.objects.filter(account__member__user=self.user).delete()
-        TransferUser.objects.filter(
+        TransferDebt.objects.filter(
             account__member__user=self.user).delete()
+        TransferUser.objects.filter(user=self.user).delete()
         TransferDonkies.objects.filter(
             account__member__user=self.user).delete()
         TransferPrepare.objects.filter(
@@ -314,24 +312,30 @@ class Generator:
     def stat_info(self):
         print(
             'members: ', Member.objects.filter(user=self.user))
+
         print(
             'accounts: ',
             Account.objects.filter(member__user=self.user).count())
+
         print(
             'transactions: ',
             Transaction.objects.filter(
                 account__member__user=self.user).count())
+
         print(
             'TransferPrepare: ',
             TransferPrepare.objects.filter(
                 account__member__user=self.user).count())
+
         print(
             'TransferDonkies: ',
             TransferDonkies.objects.filter(
                 account__member__user=self.user).count())
-        # print(
-        #     'TransferUser: ',
-        #     TransferUser.objects.filter(user=self.user).count())
+
+        print(
+            'TransferUser: ',
+            TransferUser.objects.filter(user=self.user).count())
+
         print(
             'TransferDebt: ',
             TransferDebt.objects.filter(
@@ -339,6 +343,7 @@ class Generator:
 
     @transaction.atomic
     def run(self):
+        self.clean()
         self.create_members()
         self.create_accounts()
         self.set_accounts_share()

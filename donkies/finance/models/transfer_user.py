@@ -10,7 +10,7 @@ from django.utils import timezone
 
 class TransferUserManager(models.Manager):
     def process(self):
-        users = self.get_queryset()\
+        users = self.get_base_queryset()\
             .order_by('account__member__user_id')\
             .values_list('account__member__user_id', flat=True)\
             .distinct()
@@ -73,7 +73,7 @@ class TransferUserManager(models.Manager):
 
         return True
 
-    def get_queryset(self):
+    def get_base_queryset(self):
         """
         Returns queryset for available payments.
         """
@@ -88,7 +88,7 @@ class TransferUserManager(models.Manager):
         Returns queryset for available payments
         for particular user.
         """
-        return self.get_queryset().filter(
+        return self.get_base_queryset().filter(
             account__member__user_id=user_id)
 
     def get_date(self):

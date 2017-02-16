@@ -54,9 +54,9 @@ USAGE:
 
 TEST DATA:
 
-User name: Mike Aladhajchfjif McDonaldsen
-User ID: 122801238223555
-Email: tmqliiattt_1483961185@tfbnw.net
+User name: Mike Alaedcbbdccjc Wongson
+User ID: 100015432243303
+Email: kruokkgkuz_1487273905@tfbnw.net
 Password: axcf45gh
 
 Use selenium webdriver to automate login flow.
@@ -73,7 +73,7 @@ from web.models import User, Token
 
 
 class TestFacebook(base.Mixin):
-    TEST_USER_EMAIL = 'tmqliiattt_1483961185@tfbnw.net'
+    TEST_USER_EMAIL = 'kruokkgkuz_1487273905@tfbnw.net'
     TEST_USER_PASSWORD = 'axcf45gh'
 
     def get_code(self):

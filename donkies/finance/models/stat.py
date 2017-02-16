@@ -60,6 +60,7 @@ class StatManager(models.Manager):
         """
         Returns total amount available to transfer.
         """
+        return 0
         TransferUser = apps.get_model('finance', 'TransferUser')
 
         sum = TransferUser.objects\
@@ -70,6 +71,7 @@ class StatManager(models.Manager):
         return 0
 
     def get_payments_count(self, user_id):
+        return 0
         TransferUser = apps.get_model('finance', 'TransferUser')
         return TransferUser.objects\
             .filter(account__member__user_id=user_id, is_processed=True)\

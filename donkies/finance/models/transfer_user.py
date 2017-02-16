@@ -1,73 +1,111 @@
-import decimal
+import datetime
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
+from django.db.models import Sum
+from django.db import transaction
+from django.utils import timezone
 
 
 class TransferUserManager(models.Manager):
-    def process_to_model(self):
+    def process(self):
+        users = self.get_queryset()\
+            .order_by('account__member__user_id')\
+            .values_list('account__member__user_id', flat=True)\
+            .distinct()
+
+        for user_id in users:
+            self.process_user(user_id)
+
+    @transaction.atomic
+    def process_user(self, user_id):
         """
-        !!! REFACTORING REQUIRED
-
-        Process all transfers to TransferUser model,
-        that have been sent from TransferDonkies model to Donkies LLC.
-        All processed items in TransferDonkies
-        is_processed_to_user should be set to True.
+        1) Create TransferUser instance.
+        2) Add to instance.items all TransferDonkies items.
+        3) All TransferDonkies items set:
+            is_processed_to_user = True
+            processed_at = now
+        4) Create TransferDebt instances accordingly to share.
         """
-        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        TransferDebt = apps.get_model('finance', 'TransferDebt')
 
-        qs = TransferDonkies.objects.filter(
-            is_sent=True, is_processed_to_user=False)
-
-        for td in qs:
-            self.process_td_to_model(td)
-
-    def process_td_to_model(self, td):
-        """
-        Process TransferDonkies item to TransferUser debt accounts.
-        """
-        Account = apps.get_model('finance', 'Account')
-
-        user = td.account.member.user
-        qs = Account.objects.debt_accounts().filter(member__user=user)
-
-        l = []
-        sum = 0
-        for account in qs:
-            tu = self.model(
-                account=account, td=td, share=account.transfer_share)
-
-            target = td.amount * account.transfer_share / 100
-            tu.amount = target.quantize(decimal.Decimal('.01'))
-
-            sum += tu.amount
-            l.append(tu)
-
-        if not l:
+        if not self.can_process_user(user_id):
             return
 
-        # Fix 0.01 precision
-        if sum != td.amount:
-            tu = l[-1]
-            if sum > td.amount:
-                diff = sum - td.amount
-                tu.amount -= diff
-            else:
-                diff = td.amount - sum
-                tu.amount += diff
+        tu = self.model(user_id=user_id)
+        tu.save()
+        for td in self.get_user_queryset():
+            td.is_processed_to_user = True
+            td.processed_at = timezone.now()
+            td.save()
 
-        # Checking
-        sum = 0
-        for tu in l:
-            sum += tu.amount
-        assert sum == td.amount  # should never be error, because fixed
+            tu.items.add(td)
 
-        for tu in l:
-            if tu.amount > 0:
-                tu.save()
+        TransferDebt.objects.create_debts(tu.id)
 
-        td.is_processed_to_user = True
-        td.save()
+    def can_process_user(self, user_id):
+        """
+        Returns bool.
+        1) Can not process if aggregated payments not ready yet.
+        2) Can not process if user doesn't have debt accounts.
+        3) Can not process if user didn't set "is_auto_transfer"
+        4) Can not process if user minimum_transfer_amount
+           less than aggregated amount.
+        """
+        Account = apps.get_model('finance', 'Account')
+        User = apps.get_model('web', 'User')
+
+        if not self.get_user_queryset(user_id):
+            return False
+
+        Account = apps.get_model('finance', 'Account')
+        qs = Account.objects.debt_accounts().filter(
+            member__user_id=user_id)
+        if not qs:
+            return False
+
+        user = User.objects.get(id=user_id)
+        if not user.is_auto_transfer:
+            return False
+
+        res = self.get_user_queryset().aggregate(Sum('amount'))
+        if res['amount__sum'] < user.minimum_transfer_amount:
+            return False
+
+        return True
+
+    def get_queryset(self):
+        """
+        Returns queryset for available payments.
+        """
+        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        return TransferDonkies.objects.filter(
+            is_processed_to_user=False,
+            is_sent=True,
+            sent_at__lt=self.get_date())
+
+    def get_user_queryset(self, user_id):
+        """
+        Returns queryset for available payments
+        for particular user.
+        """
+        return self.get_queryset().filter(
+            account__member__user_id=user_id)
+
+    def get_date(self):
+        """
+        Returns date, for filter TransferDonkies that less
+        than that date.
+
+        If today's date is less than 15th, returns 1st day of last month.
+        If today's date is more or equal 15th, returns
+        1st day of current month.
+        """
+        today = datetime.date.today()
+        if today.day < 15:
+            dt = today.replace(day=1) - datetime.timedelta(days=1)
+            return dt.replace(day=1)
+        return today.replace(day=1)
 
 
 class TransferUser(models.Model):
@@ -102,8 +140,15 @@ class TransferUser(models.Model):
         return str(self.id)
 
     @property
-    def amount(self):
-        return '0'
+    def amount(self, is_update=False):
+        if self.cached_amount > 0 and is_update is False:
+            return self.cached_amount
+        res = self.items.all().aggregate(Sum('amount'))
+        return res['amount__sum']
+
+    def update_cached_amount(self):
+        amount = self.amount(is_update=True)
+        self.cached_amount = amount
 
 
 @admin.register(TransferUser)

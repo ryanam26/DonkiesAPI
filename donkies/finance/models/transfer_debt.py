@@ -5,7 +5,50 @@ from django.apps import apps
 
 
 class TransferDebtManager(models.Manager):
-    pass
+    def create_debts(self, tu_id):
+        """
+        Process TransferUser to TransferDebt debt accounts
+        accordingly to share.
+        """
+        TransferUser = apps.get_model('finance', 'TransferUser')
+        tu = TransferUser.objects.get(id=tu_id)
+
+        Account = apps.get_model('finance', 'Account')
+
+        user = tu.user
+        qs = Account.objects.debt_accounts().filter(member__user=user)
+
+        l = []
+        sum = 0
+        for account in qs:
+            t_debt = self.model(
+                account=account, tu=tu, share=account.transfer_share)
+
+            target = tu.amount * account.transfer_share / 100
+            t_debt.amount = target.quantize(decimal.Decimal('.01'))
+
+            sum += t_debt.amount
+            l.append(t_debt)
+
+        # Fix 0.01 precision
+        if sum != tu.amount:
+            t_debt = l[-1]
+            if sum > tu.amount:
+                diff = sum - tu.amount
+                t_debt.amount -= diff
+            else:
+                diff = tu.amount - sum
+                t_debt.amount += diff
+
+        # Checking
+        sum = 0
+        for t_debt in l:
+            sum += t_debt.amount
+        assert sum == tu.amount  # should never be error, because fixed
+
+        for t_debt in l:
+            if t_debt.amount > 0:
+                t_debt.save()
 
 
 class TransferDebt(models.Model):

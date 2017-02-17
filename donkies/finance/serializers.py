@@ -2,7 +2,8 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from finance.models import (
     Account, Challenge, Credentials, Institution, LinkDebt, Member,
-    Transaction, TransferDonkies, TransferPrepare, TransferUser)
+    Transaction, TransferDonkies, TransferPrepare,
+    TransferUser, TransferDebt)
 
 
 class InstitutionSerializer(serializers.ModelSerializer):
@@ -211,6 +212,24 @@ class TransactionSerializer(serializers.ModelSerializer):
         )
 
 
+class TransferDebtSerializer(serializers.ModelSerializer):
+    account = serializers.CharField(source='account.name', read_only=True)
+    created_at = serializers.DateTimeField(
+        source='tu.created_at', read_only=True)
+
+    class Meta:
+        model = TransferDebt
+        fields = (
+            'id',
+            'account',
+            'amount',
+            'share',
+            'created_at',
+            'processed_at',
+            'is_processed'
+        )
+
+
 class TransferDonkiesSerializer(serializers.ModelSerializer):
     account = serializers.CharField(source='account.name', read_only=True)
 
@@ -240,16 +259,12 @@ class TransferPrepareSerializer(serializers.ModelSerializer):
 
 
 class TransferUserSerializer(serializers.ModelSerializer):
-    account = serializers.CharField(source='account.name', read_only=True)
-
     class Meta:
         model = TransferUser
         fields = (
             'id',
-            'account',
+            'user',
             'amount',
-            'share',
+            'cached_amount',
             'created_at',
-            'processed_at',
-            'is_processed'
         )

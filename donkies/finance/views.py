@@ -11,7 +11,8 @@ from finance import tasks
 from finance.services.atrium_api import AtriumApi
 from finance.models import (
     Account, Credentials, Institution, LinkDebt, Member, Stat,
-    Transaction, TransferPrepare, TransferDonkies, TransferUser)
+    Transaction, TransferPrepare, TransferDonkies,
+    TransferUser, TransferDebt)
 
 logger = logging.getLogger('app')
 
@@ -296,6 +297,14 @@ class Transactions(AuthMixin, ListAPIView):
             account__member__user=self.request.user)
 
 
+class TransfersDebt(AuthMixin, ListAPIView):
+    serializer_class = sers.TransferDebtSerializer
+
+    def get_queryset(self):
+        return TransferDebt.objects.filter(
+            account__member__user=self.request.user)
+
+
 class TransfersDonkies(AuthMixin, ListAPIView):
     serializer_class = sers.TransferDonkiesSerializer
 
@@ -316,5 +325,4 @@ class TransfersUser(AuthMixin, ListAPIView):
     serializer_class = sers.TransferUserSerializer
 
     def get_queryset(self):
-        return TransferUser.objects.filter(
-            account__member__user=self.request.user)
+        return TransferUser.objects.filter(user=self.request.user)

@@ -63,7 +63,7 @@ clear
 
 # py.test -s donkies/tests/test_accounts.py
 # py.test -s donkies/tests/test_auth.py
-py.test -s donkies/tests/test_atrium.py
+# py.test -s donkies/tests/test_atrium.py
 # py.test -s donkies/tests/test_customers.py
 # py.test -s donkies/tests/test_facebook.py
 # py.test -s donkies/tests/test_funding_sources.py
@@ -71,7 +71,7 @@ py.test -s donkies/tests/test_atrium.py
 # py.test -s donkies/tests/test_linking.py
 # py.test -s donkies/tests/test_members.py
 # py.test -s donkies/tests/test_transactions.py
-# py.test -s donkies/tests/test_users.py
+py.test -s donkies/tests/test_users.py
 
 
 # Transfers

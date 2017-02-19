@@ -98,7 +98,7 @@ class LoginSerializer(serializers.ModelSerializer):
         return data
 
 
-class PasswordResetRequireSerializer(serializers.Serializer):
+class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, value):
@@ -110,10 +110,15 @@ class PasswordResetRequireSerializer(serializers.Serializer):
 class PasswordResetSerializer(EncIdMixin, serializers.Serializer):
     encrypted_id = serializers.CharField()
     reset_token = serializers.CharField()
-    new_password = serializers.CharField()
+    new_password = serializers.CharField(min_length=8)
 
     def validate(self, data):
-        user = User.objects.get(encrypted_id=data['encrypted_id'])
+        try:
+            user = User.objects.get(encrypted_id=data['encrypted_id'])
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                'Provided id is not correct')
+
         if user.reset_token != data['reset_token']:
             raise serializers.ValidationError(
                 'Provided reset token is not correct')
@@ -121,6 +126,8 @@ class PasswordResetSerializer(EncIdMixin, serializers.Serializer):
 
 
 class SignupSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(min_length=8)
+
     class Meta:
         model = User
         fields = (

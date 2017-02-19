@@ -2,6 +2,7 @@ import datetime
 import json
 import pytest
 from faker import Faker
+from django.contrib import auth
 from web.management.commands.createemails import Command
 from web.models import User, Emailer, ChangeEmailHistory
 from .factories import UserFactory
@@ -253,3 +254,136 @@ class TestUsers(base.Mixin):
 
         user.refresh_from_db()
         assert user.minimum_transfer_amount == 100
+
+    @pytest.mark.django_db
+    def test_password_reset_request01(self, client):
+        """
+        Should get success.
+        Emailer should have email with reset_token.
+        """
+        self.init_emailer()
+        user = UserFactory(email='bob@gmail.com')
+        client = self.get_auth_client(user)
+
+        url = '/v1/password/reset/request'
+        dic = {
+            'email': 'bob@gmail.com',
+        }
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 204
+
+        em = Emailer.objects.first()
+        assert user.encrypted_id in em.txt
+        assert user.reset_token in em.txt
+
+    @pytest.mark.django_db
+    def test_password_reset_request02(self, client):
+        """
+        Test with non existing email.
+        Should get error.
+        """
+        self.init_emailer()
+        user = UserFactory(email='bob@gmail.com')
+        client = self.get_auth_client(user)
+
+        url = '/v1/password/reset/request'
+        dic = {
+            'email': 'incorrect@gmail.com',
+        }
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_password_reset01(self, client):
+        """
+        Should get success.
+        """
+        self.init_emailer()
+        user = UserFactory(email='bob@gmail.com')
+        client = self.get_auth_client(user)
+
+        user.reset_request()
+
+        url = '/v1/password/reset'
+        dic = {
+            'encrypted_id': user.encrypted_id,
+            'reset_token': user.reset_token,
+            'new_password': '12345678'
+        }
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 204
+
+        user = auth.authenticate(email=user.email, password='12345678')
+        assert user is not None
+        assert user.reset_token == ''
+        assert user.reset_at is None
+
+    @pytest.mark.django_db
+    def test_password_reset02(self, client):
+        """
+        Test with small password.
+        The password should be at least 8 symbols.
+        Should get error.
+        """
+        self.init_emailer()
+        user = UserFactory(email='bob@gmail.com')
+        client = self.get_auth_client(user)
+
+        user.reset_request()
+
+        url = '/v1/password/reset'
+        dic = {
+            'encrypted_id': user.encrypted_id,
+            'reset_token': user.reset_token,
+            'new_password': '111'
+        }
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_password_reset03(self, client):
+        """
+        Test with incorrect encrypted_id.
+        Should get error.
+        """
+        self.init_emailer()
+        user = UserFactory(email='bob@gmail.com')
+        client = self.get_auth_client(user)
+
+        user.reset_request()
+
+        url = '/v1/password/reset'
+        dic = {
+            'encrypted_id': 'incorrect',
+            'reset_token': user.reset_token,
+            'new_password': '12345678'
+        }
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_password_reset04(self, client):
+        """
+        Test with incorrect reset_token.
+        Should get error.
+        """
+        self.init_emailer()
+        user = UserFactory(email='bob@gmail.com')
+        client = self.get_auth_client(user)
+
+        user.reset_request()
+
+        url = '/v1/password/reset'
+        dic = {
+            'encrypted_id': user.encrypted_id,
+            'reset_token': 'incorrect',
+            'new_password': '12345678'
+        }
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 400

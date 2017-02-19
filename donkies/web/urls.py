@@ -31,9 +31,9 @@ urlpatterns = [
         name='auth_facebook'),
 
     url(
-        r'^(?P<version>(v1))/password/reset/require$',
-        v.PasswordResetRequire.as_view(),
-        name='password_reset_require'),
+        r'^(?P<version>(v1))/password/reset/request$',
+        v.PasswordResetRequest.as_view(),
+        name='password_reset_request'),
 
     url(
         r'^(?P<version>(v1))/password/reset$',

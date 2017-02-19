@@ -66,19 +66,15 @@ class Login(APIView):
         return Response(data, status=200)
 
 
-class PasswordResetRequire(APIView):
+class PasswordResetRequest(APIView):
     def post(self, request, **kwargs):
-        """
-        Should return 204 if email doesn't exist.
-        Do not allow to check registered people.
-        """
-        serializer = sers.PasswordResetRequireSerializer(data=request.data)
+        serializer = sers.PasswordResetRequestSerializer(data=request.data)
         if serializer.is_valid():
             d = serializer.data
             user = User.objects.get(email=d['email'])
-            user.reset_require()
+            user.reset_request()
             return Response({}, status=204)
-        return Response({}, status=204)
+        return Response({}, status=400)
 
 
 class PasswordReset(APIView):

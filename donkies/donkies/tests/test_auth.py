@@ -58,7 +58,7 @@ class TestAuth(base.Mixin):
 
         em = Emailer.objects.first()
         assert user.confirmation_token in em.txt
-        self.print_emailer()
+        # self.print_emailer()
 
     @pytest.mark.django_db
     def test_signup02(self, client):
@@ -132,6 +132,24 @@ class TestAuth(base.Mixin):
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
         # print(response.content)
+        assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_signup06(self, client):
+        """
+        Test with small password.
+        The minimum password length should be at least 8 symbols.
+        """
+        self.init()
+        url = '/v1/auth/signup'
+        dic = {
+            'email': 'bob@gmail.com',
+            'password': '111',
+            'first_name': 'Bob',
+            'last_name': 'Smith'
+        }
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
         assert response.status_code == 400
 
     @pytest.mark.django_db
@@ -304,55 +322,3 @@ class TestAuth(base.Mixin):
 
         response = client.post(url, data)
         assert response.status_code == 200
-
-    @pytest.mark.django_db
-    def test_reset_require01(self, client):
-        """
-        Test with correct data.
-        Email should be sent to client.
-        """
-        self.init()
-        user = UserFactory(email='bob@gmail.com')
-        url = '/v1/password/reset/require'
-        data = {
-            'email': user.email
-        }
-
-        response = client.post(url, data)
-        assert response.status_code == 204
-
-        user = UserFactory(email='bob@gmail.com')
-        em = Emailer.objects.first()
-        assert user.reset_token in em.txt
-
-    @pytest.mark.django_db
-    def test_reset_require02(self, client):
-        """
-        Test with incorrect data.
-        Should return 204 if email does not exists.
-        """
-        url = '/v1/password/reset/require'
-        data = {
-            'email': 'notexisting@gmail.com'
-        }
-        response = client.post(url, data)
-        assert response.status_code == 204
-
-    @pytest.mark.django_db
-    def test_reset_password(self, client):
-        self.init()
-        user = UserFactory(email='bob@gmail.com')
-        user.reset_require()
-
-        url = '/v1/password/reset'
-        data = {
-            'encrypted_id': user.encrypted_id,
-            'reset_token': user.reset_token,
-            'new_password': '1234'
-        }
-
-        response = client.post(url, data)
-        assert response.status_code == 204
-
-        user = auth.authenticate(email=user.email, password='1234')
-        assert user is not None

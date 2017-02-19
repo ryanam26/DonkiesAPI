@@ -307,7 +307,7 @@ class User(AbstractBaseUser):
         Emailer.objects.process_email(
             Email.RESEND_REG_CONFIRMATION, user=self)
 
-    def reset_require(self):
+    def reset_request(self):
         Emailer = apps.get_model('web', 'Emailer')
         Email = apps.get_model('web', 'Email')
         self.reset_token = self.generate_token()
@@ -321,6 +321,7 @@ class User(AbstractBaseUser):
         """
         self.set_password(new_password)
         self.reset_token = ''
+        self.reset_at = None
         self.save()
 
     def change_email_request(self, new_email):

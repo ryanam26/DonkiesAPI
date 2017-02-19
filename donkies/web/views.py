@@ -69,12 +69,11 @@ class Login(APIView):
 class PasswordResetRequest(APIView):
     def post(self, request, **kwargs):
         serializer = sers.PasswordResetRequestSerializer(data=request.data)
-        if serializer.is_valid():
-            d = serializer.data
-            user = User.objects.get(email=d['email'])
-            user.reset_request()
-            return Response({}, status=204)
-        return Response({}, status=400)
+        serializer.is_valid(raise_exception=True)
+        d = serializer.data
+        user = User.objects.get(email=d['email'])
+        user.reset_request()
+        return Response({}, status=204)
 
 
 class PasswordReset(APIView):

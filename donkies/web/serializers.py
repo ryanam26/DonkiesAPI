@@ -103,7 +103,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 
     def validate_email(self, value):
         if not User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Email is not correct')
+            raise serializers.ValidationError('Email not exists')
         return value
 
 

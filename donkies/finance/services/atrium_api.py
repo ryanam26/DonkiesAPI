@@ -1,5 +1,6 @@
 import json
 from django.conf import settings
+from web.services.helpers import catch_exception
 from atrium import Api
 
 
@@ -21,16 +22,20 @@ class AtriumApi:
             return 'https://atrium.mx.com/'
         return 'https://vestibule.mx.com/'
 
+    @catch_exception
     def get_users(self):
         return self.api.getUsers()
 
+    @catch_exception
     def get_user(self, guid):
         return self.api.readUser(guid)
 
+    @catch_exception
     def delete_user(self, guid):
         self.api.deleteUser(guid)
         print('Atrium user has been deleted')
 
+    @catch_exception
     def create_user(self, identifier, metadata=None):
         """
         Returns guid of created user.
@@ -41,18 +46,22 @@ class AtriumApi:
         res = self.api.createUser(payload=d)
         return res.guid
 
+    @catch_exception
     def search_institutions(self, **kw):
         return self.api.getInstitutions(queryParams=kw)
 
+    @catch_exception
     def get_credentials(self, code):
         """
         Get all credentials for particular institution.
         """
         return self.api.getCredentials(code)
 
+    @catch_exception
     def get_members(self, user_guid, **kw):
         return self.api.getMembers(user_guid, queryParams=kw)
 
+    @catch_exception
     def create_member(self, user_guid, code, credentials):
         """
         credentials is the list of dicts: {guid:..., value:...}
@@ -67,6 +76,7 @@ class AtriumApi:
         })
         return member
 
+    @catch_exception
     def get_member(self, user_guid, member_guid):
         """
         Provides the status of the member's
@@ -82,6 +92,7 @@ class AtriumApi:
         """
         return self.api.getMemberStatus(user_guid, member_guid)
 
+    @catch_exception
     def read_member(self, user_guid, member_guid):
         """
         Result contains:
@@ -96,20 +107,25 @@ class AtriumApi:
         """
         return self.api.readMember(user_guid, member_guid)
 
+    @catch_exception
     def aggregate_member(self, user_guid, member_guid):
         return self.api.startMemberAgg(user_guid, member_guid)
 
+    @catch_exception
     def resume_member(self, user_guid, member_guid, challenges=[]):
         d = {}
         if challenges:
             d['challenges'] = challenges
         return self.api.resumeMemberAgg(user_guid, member_guid, payload=d)
 
+    @catch_exception
     def delete_member(self, user_guid, member_guid):
         self.api.deleteMember(user_guid, member_guid)
 
+    @catch_exception
     def get_accounts(self, user_guid, **kw):
         return self.api.getAccounts(user_guid, queryParams=kw)
 
+    @catch_exception
     def get_transactions(self, user_guid, **kw):
         return self.api.getTransactions(user_guid, queryParams=kw)

@@ -39,6 +39,3 @@ class LoggingAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request, obj=None):
         return False
-
-    def get_model_perms(self, request):
-        return {}

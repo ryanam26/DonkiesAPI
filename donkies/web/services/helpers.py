@@ -1,11 +1,15 @@
 import functools
 import hashlib
+import logging
 import os
 import random
 import re
 import string
 import time
 from datetime import datetime, timedelta
+
+
+logger = logging.getLogger('app')
 
 
 def get_md5(value):
@@ -80,6 +84,17 @@ def production(is_production):
             return output
         return inner
     return deco
+
+
+def catch_exception(func):
+    @functools.wraps(func)
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logger.exception(e)
+            raise Exception(e)
+    return inner
 
 
 class cached:

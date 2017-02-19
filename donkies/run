@@ -63,7 +63,7 @@ clear
 
 # py.test -s donkies/tests/test_accounts.py
 # py.test -s donkies/tests/test_auth.py
-# py.test -s donkies/tests/test_atrium.py
+py.test -s donkies/tests/test_atrium.py
 # py.test -s donkies/tests/test_customers.py
 # py.test -s donkies/tests/test_facebook.py
 # py.test -s donkies/tests/test_funding_sources.py
@@ -79,7 +79,7 @@ clear
 # py.test -s donkies/tests/transfers/test_transactions.py
 # py.test -s donkies/tests/transfers/test_transfer_donkies.py
 # py.test -s donkies/tests/transfers/test_transfer_prepare.py
-py.test -s donkies/tests/transfers/test_transfer_user.py
+# py.test -s donkies/tests/transfers/test_transfer_user.py
 
 
 # US Server

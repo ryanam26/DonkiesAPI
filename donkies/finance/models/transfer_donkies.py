@@ -276,7 +276,8 @@ class TransferDonkiesManager(models.Manager):
         If today's date is more or equal 15th, returns
         1st day of current month.
         """
-        today = datetime.date.today()
+        today = timezone.now().replace(
+            hour=0, minute=0, second=0, microsecond=0)
         if today.day < 15:
             dt = today.replace(day=1) - datetime.timedelta(days=1)
             return dt.replace(day=1)

@@ -61,7 +61,7 @@ class TestTransferPrepare(base.Mixin):
         num_transactions = len(e.transactions)
 
         # Add more transactions.
-        e.fill_transactions()
+        e.fill_transactions(is_today=True)
         assert len(e.transactions) > num_transactions
 
         # Try to transfer again, but shouldn't process any more today.

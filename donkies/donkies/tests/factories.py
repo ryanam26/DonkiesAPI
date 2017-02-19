@@ -1,10 +1,12 @@
 import decimal
 import factory
 import random
+import uuid
 from django.utils import timezone
 from faker import Faker
 from web.models import User, Email
-from finance.models import Account, Member, Institution, Transaction
+from finance.models import (
+    Account, Member, Institution, Transaction, TransferDonkies)
 from bank.models import Customer
 
 
@@ -99,13 +101,20 @@ class TransactionFactory(factory.django.DjangoModelFactory):
         return decimal.Decimal('{}.{}'.format(dollars, cents))
 
     @staticmethod
-    def get_transaction(account=None):
+    def get_transaction(account=None, created_at=None):
         if not account:
             account = AccountFactory.get_account()
 
+        if not created_at:
+            created_at = timezone.now()
+
         return TransactionFactory(
             account=account,
-            amount=TransactionFactory.generate_amount()
+            amount=TransactionFactory.generate_amount(),
+            created_at=created_at,
+            updated_at=created_at,
+            transacted_at=created_at,
+            posted_at=created_at
         )
 
 
@@ -122,3 +131,31 @@ class CustomerFactory(factory.django.DjangoModelFactory):
 
         user = UserFactory(email=email)
         return Customer.objects.create_customer(user)
+
+
+class TransferDonkiesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = TransferDonkies
+
+    account = factory.SubFactory(AccountFactory)
+
+    @staticmethod
+    def get_transfer(account=None, sent_at=None):
+        if not account:
+            account = AccountFactory.get_account()
+
+        if not sent_at:
+            sent_at = timezone.now()
+
+        return TransferDonkiesFactory(
+            account=account,
+            amount=TransactionFactory.generate_amount(),
+            created_at=sent_at,
+            initiated_at=sent_at,
+            sent_at=sent_at,
+            updated_at=sent_at,
+            is_initiated=True,
+            is_sent=True,
+            status=TransferDonkies.PROCESSED,
+            dwolla_id=uuid.uuid4().hex
+        )

@@ -1,7 +1,7 @@
 """
 Transfer flow.
 
-First we collect roundup to TransferPrepare.
+First, we collect roundup to TransferPrepare.
 Then from TransferPrepare total user's roundup amount
 processed to TransferDonkies model (if user set funding source account).
 From TransferDonkies model we send transfer to Donkies LLC (via Dwolla).

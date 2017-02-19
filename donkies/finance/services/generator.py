@@ -235,8 +235,6 @@ class Generator:
     def make_transfers(self, dt):
         """
         Run transfers logic after every transaction.
-        Transfers should be made when collected roundup
-        equal or more user.minimum_transfer_amount
         """
         TransferPrepare.objects.process_roundups()
         TransferDonkies.objects.process_prepare()

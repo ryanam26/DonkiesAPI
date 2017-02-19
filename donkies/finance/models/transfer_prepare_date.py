@@ -9,7 +9,7 @@ class TransferPrepareDate(models.Model):
     user's transfer.
 
     As soon as TransferPrepare is made once a day
-    for user particular, do not process this user
+    for particular user, do not process this user
     current date (today).
     """
     user = models.ForeignKey('web.User')

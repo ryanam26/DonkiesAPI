@@ -216,10 +216,16 @@ class TestAtrium(base.Mixin):
     def test_create_member05(self):
         """
         Test HALTED status.
-        Can not be tested on sandbox.
+        Can not be tested on sandbox easily.
         As the member is HALTED, after aggregation
         it is always HALTED.
-        Thought - aggregation works on production.
+
+        To reproduce HALTED and then aggregation can try:
+
+        1) Get to halted by going in to a challenged state.
+        2) NOT answering the question.
+        3) After about 10 minutes, the job will time out
+           and move to a halted state
         """
         pass
 

@@ -1,31 +1,35 @@
+import datetime
 import random
+import uuid
 from faker import Faker
 from django.utils import timezone
 from finance.models import (
-    Account, TransferPrepare, TransferDonkies, TransferUser)
+    Account, TransferPrepare, TransferDonkies, TransferDebt)
 from bank.models import FundingSource
 from donkies.tests.factories import (
-    AccountFactory, MemberFactory, TransactionFactory, UserFactory)
+    AccountFactory, MemberFactory, TransactionFactory,
+    TransferDonkiesFactory, UserFactory)
 
 
 class Emulator:
     """
     Helper class for testing.
     """
+
     def __init__(
             self,
             num_debit_accounts=2,
             num_debt_accounts=2,
-            num_transactions=50):
+            num_days=2):
         """
-        num_transactions - Number of transactions for each account.
+        num_days - generate transactions back for num_days.
+        Each day has randomly from 3 to 5 transactions.
         On init fill class with user, members, accounts, transactions.
-
         """
         self.user = UserFactory(email=Faker().email())
         self.num_debit_accounts = num_debit_accounts
         self.num_debt_accounts = num_debt_accounts
-        self.num_transactions = num_transactions
+        self.num_days = num_days
 
         self.members = []
         self.debit_accounts = []
@@ -33,13 +37,33 @@ class Emulator:
         self.transactions = []
 
     def init(self):
-        self.fill()
-        self.set_funding_source()
-
-    def fill(self):
         self.fill_debit_accounts()
         self.fill_debt_accounts()
+        self.set_funding_source()
         self.fill_transactions()
+
+    def get_datetime(self, date):
+        """
+        Returns datetime from date, where hours, minutes and seconds
+        are random.
+        """
+        return datetime.datetime(
+            date.year,
+            date.month,
+            date.day,
+            random.randint(0, 23),
+            random.randint(0, 59),
+            random.randint(0, 59))
+
+    def get_dates_range(self, num_days=None):
+        """
+        Returns list of dates back for NUM_DAYS from today.
+        """
+        num_days = self.num_days if num_days is None else num_days
+
+        date = datetime.date.today()
+        return [
+            date - datetime.timedelta(days=x) for x in range(0, num_days)]
 
     def set_funding_source(self):
         """
@@ -75,12 +99,72 @@ class Emulator:
             self.members.append(m)
             self.debt_accounts.append(a)
 
-    def fill_transactions(self):
+    def fill_transactions(self, is_today=False):
+        """
+        If is_today - generate transactions for today,
+        else generate transactions back for num_days.
+        """
         l = self.debit_accounts + self.debt_accounts
-        for a in l:
-            for _ in range(self.num_transactions):
-                tr = TransactionFactory.get_transaction(account=a)
-                self.transactions.append(tr)
+        for account in l:
+            if is_today:
+                for _ in range(5):
+                    tr = TransactionFactory.get_transaction(account=account)
+                    self.transactions.append(tr)
+            else:
+                for date in self.get_dates_range():
+                    self.create_transaction(account, date)
+
+    def create_transaction(self, account, date):
+        num_transactions = random.randint(3, 5)
+        for i in range(num_transactions):
+            dt = self.get_datetime(date)
+            dt = timezone.make_aware(dt)
+
+            tr = TransactionFactory(account=account, created_at=dt)
+            self.transactions.append(tr)
+
+    def emulate_dwolla_transfers(self):
+        """
+        Emulate that all transfers have been sent to Dwolla
+        from TransferDonkies.
+        """
+        dt = timezone.now() +\
+            datetime.timedelta(minutes=random.randint(10, 100))
+
+        qs = TransferDonkies.objects.filter(
+            account__member__user=self.user, is_sent=False)
+        for td in qs:
+            td.status = TransferDonkies.PROCESSED
+            td.is_initiated = True
+            td.is_sent = True
+            td.sent_at = dt
+            td.created_at = dt
+            td.updated_at = dt
+            td.processed_at = dt
+            td.dwolla_id = uuid.uuid4().hex
+            td.save()
+
+    def emulate_transfers_to_user(self):
+        TransferDebt.objects\
+            .filter(is_processed=False)\
+            .update(is_processed=True, processed_at=timezone.now())
+
+    def create_dwolla_transfers(self, num_days):
+        """
+        Creates transfers to Dwolla fir num_days back from today.
+        1 transfer per day.
+
+        Emulating Donkies transfers to dwolla for many days
+        takes too much time, therefore this method creates dwolla transfers
+        directly in db without emulation. It is OK for testing.
+        All transfers are PROCESSED.
+        """
+        account = self.user.get_funding_source_account()
+        for date in self.get_dates_range(num_days):
+            dt = self.get_datetime(date)
+            dt = timezone.make_aware(dt)
+            TransferDonkiesFactory.get_transfer(
+                account=account, sent_at=dt)
 
     def get_total_roundup(self, l):
         """
@@ -122,27 +206,3 @@ class Emulator:
     @staticmethod
     def run_transfer_donkies_prepare():
         TransferDonkies.objects.process_prepare()
-
-    @staticmethod
-    def emulate_dwolla_transfers():
-        """
-        Emulate that all transfers have been sent to Dwolla
-        from TransferDonkies.
-        """
-        for td in TransferDonkies.objects.all():
-            td.status = TransferDonkies.PROCESSED
-            td.is_initiated = True
-            td.is_sent = True
-            td.sent_at = timezone.now()
-            td.created_at = timezone.now()
-            td.updated_at = timezone.now()
-            td.processed_at = timezone.now()
-            td.dwolla_id = 'some-dwolla-id-{}'.format(
-                random.randint(10000, 99999))
-            td.save()
-
-    @staticmethod
-    def emulate_transfers_to_user():
-        TransferUser.objects.process_to_model()
-        TransferUser.objects.all().update(
-            is_processed=True, processed_at=timezone.now())

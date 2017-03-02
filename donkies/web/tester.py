@@ -18,25 +18,6 @@ class Tester:
         from web.tasks import send_email
         send_email()
 
-    def clean(self):
-        """
-        Accurate!!! Clean all except that are in emails list.
-        """
-        return
-        # from finance.services.atrium_api import AtriumApi
-        # User = apps.get_model('web', 'User')
-
-        # emails = ['alex@donkies.co', 'a@a.com']
-        # good_guids = User.objects.filter(
-        #     email__in=emails).values_list('guid', flat=True)
-
-        # a = AtriumApi()
-        # for user in a.get_users():
-        #     if user.guid not in good_guids:
-        #         a.delete_user(user.guid)
-
-        # User.objects.filter(~Q(email__in=emails)).delete()
-
     def get_users(self):
         """
         Returns all Atrium users.
@@ -128,5 +109,5 @@ class Tester:
 
 if __name__ == '__main__':
     t = Tester()
-    t.print_members()
-    # t.print_lost_members()
+    # t.print_members()
+    t.print_lost_users()

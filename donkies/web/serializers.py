@@ -166,6 +166,7 @@ class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
     dwolla_customer = serializers.SerializerMethodField()
+    signup_steps = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -188,7 +189,8 @@ class UserSerializer(serializers.ModelSerializer):
             'phone',
             'dwolla_customer',
             'is_profile_completed',
-            'minimum_transfer_amount'
+            'minimum_transfer_amount',
+            'signup_steps'
         )
         read_only_fields = (
             'id',
@@ -197,12 +199,16 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'encrypted_id',
             'is_confirmed',
+            'signup_steps'
         )
 
     def get_dwolla_customer(self, obj):
         if hasattr(obj, 'customer'):
             return CustomerSerializer(obj.customer).data
         return None
+
+    def get_signup_steps(self, obj):
+        return obj.signup_steps()
 
 
 class UserSettingsSerializer(serializers.ModelSerializer):

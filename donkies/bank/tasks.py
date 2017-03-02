@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db.models import Q
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
+from donkies import capp
 from web.services.helpers import rs_singleton, production
 from bank.services.dwolla_api import DwollaApi
 
@@ -11,12 +12,26 @@ rs = settings.REDIS_DB
 logger = logging.getLogger('console')
 
 
-@periodic_task(run_every=crontab(minute='*'))
+@capp.task
+def create_customer(user_id):
+    """
+    Create customer in Model and Dwolla as soon as
+    user completed profile.
+    """
+    Customer = apps.get_model('bank', 'Customer')
+    User = apps.get_model('web', 'User')
+    user = User.objects.get(id=user_id)
+    if user.customer is None:
+        c = Customer.objects.create_customer(user)
+        Customer.objects.create_dwolla_customer(c.id)
+
+
+@periodic_task(run_every=crontab(minute=10, hour='*'))
 @rs_singleton(rs, 'CREATE_MODEL_CUSTOMERS_IS_PROCESSING')
 def create_customers():
     """
-    Task that creates customers in Customer model as soon
-    as user completed profile.
+    Task that creates customers in Customer model in case
+    if regular task fails.
     """
     Customer = apps.get_model('bank', 'Customer')
     User = apps.get_model('web', 'User')
@@ -25,12 +40,12 @@ def create_customers():
             Customer.objects.create_customer(user)
 
 
-@periodic_task(run_every=crontab())
+@periodic_task(run_every=crontab(minute=20, hour='*'))
 @production(settings.PRODUCTION)
 @rs_singleton(rs, 'CREATE_DWOLLA_CUSTOMERS_IS_PROCESSING')
 def create_dwolla_customers():
     """
-    Task that creates customers in Dwolla.
+    Task that creates customers in Dwolla in case if regular task fail.
     """
     Customer = apps.get_model('bank', 'Customer')
     for c in Customer.objects.filter(dwolla_id=None, user__is_admin=False):

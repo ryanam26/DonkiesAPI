@@ -261,17 +261,6 @@ DWOLLA_API_MODE = 'DEV'
 DONKIES_DWOLLA_EMAIL_DEV = 'vladigris@gmail.com'
 DONKIES_DWOLLA_EMAIL_PROD = 'bank@donkies.co'
 
-# Users for real tests.
-TEST_USERS = [
-    {
-        'email': 'alex@donkies.co',
-        'guid': 'USR-bd2621a6-bdcb-c671-3079-f3ad8cd2b501',
-        'password': '111',
-        'first_name': 'Alex',
-        'last_name': 'Arias'
-    },
-]
-
 US_STATES = (
     ('AL', 'Alabama'),
     ('AK', 'Alaska'),

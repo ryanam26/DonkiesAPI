@@ -1,3 +1,13 @@
+"""
+Signup flow.
+After signup user need to go through following steps:
+
+1) Complete profile
+2) Add debit bank to Atrium
+3) Add debit bank to Dwolla (IAV)
+4) Add debt to Atrium
+"""
+
 import datetime
 import json
 import requests
@@ -181,6 +191,7 @@ class User(AbstractBaseUser):
     is_auto_transfer = models.BooleanField(
         default=True, help_text='Auto transfer when reach minimum amount')
     is_atrium_created = models.BooleanField(default=False)
+    is_signup_completed = models.BooleanField(default=False)
 
     objects = UserManager()
 
@@ -232,6 +243,42 @@ class User(AbstractBaseUser):
             if getattr(self, field) is None:
                 return False
         return True
+
+    def check_signup_step1(self):
+        """
+        Entire user profile should be filled.
+        """
+        return self.is_profile_completed
+
+    def check_signup_step2(self):
+        """
+        User should add debit account to Atrium.
+        """
+        Account = apps.get_model('finance', 'Account')
+        count = Account.objects.debit_accounts().filter(
+            member__user=self).count()
+        if count > 0:
+            return True
+        return False
+
+    def check_signup_step3(self):
+        """
+        User should add debit account to Dwolla.
+        """
+        if self.get_funding_source_account() is None:
+            return False
+        return True
+
+    def check_signup_step4(self):
+        """
+        User should add debt account to Atrium.
+        """
+        Account = apps.get_model('finance', 'Account')
+        count = Account.objects.debt_accounts().filter(
+            member__user=self).count()
+        if count > 0:
+            return True
+        return False
 
     def encrypt(self, value):
         s = '{}-{}'.format(settings.SECRET_KEY, value)
@@ -405,7 +452,7 @@ class User(AbstractBaseUser):
         if self.fb_id is None:
             return
         url = 'https://graph.facebook.com/{}/picture'.format(self.fb_id)
-        url += '?width=320&height=320'
+        url += '?width=1200'
 
         try:
             r = requests.get(url)
@@ -420,6 +467,37 @@ class User(AbstractBaseUser):
 
         filename = uuid.uuid4().hex + extension.lower()
         self.profile_image.save(filename, ContentFile(bytes))
+
+    def signup_steps(self):
+        if self.is_signup_completed:
+            return None
+
+        return [
+            {
+                'name': 'Complete user profile',
+                'message': 'Please complete your profile',
+                'allowed_url': '/user_profile',
+                'is_completed': self.check_signup_step1()
+            },
+            {
+                'name': 'Add debit account to Atrium.',
+                'message': 'Please add debit account.',
+                'allowed_url': '/add_bank',
+                'is_completed': self.check_signup_step2()
+            },
+            {
+                'name': 'Add debit account to Dwolla.',
+                'message': 'Please verify your debit account in Dwolla.',
+                'allowed_url': '/create_funding_source',
+                'is_completed': self.check_signup_step3()
+            },
+            {
+                'name': 'Add debt account to Atrium.',
+                'message': 'Please add debt account.',
+                'allowed_url': '/add_lender',
+                'is_completed': self.check_signup_step4()
+            },
+        ]
 
     def save(self, *args, **kwargs):
         Token = apps.get_model('web', 'Token')
@@ -437,6 +515,16 @@ class User(AbstractBaseUser):
 
             # Create atrium user in background
             tasks.create_atrium_user.delay(self.id)
+
+        # If user completed all signup steps - mark in db.
+        if not self.is_signup_completed:
+            is_completed = True
+            for d in self.signup_steps():
+                if d['is_completed'] is False:
+                    is_completed = False
+            if is_completed:
+                self.is_signup_completed = True
+                self.save()
 
     @staticmethod
     def get_facebook_user(code, redirect_uri):

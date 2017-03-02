@@ -199,7 +199,8 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'encrypted_id',
             'is_confirmed',
-            'signup_steps'
+            'signup_steps',
+            'is_confirmed'
         )
 
     def get_dwolla_customer(self, obj):

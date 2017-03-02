@@ -21,7 +21,7 @@ def create_customer(user_id):
     Customer = apps.get_model('bank', 'Customer')
     User = apps.get_model('web', 'User')
     user = User.objects.get(id=user_id)
-    if user.customer is None:
+    if not hasattr(user, 'customer') or user.customer is None:
         c = Customer.objects.create_customer(user)
         Customer.objects.create_dwolla_customer(c.id)
 

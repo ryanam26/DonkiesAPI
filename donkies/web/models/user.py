@@ -514,7 +514,8 @@ class User(AbstractBaseUser):
             self.save()
 
             # Create atrium user in background
-            tasks.create_atrium_user.delay(self.id)
+            tasks.create_atrium_user.apply_async(
+                args=[self.id], countdown=5)
 
         # If user completed all signup steps - mark in db.
         if not self.is_signup_completed:
@@ -596,7 +597,6 @@ class User(AbstractBaseUser):
         Creates user from facebook data and fills appropriate fields.
         """
         user = User.objects.create_user(dic['email'], uuid.uuid4().hex)
-        user.is_email_confirmed = True
 
         map_fields = {
             'id': 'fb_id',

@@ -16,7 +16,7 @@ logger = logging.getLogger('console')
 MAX_ATTEMPTS = 50
 
 
-@periodic_task(run_every=crontab())
+@periodic_task(run_every=crontab(minute=20, hour='*'))
 @rs_singleton(rs, 'CREATE_ATRIUM_USER_IS_PROCESSING', exp=300)
 def create_atrium_users():
     """
@@ -44,6 +44,7 @@ def get_member(member_id, attempt=0):
     """
     Task will call atrium API until receive finished status.
     """
+    Account = apps.get_model('finance', 'Account')
     Member = apps.get_model('finance', 'Member')
     Challenge = apps.get_model('finance', 'Challenge')
 
@@ -86,6 +87,12 @@ def get_member(member_id, attempt=0):
     # If status is CHALLENGED, create challenges for member in database
     if status == Member.CHALLENGED:
         Challenge.objects.create_challenges(am)
+
+    # Accounts should be available before COMPLETED status
+    # saved to db.
+    if status == Member.COMPLETED:
+        l = Account.objects.get_atrium_accounts(member.user.guid)
+        Account.objects.create_or_update_accounts(member.user.guid, l)
 
     member.status = status
     member.aggregated_at = am.aggregated_at

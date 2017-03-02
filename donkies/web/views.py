@@ -45,11 +45,9 @@ class AuthFacebook(APIView):
         try:
             user = User.objects.get(
                 Q(fb_id=d['id']) | Q(email=d['email']))
-            if not user.is_confirmed:
-                user.is_confirmed = True
-                user.save()
         except User.DoesNotExist:
             user = User.create_facebook_user(d)
+
         return Response({'token': user.get_token().key})
 
 
@@ -142,8 +140,7 @@ class UserDetail(AuthMixin, APIView):
         s.save()
 
         # Create customer after User completed profile
-        create_customer.delay(request.user.id)
-
+        create_customer.apply_async(args=[request.user.id], countdown=5)
         return Response(s.data)
 
 

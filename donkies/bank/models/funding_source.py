@@ -16,6 +16,9 @@ class FundingSourceManager(models.Manager):
 
         If Dwolla API fail, we can run this method later.
         FundingSourceIAVLog will contain failed data.
+
+        If this is first FundingSource, set it as active funding source
+        for user.
         """
         Account = apps.get_model('finance', 'Account')
         FundingSourceIAVLog = apps.get_model('bank', 'FundingSourceIAVLog')
@@ -41,6 +44,11 @@ class FundingSourceManager(models.Manager):
 
         fs_log.is_processed = True
         fs_log.save()
+
+        count = self.model.objects.filter(
+            account__member__user=account.member.user).count()
+        if count == 1:
+            Account.objects.set_funding_source(account.id)
 
         return fs
 

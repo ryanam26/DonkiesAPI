@@ -469,8 +469,16 @@ class User(AbstractBaseUser):
         self.profile_image.save(filename, ContentFile(bytes))
 
     def signup_steps(self):
+        Account = apps.get_model('finance', 'Account')
         if self.is_signup_completed:
             return None
+
+        url_3rd_step = None
+        if self.check_signup_step2():
+            account = Account.objects.debit_accounts().filter(
+                member__user=self).first()
+            url_3rd_step = '/create_funding_source?account_uid={}'.format(
+                account.uid)
 
         return [
             {
@@ -488,7 +496,7 @@ class User(AbstractBaseUser):
             {
                 'name': 'Add debit account to Dwolla.',
                 'message': 'Please verify your debit account in Dwolla.',
-                'allowed_url': '/create_funding_source',
+                'allowed_url': url_3rd_step,
                 'is_completed': self.check_signup_step3()
             },
             {

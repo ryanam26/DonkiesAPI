@@ -217,4 +217,5 @@ class UserSettingsSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'minimum_transfer_amount',
+            'is_even_roundup'
         )

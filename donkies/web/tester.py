@@ -4,7 +4,7 @@ import sys
 
 from os.path import abspath, dirname, join
 from django.apps import apps
-from django.db.models import Q
+from django.utils import timezone
 
 path = abspath(join(dirname(abspath(__file__)), '..'))
 sys.path.append(path)
@@ -106,8 +106,23 @@ class Tester:
                 if member.status == Member.HALTED:
                     a.aggregate_member(member.user_guid, member.guid)
 
+    def get_transactions(self, user_id):
+        User = apps.get_model('web', 'User')
+        Transaction = apps.get_model('finance', 'Transaction')
+
+        user = User.objects.get(id=user_id)
+        return Transaction.objects.get_atrium_transactions(user.guid)
+
 
 if __name__ == '__main__':
     t = Tester()
-    # t.print_members()
-    t.print_lost_users()
+
+    # from finance.services.atrium_api import AtriumApi
+    # a = AtriumApi()
+
+    # for user in t.get_users():
+    #     a.delete_user(user.guid)
+    #     print(user)
+
+    # for tr in t.get_transactions(5):
+    #     print(tr['date'])

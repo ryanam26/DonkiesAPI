@@ -64,14 +64,21 @@ class TransactionManager(ActiveManager):
         """
         Queries atrium API for user's transactions.
         from_date and to_date: datetime.date objects.
+
+        from_date shouldn't be less, that the date of user's signup.
         TODO: processing errors.
         """
+        User = apps.get_model('web', 'User')
+        user = User.objects.get(guid=user_guid)
+
         page = 1
         per_page = 100
 
         today = datetime.date.today()
         if from_date is None:
             from_date = today - datetime.timedelta(days=14)
+            if from_date < user.confirmed_at.date():
+                from_date = user.confirmed_at
 
         if to_date is None:
             to_date = today
@@ -168,8 +175,11 @@ class Transaction(ActiveModel):
     def calculate_roundup(self, value):
         top = math.ceil(float(value))
         roundup = top - value
-        if roundup == 0 and value > 0:
-            return 1
+        if roundup == 0:
+            if not self.account.member.user.is_even_roundup:
+                return 0
+            elif value > 0:
+                return 1
         return roundup
 
     def save(self, *args, **kwargs):

@@ -54,7 +54,6 @@ def create_dwolla_customers():
 
 
 @periodic_task(run_every=crontab(minute='*'))
-@production(settings.PRODUCTION)
 @rs_singleton(rs, 'INIT_DWOLLA_CUSTOMERS_IS_PROCESSING')
 def initiate_dwolla_customers():
     """

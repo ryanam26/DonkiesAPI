@@ -190,6 +190,8 @@ class User(AbstractBaseUser):
         help_text='Minimum amount for transfer.')
     is_auto_transfer = models.BooleanField(
         default=True, help_text='Auto transfer when reach minimum amount')
+    is_even_roundup = models.BooleanField(
+        default=False, help_text='Roundup even amounts $1.00, $2.00 etc')
     is_atrium_created = models.BooleanField(default=False)
     is_signup_completed = models.BooleanField(default=False)
 

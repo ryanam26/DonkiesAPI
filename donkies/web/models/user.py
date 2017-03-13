@@ -542,6 +542,9 @@ class User(AbstractBaseUser):
         for m in qs:
             Member.objects.delete_member(m.id, is_delete_atrium=False)
 
+        self.is_closed_account = True
+        self.save()
+
         if is_delete_atrium:
             User.objects.delete_atrium_user(self.guid)
 

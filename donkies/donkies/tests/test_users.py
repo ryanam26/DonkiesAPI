@@ -7,7 +7,7 @@ from donkies.tests.services.emulator import Emulator
 from web.management.commands.createemails import Command
 from web.models import User, Emailer, ChangeEmailHistory
 from finance.models import (
-    Member, Account, Transaction, TransferDonkies, TransferUser)
+    Member, Account, Transaction, TransferDebt, TransferDonkies, TransferUser)
 from .factories import UserFactory, AccountFactory, MemberFactory
 from .import base
 
@@ -450,3 +450,10 @@ class TestUsers(base.Mixin):
         # TransferUser model should be filled
         count = TransferUser.objects.all().count()
         assert count > 0
+
+        # TransferDebt model should be filled
+        count = TransferDebt.objects.all().count()
+        assert count > 0
+
+        e.user.refresh_from_db()
+        e.user.is_closed_account is True

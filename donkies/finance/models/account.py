@@ -318,5 +318,17 @@ def apply_transfer_share(sender, instance, created, **kwargs):
 
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'type_ds',
+        'guid',
+        'available_balance',
+        'available_credit',
+        'balance',
+        'credit_limit',
+        'original_balance',
+        'payoff_balance'
+    )
+
     def has_delete_permission(self, request, obj=None):
         return False

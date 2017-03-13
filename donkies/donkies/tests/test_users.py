@@ -5,7 +5,8 @@ from faker import Faker
 from django.contrib import auth
 from web.management.commands.createemails import Command
 from web.models import User, Emailer, ChangeEmailHistory
-from .factories import UserFactory
+from finance.models import Account
+from .factories import UserFactory, AccountFactory, MemberFactory
 from .import base
 
 
@@ -387,3 +388,20 @@ class TestUsers(base.Mixin):
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
         assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_total_debt(self, client):
+        user = UserFactory(email='bob@gmail.com')
+        assert user.total_debt == 0
+
+        m = MemberFactory.get_member(user=user)
+        a1 = AccountFactory.get_account(member=m, type=Account.LOAN)
+        a2 = AccountFactory.get_account(member=m, type=Account.LOAN)
+
+        a1.balance = 100
+        a2.balance = 100
+        a1.save()
+        a2.save()
+
+        user.refresh_from_db()
+        assert user.total_debt == 200

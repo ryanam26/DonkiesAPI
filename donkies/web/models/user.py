@@ -246,6 +246,19 @@ class User(AbstractBaseUser):
                 return False
         return True
 
+    @property
+    def total_debt(self):
+        """
+        Returns user's total debt.
+        """
+        Account = apps.get_model('finance', 'Account')
+        res = Account.objects.debt_accounts().filter(
+            member__user=self).aggregate(Sum('balance'))
+        debt = res['balance__sum']
+        if debt is None:
+            return 0
+        return debt
+
     def check_signup_step1(self):
         """
         Entire user profile should be filled.
@@ -471,6 +484,9 @@ class User(AbstractBaseUser):
         self.profile_image.save(filename, ContentFile(bytes))
 
     def signup_steps(self):
+        if not settings.PRODUCTION:
+            return None
+
         Account = apps.get_model('finance', 'Account')
         if self.is_signup_completed:
             return None
@@ -529,13 +545,14 @@ class User(AbstractBaseUser):
 
         # If user completed all signup steps - mark in db.
         if not self.is_signup_completed:
-            is_completed = True
-            for d in self.signup_steps():
-                if d['is_completed'] is False:
-                    is_completed = False
-            if is_completed:
-                self.is_signup_completed = True
-                self.save()
+            if self.signup_steps() is not None:
+                is_completed = True
+                for d in self.signup_steps():
+                    if d['is_completed'] is False:
+                        is_completed = False
+                if is_completed:
+                    self.is_signup_completed = True
+                    self.save()
 
     @staticmethod
     def get_facebook_user(code, redirect_uri):

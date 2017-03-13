@@ -1,3 +1,4 @@
+import datetime
 import decimal
 import factory
 import random
@@ -25,6 +26,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     ssn = Faker().ssn()
     is_active = True
     is_confirmed = True
+    confirmed_at = timezone.now() - datetime.timedelta(days=200)
 
 
 class EmailFactory(factory.django.DjangoModelFactory):

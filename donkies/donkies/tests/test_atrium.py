@@ -49,6 +49,7 @@ class TestAtrium(base.Mixin):
         User.objects.clear_atrium()
 
         self.user = UserFactory(email='bob@gmail.com')
+
         self.create_mx_bank()
         self.create_mx_bank_credentials()
 
@@ -98,6 +99,7 @@ class TestAtrium(base.Mixin):
         Call to Atrium API in Member manager.
         """
         self.init()
+
         client = self.get_auth_client(self.user)
 
         url = '/v1/members'

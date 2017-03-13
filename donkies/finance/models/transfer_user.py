@@ -19,8 +19,11 @@ class TransferUserManager(models.Manager):
             self.process_user(user_id)
 
     @transaction.atomic
-    def process_user(self, user_id):
+    def process_user(self, user_id, force_process=False):
         """
+        "force_process" means skip some steps.
+        It is used when user closes account in Donkies.
+
         1) Create TransferUser instance.
         2) Add to instance.items all TransferDonkies items.
         3) All TransferDonkies items set:
@@ -30,12 +33,17 @@ class TransferUserManager(models.Manager):
         """
         TransferDonkies = apps.get_model('finance', 'TransferDonkies')
 
-        if not self.can_process_user(user_id):
+        if not self.can_process_user(user_id, force_process):
             return
 
         tu = self.model(user_id=user_id)
         tu.save()
-        for td in TransferDonkies.objects.get_user_queryset(user_id):
+
+        is_date_filter = not force_process
+        qs = TransferDonkies.objects.get_user_queryset(
+            user_id, is_date_filter=is_date_filter)
+
+        for td in qs:
             td.is_processed_to_user = True
             td.processed_at = timezone.now()
             td.save()
@@ -44,9 +52,13 @@ class TransferUserManager(models.Manager):
 
         tu.create_debts()
 
-    def can_process_user(self, user_id):
+    def can_process_user(self, user_id, force_process):
         """
         Returns bool.
+
+        "force_process" means skip some steps.
+        It is used when user closes account in Donkies.
+
         1) Can not process if aggregated payments not ready yet.
         2) Can not process if user doesn't have debt accounts.
         3) Can not process if user didn't set "is_auto_transfer"
@@ -57,7 +69,10 @@ class TransferUserManager(models.Manager):
         TransferDonkies = apps.get_model('finance', 'TransferDonkies')
         User = apps.get_model('web', 'User')
 
-        if not TransferDonkies.objects.get_user_queryset(user_id):
+        is_date_filter = not force_process
+        qs = TransferDonkies.objects.get_user_queryset(
+            user_id, is_date_filter=is_date_filter)
+        if not qs:
             return False
 
         Account = apps.get_model('finance', 'Account')
@@ -67,12 +82,13 @@ class TransferUserManager(models.Manager):
             return False
 
         user = User.objects.get(id=user_id)
-        if not user.is_auto_transfer:
+        if not user.is_auto_transfer and not force_process:
             return False
 
         res = TransferDonkies.objects.get_user_queryset(
-            user_id).aggregate(Sum('amount'))
-        if res['amount__sum'] < user.minimum_transfer_amount:
+            user_id, is_date_filter=is_date_filter).aggregate(Sum('amount'))
+        sum = res['amount__sum']
+        if sum < user.minimum_transfer_amount and not force_process:
             return False
 
         return True

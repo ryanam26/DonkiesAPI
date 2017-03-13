@@ -250,21 +250,27 @@ class TransferDonkiesManager(models.Manager):
         tdf.save()
         tds.delete()
 
-    def get_date_queryset(self):
+    def get_date_queryset(self, is_date_filter=True):
         """
         Returns queryset for available payments.
         """
-        return self.model.objects.filter(
+        filters = dict(
             is_processed_to_user=False,
-            is_sent=True,
-            sent_at__lt=self.get_date())
+            is_sent=True
+        )
+        if is_date_filter:
+            filters['sent_at__lt'] = self.get_date()
+        return self.model.objects.filter(**filters)
 
-    def get_user_queryset(self, user_id):
+    def get_user_queryset(self, user_id, is_date_filter=True):
         """
         Returns queryset for available payments
         for particular user.
+
+        If is_date_filter is False, get all available payments
+        (do not filter by date)
         """
-        return self.get_date_queryset().filter(
+        return self.get_date_queryset(is_date_filter=is_date_filter).filter(
             account__member__user_id=user_id)
 
     def get_date(self):

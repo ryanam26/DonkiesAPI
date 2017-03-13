@@ -151,7 +151,7 @@ class Emulator:
 
     def create_dwolla_transfers(self, num_days):
         """
-        Creates transfers to Dwolla fir num_days back from today.
+        Creates transfers to Dwolla for num_days back from today.
         1 transfer per day.
 
         Emulating Donkies transfers to dwolla for many days

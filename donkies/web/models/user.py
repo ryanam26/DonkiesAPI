@@ -64,9 +64,6 @@ class UserManager(BaseUserManager):
         user.save()
 
     def delete_atrium_user(self, guid):
-        """
-        TODO: processing errors
-        """
         a = AtriumApi()
         a.delete_user(guid)
 
@@ -194,6 +191,8 @@ class User(AbstractBaseUser):
         default=False, help_text='Roundup even amounts $1.00, $2.00 etc')
     is_atrium_created = models.BooleanField(default=False)
     is_signup_completed = models.BooleanField(default=False)
+    is_closed_account = models.BooleanField(
+        default=False, help_text='User closed account in Donkies')
 
     objects = UserManager()
 
@@ -524,6 +523,27 @@ class User(AbstractBaseUser):
                 'is_completed': self.check_signup_step4()
             },
         ]
+
+    def close_account(self, is_delete_atrium=True):
+        """
+        Close account in Donkies and refund all roundup.
+        1) Delete user from Atrium.
+        2) Delete all user's members, accounts and transactions
+            (mark is_active=False)
+        3) Transfer all funds that currently Donkies hold in Dwolla
+           to TransferUser model.
+        """
+        Member = apps.get_model('finance', 'Member')
+        TransferUser = apps.get_model('finance', 'TransferUser')
+
+        TransferUser.objects.process_user(self.id, force_process=True)
+
+        qs = Member.objects.active().filter(user=self)
+        for m in qs:
+            Member.objects.delete_member(m.id, is_delete_atrium=False)
+
+        if is_delete_atrium:
+            User.objects.delete_atrium_user(self.guid)
 
     def save(self, *args, **kwargs):
         Token = apps.get_model('web', 'Token')

@@ -1,5 +1,6 @@
 import pytest
 from django.db.models import Sum
+from django.conf import settings
 from .. import base
 from donkies.tests.services.emulator import Emulator
 from finance.models import TransferPrepare, Transaction
@@ -21,23 +22,46 @@ class TestTransferPrepare(base.Mixin):
     @pytest.mark.django_db
     def test02(self):
         """
-        Test success.
+        Test success transfer.
+        Collected roundup should be more than
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT
         """
         e = Emulator()
         e.init()
+        sum = e.user.get_not_processed_roundup_sum()
+
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
         Emulator.run_transfer_prepare()
         assert len(e.debit_accounts) == TransferPrepare.objects.count()
 
     @pytest.mark.django_db
     def test03(self):
         """
+        Test case where collected roundup is less than
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT
+        Should not send transfers to Donkies.
+        """
+        e = Emulator()
+        e.init()
+        sum = e.user.get_not_processed_roundup_sum()
+
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum + 1
+        Emulator.run_transfer_prepare()
+        assert TransferPrepare.objects.count() == 0
+
+    @pytest.mark.django_db
+    def test04(self):
+        """
         Test that amounts are equal.
         """
         e = Emulator()
         e.init()
         total_should_be = e.get_total_roundup(e.transactions)
-        assert e.user.get_not_processed_roundup_sum() == total_should_be
+        sum = e.user.get_not_processed_roundup_sum()
+        assert sum == total_should_be
 
+        # Success case for transfer.
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
         Emulator.run_transfer_prepare()
 
         sum = TransferPrepare.objects.aggregate(Sum('roundup'))['roundup__sum']
@@ -45,25 +69,3 @@ class TestTransferPrepare(base.Mixin):
 
         qs = Transaction.objects.active().filter(is_processed=False)
         assert qs.count() == 0
-
-    @pytest.mark.django_db
-    def test04(self):
-        """
-        Transfers should be made once a day.
-        After first transfer prepare, the next
-        should not be processed.
-        """
-        e = Emulator()
-        e.init()
-        Emulator.run_transfer_prepare()
-        assert len(e.debit_accounts) == TransferPrepare.objects.count()
-
-        num_transactions = len(e.transactions)
-
-        # Add more transactions.
-        e.fill_transactions(is_today=True)
-        assert len(e.transactions) > num_transactions
-
-        # Try to transfer again, but shouldn't process any more today.
-        Emulator.run_transfer_prepare()
-        assert len(e.debit_accounts) == TransferPrepare.objects.count()

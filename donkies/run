@@ -70,14 +70,14 @@ clear
 # py.test -s donkies/tests/test_linking.py
 # py.test -s donkies/tests/test_members.py
 # py.test -s donkies/tests/test_transactions.py
-py.test -s donkies/tests/test_users.py
+# py.test -s donkies/tests/test_users.py
 
 
 # Transfers
 # py.test -s donkies/tests/transfers/test_api.py
 # py.test -s donkies/tests/transfers/test_transactions.py
 # py.test -s donkies/tests/transfers/test_transfer_donkies.py
-# py.test -s donkies/tests/transfers/test_transfer_prepare.py
+py.test -s donkies/tests/transfers/test_transfer_prepare.py
 # py.test -s donkies/tests/transfers/test_transfer_user.py
 
 

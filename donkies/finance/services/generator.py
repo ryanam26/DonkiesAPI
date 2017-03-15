@@ -1,4 +1,8 @@
 """
+!!! Generator should be refactored.
+As condition for sending transfers to Donkies has been changed
+from "by time" to "by amount".
+
 Creates fake data for admin user.
 python manage.py generator
 
@@ -41,7 +45,7 @@ from django.apps import apps
 from bank.models import Customer, FundingSource
 from finance.models import (
     Account, Member, Transaction, Institution, TransferPrepare,
-    TransferPrepareDate, TransferDonkies, TransferUser, TransferDebt)
+    TransferDonkies, TransferUser, TransferDebt)
 
 
 NUM_DAYS = 100
@@ -281,7 +285,6 @@ class Generator:
         TransferUser.objects.filter(user=self.user).delete()
         TransferDonkies.objects.filter(
             account__member__user=self.user).delete()
-        TransferPrepareDate.objects.filter(user=self.user).delete()
         TransferPrepare.objects.filter(
             account__member__user=self.user).delete()
 

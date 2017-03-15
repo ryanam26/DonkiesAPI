@@ -21,7 +21,7 @@ class TestUsers(base.Mixin):
         cmd.create_resend_reg_confirmation()
 
     @pytest.mark.django_db
-    def notest_get(self, client):
+    def test_get(self, client):
         """
         Test user get.
         """
@@ -36,7 +36,7 @@ class TestUsers(base.Mixin):
         assert user.email == rd['email']
 
     @pytest.mark.django_db
-    def notest_edit(self, client):
+    def test_edit(self, client):
         """
         Test user get.
         """
@@ -70,7 +70,7 @@ class TestUsers(base.Mixin):
                 assert value == db_value
 
     @pytest.mark.django_db
-    def notest_change_password01(self, client):
+    def test_change_password01(self, client):
         """
         Min lenght should equal 8 symbols.
         Should get error.
@@ -89,7 +89,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 400
 
     @pytest.mark.django_db
-    def notest_change_password02(self, client):
+    def test_change_password02(self, client):
         """
         Test with different passwords.
         Should get error.
@@ -110,7 +110,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 400
 
     @pytest.mark.django_db
-    def notest_change_password03(self, client):
+    def test_change_password03(self, client):
         """
         Test with incorrect current password.
         Should get error.
@@ -129,7 +129,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 400
 
     @pytest.mark.django_db
-    def notest_change_password04(self, client):
+    def test_change_password04(self, client):
         """
         Test with correct data.
         """
@@ -149,7 +149,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 200
 
     @pytest.mark.django_db
-    def notest_change_email01(self, client):
+    def test_change_email01(self, client):
         """
         Submit wrong email. Should get error.
         """
@@ -162,7 +162,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 400
 
     @pytest.mark.django_db
-    def notest_change_email02(self, client):
+    def test_change_email02(self, client):
         """
         1) user.new_email = new_email
         2) user.new_email_token = generated
@@ -204,7 +204,7 @@ class TestUsers(base.Mixin):
         assert ceh.email_new == dic1['new_email']
 
     @pytest.mark.django_db
-    def notest_resend_confirmation(self, client):
+    def test_resend_confirmation(self, client):
         """
         If user didn't receive reg email, it can request to resend
         confirmation email.
@@ -235,7 +235,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 200
 
     @pytest.mark.django_db
-    def notest_edit_settings(self, client):
+    def test_edit_settings(self, client):
         """
         Test edit user settings.
         Should get success.
@@ -259,7 +259,7 @@ class TestUsers(base.Mixin):
         assert user.minimum_transfer_amount == 100
 
     @pytest.mark.django_db
-    def notest_password_reset_request01(self, client):
+    def test_password_reset_request01(self, client):
         """
         Should get success.
         Emailer should have email with reset_token.
@@ -281,7 +281,7 @@ class TestUsers(base.Mixin):
         assert user.reset_token in em.txt
 
     @pytest.mark.django_db
-    def notest_password_reset_request02(self, client):
+    def test_password_reset_request02(self, client):
         """
         Test with non existing email.
         Should get error.
@@ -299,7 +299,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 400
 
     @pytest.mark.django_db
-    def notest_password_reset01(self, client):
+    def test_password_reset01(self, client):
         """
         Should get success.
         """
@@ -325,7 +325,7 @@ class TestUsers(base.Mixin):
         assert user.reset_at is None
 
     @pytest.mark.django_db
-    def notest_password_reset02(self, client):
+    def test_password_reset02(self, client):
         """
         Test with small password.
         The password should be at least 8 symbols.
@@ -348,7 +348,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 400
 
     @pytest.mark.django_db
-    def notest_password_reset03(self, client):
+    def test_password_reset03(self, client):
         """
         Test with incorrect encrypted_id.
         Should get error.
@@ -370,7 +370,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 400
 
     @pytest.mark.django_db
-    def notest_password_reset04(self, client):
+    def test_password_reset04(self, client):
         """
         Test with incorrect reset_token.
         Should get error.
@@ -392,7 +392,7 @@ class TestUsers(base.Mixin):
         assert response.status_code == 400
 
     @pytest.mark.django_db
-    def notest_total_debt(self, client):
+    def test_total_debt(self, client):
         user = UserFactory(email='bob@gmail.com')
         assert user.total_debt == 0
 
@@ -409,8 +409,9 @@ class TestUsers(base.Mixin):
         assert user.total_debt == 200
 
     @pytest.mark.django_db
-    def test_close_account(self):
+    def test_close_account01(self):
         """
+        Test user's method.
         User closes Donkies account.
         All required steps listed in "user.close_account" method.
         """
@@ -430,7 +431,7 @@ class TestUsers(base.Mixin):
         assert count == 0
 
         # Close user's account
-        e.user.close_account(is_delete_atrium=False)
+        e.user.close_account()
 
         # All user's members, accounts and transactions should
         # be not active
@@ -457,3 +458,23 @@ class TestUsers(base.Mixin):
 
         e.user.refresh_from_db()
         e.user.is_closed_account is True
+
+    @pytest.mark.django_db
+    def test_close_account02(self):
+        """
+        Test API endpoint.
+        User closes Donkies account.
+        """
+        e = Emulator()
+        e.init()
+        e.create_dwolla_transfers(30)
+        client = self.get_auth_client(e.user)
+
+        url = '/v1/user_close_account'
+        dic = {}
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 204
+
+        e.user.refresh_from_db()
+        assert e.user.is_closed_account is True

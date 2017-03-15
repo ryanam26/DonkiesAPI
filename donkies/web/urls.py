@@ -80,5 +80,10 @@ urlpatterns = [
         v.UserSettings.as_view(),
         name='user_settings'),
 
+    url(
+        r'^(?P<version>(v1))/user_close_account$',
+        v.UserCloseAccount.as_view(),
+        name='user_close_account'),
+
     url(r'^$', v.home, name='home'),
 ]

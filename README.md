@@ -152,8 +152,8 @@ Admin user contains generated fake data and do not processed by Atrium and Dwoll
 
 6) In settings User set minimum_transfer_amount (By default $5 and can be changed in settings) and is_auto_transfer (implemented in model, not implemented in API).
 
-7) Every day (once a day) user's collected roundup is transferred to Donkies LLC.
+7) Roundup is transfered to Donkies as soon as user's collected roundup is more than settings.TRANSFER_TO_DONKIES_MIN_AMOUNT
 
-8) On 15th of current month if user set auto transfer and total amount of previous month more than minimum transfer amount, send money to user (TransferUser model).
+8) On 15th of current month if user set auto transfer and total amount of previous month more than minimum transfer amount (in user settings), send money to user (TransferUser model).
 
-8) Send money to user's debt accounts from TransferUser model. (Currently manually by cheques)
+8) Send money to user's debt accounts from TransferUser (TransferDebt) model. (Currently manually by cheques)

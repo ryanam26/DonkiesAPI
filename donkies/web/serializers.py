@@ -167,6 +167,7 @@ class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     dwolla_customer = serializers.SerializerMethodField()
     signup_steps = serializers.SerializerMethodField()
+    profile_image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -192,7 +193,9 @@ class UserSerializer(serializers.ModelSerializer):
             'minimum_transfer_amount',
             'signup_steps',
             'is_even_roundup',
-            'total_debt'
+            'is_closed_account',
+            'total_debt',
+            'profile_image_url'
         )
         read_only_fields = (
             'id',
@@ -202,7 +205,8 @@ class UserSerializer(serializers.ModelSerializer):
             'encrypted_id',
             'is_confirmed',
             'signup_steps',
-            'is_confirmed'
+            'is_confirmed',
+            'is_closed_account'
         )
 
     def get_dwolla_customer(self, obj):
@@ -212,6 +216,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_signup_steps(self, obj):
         return obj.signup_steps()
+
+    def get_profile_image_url(self, obj):
+        if obj.profile_image:
+            return '{}{}'.format(
+                settings.BACKEND_URL, obj.profile_image.url)
+        return None
 
 
 class UserSettingsSerializer(serializers.ModelSerializer):

@@ -156,7 +156,7 @@ def update_institutions():
 
 # --- Transfers to Dwolla
 
-@periodic_task(run_every=crontab(minute='*/15', hour='17-22'))
+@periodic_task(run_every=crontab(minute='*/15', hour='*'))
 @production(settings.PRODUCTION)
 @rs_singleton(rs, 'PROCESS_ROUNDUPS_IS_PROCESSING')
 def process_roundups():

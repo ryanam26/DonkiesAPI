@@ -524,14 +524,14 @@ class User(AbstractBaseUser):
             },
         ]
 
-    def close_account(self, is_delete_atrium=True):
+    def close_account(self):
         """
         Close account in Donkies and refund all roundup.
-        1) Delete user from Atrium.
+        1) Transfer all funds that currently Donkies hold in Dwolla
+           to TransferUser model.
         2) Delete all user's members, accounts and transactions
             (mark is_active=False)
-        3) Transfer all funds that currently Donkies hold in Dwolla
-           to TransferUser model.
+        User still exists in Atrium.
         """
         Member = apps.get_model('finance', 'Member')
         TransferUser = apps.get_model('finance', 'TransferUser')
@@ -544,9 +544,6 @@ class User(AbstractBaseUser):
 
         self.is_closed_account = True
         self.save()
-
-        if is_delete_atrium:
-            User.objects.delete_atrium_user(self.guid)
 
     def save(self, *args, **kwargs):
         Token = apps.get_model('web', 'Token')

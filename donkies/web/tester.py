@@ -4,7 +4,6 @@ import sys
 
 from os.path import abspath, dirname, join
 from django.apps import apps
-from django.utils import timezone
 
 path = abspath(join(dirname(abspath(__file__)), '..'))
 sys.path.append(path)

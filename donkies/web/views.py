@@ -210,3 +210,9 @@ class UserSettings(AuthMixin, generics.UpdateAPIView):
 
     def get_object(self):
         return User.objects.get(id=self.request.user.id)
+
+
+class UserCloseAccount(AuthMixin, APIView):
+    def post(self, request, **kwargs):
+        self.request.user.close_account()
+        return Response(status=204)

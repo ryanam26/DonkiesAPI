@@ -42,7 +42,8 @@ class MyUserAdmin(PopupMixin, UserAdmin):
                     'phone',
                     'minimum_transfer_amount',
                     'is_confirmed',
-                    'is_active')}
+                    'is_active',
+                    'is_closed_account')}
         ),
     )
     add_fieldsets = (

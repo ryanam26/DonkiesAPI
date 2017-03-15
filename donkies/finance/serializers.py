@@ -120,6 +120,7 @@ class MemberResumeSerializer(serializers.Serializer):
 class AccountSerializer(serializers.ModelSerializer):
     member = MemberSerializer()
     institution = serializers.SerializerMethodField()
+    account_number = serializers.SerializerMethodField()
 
     class Meta:
         model = Account
@@ -156,12 +157,21 @@ class AccountSerializer(serializers.ModelSerializer):
             'is_funding_source_for_transfer',
             'is_dwolla_created',
             'is_active',
-            'institution'
+            'institution',
+            'account_number'
         )
 
     def get_institution(self, obj):
         i = obj.member.institution
         return InstitutionSerializer(i).data
+
+    def get_account_number(self, obj):
+        """
+        Return last 4 digits/letters.
+        """
+        if obj.account_number is None:
+            return None
+        return obj.account_number[-4:]
 
 
 class LinkDebtSerializer(serializers.ModelSerializer):

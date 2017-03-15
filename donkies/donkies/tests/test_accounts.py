@@ -158,4 +158,3 @@ class TestAccounts(base.Mixin):
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
         assert response.status_code == 400
-        print(response.content)

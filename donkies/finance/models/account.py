@@ -271,7 +271,7 @@ class Account(ActiveModel):
         app_label = 'finance'
         verbose_name = 'account'
         verbose_name_plural = 'accounts'
-        ordering = ['type_ds', 'member']
+        ordering = ['type_ds', 'member', 'name']
 
     def __str__(self):
         s = self.member.name

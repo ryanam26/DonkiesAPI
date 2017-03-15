@@ -23,6 +23,11 @@ urlpatterns = [
         name='accounts_set_active'),
 
     url(
+        r'^(?P<version>(v1))/accounts/set_account_number/(?P<pk>\d+)$',
+        v.AccountsSetNumber.as_view(),
+        name='accounts_set_number'),
+
+    url(
         r'^(?P<version>(v1))/accounts/set_funding_source/(?P<pk>\d+)$',
         v.AccountsSetFundingSource.as_view(),
         name='accounts_set_funding_source'),

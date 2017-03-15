@@ -1,5 +1,6 @@
 import logging
 from django.http import Http404
+from django.core.exceptions import ValidationError
 from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
 from rest_framework.response import Response
@@ -121,6 +122,25 @@ class AccountsSetActive(AuthMixin, APIView):
 
         Account.objects.change_active(account.id, is_active)
         return Response(status=204)
+
+
+class AccountsSetNumber(AuthMixin, APIView):
+    """
+    Set account_number.
+    """
+    def post(self, request, **kwargs):
+        account = Account.objects.get(
+            id=kwargs['pk'], member__user=request.user)
+
+        account_number = request.data.get('account_number', None)
+        if account_number is None:
+            return r400('Incorrect request')
+
+        try:
+            Account.objects.set_account_number(account.id, account_number)
+        except ValidationError as e:
+            return r400(e.args[0])
+        return Response(status=201)
 
 
 class AccountsSetFundingSource(AuthMixin, APIView):

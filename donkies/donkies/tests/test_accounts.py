@@ -124,3 +124,38 @@ class TestAccounts(base.Mixin):
         data = json.dumps(dic)
         response = client.put(url, data, content_type='application/json')
         assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_set_account_number01(self, client):
+        """
+        Test success.
+        """
+        a = AccountFactory.get_account()
+        client = self.get_auth_client(a.member.user)
+
+        url = '/v1/accounts/set_account_number/{}'.format(a.id)
+        dic = {'account_number': 'AAA111'}
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 201
+
+        a.refresh_from_db()
+        assert a.account_number == dic['account_number']
+
+    @pytest.mark.django_db
+    def test_set_account_number02(self, client):
+        """
+        If account number was set earlier,
+        should get error.
+        """
+        a = AccountFactory.get_account()
+        a.account_number = 'AAA000'
+        a.save()
+        client = self.get_auth_client(a.member.user)
+
+        url = '/v1/accounts/set_account_number/{}'.format(a.id)
+        dic = {'account_number': 'AAA111'}
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 400
+        print(response.content)

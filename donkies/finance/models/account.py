@@ -95,6 +95,18 @@ class AccountManager(ActiveManager):
         account.save()
         return account
 
+    def set_account_number(self, account_id, account_number):
+        """
+        Can set account only if didn't set before.
+        Used for debt accounts.
+        """
+        account = self.model.objects.get(id=account_id)
+        if account.account_number is not None:
+            raise ValidationError('Account number was set earlier.')
+
+        account.account_number = account_number
+        account.save()
+
     @transaction.atomic
     def change_active(self, account_id, is_active):
         """
@@ -249,6 +261,9 @@ class Account(ActiveModel):
     is_funding_source_for_transfer = models.BooleanField(
         default=False,
         help_text='For debit account. Funding source for transfer.')
+    account_number = models.CharField(
+        max_length=100, null=True, default=None, blank=True,
+        help_text='For debt accounts only. Set by user.')
 
     objects = AccountManager()
 
@@ -327,7 +342,8 @@ class AccountAdmin(admin.ModelAdmin):
         'balance',
         'credit_limit',
         'original_balance',
-        'payoff_balance'
+        'payoff_balance',
+        'account_number'
     )
 
     def has_delete_permission(self, request, obj=None):

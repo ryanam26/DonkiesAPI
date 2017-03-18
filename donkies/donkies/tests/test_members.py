@@ -60,3 +60,13 @@ class TestMember(base.Mixin):
 
         for obj in Transaction.objects.all():
             assert obj.is_active is False
+
+    @pytest.mark.django_db
+    def test_delete04(self):
+        """
+        Test real deleting. Member should be deleted from database.
+        """
+        m = MemberFactory.get_member()
+        Member.objects.real_delete_member(m.id)
+
+        assert Member.objects.filter(id=m.id).exists() is False

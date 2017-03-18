@@ -201,14 +201,25 @@ class InstitutionsSuggest(AuthMixin, APIView):
     """
     Returns data for React InputAutocompleteAsync.
     In "GET" params receives "value" for filtering.
+
+    Institutions (members) that user already has should
+    be excluded from result.
     """
     def get(self, request, **kwargs):
         value = request.query_params.get('value', None)
         if value is None:
             return Response([])
 
+        # Exisiting user's institutions.
+        qs = Member.objects.active()\
+            .filter(user=request.user)\
+            .values_list('institution_id', flat=True)
+        ids = list(qs)
+
         l = []
         qs = Institution.objects.filter(name__icontains=value)
+        qs = qs.exclude(id__in=ids)
+
         for i in qs:
             l.append({'value': i.name, 'id': i.id})
         return Response(l)

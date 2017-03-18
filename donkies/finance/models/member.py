@@ -3,6 +3,7 @@ from django.db import models
 from django.db import transaction
 from django.contrib import admin
 from django.apps import apps
+from django.db import connection
 from django.contrib.postgres.fields import JSONField
 from finance.services.atrium_api import AtriumApi
 from web.models import ActiveModel, ActiveManager
@@ -102,6 +103,25 @@ class MemberManager(ActiveManager):
             a.delete_member(member.user.guid, member.guid)
 
         self.change_active(member.id, False)
+
+    def real_delete_member(self, member_id):
+        """
+        Delete member from Atrium.
+        Real delete member from database.
+        Used only for DENIED and HALTED members
+        when they are created initially with errors.
+        """
+        member = self.model.objects.get(id=member_id)
+
+        a = AtriumApi()
+        try:
+            a.delete_member(member.user.guid, member.guid)
+        except:
+            pass
+        query = 'DELETE FROM finance_member WHERE id={}'.format(
+            member_id)
+        cur = connection.cursor()
+        cur.execute(query)
 
     @transaction.atomic
     def change_active(self, member_id, is_active):

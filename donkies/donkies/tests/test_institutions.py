@@ -1,7 +1,7 @@
 import pytest
 from finance.models import Institution
 from finance.services.atrium_api import AtriumApi
-from .factories import UserFactory
+from .factories import UserFactory, MemberFactory
 from .import base
 
 
@@ -36,7 +36,7 @@ class TestInstitutions(base.Mixin):
         assert qs.exists() is True
 
     @pytest.mark.django_db
-    def test_suggest(self, client, institutions):
+    def test_suggest01(self, client, institutions):
         """
         Test institutions suggest endpoint.
         """
@@ -50,6 +50,41 @@ class TestInstitutions(base.Mixin):
 
         rd = response.json()
         assert len(rd) > 0
+
+    @pytest.mark.django_db
+    def test_suggest02(self, client, institutions):
+        """
+        Test institutions suggest endpoint.
+        When user already created member for particular institution,
+        this institution should be excluded from suggested result.
+        Test institutions: wells_fargo
+        """
+        self.init(institutions['list'])
+
+        user = UserFactory(email='bob@gmail.com')
+        client = self.get_auth_client(user)
+
+        url = '/v1/institutions_suggest?value=we'
+        response = client.get(url)
+        assert response.status_code == 200
+
+        rd = response.json()
+        assert len(rd) == 1
+
+        i = Institution.objects.first()
+
+        # Create member with Wells fargo
+        MemberFactory.get_member(user=user, institution=i)
+
+        # As soon as user has wells_fargo, it should be excluded
+        # from suggest results.
+
+        url = '/v1/institutions_suggest?value=we'
+        response = client.get(url)
+        assert response.status_code == 200
+
+        rd = response.json()
+        assert len(rd) == 0
 
     @pytest.mark.django_db
     def test_get_credentials(self, client):

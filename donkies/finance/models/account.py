@@ -335,6 +335,7 @@ def apply_transfer_share(sender, instance, created, **kwargs):
 class AccountAdmin(admin.ModelAdmin):
     list_display = (
         'name',
+        'member',
         'type_ds',
         'guid',
         'available_balance',

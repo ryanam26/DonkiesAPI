@@ -56,11 +56,12 @@ class MemberFactory(factory.django.DjangoModelFactory):
     status = Member.SUCCESS
 
     @staticmethod
-    def get_member(user=None, name=None):
+    def get_member(user=None, institution=None, name=None):
         if not user:
             user = UserFactory(email=Faker().email())
-        code = Faker().word() + str(random.randint(1000, 9999))
-        institution = InstitutionFactory(code=code)
+        if not institution:
+            code = Faker().word() + str(random.randint(1000, 9999))
+            institution = InstitutionFactory(code=code)
         if not name:
             name = Faker().word()
         return MemberFactory(

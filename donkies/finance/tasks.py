@@ -13,7 +13,7 @@ rs = settings.REDIS_DB
 logger = logging.getLogger('console')
 
 # The number of attempts to get member before exit.
-MAX_ATTEMPTS = 50
+MAX_ATTEMPTS = 10
 
 
 @periodic_task(run_every=crontab(minute=20, hour='*'))
@@ -43,12 +43,15 @@ def create_atrium_user(user_id):
 def get_member(member_id, attempt=0):
     """
     Task will call atrium API until receive finished status.
+    Or delete member from Atrium and database.
     """
     Account = apps.get_model('finance', 'Account')
     Member = apps.get_model('finance', 'Member')
     Challenge = apps.get_model('finance', 'Challenge')
 
     if attempt > MAX_ATTEMPTS:
+        # Delete member
+        Member.objects.real_delete_member(member_id)
         return
 
     member = Member.objects.get(id=member_id)
@@ -83,6 +86,12 @@ def get_member(member_id, attempt=0):
             args=[member_id],
             kwargs={'attempt': attempt},
             countdown=10)
+
+    # If status is DENIED, remove member.
+    # We need to create it again, or bugs can be happen in Atrium.
+    if status == Member.DENIED:
+        Member.objects.real_delete_member(member_id)
+        return
 
     # If status is CHALLENGED, create challenges for member in database
     if status == Member.CHALLENGED:

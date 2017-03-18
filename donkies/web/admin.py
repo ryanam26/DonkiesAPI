@@ -80,6 +80,7 @@ def get_admin_urls(urls):
         my_urls = []
 
         l = [
+            User
         ]
 
         for model in l:

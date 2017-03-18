@@ -70,12 +70,23 @@ class UserManager(BaseUserManager):
     def clear_atrium(self):
         """
         DEV mode only.
+        Used in tests.
         Delete all users in Atrium.
         """
         if settings.ATRIUM_API_MODE == 'DEV':
             a = AtriumApi()
             for d in a.get_users():
                 a.delete_user(d['guid'])
+
+    def clean_atrium(self):
+        """
+        Used for production debugging.
+        Delete all users in Atrium.
+        """
+        User.objects.filter(is_admin=False).delete()
+        a = AtriumApi()
+        for d in a.get_users():
+            a.delete_user(d['guid'])
 
 
 class User(AbstractBaseUser):
@@ -689,3 +700,9 @@ class User(AbstractBaseUser):
         url += '&redirect_uri='
         url += settings.FACEBOOK_REDIRECT_URI
         return url
+
+    @staticmethod
+    def get_admin_urls():
+        return [
+            (r'^custom/clean_atrium/$', 'clean_atrium'),
+        ]

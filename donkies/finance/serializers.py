@@ -98,7 +98,12 @@ class MemberCreateSerializer(serializers.ModelSerializer):
         data = self.validated_data
         code = data['institution_code']
         credentials = data['credentials']
-        m = Member.objects.get_or_create_member(user.guid, code, credentials)
+        try:
+            m = Member.objects.get_or_create_member(
+                user.guid, code, credentials)
+        except:
+            raise serializers.ValidationError(
+                'Can not create account. Please try again later.')
         # In case recreate member
         m.status = Member.REQUESTED
         m.save()

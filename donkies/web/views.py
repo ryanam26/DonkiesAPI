@@ -2,7 +2,8 @@ import logging
 from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib import messages
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -26,6 +27,16 @@ def error500(request):
 def r400(error_message):
     return Response({
         'non_field_errors': [error_message]}, status=400)
+
+
+def clean_atrium(request):
+    """
+    Admin view. Used for debug production.
+    Clean all Atrium.
+    """
+    User.objects.clean_atrium()
+    messages.success(request, 'Atrium has been cleaned.')
+    return HttpResponseRedirect('/admin/web/user/')
 
 
 class AuthMixin:

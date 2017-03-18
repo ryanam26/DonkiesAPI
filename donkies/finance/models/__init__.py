@@ -4,6 +4,7 @@ from .credentials import Credentials
 from .institution import Institution
 from .link_debt import LinkDebt
 from .member import Member
+from .member_stat import MemberStat
 from .stat import Stat
 from .transaction import Transaction
 from .transfer_debt import TransferDebt

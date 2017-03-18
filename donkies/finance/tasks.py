@@ -163,6 +163,15 @@ def update_institutions():
     # Institution.objects.update_credentials()
 
 
+@periodic_task(run_every=crontab(minute='*', hour='*'))
+def update_member_stat():
+    """
+    Updates MemberStat model.
+    """
+    MemberStat = apps.get_model('finance', 'MemberStat')
+    MemberStat.objects.update_stat()
+
+
 # --- Transfers to Dwolla
 
 @periodic_task(run_every=crontab(minute='*/15', hour='*'))

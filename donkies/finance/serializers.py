@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from finance.models import (
-    Account, Challenge, Credentials, Institution, LinkDebt, Member,
+    Account, Institution, LinkDebt, Member,
     Transaction, TransferDonkies, TransferPrepare,
     TransferUser, TransferDebt)
 
@@ -14,29 +14,6 @@ class InstitutionSerializer(serializers.ModelSerializer):
             'code',
             'name',
             'url'
-        )
-
-
-class ChallengeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Challenge
-        fields = (
-            'guid',
-            'label',
-            'type'
-        )
-
-
-class CredentialsSerializer(serializers.ModelSerializer):
-    institution = serializers.StringRelatedField()
-
-    class Meta:
-        model = Credentials
-        fields = (
-            'institution',
-            'field_name',
-            'label',
-            'type'
         )
 
 

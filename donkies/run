@@ -10,7 +10,6 @@ clear
 
 # celery should be running on init project
 
-python manage.py cleanatrium
 python manage.py pgcreatelocal
 python manage.py initproject
 python manage.py makemigrations
@@ -18,9 +17,6 @@ python manage.py makemigrations web
 python manage.py makemigrations finance
 python manage.py makemigrations bank
 python manage.py migrate
-
-# python manage.py loaddata institutions
-python manage.py loaddata institutions_test
 
 python manage.py createsuperuser
 python manage.py createemails

@@ -33,26 +33,6 @@ urlpatterns = [
         name='accounts_set_funding_source'),
 
     url(
-        r'^(?P<version>(v1))/credentials/code/(?P<institution_code>\w+)$',
-        v.CredentialsListByCode.as_view(),
-        name='credentials_by_code'),
-
-    url(
-        r'^(?P<version>(v1))/credentials/id/(?P<institution_id>\w+)$',
-        v.CredentialsListById.as_view(),
-        name='credentials_by_id'),
-
-    url(
-        r'^(?P<version>(v1))/credentials/live/code/(?P<institution_code>\w+)$',
-        v.CredentialsLiveListByCode.as_view(),
-        name='credentials_live_by_code'),
-
-    url(
-        r'^(?P<version>(v1))/credentials/live/id/(?P<institution_id>\w+)$',
-        v.CredentialsLiveListById.as_view(),
-        name='credentials_live_by_id'),
-
-    url(
         r'^(?P<version>(v1))/institutions_suggest$',
         v.InstitutionsSuggest.as_view(),
         name='institutions_suggest'),

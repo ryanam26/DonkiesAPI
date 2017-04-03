@@ -11,7 +11,7 @@ from web.views import AuthMixin, r400
 from finance import tasks
 from finance.services.atrium_api import AtriumApi
 from finance.models import (
-    Account, Credentials, Institution, LinkDebt, Member, Stat,
+    Account, Institution, LinkDebt, Member, Stat,
     Transaction, TransferPrepare, TransferDonkies,
     TransferUser, TransferDebt)
 
@@ -153,48 +153,6 @@ class AccountsSetFundingSource(AuthMixin, APIView):
             id=id, member__user=request.user)
         Account.objects.set_funding_source(account.id)
         return Response(status=201)
-
-
-class CredentialsListByCode(AuthMixin, ListAPIView):
-    """
-    Credentials from database. (Old implementation)
-    """
-    serializer_class = sers.CredentialsSerializer
-
-    def get_queryset(self):
-        return Credentials.objects.filter(
-            institution__code=self.kwargs['institution_code'])
-
-
-class CredentialsListById(AuthMixin, ListAPIView):
-    """
-    Credentials from database. (Old implementation)
-    """
-    serializer_class = sers.CredentialsSerializer
-
-    def get_queryset(self):
-        return Credentials.objects.filter(
-            institution__id=self.kwargs['institution_id'])
-
-
-class CredentialsLiveListByCode(AuthMixin, APIView):
-    """
-    Credentials directly from Atrium.
-    """
-    def get(self, request, **kwargs):
-        i = Institution.objects.get(code=self.kwargs['institution_code'])
-        a = AtriumApi()
-        return Response(a.get_credentials(i.code))
-
-
-class CredentialsLiveListById(AuthMixin, APIView):
-    """
-    Credentials directly from Atrium.
-    """
-    def get(self, request, **kwargs):
-        i = Institution.objects.get(id=self.kwargs['institution_id'])
-        a = AtriumApi()
-        return Response(a.get_credentials(i.code))
 
 
 class InstitutionsSuggest(AuthMixin, APIView):

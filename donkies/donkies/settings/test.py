@@ -22,3 +22,4 @@ FACEBOOK_APP_SECRET = 'e8c6cebdc6a276f9bdcd11e18716a951'
 FACEBOOK_REDIRECT_URI = 'http://donkies.com:8080/login_facebook'
 
 ATRIUM_API_MODE = 'DEV'
+PLAID_ENV = 'sandbox'

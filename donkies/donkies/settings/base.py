@@ -36,6 +36,10 @@ FACEBOOK_REDIRECT_URI = data['FACEBOOK_REDIRECT_URI']
 SPARKPOST_APIKEY = data['SPARKPOST_APIKEY']
 SPARKPOST_FROM_EMAIL = data['SPARKPOST_FROM_EMAIL']
 
+PLAID_CLIENT_ID = data['PLAID_CLIENT_ID']
+PLAID_SECRET = data['PLAID_SECRET']
+PLAID_PUBLIC_KEY = data['PLAID_PUBLIC_KEY']
+
 BACKEND_DOMAIN = 'api.donkies.co'
 BACKEND_URL = 'https://api.donkies.co'
 FRONTEND_DOMAIN = 'app.donkies.co'
@@ -253,6 +257,9 @@ REDIS_DB = redis.StrictRedis(host='127.0.0.1', port=6379, db=2)
 
 # Atrium API mode PROD/DEV
 ATRIUM_API_MODE = 'DEV'
+
+# Plaid API mode production/development/sandbox
+PLAID_ENV = 'development'
 
 # Dwolla API mode PROD/DEV
 DWOLLA_API_MODE = 'DEV'

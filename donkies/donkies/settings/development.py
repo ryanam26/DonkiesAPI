@@ -45,3 +45,4 @@ DATABASES = {
 }
 
 ATRIUM_API_MODE = 'DEV'
+PLAID_ENV = 'development'

@@ -118,9 +118,7 @@ class Emulator:
         num_transactions = random.randint(3, 5)
         for i in range(num_transactions):
             dt = self.get_datetime(date)
-            dt = timezone.make_aware(dt)
-
-            tr = TransactionFactory(account=account, created_at=dt)
+            tr = TransactionFactory(account=account, date=dt.date())
             self.transactions.append(tr)
 
     def emulate_dwolla_transfers(self):

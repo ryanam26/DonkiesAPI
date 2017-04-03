@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib import admin
 from django.db import transaction
 from django.contrib.postgres.fields import JSONField
+from django.conf import settings
 from django.apps import apps
 from finance.services.plaid_api import PlaidApi
 from web.models import ActiveModel, ActiveManager
@@ -32,13 +33,13 @@ class ItemManager(ActiveManager):
         item.save()
         return item
 
-    def delete_item(self, item_id, is_delete_plaid=True):
+    def delete_item(self, item_id):
         """
         Delete item from Plaid.
         Set item, accounts and transactions to is_active=False
         """
         item = self.model.objects.get(id=item_id)
-        if is_delete_plaid:
+        if settings.PLAID_ENV != 'sandbox':
             pa = PlaidApi()
             pa.delete_item(item.access_token)
         self.change_active(item.id, False)

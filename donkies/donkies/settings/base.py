@@ -19,11 +19,6 @@ DB_PASSWORD = data['DB_PASSWORD']
 DB_HOST = data['DB_HOST']
 SERVER_IP = data['SERVER_IP']
 
-ATRIUM_CLIENT_ID_PROD = data['ATRIUM_CLIENT_ID_PROD']
-ATRIUM_KEY_PROD = data['ATRIUM_KEY_PROD']
-ATRIUM_CLIENT_ID_DEV = data['ATRIUM_CLIENT_ID_DEV']
-ATRIUM_KEY_DEV = data['ATRIUM_KEY_DEV']
-
 DWOLLA_ID_DEV = data['DWOLLA_ID_DEV']
 DWOLLA_SECRET_DEV = data['DWOLLA_SECRET_DEV']
 DWOLLA_ID_PROD = data['DWOLLA_ID_PROD']
@@ -254,9 +249,6 @@ LOGGING = {
 TOKEN_EXPIRE_MINUTES = 1400
 
 REDIS_DB = redis.StrictRedis(host='127.0.0.1', port=6379, db=2)
-
-# Atrium API mode PROD/DEV
-ATRIUM_API_MODE = 'DEV'
 
 # Plaid API mode production/development/sandbox
 PLAID_ENV = 'development'

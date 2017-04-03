@@ -50,7 +50,7 @@ class TestItems(base.Mixin):
         assert Account.objects.count() == 2
         assert Transaction.objects.count() == 1
 
-        Item.objects.delete_item(item.id, is_delete_plaid=False)
+        Item.objects.delete_item(item.id)
 
         for obj in Item.objects.all():
             assert obj.is_active is False

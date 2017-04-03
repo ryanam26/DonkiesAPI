@@ -7,8 +7,9 @@ from donkies.tests.services.emulator import Emulator
 from web.management.commands.createemails import Command
 from web.models import User, Emailer, ChangeEmailHistory
 from finance.models import (
-    Member, Account, Transaction, TransferDebt, TransferDonkies, TransferUser)
-from .factories import UserFactory, AccountFactory, MemberFactory
+    Account, Item, Transaction, TransferDebt, TransferDonkies,
+    TransferUser)
+from .factories import UserFactory, AccountFactory, ItemFactory
 from .import base
 
 
@@ -396,17 +397,13 @@ class TestUsers(base.Mixin):
         user = UserFactory(email='bob@gmail.com')
         assert user.total_debt == 0
 
-        m = MemberFactory.get_member(user=user)
-        a1 = AccountFactory.get_account(member=m, type=Account.LOAN)
-        a2 = AccountFactory.get_account(member=m, type=Account.LOAN)
+        item = ItemFactory.get_item(user=user)
+        a1 = AccountFactory.get_account(item=item, type=Account.CREDIT)
+        a2 = AccountFactory.get_account(item=item, type=Account.CREDIT)
 
-        a1.balance = 100
-        a2.balance = 100
-        a1.save()
-        a2.save()
-
+        total = a1.balance + a2.balance
         user.refresh_from_db()
-        assert user.total_debt == 200
+        assert user.total_debt == total
 
     @pytest.mark.django_db
     def test_close_account01(self):
@@ -435,7 +432,7 @@ class TestUsers(base.Mixin):
 
         # All user's members, accounts and transactions should
         # be not active
-        assert Member.objects.filter(is_active=True).count() == 0
+        assert Item.objects.filter(is_active=True).count() == 0
         assert Account.objects.filter(is_active=True).count() == 0
         assert Transaction.objects.filter(is_active=True).count() == 0
 

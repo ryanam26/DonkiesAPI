@@ -4,13 +4,16 @@ from django.contrib.postgres.fields import JSONField
 
 
 class ItemManager(models.Manager):
-    pass
+    def create_item(self, user, api_data):
+        d = api_data
+        
 
 
 class Item(models.Model):
     user = models.ForeignKey('web.User', related_name='items')
     institution = models.ForeignKey('Institution')
     plaid_id = models.CharField(max_length=255, unique=True)
+    access_token = models.CharField(max_length=255, unique=True)
     request_id = models.CharField(max_length=100)
     webhook = models.CharField(
         max_length=50, null=True, default=None, blank=True)

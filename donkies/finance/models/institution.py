@@ -1,9 +1,32 @@
 from django.db import models
 from django.contrib import admin
+from django.contrib.postgres.fields import JSONField
+from finance.services.plaid_api import PlaidApi
 
 
 class InstitutionManager(models.Manager):
-    def get_or_create_institution(self, name, plaid_id):
+    def get_or_create_institution(self, plaid_id):
+        """
+        If institution does not exist in database,
+        query it from plaid API and save to db.
+        """
+        try:
+            i = self.model.objects.get(plaid_id=plaid_id)
+        except self.model.DoesNotExist:
+            pa = PlaidApi()
+            data = pa.get_institution(plaid_id)
+            d = data['institution']
+            i = self.model(
+                plaid_id=d['institution_id'],
+                name=d['name'],
+                products=d.get('products', None),
+                credentials=d.get('credentials', None),
+                has_mfa=d.get('has_mfa', None)
+            )
+            i.save()
+        return i
+
+    def create_institution(self, name, plaid_id):
         try:
             i = self.model.objects.get(plaid_id=plaid_id)
         except self.model.DoesNotExist:
@@ -23,18 +46,17 @@ class InstitutionManager(models.Manager):
             ('Houndstooth Bank', 'ins_109512')
         ]
         for name, plaid_id in l:
-            self.get_or_create_institution(name, plaid_id)
+            self.create_institution(name, plaid_id)
 
 
 class Institution(models.Model):
     plaid_id = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=255)
-    url = models.CharField(
-        max_length=255, null=True, default=None, blank=True)
-    small_logo_url = models.CharField(
-        max_length=255, null=True, default=None, blank=True)
-    medium_logo_url = models.CharField(
-        max_length=255, null=True, default=None, blank=True)
+    has_mfa = models.BooleanField(default=False)
+    mfa = JSONField(null=True, default=None)
+    credentials = JSONField(null=True, default=None)
+    products = JSONField(null=True, default=None)
+
     sort = models.IntegerField(default=0)
 
     objects = InstitutionManager()
@@ -54,13 +76,11 @@ class InstitutionAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'plaid_id',
-        'url',
         'sort',
     )
     list_editable = ('sort',)
     search_fields = ('name', 'plaid_id')
     readonly_fields = (
         'plaid_id',
-        'name',
-        'url',
+        'name'
     )

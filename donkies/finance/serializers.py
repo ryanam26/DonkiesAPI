@@ -1,7 +1,6 @@
-from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from finance.models import (
-    Account, Institution, Transaction,
+    Account, Institution, Item, Transaction,
     TransferDonkies, TransferPrepare, TransferUser, TransferDebt)
 
 
@@ -10,14 +9,24 @@ class InstitutionSerializer(serializers.ModelSerializer):
         model = Institution
         fields = (
             'id',
-            'code',
+            'plaid_id',
             'name',
-            'url'
+            'has_mfa'
+        )
+
+
+class ItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = (
+            'id',
+            'plaid_id',
+            'institution'
         )
 
 
 class AccountSerializer(serializers.ModelSerializer):
-    # member = MemberSerializer()
+    item = ItemSerializer()
     institution = serializers.SerializerMethodField()
     account_number = serializers.SerializerMethodField()
 
@@ -25,38 +34,19 @@ class AccountSerializer(serializers.ModelSerializer):
         model = Account
         fields = (
             'id',
-            'uid',
-            # 'member',
             'name',
-            'apr',
-            'apy',
-            'available_balance',
-            'available_credit',
+            'official_name',
             'balance',
-            'created_at',
-            'day_payment_is_due',
-            'is_closed',
-            'credit_limit',
-            'interest_rate',
-            'last_payment',
-            'last_payment_at',
-            'matures_on',
-            'minimum_balance',
-            'minimum_payment',
-            'original_balance',
-            'payment_due_at',
-            'payoff_balance',
-            'started_on',
-            'subtype',
-            'total_account_value',
+            'mask',
             'type',
             'type_ds',
-            'updated_at',
+            'subtype',
             'transfer_share',
             'is_funding_source_for_transfer',
             'is_dwolla_created',
             'is_active',
             'institution',
+            'item',
             'account_number'
         )
 

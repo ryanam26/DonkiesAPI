@@ -3,25 +3,17 @@ import pytest
 from .import base
 from donkies.tests.services.emulator import Emulator
 from bank.models import FundingSource, FundingSourceIAVLog
-from finance.models import Account
-from .factories import (
-    AccountFactory, InstitutionFactory, MemberFactory, UserFactory)
+from .factories import AccountFactory
 
 
 class TestFundingSource(base.Mixin):
-    def get_account(self, code):
-        user = UserFactory(email='bob@gmail.com')
-        i = InstitutionFactory(code=code)
-        m = MemberFactory(user=user, institution=i)
-        return AccountFactory(member=m, type=Account.SAVINGS)
-
     @pytest.mark.django_db
     def test_create_manual(self, client):
         """
         Manual creation using account_number and routing_number.
         Test API endpoint for creating funding source.
         """
-        account = self.get_account('mxbank')
+        account = AccountFactory.get_account()
         client = self.get_auth_client(account.item.user)
 
         url = '/v1/funding_sources'
@@ -42,7 +34,7 @@ class TestFundingSource(base.Mixin):
         Test when funding source is created
         by IAV from frontend.
         """
-        account = self.get_account('mxbank')
+        account = AccountFactory.get_account()
         dwolla_id = 'some-id'
 
         e = Emulator()

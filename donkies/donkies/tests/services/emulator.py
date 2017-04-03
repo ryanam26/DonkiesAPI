@@ -7,7 +7,7 @@ from finance.models import (
     Account, TransferPrepare, TransferDonkies, TransferDebt)
 from bank.models import FundingSource
 from donkies.tests.factories import (
-    AccountFactory, MemberFactory, TransactionFactory,
+    AccountFactory, ItemFactory, TransactionFactory,
     TransferDonkiesFactory, UserFactory)
 
 
@@ -24,14 +24,14 @@ class Emulator:
         """
         num_days - generate transactions back for num_days.
         Each day has randomly from 3 to 5 transactions.
-        On init fill class with user, members, accounts, transactions.
+        On init fill class with user, items, accounts, transactions.
         """
         self.user = UserFactory(email=Faker().email())
         self.num_debit_accounts = num_debit_accounts
         self.num_debt_accounts = num_debt_accounts
         self.num_days = num_days
 
-        self.members = []
+        self.items = []
         self.debit_accounts = []
         self.debt_accounts = []
         self.transactions = []
@@ -85,18 +85,18 @@ class Emulator:
 
     def fill_debit_accounts(self):
         for _ in range(self.num_debit_accounts):
-            m = MemberFactory.get_member(user=self.user)
-            a = AccountFactory.get_account(member=m, type=Account.CHECKING)
+            item = ItemFactory.get_item(user=self.user)
+            a = AccountFactory.get_account(item=item, type=Account.DEPOSITORY)
 
-            self.members.append(m)
+            self.items.append(item)
             self.debit_accounts.append(a)
 
     def fill_debt_accounts(self):
         for _ in range(self.num_debt_accounts):
-            m = MemberFactory.get_member(user=self.user)
-            a = AccountFactory.get_account(member=m, type=Account.LOAN)
+            item = ItemFactory.get_item(user=self.user)
+            a = AccountFactory.get_account(item=item, type=Account.CREDIT)
 
-            self.members.append(m)
+            self.items.append(item)
             self.debt_accounts.append(a)
 
     def fill_transactions(self, is_today=False):

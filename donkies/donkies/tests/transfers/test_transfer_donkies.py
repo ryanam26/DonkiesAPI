@@ -44,21 +44,21 @@ class TestTransferDonkies(base.Mixin):
         Emulator.run_transfer_prepare()
 
         sum1 = TransferPrepare.objects.filter(
-            is_processed=False, account__member__user=e1.user)\
+            is_processed=False, account__item__user=e1.user)\
             .aggregate(Sum('roundup'))['roundup__sum']
 
         sum2 = TransferPrepare.objects.filter(
-            is_processed=False, account__member__user=e2.user)\
+            is_processed=False, account__item__user=e2.user)\
             .aggregate(Sum('roundup'))['roundup__sum']
 
         Emulator.run_transfer_donkies_prepare()
 
         assert TransferDonkies.objects.count() == 2
 
-        qs = TransferDonkies.objects.filter(account__member__user=e1.user)
+        qs = TransferDonkies.objects.filter(account__item__user=e1.user)
         assert qs.first().amount == sum1
 
-        qs = TransferDonkies.objects.filter(account__member__user=e2.user)
+        qs = TransferDonkies.objects.filter(account__item__user=e2.user)
         assert qs.first().amount == sum2
 
     @pytest.mark.django_db

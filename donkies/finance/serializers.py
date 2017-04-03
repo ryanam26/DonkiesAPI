@@ -61,7 +61,7 @@ class AccountSerializer(serializers.ModelSerializer):
         )
 
     def get_institution(self, obj):
-        i = obj.member.institution
+        i = obj.item.institution
         return InstitutionSerializer(i).data
 
     def get_account_number(self, obj):

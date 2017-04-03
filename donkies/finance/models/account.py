@@ -177,7 +177,7 @@ class Account(ActiveModel):
         (DEBT, 'debt'),
         (OTHER, 'other'))
 
-    item = models.ForeignKey('Item', related_name='items')
+    item = models.ForeignKey('Item', related_name='accounts')
     guid = models.CharField(max_length=100, unique=True)
     plaid_id = models.CharField(max_length=255)
     name = models.CharField(

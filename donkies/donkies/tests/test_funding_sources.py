@@ -22,7 +22,7 @@ class TestFundingSource(base.Mixin):
         Test API endpoint for creating funding source.
         """
         account = self.get_account('mxbank')
-        client = self.get_auth_client(account.member.user)
+        client = self.get_auth_client(account.item.user)
 
         url = '/v1/funding_sources'
         dic = {

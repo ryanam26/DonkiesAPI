@@ -24,7 +24,7 @@ class TestTransactions(base.Mixin):
         Test user with is_even_roundup = True
         """
         t = TransactionFactory.get_transaction()
-        user = t.account.member.user
+        user = t.account.item.user
         user.is_even_roundup = True
         user.save()
 
@@ -37,7 +37,7 @@ class TestTransactions(base.Mixin):
         Test user with is_even_roundup = False
         """
         t = TransactionFactory.get_transaction()
-        user = t.account.member.user
+        user = t.account.item.user
         user.is_even_roundup = False
         user.save()
 

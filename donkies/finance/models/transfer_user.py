@@ -11,8 +11,8 @@ class TransferUserManager(models.Manager):
     def process(self):
         TransferDonkies = apps.get_model('finance', 'TransferDonkies')
         users = TransferDonkies.objects.get_date_queryset()\
-            .order_by('account__member__user_id')\
-            .values_list('account__member__user_id', flat=True)\
+            .order_by('account__item__user_id')\
+            .values_list('account__item__user_id', flat=True)\
             .distinct()
 
         for user_id in users:
@@ -77,7 +77,7 @@ class TransferUserManager(models.Manager):
 
         Account = apps.get_model('finance', 'Account')
         qs = Account.objects.debt_accounts().filter(
-            member__user_id=user_id)
+            item__user_id=user_id)
         if not qs:
             return False
 
@@ -147,7 +147,7 @@ class TransferUser(models.Model):
         TransferDebt = apps.get_model('finance', 'TransferDebt')
 
         user = self.user
-        qs = Account.objects.debt_accounts().filter(member__user=user)
+        qs = Account.objects.debt_accounts().filter(item__user=user)
 
         l = []
         sum = 0

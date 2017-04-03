@@ -46,7 +46,7 @@ class FundingSourceManager(models.Manager):
         fs_log.save()
 
         count = self.model.objects.filter(
-            account__member__user=account.member.user).count()
+            account__item__user=account.item.user).count()
         if count == 1:
             Account.objects.set_funding_source(account.id)
 
@@ -197,7 +197,7 @@ class FundingSource(models.Model):
 
     @property
     def customer(self):
-        return self.account.member.user.customer
+        return self.account.item.user.customer
 
 
 @admin.register(FundingSource)

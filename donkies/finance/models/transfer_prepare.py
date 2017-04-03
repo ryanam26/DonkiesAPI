@@ -52,7 +52,7 @@ class TransferPrepareManager(models.Manager):
             sum = user.get_not_processed_roundup_sum()
             if sum >= settings.TRANSFER_TO_DONKIES_MIN_AMOUNT:
                 qs = Account.objects.active().filter(
-                    type_ds=Account.DEBIT, member__user=user)
+                    type_ds=Account.DEBIT, item__user=user)
                 self.process_roundup(list(qs))
 
     @transaction.atomic

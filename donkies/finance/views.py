@@ -23,7 +23,7 @@ class Accounts(AuthMixin, ListAPIView):
         All accounts including not active.
         """
         return Account.objects.filter(
-            member__user=self.request.user)
+            item__user=self.request.user)
 
 
 class AccountDetail(AuthMixin, RetrieveDestroyAPIView):
@@ -31,7 +31,7 @@ class AccountDetail(AuthMixin, RetrieveDestroyAPIView):
 
     def get_queryset(self):
         return Account.objects.active().filter(
-            member__user=self.request.user)
+            item__user=self.request.user)
 
 
 class AccountsEditShare(AuthMixin, APIView):
@@ -47,7 +47,7 @@ class AccountsEditShare(AuthMixin, APIView):
     """
     def get_queryset(self):
         return Account.objects.active().filter(
-            member__user=self.request.user,
+            item__user=self.request.user,
             type_ds=Account.DEBT)
 
     def get_list(self, data):
@@ -102,14 +102,14 @@ class AccountsSetActive(AuthMixin, APIView):
     def put(self, request, **kwargs):
         id = kwargs['pk']
         account = Account.objects.get(
-            id=id, member__user=request.user)
+            id=id, item__user=request.user)
         is_active = request.data.get('is_active', None)
         if is_active is None:
             return r400('Missing param.')
 
         if is_active is False:
-            member = account.member
-            if member.accounts.filter(is_active=True).count() <= 1:
+            item = account.item
+            if item.accounts.filter(is_active=True).count() <= 1:
                 msg = (
                     'You can not deactivate account. '
                     'You should have at least one active account '
@@ -127,7 +127,7 @@ class AccountsSetNumber(AuthMixin, APIView):
     """
     def post(self, request, **kwargs):
         account = Account.objects.get(
-            id=kwargs['pk'], member__user=request.user)
+            id=kwargs['pk'], item__user=request.user)
 
         account_number = request.data.get('account_number', None)
         if account_number is None:
@@ -147,7 +147,7 @@ class AccountsSetFundingSource(AuthMixin, APIView):
     def post(self, request, **kwargs):
         id = kwargs['pk']
         account = Account.objects.get(
-            id=id, member__user=request.user)
+            id=id, item__user=request.user)
         Account.objects.set_funding_source(account.id)
         return Response(status=201)
 
@@ -203,7 +203,7 @@ class Transactions(AuthMixin, ListAPIView):
 
     def get_queryset(self):
         return Transaction.objects.active().filter(
-            account__member__user=self.request.user)
+            account__item__user=self.request.user)
 
 
 class TransfersDebt(AuthMixin, ListAPIView):
@@ -211,7 +211,7 @@ class TransfersDebt(AuthMixin, ListAPIView):
 
     def get_queryset(self):
         return TransferDebt.objects.filter(
-            account__member__user=self.request.user)
+            account__item__user=self.request.user)
 
 
 class TransfersDonkies(AuthMixin, ListAPIView):
@@ -219,7 +219,7 @@ class TransfersDonkies(AuthMixin, ListAPIView):
 
     def get_queryset(self):
         return TransferDonkies.objects.filter(
-            account__member__user=self.request.user, is_sent=True)
+            account__item__user=self.request.user, is_sent=True)
 
 
 class TransfersPrepare(AuthMixin, ListAPIView):
@@ -227,7 +227,7 @@ class TransfersPrepare(AuthMixin, ListAPIView):
 
     def get_queryset(self):
         return TransferPrepare.objects.filter(
-            account__member__user=self.request.user)
+            account__item__user=self.request.user)
 
 
 class TransfersUser(AuthMixin, ListAPIView):

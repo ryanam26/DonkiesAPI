@@ -132,7 +132,7 @@ class Emulator:
             datetime.timedelta(minutes=random.randint(10, 100))
 
         qs = TransferDonkies.objects.filter(
-            account__member__user=self.user, is_sent=False)
+            account__item__user=self.user, is_sent=False)
         for td in qs:
             td.status = TransferDonkies.PROCESSED
             td.is_initiated = True

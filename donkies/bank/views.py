@@ -48,7 +48,7 @@ class FundingSources(AuthMixin, generics.ListCreateAPIView):
 
     def get_queryset(self):
         return FundingSource.objects.filter(
-            account__member__user=self.request.user)
+            account__item__user=self.request.user)
 
     def post(self, request, **kwargs):
         """
@@ -62,7 +62,7 @@ class FundingSources(AuthMixin, generics.ListCreateAPIView):
 
         try:
             account = Account.objects.get(
-                id=account_id, member__user=self.request.user)
+                id=account_id, item__user=self.request.user)
         except Account.DoesNotExist:
             return r400('Incorrect account.')
 

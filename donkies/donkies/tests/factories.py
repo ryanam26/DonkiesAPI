@@ -111,7 +111,7 @@ class AccountFactory(factory.django.DjangoModelFactory):
     def get_account(item=None, type=Account.DEPOSITORY):
         if not item:
             item = ItemFactory.get_item()
-        return AccountFactory(item=item, type=type)
+        return AccountFactory(item=item, type=type, name=Faker().word())
 
 
 class TransactionFactory(factory.django.DjangoModelFactory):

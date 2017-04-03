@@ -15,15 +15,15 @@ class StatManager(models.Manager):
         TransferDonkies = apps.get_model('finance', 'TransferDonkies')
 
         sum1 = Transaction.objects\
-            .filter(account__member__user_id=user_id, is_processed=False)\
+            .filter(account__item__user_id=user_id, is_processed=False)\
             .aggregate(Sum('roundup'))['roundup__sum']
 
         sum2 = TransferPrepare.objects\
-            .filter(account__member__user_id=user_id, is_processed=False)\
+            .filter(account__item__user_id=user_id, is_processed=False)\
             .aggregate(Sum('roundup'))['roundup__sum']
 
         sum3 = TransferDonkies.objects\
-            .filter(account__member__user_id=user_id, is_sent=False)\
+            .filter(account__item__user_id=user_id, is_sent=False)\
             .aggregate(Sum('amount'))['amount__sum']
 
         sum1 = sum1 if sum1 is not None else 0
@@ -37,7 +37,7 @@ class StatManager(models.Manager):
         """
         TransferDonkies = apps.get_model('finance', 'TransferDonkies')
         sum = TransferDonkies.objects\
-            .filter(account__member__user_id=user_id, is_sent=True)\
+            .filter(account__item__user_id=user_id, is_sent=True)\
             .aggregate(Sum('amount'))['amount__sum']
         if sum is not None:
             return sum
@@ -49,7 +49,7 @@ class StatManager(models.Manager):
         """
         TransferDebt = apps.get_model('finance', 'TransferDebt')
         sum = TransferDebt.objects\
-            .filter(account__member__user_id=user_id, is_processed=True)\
+            .filter(account__item__user_id=user_id, is_processed=True)\
             .aggregate(Sum('amount'))['amount__sum']
         if sum is not None:
             return sum
@@ -70,7 +70,7 @@ class StatManager(models.Manager):
     def get_payments_count(self, user_id):
         TransferDebt = apps.get_model('finance', 'TransferDebt')
         return TransferDebt.objects\
-            .filter(account__member__user_id=user_id, is_processed=True)\
+            .filter(account__item__user_id=user_id, is_processed=True)\
             .count()
 
     def get_json(self, user_id):

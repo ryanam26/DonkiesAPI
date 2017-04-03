@@ -102,8 +102,8 @@ class TransferDonkiesManager(models.Manager):
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
 
         users = TransferPrepare.objects.filter(is_processed=False)\
-            .order_by('account__member__user_id')\
-            .values_list('account__member__user_id', flat=True)\
+            .order_by('account__item__user_id')\
+            .values_list('account__item__user_id', flat=True)\
             .distinct()
 
         for user_id in users:
@@ -125,12 +125,12 @@ class TransferDonkiesManager(models.Manager):
 
         sum = TransferPrepare.objects.filter(
             is_processed=False,
-            account__member__user=user)\
+            account__item__user=user)\
             .aggregate(Sum('roundup'))['roundup__sum']
 
         TransferPrepare.objects.filter(
             is_processed=False,
-            account__member__user=user).update(is_processed=True)
+            account__item__user=user).update(is_processed=True)
 
         tds = self.model(account=fs, amount=sum)
         tds.save()
@@ -271,7 +271,7 @@ class TransferDonkiesManager(models.Manager):
         (do not filter by date)
         """
         return self.get_date_queryset(is_date_filter=is_date_filter).filter(
-            account__member__user_id=user_id)
+            account__item__user_id=user_id)
 
     def get_date(self):
         """
@@ -326,7 +326,7 @@ class TransferDonkies(TransferDwolla):
     @property
     def can_initiate(self):
         if self.is_initiated or self.is_sent or self.is_failed\
-                or self.account.member.user.is_admin:
+                or self.account.item.user.is_admin:
             return False
         return True
 

@@ -32,14 +32,15 @@ class ItemManager(ActiveManager):
         item.save()
         return item
 
-    def delete_item(self, item_id):
+    def delete_item(self, item_id, is_delete_plaid=True):
         """
         Delete item from Plaid.
         Set item, accounts and transactions to is_active=False
         """
         item = self.model.objects.get(id=item_id)
-        pa = PlaidApi()
-        pa.delete_item(item.access_token)
+        if is_delete_plaid:
+            pa = PlaidApi()
+            pa.delete_item(item.access_token)
         self.change_active(item.id, False)
 
     @transaction.atomic

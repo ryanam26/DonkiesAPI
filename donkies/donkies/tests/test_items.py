@@ -1,58 +1,58 @@
 import pytest
-from finance.models import Account, Transaction
+from finance.models import Account, Item, Transaction
+from .factories import AccountFactory, ItemFactory, TransactionFactory
 from . import base
-from .factories import AccountFactory, MemberFactory, TransactionFactory
 
 
 class TestItems(base.Mixin):
     @pytest.mark.django_db
-    def notest_delete01(self):
+    def test_delete01(self):
         """
         Instead of deleting object should set is_active=False
         """
-        m = MemberFactory.get_member()
-        assert m.is_active is True
+        item = ItemFactory.get_item()
+        assert item.is_active is True
 
-        m.delete()
-        m.refresh_from_db()
-        assert m.is_active is False
+        item.delete()
+        item.refresh_from_db()
+        assert item.is_active is False
 
     @pytest.mark.django_db
-    def notest_delete02(self):
+    def test_delete02(self):
         """
         Instead of deleting queryset, should set is_active=False
         """
-        MemberFactory.get_member()
-        MemberFactory.get_member()
+        ItemFactory.get_item()
+        ItemFactory.get_item()
 
-        assert Member.objects.count() == 2
-        Member.objects.all().delete()
-        assert Member.objects.count() == 2
+        assert Item.objects.count() == 2
+        Item.objects.all().delete()
+        assert Item.objects.count() == 2
 
-        for m in Member.objects.all():
+        for m in Item.objects.all():
             assert m.is_active is False
 
     @pytest.mark.django_db
-    def notest_delete03(self):
+    def test_delete03(self):
         """
-        Test calling Member.objects.delete_member method.
-        All Accounts and Transactions of deleted Member should be set
+        Test calling Item.objects.delete_item method.
+        All Accounts and Transactions of deleted Item should be set
         to is_active=False
         """
-        m = MemberFactory.get_member()
+        item = ItemFactory.get_item()
 
-        AccountFactory.get_account(member=m)
-        a = AccountFactory.get_account(member=m)
+        AccountFactory.get_account(item=item)
+        a = AccountFactory.get_account(item=item)
 
         TransactionFactory.get_transaction(account=a)
 
-        assert Member.objects.count() == 1
+        assert Item.objects.count() == 1
         assert Account.objects.count() == 2
         assert Transaction.objects.count() == 1
 
-        Member.objects.delete_member(m.id, is_delete_atrium=False)
+        Item.objects.delete_item(item.id, is_delete_plaid=False)
 
-        for obj in Member.objects.all():
+        for obj in Item.objects.all():
             assert obj.is_active is False
 
         for obj in Account.objects.active().all():
@@ -60,13 +60,3 @@ class TestItems(base.Mixin):
 
         for obj in Transaction.objects.all():
             assert obj.is_active is False
-
-    @pytest.mark.django_db
-    def notest_delete04(self):
-        """
-        Test real deleting. Member should be deleted from database.
-        """
-        m = MemberFactory.get_member()
-        Member.objects.real_delete_member(m.id)
-
-        assert Member.objects.filter(id=m.id).exists() is False

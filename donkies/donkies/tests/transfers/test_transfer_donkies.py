@@ -1,5 +1,6 @@
 import pytest
 from django.db.models import Sum
+from django.conf import settings
 from donkies.tests.services.emulator import Emulator
 from finance.models import (
     TransferPrepare, TransferDonkies, TransferDonkiesFailed)
@@ -8,7 +9,7 @@ from .. import base
 
 class TestTransferDonkies(base.Mixin):
     @pytest.mark.django_db
-    def test01(self):
+    def test_01(self):
         """
         After prepare transfer from TransferPrepare to
         TransferDonkies, TransferDonkies should get 1 row
@@ -28,7 +29,7 @@ class TestTransferDonkies(base.Mixin):
         assert TransferDonkies.objects.count() == 2
 
     @pytest.mark.django_db
-    def test02(self):
+    def test_02(self):
         """
         The amount (total roundup) in TransferDonkies row
         should be equal to total sum in TransferPrepare rows.
@@ -62,7 +63,7 @@ class TestTransferDonkies(base.Mixin):
         assert qs.first().amount == sum2
 
     @pytest.mark.django_db
-    def test03(self):
+    def test_03(self):
         """
         After processing transfers from TransferPrepare to
         TransferFonkies, Transfer prepare shouldn't have
@@ -70,6 +71,10 @@ class TestTransferDonkies(base.Mixin):
         """
         e = Emulator()
         e.init()
+
+        sum = e.user.get_not_processed_roundup_sum()
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+
         Emulator.run_transfer_prepare()
         qs = TransferPrepare.objects.filter(is_processed=False)
         assert qs.count() > 0
@@ -80,7 +85,7 @@ class TestTransferDonkies(base.Mixin):
         assert qs.count() == 0
 
     @pytest.mark.django_db
-    def test04(self):
+    def test_04(self):
         """
         Test moving TransferDonkies item to TransferDonkiesFailed.
         TransferDonkiesFailed should have the copy of the item.
@@ -88,6 +93,10 @@ class TestTransferDonkies(base.Mixin):
         """
         e = Emulator(num_debit_accounts=1)
         e.init()
+
+        sum = e.user.get_not_processed_roundup_sum()
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+
         Emulator.run_transfer_prepare()
         Emulator.run_transfer_donkies_prepare()
 

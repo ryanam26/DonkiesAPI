@@ -4,6 +4,12 @@ from plaid import Client
 
 
 class PlaidApi:
+    """
+    Documentation for Plaid API:
+    https://plaid.github.io/plaid-python/index.html
+    https://github.com/plaid/plaid-python
+    """
+
     def __init__(self):
         env = settings.PLAID_ENV
         if env not in ['production', 'development', 'sandbox']:
@@ -31,6 +37,9 @@ class PlaidApi:
             institution_id=institution_plaid_id,
             initial_products=initial_products,
             webhook='https://example.com/webhook')
+
+    def delete_item(self, access_token):
+        self.client.Item.delete(access_token)
 
     def get_categories(self):
         return self.client.Categories.get()
@@ -69,3 +78,29 @@ class PlaidApi:
 
     def get_institution(self, plaid_id):
         return self.client.Institutions.get_by_id(plaid_id)
+
+    def get_accounts(self, access_token):
+        return self.client.Accounts.get(access_token)
+
+    def get_accounts_info(self, access_token):
+        return self.client.Auth.get(access_token)
+
+
+
+
+
+
+
+
+    def get_balance(self, access_token):
+        return self.client.Balance.get(access_token)
+
+
+    def get_credit_details(self, access_token):
+        return self.client.CreditDetails(access_token)
+
+    def rotate_access_token(self, access_token):
+        self.client.Item.AccessToken.invalidate(access_token)
+
+
+

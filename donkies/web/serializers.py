@@ -174,7 +174,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'guid',
-            'identifier',
             'email',
             'encrypted_id',
             'is_confirmed',
@@ -200,7 +199,6 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
             'guid',
-            'identifier',
             'email',
             'encrypted_id',
             'is_confirmed',

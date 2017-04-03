@@ -5,9 +5,10 @@ import random
 import uuid
 from django.utils import timezone
 from faker import Faker
+from finance.services.plaid_api import PlaidApi
 from web.models import User, Email
 from finance.models import (
-    Account, Member, Institution, Transaction, TransferDonkies)
+    Account, Item, Institution, Transaction, TransferDonkies)
 from bank.models import Customer
 
 
@@ -28,6 +29,10 @@ class UserFactory(factory.django.DjangoModelFactory):
     is_confirmed = True
     confirmed_at = timezone.now() - datetime.timedelta(days=200)
 
+    @staticmethod
+    def get_user():
+        return UserFactory(email=Faker().email())
+
 
 class EmailFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -45,45 +50,40 @@ class InstitutionFactory(factory.django.DjangoModelFactory):
         return Institution.objects.first()
 
 
-class MemberFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Member
+class ItemFactory(factory.django.DjangoModelFactory):
+    USERNAME = 'user_good'
+    PASSWORD_GOOD = 'pass_good'
 
-    user = factory.SubFactory(UserFactory)
-    institution = factory.SubFactory(InstitutionFactory)
-    guid = factory.Sequence(lambda n: 'guid{0}'.format(n))
-    identifier = factory.Sequence(lambda n: 'identifier{0}'.format(n))
-    name = factory.Sequence(lambda n: 'name{0}'.format(n))
-    status = Member.SUCCESS
+    class Meta:
+        model = Item
 
     @staticmethod
-    def get_member(user=None, institution=None, name=None):
-        if not user:
-            user = UserFactory(email=Faker().email())
-        if not institution:
-            code = Faker().word() + str(random.randint(1000, 9999))
-            institution = InstitutionFactory(code=code)
-        if not name:
-            name = Faker().word()
-        return MemberFactory(
-            user=user, institution=institution, name=name)
+    def get_item():
+        user = UserFactory.get_user()
+        i = InstitutionFactory.get_institution()
+        pa = PlaidApi()
+        api_data = pa.create_item(
+            ItemFactory.USERNAME,
+            ItemFactory.PASSWORD_GOOD,
+            i.plaid_id)
+        return Item.objects.create_item(user, api_data)
 
 
 class AccountFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Account
 
-    member = factory.SubFactory(MemberFactory)
+    member = factory.SubFactory(ItemFactory)
     guid = factory.Sequence(lambda n: 'guid{0}'.format(n))
     uid = factory.Sequence(lambda n: 'uid{0}'.format(n))
     name = factory.Sequence(lambda n: 'name{0}'.format(n))
     balance = 1000
     created_at = timezone.now()
-    type = Account.CHECKING
+    type = Account.DEPOSITORY
     updated_at = timezone.now()
 
     @staticmethod
-    def get_account(member=None, type=Account.CHECKING):
+    def get_account(member=None, type=Account.DEPOSITORY):
         if not member:
             member = MemberFactory.get_member()
         return AccountFactory(member=member, type=type)

@@ -6,37 +6,36 @@ from django.apps import apps
 from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.postgres.fields import JSONField
 from web.models import ActiveModel, ActiveManager
 
 
 class AccountManager(ActiveManager):
     @transaction.atomic
-    def create_or_update_accounts(self, user_guid, l):
+    def create_or_update_accounts(self, item, api_data):
         """
-        Input: all user accounts from atrium API.
+        Input: all item's accounts from plaid API.
+        """
+        Item = apps.get_model('finance', 'Item')
 
-        TODO: pagination.
-              Before passing accounts, should collect
-              all of them for each user.
-        """
-        for acc in l:
-            self.create_or_update_account(acc)
+        accounts = api_data['accounts']
+        item = Item.objects.get(plaid_id=api_data['item']['item_id'])
+        for d in accounts:
+            self.create_or_update_account(item, d)
 
-    def create_or_update_account(self, api_response):
+    def create_or_update_account(self, item, data):
         """
-        api_response is dictionary with response result.
+        data is dictionary with response result.
         If account is deleted in Donkies (is_active=False), do not process.
         """
-        Member = apps.get_model('finance', 'Member')
-        d = api_response
-        d.pop('user_guid')
-        d.pop('institution_code')
-        d['member'] = Member.objects.get(guid=d.pop('member_guid'))
-
         m_fields = self.model._meta.get_fields()
         m_fields = [f.name for f in m_fields]
 
-        d = {k: v for (k, v) in d.items() if k in m_fields}
+        d = {k: v for (k, v) in data.items() if k in m_fields}
+        d['item'] = item
+        d['plaid_id'] = data['account_id']
+        print(d)
+        return
 
         try:
             acc = self.model.objects.get(guid=d['guid'])
@@ -121,134 +120,97 @@ class AccountManager(ActiveManager):
             .update(is_active=is_active)
 
 
+"""
+CALL to account info endpoint to get account numbers
+
+{
+    'name': 'Plaid Checking',
+    'account_id': 'doQrm45pBRT8315WlRqzua7aoAd3xWHJgapQK',
+    'type': 'depository',
+    'official_name': 'Plaid Gold Standard 0% Interest Checking',
+    'subtype': 'checking',
+    'balances': {
+        'available': 100,
+        'limit': None,
+        'current': 110
+        },
+    'mask': '0000'
+    }, 
+
+    'item': {
+    'webhook': 'https://example.com/webhook',
+    'error': None,
+    'available_products': ['balance'],
+    'item_id': '6aK79r8z5ktGNL93AKvocA3p7Q3xm8hANRNJo',
+    'institution_id': 'ins_109509',
+    'billed_products': ['auth', 'transactions']
+},
+
+    'numbers': [
+    {'account': '1111222233330000',
+    'routing': '011401533',
+    'account_id': 'doQrm45pBRT8315WlRqzua7aoAd3xWHJgapQK',
+    'wire_routing': '021000021'
+    },
+[
+
+"""
+
+
 class Account(ActiveModel):
     """
-    type - Atrium MX type.
+    type - Plaid type.
     type_ds - Donkies type.
     """
-    CHECKING = 'CHECKING'
-    SAVINGS = 'SAVINGS'
-    CASH = 'CASH'
-    PREPAID = 'PREPAID'
-    LOAN = 'LOAN'
-    CREDIT_CARD = 'CREDIT_CARD'
-    LINE_OF_CREDIT = 'LINE_OF_CREDIT'
-    MORTGAGE = 'MORTGAGE'
-    INVESTMENT = 'INVESTMENT'
-    PROPERTY = 'PROPERTY'
+    DEPOSITORY = 'depository'
+    CREDIT = 'credit'
+    LOAN = 'loan'
+    MORTGAGE = 'mortgage'
+    BROKERAGE = 'brokerage'
+    OTHER = 'other'
 
-    DEBIT_TYPES = (CHECKING, SAVINGS, CASH, PREPAID)
-    DEBT_TYPES = (LOAN, CREDIT_CARD, LINE_OF_CREDIT, MORTGAGE)
-    INVESTMENT_TYPES = (INVESTMENT, PROPERTY)
+    DEBIT_TYPES = [DEPOSITORY]
+    DEBT_TYPES = [CREDIT, LOAN, MORTGAGE]
+
+    TYPE_CHOICES = (
+        (DEPOSITORY, 'depository'),
+        (CREDIT, 'credit'),
+        (LOAN, 'loan'),
+        (MORTGAGE, 'mortgage'),
+        (BROKERAGE, 'brokerage'),
+        (OTHER, 'other'),
+    )
 
     DEBIT = 'debit'
     DEBT = 'debt'
-    INVESTMENT = 'investment'
-    OTHER = 'other'
 
     TYPE_DS_CHOICES = (
         (DEBIT, 'debit'),
         (DEBT, 'debt'),
-        (INVESTMENT, 'investment'),
         (OTHER, 'other'))
 
-    member = models.ForeignKey('Member', related_name='accounts')
+    item = models.ForeignKey('Item', related_name='items')
     guid = models.CharField(max_length=100, unique=True)
-    uid = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=255, null=True, default=None)
-    apr = models.DecimalField(
-        max_digits=10,
-        decimal_places=6,
-        help_text='Annual Percentage Rate.',
-        null=True,
-        default=None)
-    apy = models.DecimalField(
-        max_digits=10,
-        decimal_places=6,
-        help_text='Annual Percentage Yield.',
-        null=True,
-        default=None)
-    available_balance = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        help_text='The current available account balance.',
-        null=True,
-        default=None)
-    available_credit = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        help_text='The current available credit balance of the account.',
-        null=True,
-        default=None)
-    balance = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        help_text='The current Account Balance.',
-        null=True,
-        default=None)
-    created_at = models.DateTimeField(null=True, default=None)
-    day_payment_is_due = models.IntegerField(null=True, default=None)
-    is_closed = models.BooleanField(default=False)
-    credit_limit = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        help_text='The credit limit for the account.',
-        null=True,
-        default=None)
-    interest_rate = models.DecimalField(
-        max_digits=10,
-        decimal_places=6,
-        help_text='Interest rate, %',
-        null=True,
-        default=None)
-    last_payment = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        help_text='Amount of the account\'s last payment.',
-        null=True,
-        default=None)
-    last_payment_at = models.DateTimeField(null=True, default=None)
-    matures_on = models.DateTimeField(null=True, default=None)
-    minimum_balance = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        help_text='Minimum required balance.',
-        null=True,
-        default=None)
-    minimum_payment = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        help_text='Minimum payment.',
-        null=True,
-        default=None)
-    original_balance = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        help_text='Original balance.',
-        null=True,
-        default=None)
-    payment_due_at = models.DateTimeField(null=True, default=None)
-    payoff_balance = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        help_text='Payoff Balance',
-        null=True,
-        default=None)
-    started_on = models.DateTimeField(null=True, default=None)
-    subtype = models.CharField(max_length=255, null=True, default=None)
-    total_account_value = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        help_text='The total value of the account.',
-        null=True,
-        default=None)
-    type = models.CharField(max_length=100, null=True, default=None)
+    plaid_id = models.CharField(max_length=255)
+    name = models.CharField(
+        max_length=255,
+        help_text='Set by user or institution')
+    official_name = models.CharField(
+        max_length=255,
+        help_text='The official name given by the financial institution.')
+    balance = models.IntegerField(null=True, default=None, blank=True)
+    balances = JSONField(null=True, default=None)
+    mask = models.CharField(
+        max_length=4, help_text='Last 4 digits of account number')
+    subtype = models.CharField(
+        max_length=255, null=True, default=None, choices=TYPE_CHOICES)
+    type = models.CharField(
+        max_length=100, null=True, default=None, choices=TYPE_CHOICES)
     type_ds = models.CharField(
         max_length=15,
         help_text='Internal type',
         choices=TYPE_DS_CHOICES,
         default=OTHER)
-    updated_at = models.DateTimeField(null=True, default=None)
     transfer_share = models.IntegerField(
         default=0,
         help_text=(
@@ -261,8 +223,13 @@ class Account(ActiveModel):
         default=False,
         help_text='For debit account. Funding source for transfer.')
     account_number = models.CharField(
-        max_length=100, null=True, default=None, blank=True,
-        help_text='For debt accounts only. Set by user.')
+        max_length=100, null=True, default=None, blank=True)
+    routing_number = models.CharField(
+        max_length=100, null=True, default=None, blank=True)
+    wire_routing = models.CharField(
+        max_length=100, null=True, default=None, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(null=True, default=None)
 
     objects = AccountManager()
 
@@ -270,13 +237,13 @@ class Account(ActiveModel):
         app_label = 'finance'
         verbose_name = 'account'
         verbose_name_plural = 'accounts'
-        ordering = ['type_ds', 'member', 'name']
+        ordering = ['type_ds', 'item', 'name']
 
     def __str__(self):
-        s = self.member.name
+        s = self.item.name
         if self.name:
             s += ' {}'.format(self.name)
-        s += ' ({})'.format(self.member.user.email)
+        s += ' ({})'.format(self.item.user.email)
         return s
 
     @property
@@ -286,6 +253,20 @@ class Account(ActiveModel):
         """
         FundingSource = apps.get_model('bank', 'FundingSource')
         return FundingSource.objects.filter(account=self).first()
+
+    def get_balance(self):
+        """
+        Balance come from API as object:
+        'balances': {
+            'available': 100,
+            'limit': None,
+            'current': 110
+        }
+        Index value to database.
+        """
+        if self.balances is None:
+            return None
+        return self.balances.get('available', None)
 
     @property
     def is_dwolla_created(self):
@@ -300,11 +281,12 @@ class Account(ActiveModel):
         """
         Assume that account can not change type.
         For example: debt account can not be debit.
-        If account can change type: TODO handle this.
         """
         if not self.pk:
             self.type_ds = self.get_ds_type()
-            self.uid = uuid.uuid4().hex
+            self.guid = uuid.uuid4().hex
+
+        self.balance = self.get_balance()
         super().save(*args, **kwargs)
 
     def get_ds_type(self):
@@ -312,8 +294,6 @@ class Account(ActiveModel):
             return self.DEBIT
         if self.type in self.DEBT_TYPES:
             return self.DEBT
-        if self.type in self.INVESTMENT_TYPES:
-            return self.INVESTMENT
         return self.OTHER
 
 
@@ -334,16 +314,31 @@ def apply_transfer_share(sender, instance, created, **kwargs):
 class AccountAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'member',
+        'official_name',
+        'type',
         'type_ds',
+        'subtype',
         'guid',
-        'available_balance',
-        'available_credit',
-        'balance',
-        'credit_limit',
-        'original_balance',
-        'payoff_balance',
-        'account_number'
+        'plaid_id'
+    )
+    readonly_fields = (
+        'item',
+        'guid',
+        'plaid_id',
+        'name',
+        'official_name',
+        'balances',
+        'mask',
+        'subtype',
+        'type',
+        'type_ds',
+        'transfer_share',
+        'is_funding_source_for_transfer',
+        'account_number',
+        'routing_number',
+        'wire_routing',
+        'created_at',
+        'updated_at'
     )
 
     def has_delete_permission(self, request, obj=None):

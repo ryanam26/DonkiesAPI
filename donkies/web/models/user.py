@@ -47,46 +47,6 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_atrium_user(self, user_id):
-        """
-        Do not create atrium user for "admin" user.
-        TODO: processing errors.
-        """
-        User = apps.get_model('web', 'User')
-        user = User.objects.get(id=user_id)
-        if user.is_admin or user.guid:
-            return
-
-        a = AtriumApi()
-        guid = a.create_user(user.identifier)
-        user.guid = guid
-        user.save()
-
-    def delete_atrium_user(self, guid):
-        a = AtriumApi()
-        a.delete_user(guid)
-
-    def clear_atrium(self):
-        """
-        DEV mode only.
-        Used in tests.
-        Delete all users in Atrium.
-        """
-        if settings.ATRIUM_API_MODE == 'DEV':
-            a = AtriumApi()
-            for d in a.get_users():
-                a.delete_user(d['guid'])
-
-    def clean_atrium(self):
-        """
-        Used for production debugging.
-        Delete all users in Atrium.
-        """
-        User.objects.filter(is_admin=False).delete()
-        a = AtriumApi()
-        for d in a.get_users():
-            a.delete_user(d['guid'])
-
 
 class User(AbstractBaseUser):
     TRANSFER_AMOUNT_CHOICES = (
@@ -103,14 +63,7 @@ class User(AbstractBaseUser):
         null=True,
         default=None,
         blank=True,
-        unique=True,
-        help_text='Atrium guid')
-    identifier = models.CharField(
-        max_length=50,
-        null=True,
-        default=None,
-        blank=True,
-        help_text='Used in Atrium')
+        unique=True)
     email = models.EmailField(
         max_length=255, null=True, unique=True, default=None)
     first_name = models.CharField(max_length=50, blank=True, default='')
@@ -199,7 +152,6 @@ class User(AbstractBaseUser):
         default=True, help_text='Auto transfer when reach minimum amount')
     is_even_roundup = models.BooleanField(
         default=False, help_text='Roundup even amounts $1.00, $2.00 etc')
-    is_atrium_created = models.BooleanField(default=False)
     is_signup_completed = models.BooleanField(default=False)
     is_closed_account = models.BooleanField(
         default=False, help_text='User closed account in Donkies')
@@ -262,7 +214,7 @@ class User(AbstractBaseUser):
         """
         Account = apps.get_model('finance', 'Account')
         res = Account.objects.debt_accounts().filter(
-            member__user=self).aggregate(Sum('balance'))
+            item__user=self).aggregate(Sum('balance'))
         debt = res['balance__sum']
         if debt is None:
             return 0
@@ -280,7 +232,7 @@ class User(AbstractBaseUser):
         """
         Account = apps.get_model('finance', 'Account')
         count = Account.objects.debit_accounts().filter(
-            member__user=self).count()
+            item__user=self).count()
         if count > 0:
             return True
         return False
@@ -295,11 +247,11 @@ class User(AbstractBaseUser):
 
     def check_signup_step4(self):
         """
-        User should add debt account to Atrium.
+        User should add debt account to Plaid.
         """
         Account = apps.get_model('finance', 'Account')
         count = Account.objects.debt_accounts().filter(
-            member__user=self).count()
+            item__user=self).count()
         if count > 0:
             return True
         return False
@@ -449,7 +401,7 @@ class User(AbstractBaseUser):
         """
         Account = apps.get_model('finance', 'Account')
         return Account.objects.active().filter(
-            member__user=self, is_funding_source_for_transfer=True).first()
+            item__user=self, is_funding_source_for_transfer=True).first()
 
     def get_not_processed_roundup_sum(self):
         """
@@ -460,7 +412,7 @@ class User(AbstractBaseUser):
         sum = Transaction.objects.active()\
             .filter(
                 account__is_active=True,
-                account__member__user_id=self.id,
+                account__item__user_id=self.id,
                 is_processed=False)\
             .aggregate(Sum('roundup'))['roundup__sum']
         sum = 0 if sum is None else sum
@@ -503,7 +455,7 @@ class User(AbstractBaseUser):
         url_3rd_step = None
         if self.check_signup_step2():
             account = Account.objects.debit_accounts().filter(
-                member__user=self).first()
+                item__user=self).first()
             url_3rd_step = '/create_funding_source?account_uid={}'.format(
                 account.uid)
 
@@ -539,9 +491,8 @@ class User(AbstractBaseUser):
         Close account in Donkies and refund all roundup.
         1) Transfer all funds that currently Donkies hold in Dwolla
            to TransferUser model.
-        2) Delete all user's members, accounts and transactions
+        2) Delete all items, accounts and transactions
             (mark is_active=False)
-        User still exists in Atrium.
         """
         Member = apps.get_model('finance', 'Member')
         TransferUser = apps.get_model('finance', 'TransferUser')
@@ -565,7 +516,7 @@ class User(AbstractBaseUser):
         if created:
             self.confirmation_token = self.generate_token()
             self.encrypted_id = self.encrypt(self.id)
-            self.identifier = uuid.uuid4().hex
+            self.guid = uuid.uuid4().hex
             Token.objects.create(user=self)
             self.save()
 
@@ -703,5 +654,5 @@ class User(AbstractBaseUser):
     @staticmethod
     def get_admin_urls():
         return [
-            (r'^custom/clean_atrium/$', 'clean_atrium'),
+            (r'^custom/clean_plaid/$', 'clean_plaid'),
         ]

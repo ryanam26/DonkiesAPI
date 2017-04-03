@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 
 import web.serializers as sers
 from web.models import User
+from finance.models import Item
 from bank.tasks import create_customer
 
 logger = logging.getLogger('app')
@@ -29,13 +30,13 @@ def r400(error_message):
         'non_field_errors': [error_message]}, status=400)
 
 
-def clean_atrium(request):
+def clean_plaid(request):
     """
     Admin view. Used for debug production.
-    Clean all Atrium.
+    Clean all Plaid items.
     """
-    User.objects.clean_atrium()
-    messages.success(request, 'Atrium has been cleaned.')
+    Item.objects.clean_plaid()
+    messages.success(request, 'Plaid has been cleaned.')
     return HttpResponseRedirect('/admin/web/user/')
 
 

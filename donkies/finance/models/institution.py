@@ -14,8 +14,7 @@ class InstitutionManager(models.Manager):
             i = self.model.objects.get(plaid_id=plaid_id)
         except self.model.DoesNotExist:
             pa = PlaidApi()
-            data = pa.get_institution(plaid_id)
-            d = data['institution']
+            d = pa.get_institution(plaid_id)
             i = self.model(
                 plaid_id=d['institution_id'],
                 name=d['name'],

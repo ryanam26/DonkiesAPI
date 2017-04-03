@@ -73,7 +73,7 @@ class AccountManager(ActiveManager):
             raise ValidationError(message)
 
         self.model.objects.active().filter(
-            member__user=account.member.user)\
+            item__user=account.item.user)\
             .update(is_funding_source_for_transfer=False)
         account.is_funding_source_for_transfer = True
         account.save()
@@ -109,6 +109,7 @@ class AccountManager(ActiveManager):
 """
 CALL to account info endpoint to get account numbers
 pa.get_accounts_info
+Not implemented yet
 
 {
     'name': 'Plaid Checking',
@@ -227,11 +228,8 @@ class Account(ActiveModel):
         ordering = ['type_ds', 'item', 'name']
 
     def __str__(self):
-        s = self.item.name
-        if self.name:
-            s += ' {}'.format(self.name)
-        s += ' ({})'.format(self.item.user.email)
-        return s
+        name = self.name or 'No name'
+        return '{}: ({})'.format(name, self.item.user.email)
 
     @property
     def funding_source(self):

@@ -120,8 +120,9 @@ class TransactionFactory(factory.django.DjangoModelFactory):
 
     account = factory.SubFactory(AccountFactory)
     guid = factory.Sequence(lambda n: 'guid{0}'.format(n))
-    uid = factory.Sequence(lambda n: 'uid{0}'.format(n))
+    plaid_id = factory.Sequence(lambda n: 'plaid_id{0}'.format(n))
     amount = decimal.Decimal('10.56')
+    name = 'Some transaction name'
 
     @staticmethod
     def generate_amount():
@@ -130,20 +131,18 @@ class TransactionFactory(factory.django.DjangoModelFactory):
         return decimal.Decimal('{}.{}'.format(dollars, cents))
 
     @staticmethod
-    def get_transaction(account=None, created_at=None):
+    def get_transaction(account=None, date=None):
         if not account:
             account = AccountFactory.get_account()
 
-        if not created_at:
-            created_at = timezone.now()
+        if not date:
+            date = datetime.date.today()
 
         return TransactionFactory(
             account=account,
             amount=TransactionFactory.generate_amount(),
-            created_at=created_at,
-            updated_at=created_at,
-            transacted_at=created_at,
-            posted_at=created_at
+            date=date,
+            plaid_id=uuid.uuid4().hex,
         )
 
 

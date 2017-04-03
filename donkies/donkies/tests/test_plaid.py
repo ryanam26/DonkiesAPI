@@ -1,11 +1,9 @@
-import datetime
-import json
+import copy
 import pytest
 from finance.services.plaid_api import PlaidApi
-from finance.models import Account, Institution, Item
+from finance.models import Account, Institution, Item, Transaction
 from .import base
-from .factories import (
-    AccountFactory, InstitutionFactory, ItemFactory, UserFactory)
+from .factories import InstitutionFactory, ItemFactory, UserFactory
 
 
 class TestPlaid(base.Mixin):
@@ -68,48 +66,22 @@ class TestPlaid(base.Mixin):
         assert Account.objects.count() == count
 
     @pytest.mark.django_db
-    def test_01(self):
-        # a = AccountFactory.get_account()
-        # print(a.__dict__)
-
+    def notest_create_transactions01(self):
+        """
+        Long test.
+        Transactions are not ready instantly.
+        """
         item = ItemFactory.get_plaid_item()
         token = item.access_token
         pa = PlaidApi()
-        
-        import time
-        time.sleep(20)
-        res = pa.get_transactions(token)
-        print(res)
+        api_data = pa.get_accounts(token)
+        Account.objects.create_or_update_accounts(item, api_data)
 
-"""
-    'payment_meta': {
-        'ppd_id': None,
-        'by_order_of': None,
-        'reference_number': None,
-        'payment_method': None,
-        'payee': None,
-        'reason': None,
-        'payment_processor': None,
-        'payer': None
-    },
-    'location': {
-        'state': None,
-        'zip': None,
-        'address': None,
-        'store_number': None,
-        'lon': None,
-        'city': None,
-        'lat': None
-    },
+        l = Transaction.objects.get_plaid_transactions(item)
+        Transaction.objects.create_or_update_transactions(copy.deepcopy(l))
 
-    'account_id': 'lKq9RqjWQmIlpw1zpeKGUw7wkD8EbaSp9RzMb',
-    'pending': False,
-    'pending_transaction_id': None,
-    'category': None,
-    'transaction_type': 'unresolved',
-    'amount': 5.4,
-    'date': '2017-04-01',
-    'name': 'Uber 063015 SF**POOL**',
-    'category_id': None,
-    'transaction_id': 'nzBM6BepQRiKmjp3mZzGce4oD454RniAxQ7J4'
-"""
+        count = Transaction.objects.count()
+        assert count > 0
+
+        Transaction.objects.create_or_update_transactions(copy.deepcopy(l))
+        assert Transaction.objects.count() == count

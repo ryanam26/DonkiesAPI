@@ -12,7 +12,7 @@ from finance.services.plaid_api import PlaidApi
 
 class TransactionManager(ActiveManager):
     @transaction.atomic
-    def create_or_update_transactions(self, item, l):
+    def create_or_update_transactions(self, l):
         """
         l - list of dicts (api response from Plaid API)
 
@@ -63,7 +63,7 @@ class TransactionManager(ActiveManager):
 
         pa = PlaidApi()
         return pa.get_transactions(
-            item, start_date=start_date, end_date=end_date)
+            item.access_token, start_date=start_date, end_date=end_date)
 
 
 class Transaction(ActiveModel):
@@ -112,8 +112,12 @@ class Transaction(ActiveModel):
         Do not apply roundups for transactions,
         which date less than user's signup date.
         """
+        dt = self.date
+        if isinstance(dt, str):
+            dt = datetime.datetime.strptime(dt, '%Y-%m-%d').date()
+
         user = self.account.item.user
-        if self.date < user.confirmed_at:
+        if dt < user.confirmed_at.date():
             return 0
 
         top = math.ceil(float(value))

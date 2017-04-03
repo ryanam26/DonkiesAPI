@@ -1,8 +1,9 @@
 import datetime
+import time
 from django.conf import settings
 from web.services.helpers import catch_exception
 from plaid import Client
-from plaid.errors import APIError, ItemError
+from plaid.errors import PlaidError
 
 
 class PlaidApi:
@@ -179,8 +180,17 @@ class PlaidApi:
         start_date = start_date.strftime('%Y-%m-%d')
         end_date = end_date.strftime('%Y-%m-%d')
 
-        d = self.client.Transactions.get(
-            access_token, start_date=start_date, end_date=end_date)
+        while True:
+            try:
+                d = self.client.Transactions.get(
+                    access_token, start_date=start_date, end_date=end_date)
+                break
+            except PlaidError as e:
+                if e.code == 'PRODUCT_NOT_READY':
+                    print('Transactions not ready')
+                    time.sleep(20)
+                    continue
+                raise Exception(e)
         transactions = d['transactions']
 
         while len(transactions) < d['total_transactions']:

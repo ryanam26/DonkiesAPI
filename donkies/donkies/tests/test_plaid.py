@@ -1,15 +1,30 @@
+import datetime
 import json
 import pytest
 from finance.services.plaid_api import PlaidApi
 from finance.models import Institution, Item
 from .import base
 from .factories import (
-    InstitutionFactory, ItemFactory, UserFactory)
+    AccountFactory, InstitutionFactory, ItemFactory, UserFactory)
 
 
 class TestPlaid(base.Mixin):
     USERNAME = 'user_good'
     PASSWORD_GOOD = 'pass_good'
+
+    @pytest.mark.django_db
+    def notest_echange_token(self):
+        """
+        Exchange public_token for access token.
+        """
+        item = ItemFactory.get_plaid_item()
+        access_token = item.access_token
+
+        pa = PlaidApi()
+        public_token = pa.create_public_token(access_token)
+        access_token = pa.exchange_public_token(public_token)
+        assert access_token is not None
+        assert isinstance(access_token, str)
 
     @pytest.mark.django_db
     def notest_create_institution(self):
@@ -24,6 +39,10 @@ class TestPlaid(base.Mixin):
 
     @pytest.mark.django_db
     def notest_create_item01(self):
+        """
+        Test to create Item in plaid.
+        Factory method "get_plaid_item" do the same.
+        """
         user = UserFactory.get_user()
         i = InstitutionFactory.get_institution()
         pa = PlaidApi()
@@ -35,34 +54,48 @@ class TestPlaid(base.Mixin):
 
     @pytest.mark.django_db
     def test_01(self):
-        item = ItemFactory.get_item()
+        # a = AccountFactory.get_account()
+        # print(a.__dict__)
+
+        item = ItemFactory.get_plaid_item()
         token = item.access_token
-
         pa = PlaidApi()
-        api_data = pa.get_accounts(token)
-        print(api_data)
-        
-        
 
+        import time
+        time.sleep(20)
 
+        res = pa.get_transactions(token)
+        print(res)
 
+"""
+    'payment_meta': {
+        'ppd_id': None,
+        'by_order_of': None,
+        'reference_number': None,
+        'payment_method': None,
+        'payee': None,
+        'reason': None,
+        'payment_processor': None,
+        'payer': None
+    },
+    'location': {
+        'state': None,
+        'zip': None,
+        'address': None,
+        'store_number': None,
+        'lon': None,
+        'city': None,
+        'lat': None
+    },
 
-        # res = pa.get_balance(token)
-        # print('Balance: ---')
-        # print(res)
-        # print('')
-
-        # res = pa.get_accounts_info(token)
-        # print('Accounts Info: ---')
-        # print(res)
-        # print('')
-
-        # res = pa.get_credit_details(token)
-        # print('Credit Details: ---')
-        # print(res)
-        # print('')
-
-        # res = pa.rotate_access_token(token)
-        # print('Rotate access token: ---')
-        # print(res)
-        # print('')
+    'account_id': 'lKq9RqjWQmIlpw1zpeKGUw7wkD8EbaSp9RzMb',
+    'pending': False,
+    'pending_transaction_id': None,
+    'category': None,
+    'transaction_type': 'unresolved',
+    'amount': 5.4,
+    'date': '2017-04-01',
+    'name': 'Uber 063015 SF**POOL**',
+    'category_id': None,
+    'transaction_id': 'nzBM6BepQRiKmjp3mZzGce4oD454RniAxQ7J4'
+"""

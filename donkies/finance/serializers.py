@@ -1,9 +1,8 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from finance.models import (
-    Account, Institution, LinkDebt, Member,
-    Transaction, TransferDonkies, TransferPrepare,
-    TransferUser, TransferDebt)
+    Account, Institution, Transaction,
+    TransferDonkies, TransferPrepare, TransferUser, TransferDebt)
 
 
 class InstitutionSerializer(serializers.ModelSerializer):
@@ -17,90 +16,8 @@ class InstitutionSerializer(serializers.ModelSerializer):
         )
 
 
-class LinkDebtCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LinkDebt
-        fields = (
-            'account',
-            'share'
-        )
-
-    def create(self, data):
-        try:
-            ld = LinkDebt.objects.create_link(data['account'], data['share'])
-        except ValidationError as e:
-            raise serializers.ValidationError(e)
-        return ld
-
-
-class MemberSerializer(serializers.ModelSerializer):
-    institution = InstitutionSerializer()
-    challenges = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Member
-        fields = (
-            'id',
-            'institution',
-            'identifier',
-            'name',
-            'status',
-            'aggregated_at',
-            'successfully_aggregated_at',
-            'metadata',
-            'status_info',
-            'challenges'
-        )
-
-    def get_challenges(self, obj):
-        if obj.status == Member.CHALLENGED:
-            qs = Challenge.objects.filter(member=obj)
-            s = ChallengeSerializer(qs, many=True)
-            return s.data
-        return []
-
-
-class MemberCreateSerializer(serializers.ModelSerializer):
-    institution_code = serializers.CharField()
-    credentials = serializers.JSONField()
-
-    class Meta:
-        model = Member
-        fields = (
-            'institution_code',
-            'credentials'
-        )
-
-    def save(self, user):
-        data = self.validated_data
-        code = data['institution_code']
-        credentials = data['credentials']
-        try:
-            m = Member.objects.get_or_create_member(
-                user.guid, code, credentials)
-        except:
-            raise serializers.ValidationError(
-                'Can not create account. Please try again later.')
-        # In case recreate member
-        m.status = Member.REQUESTED
-        m.save()
-        return m
-
-
-class MemberResumeSerializer(serializers.Serializer):
-    """
-    Frontend send challenges as list of [{guid:..., value: ...},]
-    """
-    challenges = serializers.JSONField()
-
-    class Meta:
-        fields = (
-            'challenges',
-        )
-
-
 class AccountSerializer(serializers.ModelSerializer):
-    member = MemberSerializer()
+    # member = MemberSerializer()
     institution = serializers.SerializerMethodField()
     account_number = serializers.SerializerMethodField()
 
@@ -109,7 +26,7 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'uid',
-            'member',
+            # 'member',
             'name',
             'apr',
             'apy',
@@ -154,17 +71,6 @@ class AccountSerializer(serializers.ModelSerializer):
         if obj.account_number is None:
             return None
         return obj.account_number[-4:]
-
-
-class LinkDebtSerializer(serializers.ModelSerializer):
-    account = AccountSerializer()
-
-    class Meta:
-        model = LinkDebt
-        fields = (
-            'account',
-            'share'
-        )
 
 
 class TransactionSerializer(serializers.ModelSerializer):

@@ -39,32 +39,32 @@ class ItemManager(ActiveManager):
         """
         item = self.model.objects.get(id=item_id)
         pa = PlaidApi()
+        pa.delete_item(item.access_token)
+        self.change_active(item.id, False)
 
     @transaction.atomic
-    def change_active(self, member_id, is_active):
+    def change_active(self, item_id, is_active):
         """
-        is_active = True - besides member itself,
+        is_active = True - besides item itself,
                     activates also all accounts.
-        is_active = False - besides member itself,
+        is_active = False - besides item itself,
                     deactivates also all accounts.
         """
         Account = apps.get_model('finance', 'Account')
-        for account in Account.objects.filter(member_id=member_id):
+        for account in Account.objects.filter(item_id=item_id):
             Account.objects.change_active(account.id, is_active)
-        self.model.objects.filter(id=member_id).update(is_active=is_active)
-
-        self.change_active(member.id, False)
+        self.model.objects.filter(id=item_id).update(is_active=is_active)
 
     def clean_plaid(self):
         """
         Used for production debugging.
         Delete all items in Plaid.
         """
+        User = apps.get_model('web', 'User')
+        pa = PlaidApi()
+        for item in self.model.objects.all():
+            pa.delete_item(item.access_token)
         User.objects.filter(is_admin=False).delete()
-        a = AtriumApi()
-        for d in a.get_users():
-            a.delete_user(d['guid'])
-
 
 
 class Item(ActiveModel):
@@ -72,7 +72,8 @@ class Item(ActiveModel):
     institution = models.ForeignKey('Institution')
     plaid_id = models.CharField(max_length=255, unique=True)
     access_token = models.CharField(max_length=255, unique=True)
-    request_id = models.CharField(max_length=100)
+    request_id = models.CharField(
+        max_length=100, null=True, default=None, blank=True)
     webhook = models.CharField(
         max_length=50, null=True, default=None, blank=True)
     available_products = JSONField(null=True, default=None)

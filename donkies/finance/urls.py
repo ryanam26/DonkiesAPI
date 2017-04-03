@@ -48,26 +48,6 @@ urlpatterns = [
         name='institution'),
 
     url(
-        r'^(?P<version>(v1))/link_debts$',
-        v.LinkDebts.as_view(),
-        name='link_debts'),
-
-    url(
-        r'^(?P<version>(v1))/members$',
-        v.Members.as_view(),
-        name='members'),
-
-    url(
-        r'^(?P<version>(v1))/members/(?P<identifier>\w+)$',
-        v.MemberDetail.as_view(),
-        name='member'),
-
-    url(
-        r'^(?P<version>(v1))/members/resume/(?P<identifier>\w+)$',
-        v.MemberResume.as_view(),
-        name='member_resume'),
-
-    url(
         r'^(?P<version>(v1))/stat$',
         v.StatView.as_view(),
         name='stat'),

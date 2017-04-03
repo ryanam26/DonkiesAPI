@@ -1,6 +1,8 @@
+import datetime
 from django.conf import settings
 from web.services.helpers import catch_exception
 from plaid import Client
+from plaid.errors import APIError, ItemError
 
 
 class PlaidApi:
@@ -37,6 +39,11 @@ class PlaidApi:
             institution_id=institution_plaid_id,
             initial_products=initial_products,
             webhook='https://example.com/webhook')
+
+    def get_item(self, access_token):
+        d = self.client.Item.get(access_token)
+        # request_id = d['request_id']
+        return d['item']
 
     def delete_item(self, access_token):
         self.client.Item.delete(access_token)
@@ -77,30 +84,111 @@ class PlaidApi:
         return self.client.Institutions.get(count, offset)
 
     def get_institution(self, plaid_id):
-        return self.client.Institutions.get_by_id(plaid_id)
+        d = self.client.Institutions.get_by_id(plaid_id)
+        return d['institution']
 
     def get_accounts(self, access_token):
+        """
+        Returns accounts for particular item.
+        """
         return self.client.Accounts.get(access_token)
 
     def get_accounts_info(self, access_token):
+        """
+        Returns extended accounts with account's numbers.
+        """
         return self.client.Auth.get(access_token)
 
+    def get_balances(self, access_token):
+        """
+        Returns accounts with balances.
+        """
+        return self.client.Accounts.balance.get(access_token)
 
+    def create_public_token(self, access_token):
+        """
+        Returns public_token (string).
+        """
+        d = self.client.Item.public_token.create(access_token)
+        return d['public_token']
 
-
-
-
-
-
-    def get_balance(self, access_token):
-        return self.client.Balance.get(access_token)
-
-
-    def get_credit_details(self, access_token):
-        return self.client.CreditDetails(access_token)
+    def exchange_public_token(self, public_token):
+        """
+        Frontend Link returns public_token.
+        We need to exchange it for access token.
+        Returns access_token (string).
+        """
+        d = self.client.Item.public_token.exchange(public_token)
+        return d['access_token']
 
     def rotate_access_token(self, access_token):
-        self.client.Item.AccessToken.invalidate(access_token)
+        """
+        Updates access token.
+        Returns access_token (string).
+        """
+        d = self.client.Item.access_token.invalidate(access_token)
+        return d['new_access_token']
 
+    def update_webhook(self, access_token, webhook):
+        self.client.update(access_token, webhook)
 
+    def get_identity(self, access_token):
+        """
+        Requires additional permissions.
+        In Sandbox raises error.
+        """
+        return self.client.Identity.get(access_token)
 
+    def get_income(self, access_token):
+        """
+        Requires additional permissions.
+        In Sandbox raises error.
+        """
+        return self.client.Income.get(access_token)
+
+    def get_credit_details(self, access_token):
+        """
+        Requires additional permissions.
+        In Sandbox raises error.
+        """
+        return self.client.CreditDetails.get(access_token)
+
+    def reset_login(self, access_token):
+        """
+        Sandbox only.
+        Put an item into an ITEM_LOGIN_REQUIRED error state.
+        """
+        self.client.Sandbox.item.reset_login(access_token)
+
+    def get_transactions(self, access_token, start_date=None, end_date=None):
+        """
+        If start_date is None: set 2 weeks ago.
+        If end_date is None: set today.
+
+        "start_date" and "end_date" can be passed as
+        Date or DateTime objects.
+
+        If transactions are not ready yet, raises ItemError.
+        """
+        if start_date is None:
+            start_date = datetime.date.today() - datetime.timedelta(days=14)
+
+        if end_date is None:
+            end_date = datetime.date.today()
+
+        start_date = start_date.strftime('%Y-%m-%d')
+        end_date = end_date.strftime('%Y-%m-%d')
+
+        d = self.client.Transactions.get(
+            access_token, start_date=start_date, end_date=end_date)
+        transactions = d['transactions']
+
+        while len(transactions) < d['total_transactions']:
+            d = self.client.Transactions.get(
+                access_token,
+                start_date=start_date,
+                end_date=end_date,
+                offset=len(transactions)
+            )
+            transactions.extend(d['transactions'])
+        return transactions

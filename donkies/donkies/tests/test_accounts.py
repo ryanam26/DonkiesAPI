@@ -107,7 +107,7 @@ class TestAccounts(base.Mixin):
     @pytest.mark.django_db
     def test_deactivate_account(self, client):
         """
-        1) Can deactivate if there are otehr active accounts.
+        1) Can deactivate if there are others active accounts.
         2) Can not deactivate last active account in member.
         """
         a1 = AccountFactory.get_account()

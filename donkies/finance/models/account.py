@@ -8,6 +8,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.postgres.fields import JSONField
 from web.models import ActiveModel, ActiveManager
+from finance.services.plaid_api import PlaidApi
 
 
 class AccountManager(ActiveManager):
@@ -34,8 +35,6 @@ class AccountManager(ActiveManager):
         d = {k: v for (k, v) in data.items() if k in m_fields}
         d['item'] = item
         d['plaid_id'] = data['account_id']
-        print(d)
-        return
 
         try:
             acc = self.model.objects.get(guid=d['guid'])
@@ -47,23 +46,10 @@ class AccountManager(ActiveManager):
         acc.save()
         return acc
 
-    def get_atrium_accounts(self, user_guid):
-        """
-        Queries atrium API for user's accounts.
-        TODO: processing errors.
-        """
-        per_page = 100
-
-        a = AtriumApi()
-        res = a.get_accounts(user_guid, records_per_page=per_page)
-        return res['accounts']
-
-    def get_accounts(self, user_guid):
-        """
-        Returns user accounts from database.
-        """
-        return self.model.objects.active().filter(
-            member__user__guid=user_guid)
+    def get_plaid_accounts(self, access_token):
+        pa = PlaidApi()
+        d = pa.get_accounts(access_token)
+        return d['accounts']
 
     def debit_accounts(self):
         return self.model.objects.active().filter(type_ds=self.model.DEBIT)
@@ -122,6 +108,7 @@ class AccountManager(ActiveManager):
 
 """
 CALL to account info endpoint to get account numbers
+pa.get_accounts_info
 
 {
     'name': 'Plaid Checking',
@@ -266,7 +253,7 @@ class Account(ActiveModel):
         """
         if self.balances is None:
             return None
-        return self.balances.get('available', None)
+        return self.balances.get('current', None)
 
     @property
     def is_dwolla_created(self):

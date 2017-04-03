@@ -1,7 +1,9 @@
 """
 !!! Generator should be refactored.
-As condition for sending transfers to Donkies has been changed
+1) As condition for sending transfers to Donkies has been changed
 from "by time" to "by amount".
+
+2) Atrium refactored to Plaid
 
 Creates fake data for admin user.
 python manage.py generator

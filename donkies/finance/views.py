@@ -8,11 +8,9 @@ from rest_framework.views import APIView
 
 import finance.serializers as sers
 from web.views import AuthMixin, r400
-from finance import tasks
 from finance.models import (
-    Account, Institution, LinkDebt, Member, Stat,
-    Transaction, TransferPrepare, TransferDonkies,
-    TransferUser, TransferDebt)
+    Account, Institution, Item, Stat, Transaction,
+    TransferPrepare, TransferDonkies, TransferUser, TransferDebt)
 
 logger = logging.getLogger('app')
 
@@ -168,7 +166,7 @@ class InstitutionsSuggest(AuthMixin, APIView):
             return Response([])
 
         # Exisiting user's institutions.
-        qs = Member.objects.active()\
+        qs = Item.objects.active()\
             .filter(user=request.user)\
             .values_list('institution_id', flat=True)
         ids = list(qs)
@@ -190,83 +188,6 @@ class Institutions(AuthMixin, ListAPIView):
 class InstitutionDetail(AuthMixin, RetrieveAPIView):
     serializer_class = sers.InstitutionSerializer
     queryset = Institution.objects.all()
-
-
-class LinkDebts(AuthMixin, ListCreateAPIView):
-    serializer_class = sers.LinkDebtSerializer
-
-    def get_queryset(self):
-        return LinkDebt.objects.filter(user=self.request.user)
-
-    def post(self, request, **kwargs):
-        d = request.data
-        try:
-            Account.objects.get(
-                member__user=self.request.user, id=d['account'])
-        except Account.DoesNotExist:
-            r400('Incorrect account.')
-
-        s = sers.LinkDebtCreateSerializer(data=d)
-        s.is_valid(raise_exception=True)
-        s.save()
-        return Response(s.data, status=201)
-
-
-class Members(AuthMixin, ListAPIView):
-    serializer_class = sers.MemberSerializer
-
-    def get_queryset(self):
-        return Member.objects.active().filter(user=self.request.user)
-
-    def post(self, request, **kwargs):
-        s = sers.MemberCreateSerializer(data=request.data)
-        s.is_valid(raise_exception=True)
-        member = s.save(user=request.user)
-        s = sers.MemberSerializer(member)
-
-        # Call celery task, that will call Atrium API
-        # until get finished status and save updated member
-        # to database
-        tasks.get_member.delay(member.id)
-
-        return Response(s.data, status=201)
-
-
-class MemberDetail(AuthMixin, RetrieveDestroyAPIView):
-    serializer_class = sers.MemberSerializer
-    lookup_field = 'identifier'
-
-    def get_queryset(self):
-        return Member.objects.active().filter(user=self.request.user)
-
-    def perform_destroy(self, instance):
-        Member.objects.delete_member(instance.id)
-
-
-class MemberResume(AuthMixin, APIView):
-    """
-    Used when member has challenges.
-    """
-    def post(self, request, identifier, **kwargs):
-        try:
-            m = Member.objects.get(
-                user=self.request.user, identifier=identifier)
-        except Member.DoesNotExist:
-            raise Http404()
-
-        s = sers.MemberResumeSerializer(data=request.data)
-        s.is_valid(raise_exception=True)
-
-        Member.objects.resume_member(
-            m.guid, challenges=s.data['challenges'])
-
-        m.status = Member.REQUESTED
-        m.save()
-
-        # Call celery task, that should update member's status
-        tasks.get_member.delay(m.id)
-
-        return Response(status=204)
 
 
 class StatView(AuthMixin, APIView):

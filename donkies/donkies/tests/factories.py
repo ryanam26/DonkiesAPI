@@ -58,14 +58,37 @@ class ItemFactory(factory.django.DjangoModelFactory):
         model = Item
 
     @staticmethod
-    def get_item():
-        user = UserFactory.get_user()
-        i = InstitutionFactory.get_institution()
+    def get_item(user=None, institution=None):
+        """
+        Returns fake item, that doesn't exist in Plaid.
+        """
+        if user is None:
+            user = UserFactory.get_user()
+        if institution is None:
+            institution = InstitutionFactory.get_institution()
+        item = Item(
+            user=user,
+            institution=institution,
+            plaid_id=uuid.uuid4().hex,
+            access_token=uuid.uuid4().hex
+        )
+        item.save()
+        return item
+
+    @staticmethod
+    def get_plaid_item(user=None, institution=None):
+        """
+        Creates item in Plaid's Sandbox API.
+        """
+        if user is None:
+            user = UserFactory.get_user()
+        if institution is None:
+            institution = InstitutionFactory.get_institution()
         pa = PlaidApi()
         api_data = pa.create_item(
             ItemFactory.USERNAME,
             ItemFactory.PASSWORD_GOOD,
-            i.plaid_id)
+            institution.plaid_id)
         return Item.objects.create_item(user, api_data)
 
 
@@ -73,20 +96,22 @@ class AccountFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Account
 
-    member = factory.SubFactory(ItemFactory)
+    item = factory.SubFactory(ItemFactory)
+    plaid_id = factory.Sequence(lambda n: 'plaid_id{0}'.format(n))
     guid = factory.Sequence(lambda n: 'guid{0}'.format(n))
-    uid = factory.Sequence(lambda n: 'uid{0}'.format(n))
     name = factory.Sequence(lambda n: 'name{0}'.format(n))
-    balance = 1000
+    official_name = factory.Sequence(lambda n: 'name{0}'.format(n))
+    balances = {'available': 1000, 'current': 1000}
+    mask = 1111
     created_at = timezone.now()
     type = Account.DEPOSITORY
     updated_at = timezone.now()
 
     @staticmethod
-    def get_account(member=None, type=Account.DEPOSITORY):
-        if not member:
-            member = MemberFactory.get_member()
-        return AccountFactory(member=member, type=type)
+    def get_account(item=None, type=Account.DEPOSITORY):
+        if not item:
+            item = ItemFactory.get_item()
+        return AccountFactory(item=item, type=type)
 
 
 class TransactionFactory(factory.django.DjangoModelFactory):

@@ -15,7 +15,7 @@ class AccountManager(ActiveManager):
     @transaction.atomic
     def create_or_update_accounts(self, item, api_data):
         """
-        Input: all item's accounts from plaid API.
+        Input: api response from plaid API.
         """
         Item = apps.get_model('finance', 'Item')
 
@@ -37,7 +37,7 @@ class AccountManager(ActiveManager):
         d['plaid_id'] = data['account_id']
 
         try:
-            acc = self.model.objects.get(guid=d['guid'])
+            acc = self.model.objects.get(plaid_id=d['plaid_id'])
             if not acc.is_active:
                 return None
             acc.__dict__.update(d)
@@ -291,7 +291,7 @@ def apply_transfer_share(sender, instance, created, **kwargs):
     """
     if instance.type_ds == Account.DEBT:
         qs = Account.objects.active().filter(
-            member__user=instance.member.user, type_ds=Account.DEBT)
+            item__user=instance.item.user, type_ds=Account.DEBT)
         if qs.count() == 1:
             Account.objects.active().filter(
                 id=instance.id).update(transfer_share=100)

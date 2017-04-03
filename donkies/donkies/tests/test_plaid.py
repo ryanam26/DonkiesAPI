@@ -2,7 +2,7 @@ import datetime
 import json
 import pytest
 from finance.services.plaid_api import PlaidApi
-from finance.models import Institution, Item
+from finance.models import Account, Institution, Item
 from .import base
 from .factories import (
     AccountFactory, InstitutionFactory, ItemFactory, UserFactory)
@@ -53,6 +53,21 @@ class TestPlaid(base.Mixin):
         assert isinstance(item, Item) is True
 
     @pytest.mark.django_db
+    def notest_create_accounts01(self):
+        """
+        Test model's manager method.
+        """
+        item = ItemFactory.get_plaid_item()
+        token = item.access_token
+        pa = PlaidApi()
+        api_data = pa.get_accounts(token)
+        Account.objects.create_or_update_accounts(item, api_data)
+        count = Account.objects.count()
+        assert count > 0
+        Account.objects.create_or_update_accounts(item, api_data)
+        assert Account.objects.count() == count
+
+    @pytest.mark.django_db
     def test_01(self):
         # a = AccountFactory.get_account()
         # print(a.__dict__)
@@ -60,10 +75,9 @@ class TestPlaid(base.Mixin):
         item = ItemFactory.get_plaid_item()
         token = item.access_token
         pa = PlaidApi()
-
+        
         import time
         time.sleep(20)
-
         res = pa.get_transactions(token)
         print(res)
 

@@ -1,29 +1,23 @@
 import datetime
 import math
 import uuid
-import time
 from django.db import models
 from django.contrib import admin
 from django.apps import apps
-from django.utils import timezone
 from django.db import transaction
+from django.contrib.postgres.fields import JSONField
 from web.models import ActiveModel, ActiveManager
+from finance.services.plaid_api import PlaidApi
 
 
 class TransactionManager(ActiveManager):
     @transaction.atomic
-    def create_or_update_transactions(self, user_guid, l):
+    def create_or_update_transactions(self, item, l):
         """
-        Input: all user transactions from atrium API.
+        l - list of dicts (api response from Plaid API)
 
         1) Create new transactions.
-        2) Or update transactions that already exists and
-            updated_at less that 2 weeks ago.
-
-
-        TODO: pagination.
-              Before passing accounts, should collect
-              all of them for each user.
+        2) Or update transactions that already exists.
         """
         for tr in l:
             self.create_or_update_transaction(tr)
@@ -37,11 +31,11 @@ class TransactionManager(ActiveManager):
         Account = apps.get_model('finance', 'Account')
         d = api_response
 
-        d.pop('user_guid', None)
-        d.pop('member_guid', None)
-        d['account'] = Account.objects.get(guid=d.pop('account_guid'))
+        account_plaid_id = d.pop('account_id')
+        d['account'] = Account.objects.get(plaid_id=account_plaid_id)
         if not d['account'].is_active:
             return None
+        d['plaid_id'] = d.pop('transaction_id')
 
         m_fields = self.model._meta.get_fields()
         m_fields = [f.name for f in m_fields]
@@ -49,68 +43,27 @@ class TransactionManager(ActiveManager):
         d = {k: v for (k, v) in d.items() if k in m_fields}
 
         try:
-            dt = timezone.now() - datetime.timedelta(days=14)
-            tr = self.model.objects.get(guid=d['guid'])
-            if tr.updated_at < dt:
-                return tr
+            tr = self.model.objects.get(plaid_id=d['plaid_id'])
             tr.__dict__.update(d)
         except self.model.DoesNotExist:
             tr = self.model(**d)
         tr.save()
         return tr
 
-    def get_atrium_transactions(self, user_guid, from_date=None, to_date=None):
+    def get_plaid_transactions(self, item, start_date=None, end_date=None):
         """
-        Queries atrium API for user's transactions.
-        from_date and to_date: datetime.date objects.
-
-        from_date shouldn't be less, that the date of user's signup.
-        TODO: processing errors.
+        Queries Plaid API for items's transactions.
+        start_date and end_date: datetime.date objects.
         """
-        User = apps.get_model('web', 'User')
-        user = User.objects.get(guid=user_guid)
+        if start_date is None:
+            start_date = datetime.date.today() - datetime.timedelta(days=14)
 
-        page = 1
-        per_page = 100
+        if end_date is None:
+            end_date = datetime.date.today()
 
-        today = datetime.date.today()
-        if from_date is None:
-            from_date = today - datetime.timedelta(days=14)
-            if from_date < user.confirmed_at.date():
-                from_date = user.confirmed_at
-
-        if to_date is None:
-            to_date = today
-
-        from_date = from_date.strftime('%Y-%m-%d')
-        to_date = to_date.strftime('%Y-%m-%d')
-
-        l = []
-
-        while True:
-            time.sleep(0.5)
-
-            a = AtriumApi()
-            res = a.get_transactions(
-                user_guid,
-                from_date=from_date,
-                to_date=to_date,
-                records_per_page=per_page,
-                page=page)
-
-            l += res['transactions']
-            if res['pagination']['total_pages'] <= page:
-                break
-            page += 1
-
-        return l
-
-    def get_transactions(self, user_guid):
-        """
-        Returns transactions from database.
-        """
-        return self.model.objects.active().filter(
-            account__member__user__guid=user_guid)
+        pa = PlaidApi()
+        return pa.get_transactions(
+            item, start_date=start_date, end_date=end_date)
 
 
 class Transaction(ActiveModel):
@@ -121,41 +74,24 @@ class Transaction(ActiveModel):
     """
     account = models.ForeignKey('Account', related_name='transactions')
     guid = models.CharField(max_length=100, unique=True)
-    uid = models.CharField(max_length=50, unique=True)
+    plaid_id = models.CharField(max_length=100, unique=True)
     amount = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, default=None)
-    check_number = models.IntegerField(null=True, default=None)
-    check_number_string = models.CharField(
-        max_length=255, null=True, default=None, blank=True)
-    category = models.CharField(max_length=255, null=True, default=None)
-    created_at = models.DateTimeField(null=True, default=None)
     date = models.DateField(null=True, default=None)
-    description = models.CharField(max_length=3000, null=True, default=None)
-    is_bill_pay = models.NullBooleanField()
-    is_direct_deposit = models.NullBooleanField()
-    is_expense = models.NullBooleanField()
-    is_fee = models.NullBooleanField()
-    is_income = models.NullBooleanField()
-    is_overdraft_fee = models.NullBooleanField()
-    is_payroll_advance = models.NullBooleanField()
-    latitude = models.DecimalField(
-        max_digits=10, decimal_places=6, null=True, default=None)
-    longitude = models.DecimalField(
-        max_digits=10, decimal_places=6, null=True, default=None)
-    memo = models.CharField(max_length=255, null=True, default=None)
-    merchant_category_code = models.IntegerField(null=True, default=None)
-    original_description = models.CharField(
-        max_length=3000, null=True, default=None)
-    posted_at = models.DateTimeField(null=True, default=None)
-    status = models.CharField(max_length=50)
-    top_level_category = models.CharField(
+    name = models.CharField(
         max_length=255, null=True, default=None)
-    transacted_at = models.DateTimeField(null=True, default=None)
-    type = models.CharField(max_length=50)
-    updated_at = models.DateTimeField(null=True, default=None)
+    transaction_type = models.CharField(
+        max_length=50, null=True, default=None)
+    category = JSONField(null=True, default=None)
+    category_id = models.CharField(max_length=100, null=True, default=None)
+    pending = models.BooleanField(default=False)
+    pending_transaction_id = models.CharField(
+        max_length=255, null=True, default=None)
+    payment_meta = JSONField(null=True, default=None)
+    location = JSONField(null=True, default=None)
     roundup = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, default=None,
-        help_text='Internal field. "Change" amount.')
+        help_text='Internal field. "Roundup" amount.')
     is_processed = models.NullBooleanField(
         default=False,
         help_text='Internal flag. Roundup has been transferred')
@@ -166,16 +102,24 @@ class Transaction(ActiveModel):
         app_label = 'finance'
         verbose_name = 'transaction'
         verbose_name_plural = 'transactions'
-        ordering = ['account', '-transacted_at']
+        ordering = ['account', '-date']
 
     def __str__(self):
         return self.uid
 
     def calculate_roundup(self, value):
+        """
+        Do not apply roundups for transactions,
+        which date less than user's signup date.
+        """
+        user = self.account.item.user
+        if self.date < user.confirmed_at:
+            return 0
+
         top = math.ceil(float(value))
         roundup = top - value
         if roundup == 0:
-            if not self.account.member.user.is_even_roundup:
+            if not self.account.item.user.is_even_roundup:
                 return 0
             elif value > 0:
                 return 1
@@ -184,7 +128,7 @@ class Transaction(ActiveModel):
     def save(self, *args, **kwargs):
         Account = apps.get_model('finance', 'Account')
         if not self.pk:
-            self.uid = uuid.uuid4().hex
+            self.guid = uuid.uuid4().hex
 
         if self.account.type_ds == Account.DEBIT and not self.is_processed:
             self.roundup = self.calculate_roundup(self.amount)
@@ -198,16 +142,32 @@ class Transaction(ActiveModel):
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
     list_display = (
-        'created_at',
+        'date',
         'account',
-        'status',
         'amount',
         'roundup',
-        'is_expense',
-        'category',
-        'description',
+        'name',
+        'category'
     )
     list_filter = ('account',)
+
+    readonly_fields = (
+        'account',
+        'guid',
+        'plaid_id',
+        'amount',
+        'date',
+        'name',
+        'transaction_type',
+        'category',
+        'category_id',
+        'pending',
+        'pending_transaction_id',
+        'payment_meta',
+        'location',
+        'roundup',
+        'is_processed'
+    )
 
     def has_delete_permission(self, request, obj=None):
         return False

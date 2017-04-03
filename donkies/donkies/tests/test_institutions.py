@@ -1,50 +1,33 @@
 import pytest
 from finance.models import Institution
-from finance.services.atrium_api import AtriumApi
-from .factories import UserFactory, MemberFactory
+from .factories import UserFactory, InstitutionFactory, ItemFactory
 from .import base
-
-
-@pytest.fixture(scope='module')
-def institutions():
-    a = AtriumApi()
-    d = a.search_institutions(name='Wells Fargo')
-    return {'list': d['institutions']}
 
 
 class TestInstitutions(base.Mixin):
     """
-    Test institutions and credentials on Atrium.
+    Sandbox institutions.
+
+    First Gingham Credit Union
+    First Platypus Bank
+    Houndstooth Bank
+    Tartan Bank
+    Tattersall Federal Credit Union
     """
-    WELLS_FARGO_CODE = 'wells_fargo'
-
-    def init(self, institutions):
-        for d in institutions:
-            Institution.objects.update(**d)
+    def init(self):
+        # Besides gettings, creates few institutions
+        InstitutionFactory.get_institution()
 
     @pytest.mark.django_db
-    def test_update(self, client, institutions):
-        """
-        Test manager's method "update".
-        """
-        assert Institution.objects.count() == 0
-        self.init(institutions['list'])
-
-        assert Institution.objects.count() > 0
-
-        qs = Institution.objects.filter(code=self.WELLS_FARGO_CODE)
-        assert qs.exists() is True
-
-    @pytest.mark.django_db
-    def test_suggest01(self, client, institutions):
+    def test_suggest01(self, client):
         """
         Test institutions suggest endpoint.
         """
-        self.init(institutions['list'])
+        self.init()
         user = UserFactory(email='bob@gmail.com')
         client = self.get_auth_client(user)
 
-        url = '/v1/institutions_suggest?value=we'
+        url = '/v1/institutions_suggest?value=ta'
         response = client.get(url)
         assert response.status_code == 200
 
@@ -52,81 +35,34 @@ class TestInstitutions(base.Mixin):
         assert len(rd) > 0
 
     @pytest.mark.django_db
-    def test_suggest02(self, client, institutions):
+    def test_suggest02(self, client):
         """
         Test institutions suggest endpoint.
-        When user already created member for particular institution,
+        When user already created item for particular institution,
         this institution should be excluded from suggested result.
-        Test institutions: wells_fargo
+        Test institutions: Tartan Bank
         """
-        self.init(institutions['list'])
+        self.init()
 
         user = UserFactory(email='bob@gmail.com')
         client = self.get_auth_client(user)
 
-        url = '/v1/institutions_suggest?value=we'
+        url = '/v1/institutions_suggest?value=tartan'
         response = client.get(url)
         assert response.status_code == 200
 
         rd = response.json()
         assert len(rd) == 1
 
-        i = Institution.objects.first()
+        i = Institution.objects.filter(name__icontains='Tartan').first()
+        ItemFactory.get_item(user=user, institution=i)
 
-        # Create member with Wells fargo
-        MemberFactory.get_member(user=user, institution=i)
-
-        # As soon as user has wells_fargo, it should be excluded
+        # As soon as user has Tartan Bank, it should be excluded
         # from suggest results.
 
-        url = '/v1/institutions_suggest?value=we'
+        url = '/v1/institutions_suggest?value=tartan'
         response = client.get(url)
         assert response.status_code == 200
 
         rd = response.json()
         assert len(rd) == 0
-
-    @pytest.mark.django_db
-    def test_get_credentials(self, client):
-        """
-        Get credentials from Atrium for particular institution.
-        """
-        a = AtriumApi()
-        res = a.get_credentials(self.WELLS_FARGO_CODE)
-        assert len(res) > 0
-
-    @pytest.mark.django_db
-    def test_get_credentials_by_id(self, client, institutions):
-        """
-        Test API endpoint.
-        """
-        self.init(institutions['list'])
-        user = UserFactory(email='bob@gmail.com')
-        client = self.get_auth_client(user)
-
-        i = Institution.objects.get(code=self.WELLS_FARGO_CODE)
-
-        url = '/v1/credentials/live/id/{}'.format(i.id)
-        response = client.get(url)
-        assert response.status_code == 200
-
-        l = response.json()
-        assert len(l) > 0
-
-    @pytest.mark.django_db
-    def test_get_credentials_by_code(self, client, institutions):
-        """
-        Test API endpoint.
-        """
-        self.init(institutions['list'])
-        user = UserFactory(email='bob@gmail.com')
-        client = self.get_auth_client(user)
-
-        i = Institution.objects.get(code=self.WELLS_FARGO_CODE)
-
-        url = '/v1/credentials/live/code/{}'.format(i.code)
-        response = client.get(url)
-        assert response.status_code == 200
-
-        l = response.json()
-        assert len(l) > 0

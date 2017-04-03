@@ -177,6 +177,7 @@ class InstitutionsSuggest(AuthMixin, APIView):
 
         for i in qs:
             l.append({'value': i.name, 'id': i.id})
+
         return Response(l)
 
 

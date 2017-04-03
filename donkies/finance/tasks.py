@@ -13,7 +13,7 @@ rs = settings.REDIS_DB
 logger = logging.getLogger('console')
 
 # The number of attempts to get member before exit.
-MAX_ATTEMPTS = 10
+MAX_ATTEMPTS = 50
 
 
 @periodic_task(run_every=crontab(minute=20, hour='*'))
@@ -59,6 +59,7 @@ def get_member(member_id, attempt=0):
 
     try:
         am = Member.objects.get_atrium_member(member)
+        print(am, am.status)
     except NotFoundError:
         return
     except Exception as e:
@@ -163,7 +164,7 @@ def update_institutions():
     # Institution.objects.update_credentials()
 
 
-@periodic_task(run_every=crontab(minute='*', hour='*'))
+@periodic_task(run_every=crontab(minute='*/35', hour='*'))
 def update_member_stat():
     """
     Updates MemberStat model.

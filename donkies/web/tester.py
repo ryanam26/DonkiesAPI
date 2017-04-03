@@ -105,6 +105,11 @@ class Tester:
                 if member.status == Member.HALTED:
                     a.aggregate_member(member.user_guid, member.guid)
 
+    def delete_member(self, user_guid, member_guid):
+        from finance.services.atrium_api import AtriumApi
+        a = AtriumApi()
+        a.delete_member(user_guid, member_guid)
+
     def get_transactions(self, user_id):
         User = apps.get_model('web', 'User')
         Transaction = apps.get_model('finance', 'Transaction')
@@ -115,6 +120,15 @@ class Tester:
 
 if __name__ == '__main__':
     t = Tester()
+
+    # from web.models import User
+    # user = User.objects.filter(guid__icontains='b6bd97fc3416').first()
+
+    # for d in t.get_members(user.id):
+    #     print(d)
+    #     t.delete_member(d.user_guid, d.guid)
+
+    # t.print_users()
 
     # from finance.services.atrium_api import AtriumApi
     # a = AtriumApi()

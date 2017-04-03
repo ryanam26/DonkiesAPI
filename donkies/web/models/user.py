@@ -22,7 +22,6 @@ from django.core.validators import RegexValidator
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from web.services.helpers import get_md5
-from finance import tasks
 
 
 class UserManager(BaseUserManager):
@@ -494,14 +493,14 @@ class User(AbstractBaseUser):
         2) Delete all items, accounts and transactions
             (mark is_active=False)
         """
-        Member = apps.get_model('finance', 'Member')
+        Item = apps.get_model('finance', 'Item')
         TransferUser = apps.get_model('finance', 'TransferUser')
 
         TransferUser.objects.process_user(self.id, force_process=True)
 
-        qs = Member.objects.active().filter(user=self)
-        for m in qs:
-            Member.objects.delete_member(m.id, is_delete_atrium=False)
+        qs = Item.objects.active().filter(user=self)
+        for item in qs:
+            Item.objects.delete_item(item.id)
 
         self.is_closed_account = True
         self.save()
@@ -509,8 +508,6 @@ class User(AbstractBaseUser):
     def save(self, *args, **kwargs):
         Token = apps.get_model('web', 'Token')
         created = True if not self.pk else False
-        if self.guid:
-            self.is_atrium_created = True
         super().save(*args, **kwargs)
 
         if created:
@@ -519,10 +516,6 @@ class User(AbstractBaseUser):
             self.guid = uuid.uuid4().hex
             Token.objects.create(user=self)
             self.save()
-
-            # Create atrium user in background
-            tasks.create_atrium_user.apply_async(
-                args=[self.id], countdown=5)
 
         # If user completed all signup steps - mark in db.
         if not self.is_signup_completed:

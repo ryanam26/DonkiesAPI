@@ -38,10 +38,11 @@ class EmailFactory(factory.django.DjangoModelFactory):
 class InstitutionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Institution
-        django_get_or_create = ('code',)
 
-    name = factory.Sequence(lambda n: 'Name{0}'.format(n))
-    url = factory.Sequence(lambda n: 'Url{0}'.format(n))
+    @staticmethod
+    def get_institution():
+        Institution.objects.create_sandbox_institutions()
+        return Institution.objects.first()
 
 
 class MemberFactory(factory.django.DjangoModelFactory):

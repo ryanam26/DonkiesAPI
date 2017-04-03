@@ -9,7 +9,6 @@ from rest_framework.views import APIView
 import finance.serializers as sers
 from web.views import AuthMixin, r400
 from finance import tasks
-from finance.services.atrium_api import AtriumApi
 from finance.models import (
     Account, Institution, LinkDebt, Member, Stat,
     Transaction, TransferPrepare, TransferDonkies,

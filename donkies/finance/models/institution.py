@@ -11,6 +11,20 @@ class InstitutionManager(models.Manager):
             i.save()
         return i
 
+    def create_sandbox_institutions(self):
+        """
+        Used for sandbox tests.
+        """
+        l = [
+            ('First Platypus Bank', 'ins_109508'),
+            ('First Gingham Credit Union', 'ins_109509'),
+            ('Tattersall Federal Credit Union', 'ins_109510'),
+            ('Tartan Bank', 'ins_109511'),
+            ('Houndstooth Bank', 'ins_109512')
+        ]
+        for name, plaid_id in l:
+            self.get_or_create_institution(name, plaid_id)
+
 
 class Institution(models.Model):
     plaid_id = models.CharField(max_length=100, unique=True)

@@ -3,9 +3,9 @@ Signup flow.
 After signup user need to go through following steps:
 
 1) Complete profile
-2) Add debit bank to Atrium
+2) Add debit bank to Plaid
 3) Add debit bank to Dwolla (IAV)
-4) Add debt to Atrium
+4) Add debt to Plaid
 """
 
 import datetime
@@ -22,7 +22,6 @@ from django.core.validators import RegexValidator
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from web.services.helpers import get_md5
-from finance.services.atrium_api import AtriumApi
 from finance import tasks
 
 

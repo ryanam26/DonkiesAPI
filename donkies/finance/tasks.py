@@ -1,6 +1,5 @@
 import datetime
 import logging
-from atrium.errors import NotFoundError
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings

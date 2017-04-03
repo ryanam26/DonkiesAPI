@@ -5,7 +5,6 @@ from django.contrib import admin
 from django.apps import apps
 from django.db import connection
 from django.contrib.postgres.fields import JSONField
-from finance.services.atrium_api import AtriumApi
 from web.models import ActiveModel, ActiveManager
 
 

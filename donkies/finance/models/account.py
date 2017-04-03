@@ -2,7 +2,6 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib import admin
-from finance.services.atrium_api import AtriumApi
 from django.apps import apps
 from django.db import transaction
 from django.db.models.signals import post_save

@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib import admin
 from django.db import transaction
@@ -43,12 +44,12 @@ class ItemManager(ActiveManager):
         item.save()
         return item
 
-    def delete_item(self, item_id):
+    def delete_item(self, id):
         """
         Delete item from Plaid.
         Set item, accounts and transactions to is_active=False
         """
-        item = self.model.objects.get(id=item_id)
+        item = self.model.objects.get(id=id)
         if settings.TESTING is False:
             pa = PlaidApi()
             pa.delete_item(item.access_token)
@@ -82,6 +83,7 @@ class ItemManager(ActiveManager):
 class Item(ActiveModel):
     user = models.ForeignKey('web.User', related_name='items')
     institution = models.ForeignKey('Institution')
+    guid = models.CharField(max_length=50, unique=True)
     plaid_id = models.CharField(max_length=255, unique=True)
     access_token = models.CharField(max_length=255, unique=True)
     webhook = models.CharField(
@@ -101,6 +103,11 @@ class Item(ActiveModel):
 
     def __str__(self):
         return self.plaid_id
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.guid = uuid.uuid4().hex
+        super().save(*args, **kwargs)
 
 
 @admin.register(Item)

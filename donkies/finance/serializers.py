@@ -16,12 +16,15 @@ class InstitutionSerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='institution.name')
+
     class Meta:
         model = Item
         fields = (
             'id',
             'plaid_id',
-            'institution'
+            'institution',
+            'name'
         )
 
 

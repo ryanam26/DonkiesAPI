@@ -53,6 +53,11 @@ urlpatterns = [
         name='items'),
 
     url(
+        r'^(?P<version>(v1))/items/(?P<guid>\w+)$',
+        v.ItemDetail.as_view(),
+        name='item_detail'),
+
+    url(
         r'^(?P<version>(v1))/plaid/webhooks$',
         v.PlaidWebhooks.as_view(),
         name='plaid_webhooks'),

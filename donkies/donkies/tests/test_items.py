@@ -120,3 +120,32 @@ class TestItems(base.Mixin):
 
         for obj in Transaction.objects.all():
             assert obj.is_active is False
+
+    @pytest.mark.django_db
+    def test_delete_item04(self):
+        """
+        Test API endpoint to delete item.
+        """
+        item = ItemFactory.get_item()
+
+        AccountFactory.get_account(item=item)
+        a = AccountFactory.get_account(item=item)
+
+        TransactionFactory.get_transaction(account=a)
+
+        assert Item.objects.count() == 1
+        assert Account.objects.count() == 2
+        assert Transaction.objects.count() == 1
+
+        client = self.get_auth_client(item.user)
+        url = '/v1/items/{}'.format(item.guid)
+        client.delete(url)
+
+        for obj in Item.objects.all():
+            assert obj.is_active is False
+
+        for obj in Account.objects.active().all():
+            assert obj.is_active is False
+
+        for obj in Transaction.objects.all():
+            assert obj.is_active is False

@@ -212,6 +212,17 @@ class Items(AuthMixin, ListCreateAPIView):
         return Response(s.data, status=201)
 
 
+class ItemDetail(AuthMixin, RetrieveDestroyAPIView):
+    serializer_class = sers.ItemSerializer
+    lookup_field = 'guid'
+
+    def get_queryset(self):
+        return Item.objects.active().filter(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        Item.objects.delete_item(instance.id)
+
+
 class PlaidWebhooks(APIView):
     def post(self, request, **kwargs):
         data = request.data

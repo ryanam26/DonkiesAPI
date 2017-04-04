@@ -444,8 +444,11 @@ class User(AbstractBaseUser):
         self.profile_image.save(filename, ContentFile(bytes))
 
     def signup_steps(self):
-        if not settings.PRODUCTION:
-            return None
+        # Temporarily disable check
+        return None
+
+        # if not settings.PRODUCTION:
+        #     return None
 
         Account = apps.get_model('finance', 'Account')
         if self.is_signup_completed:
@@ -455,8 +458,8 @@ class User(AbstractBaseUser):
         if self.check_signup_step2():
             account = Account.objects.debit_accounts().filter(
                 item__user=self).first()
-            url_3rd_step = '/create_funding_source?account_uid={}'.format(
-                account.uid)
+            url_3rd_step = '/create_funding_source?account_guid={}'.format(
+                account.guid)
 
         return [
             {

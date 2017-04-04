@@ -110,7 +110,7 @@ class Transaction(ActiveModel):
         ordering = ['account', '-date']
 
     def __str__(self):
-        return self.uid
+        return self.guid
 
     def calculate_roundup(self, value):
         """

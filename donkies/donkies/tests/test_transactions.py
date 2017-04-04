@@ -1,7 +1,7 @@
 import pytest
 from decimal import Decimal
 from .import base
-from .factories import TransactionFactory
+from .factories import AccountFactory, TransactionFactory
 
 
 class TestTransactions(base.Mixin):
@@ -10,7 +10,6 @@ class TestTransactions(base.Mixin):
     If setting is true, then amounts with x.00 rounded up to $1
     If setting is false, skip this roundup.
     """
-
     @pytest.mark.django_db
     def test_roundup01(self, client):
         t = TransactionFactory.get_transaction()
@@ -52,3 +51,17 @@ class TestTransactions(base.Mixin):
         """
         t = TransactionFactory.get_transaction()
         assert t.calculate_roundup(Decimal('0.00')) == Decimal('0.00')
+
+    @pytest.mark.django_db
+    def test_get_transactions(self, client):
+        """
+        Test API endpoint.
+        """
+        account = AccountFactory.get_account()
+        for _ in range(5):
+            TransactionFactory.get_transaction(account=account)
+
+        client = self.get_auth_client(account.item.user)
+        url = '/v1/transactions'
+        response = client.get(url)
+        assert response.status_code == 200

@@ -1,12 +1,11 @@
 import logging
-from django.http import Http404
+import finance.serializers as sers
 from django.core.exceptions import ValidationError
 from rest_framework.generics import (
-    ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
+    ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-import finance.serializers as sers
+from finance.tasks import process_plaid_webhooks
 from web.views import AuthMixin, r400
 from finance.models import (
     Account, Institution, Item, Stat, Transaction,
@@ -189,6 +188,12 @@ class Institutions(AuthMixin, ListAPIView):
 class InstitutionDetail(AuthMixin, RetrieveAPIView):
     serializer_class = sers.InstitutionSerializer
     queryset = Institution.objects.all()
+
+
+class PlaidWebhooks(APIView):
+    def post(self, request, **kwargs):
+        data = request.data
+        process_plaid_webhooks.delay(data)
 
 
 class StatView(AuthMixin, APIView):

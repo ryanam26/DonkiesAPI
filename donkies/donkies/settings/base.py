@@ -253,6 +253,9 @@ REDIS_DB = redis.StrictRedis(host='127.0.0.1', port=6379, db=2)
 # Plaid API mode production/development/sandbox
 PLAID_ENV = 'development'
 
+# Plaid webhook url.
+PLAID_WEBHOOKS_URL = BACKEND_URL + '/v1/plaid/webhooks'
+
 # Dwolla API mode PROD/DEV
 DWOLLA_API_MODE = 'DEV'
 

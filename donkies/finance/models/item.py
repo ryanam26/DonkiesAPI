@@ -39,7 +39,7 @@ class ItemManager(ActiveManager):
         Set item, accounts and transactions to is_active=False
         """
         item = self.model.objects.get(id=item_id)
-        if settings.PLAID_ENV != 'sandbox':
+        if settings.TESTING is False:
             pa = PlaidApi()
             pa.delete_item(item.access_token)
         self.change_active(item.id, False)

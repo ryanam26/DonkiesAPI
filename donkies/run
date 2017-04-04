@@ -66,6 +66,7 @@ clear
 # py.test -s donkies/tests/test_institutions.py
 # py.test -s donkies/tests/test_items.py
 # py.test -s donkies/tests/test_plaid.py
+py.test -s donkies/tests/test_plaid_webhooks.py
 # py.test -s donkies/tests/test_transactions.py
 # py.test -s donkies/tests/test_users.py
 
@@ -73,7 +74,7 @@ clear
 # Transfers
 # py.test -s donkies/tests/transfers/test_api.py
 # py.test -s donkies/tests/transfers/test_transactions.py
-py.test -s donkies/tests/transfers/test_transfer_donkies.py
+# py.test -s donkies/tests/transfers/test_transfer_donkies.py
 # py.test -s donkies/tests/transfers/test_transfer_prepare.py
 # py.test -s donkies/tests/transfers/test_transfer_user.py
 

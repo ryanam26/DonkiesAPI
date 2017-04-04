@@ -13,31 +13,9 @@ logger = logging.getLogger('console')
 
 
 @capp.task
-def update_accounts(item):
-    """
-    Updates accounts and transactions of particular user.
-    """
-    # Account = apps.get_model('finance', 'Account')
-    # Transaction = apps.get_model('finance', 'Transaction')
-    # User = apps.get_model('web', 'User')
-    # user = User.objects.get(id=user_id)
-    # if user.is_admin:
-    #     return
-
-    # logger.debug('Task: update atrium user: {}'.format(user.email))
-
-    # l = Account.objects.get_atrium_accounts(user.guid)
-    # Account.objects.create_or_update_accounts(user.guid, l)
-    # logger.debug('Task: accounts updated.')
-
-    # l = Transaction.objects.get_atrium_transactions(user.guid)
-    # Transaction.objects.create_or_update_transactions(user.guid, l)
-    # logger.debug('Task: transactions updated.')
-
-
-@capp.task
-def update_transactions(item):
-    pass
+def process_plaid_webhooks(data):
+    PlaidWebhook = apps.get_model('finance', 'PlaidWebhook')
+    PlaidWebhook.objects.process_webhook(data)
 
 
 # --- Transfers to Dwolla

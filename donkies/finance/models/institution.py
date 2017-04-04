@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib import admin
+from django.db import transaction
 from django.contrib.postgres.fields import JSONField
 from finance.services.plaid_api import PlaidApi
 
@@ -25,12 +26,22 @@ class InstitutionManager(models.Manager):
             i.save()
         return i
 
-    def create_institution(self, name, plaid_id):
+    def create_institution(self, api_data):
+        """
+        Creates or updates.
+        """
+        d = api_data
         try:
-            i = self.model.objects.get(plaid_id=plaid_id)
+            i = self.model.objects.get(plaid_id=d['institution_id'])
         except self.model.DoesNotExist:
-            i = self.model(name=name, plaid_id=plaid_id)
-            i.save()
+            i = self.model(plaid_id=d['institution_id'])
+
+        i.name = d['name']
+        i.products = d.get('products', None)
+        i.credentials = d.get('credentials', None)
+        i.has_mfa = d.get('has_mfa', None)
+        i.mfa = d.get('mfa', None)
+        i.save()
         return i
 
     def create_sandbox_institutions(self):
@@ -45,7 +56,33 @@ class InstitutionManager(models.Manager):
             ('Houndstooth Bank', 'ins_109512')
         ]
         for name, plaid_id in l:
-            self.create_institution(name, plaid_id)
+            self.create_sandbox_institution(name, plaid_id)
+
+    def create_sandbox_institution(self, name, plaid_id):
+        try:
+            i = self.model.objects.get(plaid_id=plaid_id)
+        except self.model.DoesNotExist:
+            i = self.model(name=name, plaid_id=plaid_id)
+            i.save()
+        return i
+
+    @transaction.atomic
+    def fetch_all_institutions(self):
+        """
+        Fetch all institutions from Plaid and save to db.
+        """
+        pa = PlaidApi()
+        d = pa.get_institutions(100, offset=0)
+        institutions = d['institutions']
+        for data in institutions:
+            self.create_institution(data)
+
+        while len(institutions) < d['total']:
+            d = pa.get_institutions(100, offset=len(institutions))
+            for data in d['institutions']:
+                self.create_institution(data)
+            institutions.extend(d['institutions'])
+            print(len(institutions))
 
 
 class Institution(models.Model):
@@ -75,11 +112,17 @@ class InstitutionAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'plaid_id',
+        'has_mfa',
+        'products',
         'sort',
     )
     list_editable = ('sort',)
-    search_fields = ('name', 'plaid_id')
+    search_fields = ('name', 'plaid_id', 'products')
     readonly_fields = (
         'plaid_id',
-        'name'
+        'name',
+        'has_mfa',
+        'mfa',
+        'credentials',
+        'products'
     )

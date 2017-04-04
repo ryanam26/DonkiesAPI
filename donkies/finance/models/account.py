@@ -13,11 +13,14 @@ from finance.services.plaid_api import PlaidApi
 
 class AccountManager(ActiveManager):
     @transaction.atomic
-    def create_or_update_accounts(self, item, api_data):
+    def create_or_update_accounts(self, access_token):
         """
         Input: api response from plaid API.
         """
         Item = apps.get_model('finance', 'Item')
+
+        pa = PlaidApi()
+        api_data = pa.get_accounts(access_token)
 
         accounts = api_data['accounts']
         item = Item.objects.get(plaid_id=api_data['item']['item_id'])

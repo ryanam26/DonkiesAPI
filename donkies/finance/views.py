@@ -6,7 +6,6 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from finance.tasks import process_plaid_webhooks
-from finance.services.plaid_api import PlaidApi
 from web.views import AuthMixin, r400
 from finance.models import (
     Account, Institution, Item, Stat, Transaction,
@@ -198,9 +197,17 @@ class Items(AuthMixin, ListCreateAPIView):
         return Item.objects.filter(user=self.request.user)
 
     def post(self, request, **kwargs):
+        """
+        Initially Item is created in Plaid by Plaid Link.
+        Plaid Link returns public_token.
+        Using this token fetch Item and Accounts from Plaid
+        and create them in database.
+        """
         public_token = request.data.get('public_token')
         item = Item.objects.create_item_by_public_token(
             request.user, public_token)
+
+        Account.objects.create_or_update_accounts(item.access_token)
         s = sers.ItemSerializer(item)
         return Response(s.data, status=201)
 

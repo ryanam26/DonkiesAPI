@@ -51,37 +51,31 @@ class TestPlaid(base.Mixin):
         assert isinstance(item, Item) is True
 
     @pytest.mark.django_db
-    def test_create_accounts01(self):
+    def test_create_update_accounts01(self):
         """
         Test model's manager method.
         """
         item = ItemFactory.get_plaid_item()
         token = item.access_token
-        pa = PlaidApi()
-        api_data = pa.get_accounts(token)
-        Account.objects.create_or_update_accounts(item, api_data)
+        Account.objects.create_or_update_accounts(token)
         count = Account.objects.count()
         assert count > 0
-        Account.objects.create_or_update_accounts(item, api_data)
+        Account.objects.create_or_update_accounts(token)
         assert Account.objects.count() == count
 
     @pytest.mark.django_db
-    def test_create_transactions01(self):
+    def test_create_update_transactions01(self):
         """
         Long test.
         Transactions are not ready instantly.
         """
         item = ItemFactory.get_plaid_item()
         token = item.access_token
-        pa = PlaidApi()
-        api_data = pa.get_accounts(token)
-        Account.objects.create_or_update_accounts(item, api_data)
-
-        l = Transaction.objects.get_plaid_transactions(item)
-        Transaction.objects.create_or_update_transactions(copy.deepcopy(l))
+        Account.objects.create_or_update_accounts(token)
+        Transaction.objects.create_or_update_transactions(token)
 
         count = Transaction.objects.count()
         assert count > 0
 
-        Transaction.objects.create_or_update_transactions(copy.deepcopy(l))
+        Transaction.objects.create_or_update_transactions(token)
         assert Transaction.objects.count() == count

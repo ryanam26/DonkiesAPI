@@ -50,6 +50,7 @@ class TestItems(base.Mixin):
     def test_create_item02(self):
         """
         Test create_item API endpoint by public_token.
+        Item and Accounts should be created.
         """
         public_token = self.get_public_token()
         user = UserFactory.get_user()
@@ -62,6 +63,7 @@ class TestItems(base.Mixin):
         response = client.post(url, data, content_type='application/json')
         assert response.status_code == 201
         assert Item.objects.count() == 1
+        assert Account.objects.count() > 0
 
     @pytest.mark.django_db
     def test_delete01(self):

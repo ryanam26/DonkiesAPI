@@ -12,13 +12,18 @@ from finance.services.plaid_api import PlaidApi
 
 class TransactionManager(ActiveManager):
     @transaction.atomic
-    def create_or_update_transactions(self, l):
+    def create_or_update_transactions(
+            self, access_token, start_date=None, end_date=None):
         """
-        l - list of dicts (api response from Plaid API)
-
         1) Create new transactions.
         2) Or update transactions that already exists.
         """
+        Item = apps.get_model('finance', 'Item')
+        item = Item.objects.get(access_token=access_token)
+
+        l = self.get_plaid_transactions(
+            item, start_date=start_date, end_date=end_date)
+
         for tr in l:
             self.create_or_update_transaction(tr)
 

@@ -56,7 +56,8 @@ class PlaidWebhookManager(models.Manager):
         Transaction = apps.get_model('finance', 'Transaction')
         self.create_webhook(item, data)
         if settings.TESTING is False:
-            Transaction.objects.get_plaid_transactions(item)
+            Transaction.objects.create_or_update_transactions(
+                item.access_token)
 
     def process_historical_update(self, item, data):
         """
@@ -65,7 +66,8 @@ class PlaidWebhookManager(models.Manager):
         Transaction = apps.get_model('finance', 'Transaction')
         self.create_webhook(item, data)
         if settings.TESTING is False:
-            Transaction.objects.get_plaid_transactions(item)
+            Transaction.objects.create_or_update_transactions(
+                item.access_token)
 
     def process_default_update(self, item, data):
         """
@@ -74,7 +76,8 @@ class PlaidWebhookManager(models.Manager):
         Transaction = apps.get_model('finance', 'Transaction')
         self.create_webhook(item, data)
         if settings.TESTING is False:
-            Transaction.objects.get_plaid_transactions(item)
+            Transaction.objects.create_or_update_transactions(
+                item.access_token)
 
     def process_removed_transactions(self, item, data):
         """

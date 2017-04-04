@@ -85,11 +85,11 @@ class ItemFactory(factory.django.DjangoModelFactory):
         if institution is None:
             institution = InstitutionFactory.get_institution()
         pa = PlaidApi()
-        api_data = pa.create_item(
+        d = pa.create_item(
             ItemFactory.USERNAME,
             ItemFactory.PASSWORD_GOOD,
             institution.plaid_id)
-        return Item.objects.create_item(user, api_data)
+        return Item.objects.create_item(user, d)
 
 
 class AccountFactory(factory.django.DjangoModelFactory):

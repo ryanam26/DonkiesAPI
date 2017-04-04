@@ -35,16 +35,21 @@ class PlaidApi:
         """
         if initial_products is None:
             initial_products = ['transactions', 'auth']
-        return self.client.Item.create(
+        api_data = self.client.Item.create(
             credentials=dict(username=username, password=password),
             institution_id=institution_plaid_id,
             initial_products=initial_products,
             webhook='https://example.com/webhook')
+        d = api_data['item']
+        d['access_token'] = api_data['access_token']
+        return d
 
     def get_item(self, access_token):
-        d = self.client.Item.get(access_token)
-        # request_id = d['request_id']
-        return d['item']
+        api_data = self.client.Item.get(access_token)
+        d = api_data['item']
+        d['request_id'] = api_data['request_id']
+        d['access_token'] = access_token
+        return d
 
     def delete_item(self, access_token):
         self.client.Item.delete(access_token)

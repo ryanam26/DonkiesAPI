@@ -48,6 +48,11 @@ urlpatterns = [
         name='institution'),
 
     url(
+        r'^(?P<version>(v1))/items$',
+        v.Items.as_view(),
+        name='items'),
+
+    url(
         r'^(?P<version>(v1))/plaid/webhooks$',
         v.PlaidWebhooks.as_view(),
         name='plaid_webhooks'),

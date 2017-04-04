@@ -9,21 +9,31 @@ from web.models import ActiveModel, ActiveManager
 
 
 class ItemManager(ActiveManager):
-    def create_item(self, user, api_data):
+    def create_item_by_public_token(self, user, public_token):
+        """
+        1) Item created on Plaid by Plaid Link.
+        2) Plaid Link returned public_token.
+        2) Exchange public_token for access token.
+        3) Get Item by access_token.
+        4) Create Item in Model.
+        """
+        pa = PlaidApi()
+        access_token = pa.exchange_public_token(public_token)
+        data = pa.get_item(access_token)
+        return Item.objects.create_item(user, data)
+
+    def create_item(self, user, d):
         """
         api_data - Plaid's API response
         """
         Institution = apps.get_model('finance', 'Institution')
-        request_id = api_data['request_id']
-        access_token = api_data['access_token']
-        d = api_data['item']
+        access_token = d['access_token']
         institution = Institution.objects.get_or_create_institution(
             d['institution_id'])
 
         item = self.model(
             user=user,
             institution=institution,
-            request_id=request_id,
             plaid_id=d['item_id'],
             access_token=access_token,
             webhook=d.get('webhook', None),
@@ -74,8 +84,6 @@ class Item(ActiveModel):
     institution = models.ForeignKey('Institution')
     plaid_id = models.CharField(max_length=255, unique=True)
     access_token = models.CharField(max_length=255, unique=True)
-    request_id = models.CharField(
-        max_length=100, null=True, default=None, blank=True)
     webhook = models.CharField(
         max_length=50, null=True, default=None, blank=True)
     available_products = JSONField(null=True, default=None)
@@ -101,7 +109,6 @@ class ItemAdmin(admin.ModelAdmin):
         'plaid_id',
         'user',
         'institution',
-        'request_id',
         'webhook',
         'available_products',
         'billed_products',
@@ -112,7 +119,6 @@ class ItemAdmin(admin.ModelAdmin):
         'user',
         'institution',
         'plaid_id',
-        'request_id',
         'webhook',
         'available_products',
         'billed_products',

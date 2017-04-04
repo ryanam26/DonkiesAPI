@@ -2,10 +2,11 @@ import logging
 import finance.serializers as sers
 from django.core.exceptions import ValidationError
 from rest_framework.generics import (
-    ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView)
+    ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from finance.tasks import process_plaid_webhooks
+from finance.services.plaid_api import PlaidApi
 from web.views import AuthMixin, r400
 from finance.models import (
     Account, Institution, Item, Stat, Transaction,
@@ -188,6 +189,20 @@ class Institutions(AuthMixin, ListAPIView):
 class InstitutionDetail(AuthMixin, RetrieveAPIView):
     serializer_class = sers.InstitutionSerializer
     queryset = Institution.objects.all()
+
+
+class Items(AuthMixin, ListCreateAPIView):
+    serializer_class = sers.ItemSerializer
+
+    def get_queryset(self):
+        return Item.objects.filter(user=self.request.user)
+
+    def post(self, request, **kwargs):
+        public_token = request.data.get('public_token')
+        item = Item.objects.create_item_by_public_token(
+            request.user, public_token)
+        s = sers.ItemSerializer(item)
+        return Response(s.data, status=201)
 
 
 class PlaidWebhooks(APIView):

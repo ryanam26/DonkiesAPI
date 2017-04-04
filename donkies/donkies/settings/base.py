@@ -256,6 +256,14 @@ PLAID_ENV = 'development'
 # Plaid webhook url.
 PLAID_WEBHOOKS_URL = BACKEND_URL + '/v1/plaid/webhooks'
 
+# The list of products for Plaid Link.
+# Institutions, that don't have these products,
+# are not showed in the Plaid Link.
+PLAID_LINK_PRODUCTS = ['auth', 'transactions']
+
+# The name that is showed on Plaid Link.
+PLAID_LINK_CLIENT_NAME = 'Donkies LLC'
+
 # Dwolla API mode PROD/DEV
 DWOLLA_API_MODE = 'DEV'
 

@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
+from django.conf import settings
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -123,7 +124,12 @@ class Settings(AuthMixin, APIView):
     """
     def get(self, request, **kwargs):
         d = {
-            'transfer_amounts': [t[0] for t in User.TRANSFER_AMOUNT_CHOICES]
+            'transfer_amounts': [t[0] for t in User.TRANSFER_AMOUNT_CHOICES],
+            'plaid_env': settings.PLAID_ENV,
+            'plaid_public_key': settings.PLAID_PUBLIC_KEY,
+            'plaid_products': settings.PLAID_LINK_PRODUCTS,
+            'plaid_client_name': settings.PLAID_LINK_CLIENT_NAME,
+            'plaid_webhooks_url': settings.PLAID_WEBHOOKS_URL
         }
         return Response(d, status=200)
 

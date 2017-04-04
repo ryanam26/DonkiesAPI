@@ -44,4 +44,4 @@ DATABASES = {
     }
 }
 
-PLAID_ENV = 'development'
+PLAID_ENV = 'sandbox'

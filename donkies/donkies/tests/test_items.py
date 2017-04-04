@@ -20,6 +20,22 @@ class TestItems(base.Mixin):
         return pa.create_public_token(data['access_token'])
 
     @pytest.mark.django_db
+    def test_get_items(self):
+        """
+        Test API endpoint to get Items.
+        """
+        user = UserFactory.get_user()
+        client = self.get_auth_client(user)
+
+        ItemFactory.get_item(user=user)
+        ItemFactory.get_item(user=user)
+
+        url = '/v1/items'
+        response = client.get(url)
+        assert response.status_code == 200
+        assert Item.objects.count() == 2
+
+    @pytest.mark.django_db
     def test_create_item01(self):
         """
         Test model's manager's method

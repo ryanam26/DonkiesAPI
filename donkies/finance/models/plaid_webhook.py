@@ -29,7 +29,7 @@ class PlaidWebhookManager(models.Manager):
     def process_webhook(self, data):
         Item = apps.get_model('finance', 'Item')
         try:
-            item = Item.objects.get(plaid_id=data['item_id'])
+            item = Item.objects.get(plaid_id=data.get('item_id'))
         except Item.DoesNotExist:
             msg = 'Webhook, incorrect item_id: {}'.format(
                 json.dumps(data))
@@ -44,7 +44,7 @@ class PlaidWebhookManager(models.Manager):
     def create_webhook(self, item, data):
         pw = PlaidWebhook(item=item)
         for key in self.FIELDS:
-            setattr(pw, key, data[key])
+            setattr(pw, key, data.get(key))
         pw.data = data
         pw.save()
         return pw

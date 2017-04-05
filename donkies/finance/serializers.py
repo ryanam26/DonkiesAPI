@@ -22,6 +22,7 @@ class ItemSerializer(serializers.ModelSerializer):
         model = Item
         fields = (
             'id',
+            'guid',
             'plaid_id',
             'institution',
             'name'

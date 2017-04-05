@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /home/vlad/dev/web/dj/d/donkies/project/donkies/
+cd /home/vlad/dev/web/dj/d/donkies/project/donkies_api/donkies/
 
 . ~/.venvs/donkies/bin/activate
 

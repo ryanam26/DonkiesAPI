@@ -240,6 +240,7 @@ class User(AbstractBaseUser):
         """
         User should add debit account to Dwolla.
         """
+        return True
         if self.get_funding_source_account() is None:
             return False
         return True
@@ -444,11 +445,8 @@ class User(AbstractBaseUser):
         self.profile_image.save(filename, ContentFile(bytes))
 
     def signup_steps(self):
-        # Temporarily disable check
-        return None
-
-        # if not settings.PRODUCTION:
-        #     return None
+        if not settings.PRODUCTION:
+            return None
 
         Account = apps.get_model('finance', 'Account')
         if self.is_signup_completed:

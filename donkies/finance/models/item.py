@@ -124,6 +124,8 @@ class ItemAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         'user',
+        'guid',
+        'access_token',
         'institution',
         'plaid_id',
         'webhook',

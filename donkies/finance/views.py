@@ -227,6 +227,7 @@ class PlaidWebhooks(APIView):
     def post(self, request, **kwargs):
         data = request.data
         process_plaid_webhooks.delay(data)
+        return Response(status=204)
 
 
 class StatView(AuthMixin, APIView):

@@ -1,5 +1,6 @@
 import pytest
 import time
+from django.conf import settings
 from bank.services.dwolla_api import DwollaApi
 from finance.models import TransferDonkies
 from bank.models import Customer
@@ -147,7 +148,7 @@ class TestTransferDonkiesDwolla(base.Mixin):
         assert c1 == c2
 
     @pytest.mark.django_db
-    def notest04(self, dwolla):
+    def test04(self, dwolla):
         """
         Test initiate transfer.
         """
@@ -155,6 +156,10 @@ class TestTransferDonkiesDwolla(base.Mixin):
 
         e = Emulator(num_debit_accounts=1)
         e.init()
+
+        sum = e.user.get_not_processed_roundup_sum()
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+
         Emulator.run_transfer_prepare()
         Emulator.run_transfer_donkies_prepare()
 
@@ -185,6 +190,10 @@ class TestTransferDonkiesDwolla(base.Mixin):
 
         e = Emulator(num_debit_accounts=1)
         e.init()
+
+        sum = e.user.get_not_processed_roundup_sum()
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+
         Emulator.run_transfer_prepare()
         Emulator.run_transfer_donkies_prepare()
 
@@ -234,6 +243,10 @@ class TestTransferDonkiesDwolla(base.Mixin):
 
         e = Emulator(num_debit_accounts=1)
         e.init()
+
+        sum = e.user.get_not_processed_roundup_sum()
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+
         Emulator.run_transfer_prepare()
         Emulator.run_transfer_donkies_prepare()
 

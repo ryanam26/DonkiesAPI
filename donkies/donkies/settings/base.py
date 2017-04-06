@@ -35,6 +35,11 @@ PLAID_CLIENT_ID = data['PLAID_CLIENT_ID']
 PLAID_SECRET = data['PLAID_SECRET']
 PLAID_PUBLIC_KEY = data['PLAID_PUBLIC_KEY']
 
+STRIPE_TEST_SECRET_KEY = data['STRIPE_TEST_SECRET_KEY']
+STRIPE_TEST_PUBLISHABLE_KEY = data['STRIPE_TEST_PUBLISHABLE_KEY']
+STRIPE_LIVE_SECRET_KEY = data['STRIPE_LIVE_SECRET_KEY']
+STRIPE_LIVE_PUBLISHABLE_KEY = data['STRIPE_LIVE_PUBLISHABLE_KEY']
+
 BACKEND_DOMAIN = 'api.donkies.co'
 BACKEND_URL = 'https://api.donkies.co'
 FRONTEND_DOMAIN = 'app.donkies.co'
@@ -61,7 +66,8 @@ INSTALLED_APPS = (
     'corsheaders',
     'web',
     'finance',
-    'bank'
+    'bank',
+    'ach'
 )
 
 MIDDLEWARE = (
@@ -266,6 +272,10 @@ PLAID_LINK_CLIENT_NAME = 'Donkies LLC'
 
 # Dwolla API mode PROD/DEV
 DWOLLA_API_MODE = 'DEV'
+
+# Stripe API Mode PROD/DEV
+STRIPE_API_MODE = 'DEV'
+
 
 # Donkies LLC email in Dwolla to receive transfers.
 DONKIES_DWOLLA_EMAIL_DEV = 'vladigris@gmail.com'

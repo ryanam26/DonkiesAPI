@@ -16,6 +16,7 @@ python manage.py makemigrations
 python manage.py makemigrations web
 python manage.py makemigrations finance
 python manage.py makemigrations bank
+python manage.py makemigrations ach
 python manage.py migrate
 
 python manage.py createsuperuser
@@ -66,8 +67,9 @@ clear
 # py.test -s donkies/tests/test_funding_sources.py
 # py.test -s donkies/tests/test_institutions.py
 # py.test -s donkies/tests/test_items.py
-py.test -s donkies/tests/test_plaid.py
+# py.test -s donkies/tests/test_plaid.py
 # py.test -s donkies/tests/test_plaid_webhooks.py
+py.test -s donkies/tests/test_stripe.py
 # py.test -s donkies/tests/test_transactions.py
 # py.test -s donkies/tests/test_users.py
 

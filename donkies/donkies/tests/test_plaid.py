@@ -30,7 +30,7 @@ class TestPlaid(base.Mixin):
         assert isinstance(token, str)
 
     @pytest.mark.django_db
-    def notest_echange_token(self):
+    def test_echange_token(self):
         """
         Exchange public_token for access token.
         """
@@ -44,7 +44,7 @@ class TestPlaid(base.Mixin):
         assert isinstance(access_token, str)
 
     @pytest.mark.django_db
-    def notest_create_institution(self):
+    def test_create_institution(self):
         """
         Test model's manager.
         If institution does not exist in database, query it from API.
@@ -55,7 +55,7 @@ class TestPlaid(base.Mixin):
         assert Institution.objects.count() == 1
 
     @pytest.mark.django_db
-    def notest_create_item01(self):
+    def test_create_item01(self):
         """
         Test to create Item in plaid.
         Factory method "get_plaid_item" do the same.
@@ -70,7 +70,7 @@ class TestPlaid(base.Mixin):
         assert isinstance(item, Item) is True
 
     @pytest.mark.django_db
-    def notest_create_update_accounts01(self):
+    def test_create_update_accounts01(self):
         """
         Test model's manager method.
         """
@@ -83,7 +83,7 @@ class TestPlaid(base.Mixin):
         assert Account.objects.count() == count
 
     @pytest.mark.django_db
-    def notest_create_update_transactions01(self):
+    def test_create_update_transactions01(self):
         """
         Long test.
         Transactions are not ready instantly.

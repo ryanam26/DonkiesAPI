@@ -26,8 +26,8 @@ def create_customer(user_id):
         Customer.objects.create_dwolla_customer(c.id)
 
 
-@periodic_task(run_every=crontab(minute=10, hour='*'))
-@rs_singleton(rs, 'CREATE_MODEL_CUSTOMERS_IS_PROCESSING')
+# @periodic_task(run_every=crontab(minute=10, hour='*'))
+# @rs_singleton(rs, 'CREATE_MODEL_CUSTOMERS_IS_PROCESSING')
 def create_customers():
     """
     Task that creates customers in Customer model in case
@@ -40,9 +40,9 @@ def create_customers():
             Customer.objects.create_customer(user)
 
 
-@periodic_task(run_every=crontab(minute=20, hour='*'))
-@production(settings.PRODUCTION)
-@rs_singleton(rs, 'CREATE_DWOLLA_CUSTOMERS_IS_PROCESSING')
+# @periodic_task(run_every=crontab(minute=20, hour='*'))
+# @production(settings.PRODUCTION)
+# @rs_singleton(rs, 'CREATE_DWOLLA_CUSTOMERS_IS_PROCESSING')
 def create_dwolla_customers():
     """
     Task that creates customers in Dwolla in case if regular task fail.
@@ -53,8 +53,8 @@ def create_dwolla_customers():
         Customer.objects.create_dwolla_customer(c.id)
 
 
-@periodic_task(run_every=crontab(minute='*'))
-@rs_singleton(rs, 'INIT_DWOLLA_CUSTOMERS_IS_PROCESSING')
+# @periodic_task(run_every=crontab(minute='*'))
+# @rs_singleton(rs, 'INIT_DWOLLA_CUSTOMERS_IS_PROCESSING')
 def initiate_dwolla_customers():
     """
     Task that initiates created customers.
@@ -67,8 +67,8 @@ def initiate_dwolla_customers():
         Customer.objects.initiate_dwolla_customer(c.id)
 
 
-@periodic_task(run_every=crontab(minute='*'))
-@production(settings.PRODUCTION)
+# @periodic_task(run_every=crontab(minute='*'))
+# @production(settings.PRODUCTION)
 def update_customers():
     """
     TODO: increase interval on production
@@ -77,8 +77,8 @@ def update_customers():
     Customer.objects.update_customers()
 
 
-@periodic_task(run_every=crontab(minute='*/10'))
-@production(settings.PRODUCTION)
+# @periodic_task(run_every=crontab(minute='*/10'))
+# @production(settings.PRODUCTION)
 def process_sandbox_transfers():
     """
     For sandbox transfers.

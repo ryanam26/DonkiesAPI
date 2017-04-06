@@ -1,4 +1,3 @@
-import copy
 import pytest
 from finance.services.plaid_api import PlaidApi
 from finance.models import Account, Institution, Item, Transaction
@@ -11,7 +10,27 @@ class TestPlaid(base.Mixin):
     PASSWORD_GOOD = 'pass_good'
 
     @pytest.mark.django_db
-    def test_echange_token(self):
+    def test_get_stripe_token(self):
+        """
+        To get Stripe token: Plaid account and Stripe account
+        should be linked via Plaid dashboard.
+        We need access_token and account_id.
+        """
+        item = ItemFactory.get_plaid_item()
+        access_token = item.access_token
+
+        pa = PlaidApi()
+        res = pa.get_accounts(access_token)
+        accounts = res['accounts']
+        accounts = [acc for acc in accounts if acc['type'] == 'depository']
+        acc = accounts[0]
+
+        token = pa.get_stripe_token(access_token, acc['account_id'])
+        assert token is not None
+        assert isinstance(token, str)
+
+    @pytest.mark.django_db
+    def notest_echange_token(self):
         """
         Exchange public_token for access token.
         """
@@ -25,7 +44,7 @@ class TestPlaid(base.Mixin):
         assert isinstance(access_token, str)
 
     @pytest.mark.django_db
-    def test_create_institution(self):
+    def notest_create_institution(self):
         """
         Test model's manager.
         If institution does not exist in database, query it from API.
@@ -36,7 +55,7 @@ class TestPlaid(base.Mixin):
         assert Institution.objects.count() == 1
 
     @pytest.mark.django_db
-    def test_create_item01(self):
+    def notest_create_item01(self):
         """
         Test to create Item in plaid.
         Factory method "get_plaid_item" do the same.
@@ -51,7 +70,7 @@ class TestPlaid(base.Mixin):
         assert isinstance(item, Item) is True
 
     @pytest.mark.django_db
-    def test_create_update_accounts01(self):
+    def notest_create_update_accounts01(self):
         """
         Test model's manager method.
         """
@@ -64,7 +83,7 @@ class TestPlaid(base.Mixin):
         assert Account.objects.count() == count
 
     @pytest.mark.django_db
-    def test_create_update_transactions01(self):
+    def notest_create_update_transactions01(self):
         """
         Long test.
         Transactions are not ready instantly.

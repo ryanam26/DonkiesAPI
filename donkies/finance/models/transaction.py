@@ -117,6 +117,12 @@ class Transaction(ActiveModel):
         Do not apply roundups for transactions,
         which date less than user's signup date.
         """
+        # Roundup only expense.
+        if value >= 0:
+            return 0
+
+        value = abs(value)
+
         dt = self.date
         if isinstance(dt, str):
             dt = datetime.datetime.strptime(dt, '%Y-%m-%d').date()

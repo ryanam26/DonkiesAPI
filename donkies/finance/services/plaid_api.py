@@ -135,6 +135,11 @@ class PlaidApi:
         d = self.client.Item.access_token.invalidate(access_token)
         return d['new_access_token']
 
+    def get_stripe_token(self, access_token, account_id):
+        d = self.client.Processor.stripeBankAccountTokenCreate(
+            access_token, account_id)
+        return d['stripe_bank_account_token']
+
     def update_webhook(self, access_token, webhook):
         self.client.update(access_token, webhook)
 

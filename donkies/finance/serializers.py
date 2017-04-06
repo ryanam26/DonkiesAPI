@@ -11,7 +11,8 @@ class InstitutionSerializer(serializers.ModelSerializer):
             'id',
             'plaid_id',
             'name',
-            'has_mfa'
+            'has_mfa',
+            'address'
         )
 
 
@@ -27,6 +28,24 @@ class ItemSerializer(serializers.ModelSerializer):
             'institution',
             'name'
         )
+
+
+class CreateAccountSerializer(serializers.ModelSerializer):
+    account_number = serializers.CharField()
+    institution_id = serializers.IntegerField()
+
+    class Meta:
+        model = Account
+        fields = (
+            'institution_id',
+            'account_number',
+            'additional_info'
+        )
+
+    def save(self, user):
+        d = self.validated_data
+        d['user_id'] = user.id
+        return Account.objects.create_manual_account(**d)
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -52,7 +71,8 @@ class AccountSerializer(serializers.ModelSerializer):
             'is_active',
             'institution',
             'item',
-            'account_number'
+            'account_number',
+            'additional_info'
         )
 
     def get_institution(self, obj):

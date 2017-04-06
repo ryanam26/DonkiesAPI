@@ -49,6 +49,14 @@ class InstitutionFactory(factory.django.DjangoModelFactory):
         Institution.objects.create_sandbox_institutions()
         return Institution.objects.first()
 
+    @staticmethod
+    def get_manual_institution():
+        i = Institution(
+            name='Wells Credit', address='Some address',
+            is_manual=True)
+        i.save()
+        return i
+
 
 class ItemFactory(factory.django.DjangoModelFactory):
     USERNAME = 'user_good'

@@ -38,9 +38,14 @@ urlpatterns = [
         name='institutions_suggest'),
 
     url(
-        r'^(?P<version>(v1))/institutions$',
-        v.Institutions.as_view(),
-        name='institutions'),
+        r'^(?P<version>(v1))/debt_institutions$',
+        v.DebtInstitutions.as_view(),
+        name='debt_institutions'),
+
+    # url(
+    #     r'^(?P<version>(v1))/institutions$',
+    #     v.Institutions.as_view(),
+    #     name='institutions'),
 
     url(
         r'^(?P<version>(v1))/institutions/(?P<pk>\d+)$',

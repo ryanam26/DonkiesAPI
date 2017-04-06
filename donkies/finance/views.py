@@ -24,6 +24,19 @@ class Accounts(AuthMixin, ListAPIView):
         return Account.objects.filter(
             item__user=self.request.user)
 
+    def post(self, request, **kwargs):
+        """
+        Creating only manual accounts
+        (for debt accounts).
+        All accounts that are in Plaid come from Item
+        and do not created by API.
+        """
+        s = sers.CreateAccountSerializer(data=request.data)
+        s.is_valid(raise_exception=True)
+        account = s.save(user=request.user)
+        s = self.serializer_class(account)
+        return Response(s.data, status=201)
+
 
 class AccountDetail(AuthMixin, RetrieveDestroyAPIView):
     serializer_class = sers.AccountSerializer
@@ -156,8 +169,10 @@ class InstitutionsSuggest(AuthMixin, APIView):
     Returns data for React InputAutocompleteAsync.
     In "GET" params receives "value" for filtering.
 
-    Institutions (members) that user already has should
+    Institutions that user already has should
     be excluded from result.
+
+    Used only for debt manual accounts.
     """
     def get(self, request, **kwargs):
         value = request.query_params.get('value', None)
@@ -183,6 +198,14 @@ class InstitutionsSuggest(AuthMixin, APIView):
 class Institutions(AuthMixin, ListAPIView):
     serializer_class = sers.InstitutionSerializer
     queryset = Institution.objects.all()
+
+
+class DebtInstitutions(AuthMixin, ListAPIView):
+    """
+    Manual institutions.
+    """
+    serializer_class = sers.InstitutionSerializer
+    queryset = Institution.objects.filter(is_manual=True)
 
 
 class InstitutionDetail(AuthMixin, RetrieveAPIView):

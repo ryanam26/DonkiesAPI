@@ -124,7 +124,7 @@ class AccountManager(ActiveManager):
 
         account = self.model(
             type=self.model.CREDIT,
-            item=item, institution=institution,
+            item=item,
             account_number=account_number,
             additional_info=additional_info)
         account.save()

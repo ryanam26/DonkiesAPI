@@ -161,3 +161,35 @@ class TestAccounts(base.Mixin):
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
         assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_create_manual_account01(self, client):
+        """
+        Test manager's method
+        """
+        user = UserFactory.get_user()
+        institution = InstitutionFactory.get_manual_institution()
+        account = Account.objects.create_manual_account(
+            user.id, institution.id, '11111111', '')
+        assert isinstance(account, Account)
+        assert account.type_ds == Account.DEBT
+
+    @pytest.mark.django_db
+    def test_create_manual_account02(self, client):
+        """
+        Test API endpoint.
+        """
+        user = UserFactory.get_user()
+        client = self.get_auth_client(user)
+        institution = InstitutionFactory.get_manual_institution()
+        url = '/v1/accounts'
+
+        dic = {
+            'institution_id': institution.id,
+            'account_number': 'AAA111',
+            'additional_info': ''
+        }
+        data = json.dumps(dic)
+        response = client.post(url, data, content_type='application/json')
+        assert response.status_code == 201
+        assert Account.objects.count() == 1

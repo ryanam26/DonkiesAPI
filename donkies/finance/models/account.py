@@ -108,50 +108,41 @@ class AccountManager(ActiveManager):
         Transaction.objects.filter(account_id=account_id)\
             .update(is_active=is_active)
 
+    def create_manual_account(
+            self, user_id, institution_id, account_number,
+            additional_info):
+        User = apps.get_model('web', 'User')
+        Item = apps.get_model('finance', 'Item')
+        Institution = apps.get_model('finance', 'Institution')
 
-"""
-CALL to account info endpoint to get account numbers
-pa.get_accounts_info
-Not implemented yet
+        user = User.objects.get(id=user_id)
+        institution = Institution.objects.get(
+            id=institution_id, is_manual=True)
 
-{
-    'name': 'Plaid Checking',
-    'account_id': 'doQrm45pBRT8315WlRqzua7aoAd3xWHJgapQK',
-    'type': 'depository',
-    'official_name': 'Plaid Gold Standard 0% Interest Checking',
-    'subtype': 'checking',
-    'balances': {
-        'available': 100,
-        'limit': None,
-        'current': 110
-        },
-    'mask': '0000'
-    }, 
+        item = Item(user=user, institution=institution)
+        item.save()
 
-    'item': {
-    'webhook': 'https://example.com/webhook',
-    'error': None,
-    'available_products': ['balance'],
-    'item_id': '6aK79r8z5ktGNL93AKvocA3p7Q3xm8hANRNJo',
-    'institution_id': 'ins_109509',
-    'billed_products': ['auth', 'transactions']
-},
-
-    'numbers': [
-    {'account': '1111222233330000',
-    'routing': '011401533',
-    'account_id': 'doQrm45pBRT8315WlRqzua7aoAd3xWHJgapQK',
-    'wire_routing': '021000021'
-    },
-[
-
-"""
+        account = self.model(
+            type=self.model.CREDIT,
+            item=item, institution=institution,
+            account_number=account_number,
+            additional_info=additional_info)
+        account.save()
+        return account
 
 
 class Account(ActiveModel):
     """
     type - Plaid type.
     type_ds - Donkies type.
+
+    Accounts can be created by Plaid or manually.
+    Manual account doesn't have plaid_id.
+    Manual account has internal Item that doesn't exist
+    in Plaid.
+
+    When user creates manual account, we automatically create
+    Item for that account.
     """
     DEPOSITORY = 'depository'
     CREDIT = 'credit'
@@ -182,17 +173,20 @@ class Account(ActiveModel):
 
     item = models.ForeignKey('Item', related_name='accounts')
     guid = models.CharField(max_length=100, unique=True)
-    plaid_id = models.CharField(max_length=255)
+    plaid_id = models.CharField(
+        max_length=255, null=True, default=None, blank=True,
+        help_text='None for manual accounts.')
     name = models.CharField(
         max_length=255,
         help_text='Set by user or institution')
     official_name = models.CharField(
-        max_length=255,
+        max_length=255, null=True, default=None, blank=True,
         help_text='The official name given by the financial institution.')
     balance = models.IntegerField(null=True, default=None, blank=True)
     balances = JSONField(null=True, default=None)
     mask = models.CharField(
-        max_length=4, help_text='Last 4 digits of account number')
+        max_length=4, null=True, default=None, blank=True,
+        help_text='Last 4 digits of account number')
     subtype = models.CharField(
         max_length=255, null=True, default=None, choices=TYPE_CHOICES)
     type = models.CharField(
@@ -219,6 +213,9 @@ class Account(ActiveModel):
         max_length=100, null=True, default=None, blank=True)
     wire_routing = models.CharField(
         max_length=100, null=True, default=None, blank=True)
+    additional_info = models.CharField(
+        max_length=500, null=True, default=None, blank=True,
+        help_text='Used for manual debt accounts.')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True, default=None)
 

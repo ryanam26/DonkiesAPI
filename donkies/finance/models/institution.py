@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib import admin
+from django import forms
 from django.db import transaction
 from django.contrib.postgres.fields import JSONField
 from finance.services.plaid_api import PlaidApi
@@ -86,12 +87,20 @@ class InstitutionManager(models.Manager):
 
 
 class Institution(models.Model):
-    plaid_id = models.CharField(max_length=100, unique=True)
+    plaid_id = models.CharField(
+        max_length=100, unique=True, null=True, default=None,
+        help_text='None for manual institutions.')
     name = models.CharField(max_length=255)
     has_mfa = models.BooleanField(default=False)
     mfa = JSONField(null=True, default=None)
     credentials = JSONField(null=True, default=None)
     products = JSONField(null=True, default=None)
+    address = models.CharField(
+        max_length=500, null=True, default=None, blank=True,
+        help_text='Used for manual institutions.')
+    is_manual = models.BooleanField(
+        default=False,
+        help_text='Used for debt accounts. Not exist in Plaid.')
 
     sort = models.IntegerField(default=0)
 
@@ -107,20 +116,33 @@ class Institution(models.Model):
         return self.name
 
 
+class InstitutionAdminForm(forms.ModelForm):
+    class Meta:
+        model = Institution
+        widgets = {
+            'address': forms.Textarea(
+                attrs={'cols': 50, 'rows': 10}),
+        }
+        fields = '__all__'
+
+
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):
+    form = InstitutionAdminForm
     list_display = (
         'name',
+        'address',
         'plaid_id',
         'has_mfa',
         'products',
         'sort',
+        'is_manual'
     )
+    list_filter = ('is_manual',)
     list_editable = ('sort',)
     search_fields = ('name', 'plaid_id', 'products')
     readonly_fields = (
         'plaid_id',
-        'name',
         'has_mfa',
         'mfa',
         'credentials',

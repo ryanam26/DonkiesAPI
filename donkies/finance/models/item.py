@@ -51,8 +51,9 @@ class ItemManager(ActiveManager):
         """
         item = self.model.objects.get(id=id)
         if settings.TESTING is False:
-            pa = PlaidApi()
-            pa.delete_item(item.access_token)
+            if item.plaid_id:
+                pa = PlaidApi()
+                pa.delete_item(item.access_token)
         self.change_active(item.id, False)
 
     @transaction.atomic
@@ -75,17 +76,23 @@ class ItemManager(ActiveManager):
         """
         User = apps.get_model('web', 'User')
         pa = PlaidApi()
-        for item in self.model.objects.all():
+        for item in self.model.objects.filter(plaid_id__isnull=False):
             pa.delete_item(item.access_token)
         User.objects.filter(is_admin=False).delete()
 
 
 class Item(ActiveModel):
+    """
+    If Item doesn't have plaid_id, it is internal Item
+    that doesn't exist in Plaid.
+    """
     user = models.ForeignKey('web.User', related_name='items')
     institution = models.ForeignKey('Institution')
     guid = models.CharField(max_length=50, unique=True)
-    plaid_id = models.CharField(max_length=255, unique=True)
-    access_token = models.CharField(max_length=255, unique=True)
+    plaid_id = models.CharField(
+        max_length=255, unique=True, null=True, default=None)
+    access_token = models.CharField(
+        max_length=255, unique=True, null=True, default=None)
     webhook = models.CharField(
         max_length=50, null=True, default=None, blank=True)
     available_products = JSONField(null=True, default=None)

@@ -11,6 +11,7 @@ os.environ.setdefault(
     'DJANGO_SETTINGS_MODULE', 'donkies.settings.development')
 django.setup()
 from django.apps import apps
+from django.conf import settings
 
 
 class Tester:
@@ -51,7 +52,18 @@ class Tester:
         r = requests.post(url, data=data)
         print(r.status_code)
 
+    def temp(self):
+        Institution = apps.get_model('finance', 'Institution')
+
+        file = '{}/temp.txt'.format(settings.BASE_DIR)
+        data = open(file).read()
+        for chunk in data.split('\n\n'):
+            l = chunk.split('\n')
+            name = l[0]
+            address = '{}\n{}'.format(l[1], l[2])
+
+            i = Institution(name=name, address=address, is_manual=True)
+            i.save()
 
 if __name__ == '__main__':
     t = Tester()
-    t.debug_transactions_webhook()

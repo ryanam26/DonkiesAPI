@@ -123,6 +123,7 @@ class AccountManager(ActiveManager):
         item.save()
 
         account = self.model(
+            name=institution.name,
             type=self.model.CREDIT,
             item=item,
             account_number=account_number,

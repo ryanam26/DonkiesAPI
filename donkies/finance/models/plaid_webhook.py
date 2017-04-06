@@ -23,9 +23,6 @@ class PlaidWebhookManager(models.Manager):
     ERROR (ITEM)
     """
 
-    # Fields that exist in every webhook.
-    FIELDS = ('webhook_type', 'webhook_code', 'error')
-
     def process_webhook(self, data):
         Item = apps.get_model('finance', 'Item')
         try:
@@ -43,8 +40,9 @@ class PlaidWebhookManager(models.Manager):
 
     def create_webhook(self, item, data):
         pw = PlaidWebhook(item=item)
-        for key in self.FIELDS:
-            setattr(pw, key, data.get(key))
+        pw.code = data.get('webhook_code')
+        pw.type = data.get('webhook_type')
+        pw.error = data.get('error')
         pw.data = data
         pw.save()
         return pw

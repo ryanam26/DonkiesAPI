@@ -210,7 +210,11 @@ class User(AbstractBaseUser):
     def total_debt(self):
         """
         Returns user's total debt.
+        Make sense only with Plaid debt accounts.
+        Doesn't make sense with manual accounts as we do
+        not know balance.
         """
+        return 0
         Account = apps.get_model('finance', 'Account')
         res = Account.objects.debt_accounts().filter(
             item__user=self).aggregate(Sum('balance'))

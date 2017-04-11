@@ -3,4 +3,4 @@ from .base import *
 DEBUG = False
 PRODUCTION = True
 TESTING = False
-PLAID_ENV = 'sandbox'
+PLAID_ENV = 'development'

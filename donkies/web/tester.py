@@ -67,3 +67,4 @@ class Tester:
 
 if __name__ == '__main__':
     t = Tester()
+    t.debug_transactions_webhook()

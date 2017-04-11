@@ -449,6 +449,7 @@ class User(AbstractBaseUser):
         self.profile_image.save(filename, ContentFile(bytes))
 
     def signup_steps(self):
+        return None
         if not settings.PRODUCTION:
             return None
 

@@ -197,6 +197,8 @@ class Account(ActiveModel):
         help_text='Internal type',
         choices=TYPE_DS_CHOICES,
         default=OTHER)
+    stripe_token = models.CharField(
+        max_length=255, unique=True, null=True, default=None)
     transfer_share = models.IntegerField(
         default=0,
         help_text=(
@@ -235,6 +237,7 @@ class Account(ActiveModel):
     @property
     def funding_source(self):
         """
+        Dwolla integration.
         Returns associated funding source or None.
         """
         FundingSource = apps.get_model('bank', 'FundingSource')
@@ -318,6 +321,7 @@ class AccountAdmin(admin.ModelAdmin):
         'subtype',
         'type',
         'type_ds',
+        'stripe_token',
         'transfer_share',
         'is_funding_source_for_transfer',
         'account_number',

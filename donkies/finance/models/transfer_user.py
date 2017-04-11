@@ -9,7 +9,7 @@ from django.utils import timezone
 
 class TransferUserManager(models.Manager):
     def process(self):
-        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
         users = TransferDonkies.objects.get_date_queryset()\
             .order_by('account__item__user_id')\
             .values_list('account__item__user_id', flat=True)\
@@ -31,7 +31,7 @@ class TransferUserManager(models.Manager):
             processed_at = now
         4) Create TransferDebt instances accordingly to share.
         """
-        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
 
         if not self.can_process_user(user_id, force_process):
             return
@@ -66,7 +66,7 @@ class TransferUserManager(models.Manager):
            less than aggregated amount.
         """
         Account = apps.get_model('finance', 'Account')
-        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
         User = apps.get_model('web', 'User')
 
         is_date_filter = not force_process
@@ -112,7 +112,7 @@ class TransferUser(models.Model):
         max_digits=10, decimal_places=2, null=True,
         default=None, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    items = models.ManyToManyField('TransferDonkies')
+    items = models.ManyToManyField('bank.TransferDonkies')
 
     objects = TransferUserManager()
 

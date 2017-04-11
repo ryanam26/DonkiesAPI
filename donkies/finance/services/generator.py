@@ -1,9 +1,6 @@
 """
-!!! Generator should be refactored.
-1) As condition for sending transfers to Donkies has been changed
-from "by time" to "by amount".
-
-2) Atrium refactored to Plaid
+!!! Generator doesn't work anymore.
+!!! A lot of conditions have been changed since generator created.
 
 Creates fake data for admin user.
 python manage.py generator
@@ -47,7 +44,8 @@ from django.apps import apps
 from bank.models import Customer, FundingSource
 from finance.models import (
     Account, Member, Transaction, Institution, TransferPrepare,
-    TransferDonkies, TransferUser, TransferDebt)
+    TransferUser, TransferDebt)
+from bank.models import TransferDonkies
 
 
 NUM_DAYS = 100

@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from finance.models import (
     Account, Institution, Item, Transaction,
-    TransferDonkies, TransferPrepare, TransferUser, TransferDebt)
+    TransferPrepare, TransferUser, TransferDebt)
+from bank.models import TransferDonkies
 
 
 class InstitutionSerializer(serializers.ModelSerializer):

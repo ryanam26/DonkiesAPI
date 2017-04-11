@@ -7,8 +7,8 @@ from donkies.tests.services.emulator import Emulator
 from web.management.commands.createemails import Command
 from web.models import User, Emailer, ChangeEmailHistory
 from finance.models import (
-    Account, Item, Transaction, TransferDebt, TransferDonkies,
-    TransferUser)
+    Account, Item, Transaction, TransferDebt, TransferUser)
+from bank.models import TransferDonkies
 from .factories import UserFactory, AccountFactory, ItemFactory
 from .import base
 

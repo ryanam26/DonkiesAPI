@@ -88,7 +88,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
 from bank.services.dwolla_api import DwollaApi
-from finance.models import TransferDwolla
+from bank.models import TransferDwolla
 
 logger = logging.getLogger('app')
 
@@ -230,7 +230,7 @@ class TransferDonkiesManager(models.Manager):
         Moves failed transfer from TransferDonkies to TransferDonkiesFailed.
         """
         TransferDonkiesFailed = apps.get_model(
-            'finance', 'TransferDonkiesFailed')
+            'bank', 'TransferDonkiesFailed')
 
         tds = self.model.objects.get(id=id)
         if not tds.can_move:
@@ -302,7 +302,7 @@ class TransferDonkies(TransferDwolla):
     user debt's accounts accordingly to share to TransferUser model.
     """
     account = models.ForeignKey(
-        'Account',
+        'finance.Account',
         related_name='transfers_donkies',
         help_text='Funding source user debit account.')
     sent_at = models.DateTimeField(null=True, default=None, blank=True)
@@ -315,7 +315,7 @@ class TransferDonkies(TransferDwolla):
     objects = TransferDonkiesManager()
 
     class Meta:
-        app_label = 'finance'
+        app_label = 'bank'
         verbose_name = 'transfer donkies'
         verbose_name_plural = 'transfers donkies'
         ordering = ['-updated_at']

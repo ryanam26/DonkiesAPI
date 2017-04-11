@@ -3,10 +3,20 @@ Transfer flow.
 
 First, we collect roundup to TransferPrepare.
 Then from TransferPrepare total user's roundup amount
-processed to TransferDonkies model (if user set funding source account).
+processed to:
+
+1) If Dwolla implementation:
+
+To TransferDonkies model (if user set funding source account).
 From TransferDonkies model we send transfer to Donkies LLC (via Dwolla).
 
-The money hold on Donkies LLC.
+2) If Stripe implementation:
+
+To TransferStripe model. (if user set funding source account).
+In Stripe the first debit account is automatically funding source.
+Money transferred to Stripe account that related to Plaid.
+
+The money hold on Donkies account.
 On 15th of current month all funds that collected for previous month
 (if user set is_auto_transfer
 and if total amount more than minimum_transfer_amount)

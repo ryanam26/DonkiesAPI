@@ -1,9 +1,8 @@
 import pytest
 from django.db.models import Sum
-from django.conf import settings
 from donkies.tests.services.emulator import Emulator
-from finance.models import (
-    TransferPrepare, TransferDonkies, TransferDonkiesFailed)
+from finance.models import TransferPrepare
+from bank.models import TransferDonkies, TransferDonkiesFailed
 from .. import base
 
 
@@ -71,9 +70,7 @@ class TestTransferDonkies(base.Mixin):
         """
         e = Emulator()
         e.init()
-
-        sum = e.user.get_not_processed_roundup_sum()
-        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+        e.make_transfer_prepare_condition()
 
         Emulator.run_transfer_prepare()
         qs = TransferPrepare.objects.filter(is_processed=False)
@@ -93,9 +90,7 @@ class TestTransferDonkies(base.Mixin):
         """
         e = Emulator(num_debit_accounts=1)
         e.init()
-
-        sum = e.user.get_not_processed_roundup_sum()
-        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+        e.make_transfer_prepare_condition()
 
         Emulator.run_transfer_prepare()
         Emulator.run_transfer_donkies_prepare()

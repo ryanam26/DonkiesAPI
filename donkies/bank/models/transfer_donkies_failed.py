@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib import admin
-from finance.models import TransferDwolla
+from bank.models import TransferDwolla
 
 
 class TransferDonkiesFailed(TransferDwolla):
@@ -13,11 +13,11 @@ class TransferDonkiesFailed(TransferDwolla):
     and process this cases manually.
     """
     account = models.ForeignKey(
-        'Account',
+        'finance.Account',
         help_text='Funding source user debit account.')
 
     class Meta:
-        app_label = 'finance'
+        app_label = 'bank'
         verbose_name = 'transfer donkies failed'
         verbose_name_plural = 'transfers donkies failed'
         ordering = ['-created_at']

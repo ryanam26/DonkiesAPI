@@ -1,11 +1,10 @@
 import datetime
 import random
 import uuid
-from faker import Faker
 from django.utils import timezone
-from finance.models import (
-    Account, TransferPrepare, TransferDonkies, TransferDebt)
-from bank.models import FundingSource
+from django.conf import settings
+from finance.models import Account, TransferPrepare, TransferDebt
+from bank.models import FundingSource, TransferDonkies
 from donkies.tests.factories import (
     AccountFactory, ItemFactory, TransactionFactory,
     TransferDonkiesFactory, UserFactory)
@@ -26,7 +25,7 @@ class Emulator:
         Each day has randomly from 3 to 5 transactions.
         On init fill class with user, items, accounts, transactions.
         """
-        self.user = UserFactory(email=Faker().email())
+        self.user = UserFactory.get_user()
         self.num_debit_accounts = num_debit_accounts
         self.num_debt_accounts = num_debt_accounts
         self.num_days = num_days
@@ -39,8 +38,18 @@ class Emulator:
     def init(self):
         self.fill_debit_accounts()
         self.fill_debt_accounts()
-        self.set_funding_source()
+        self.set_funding_source_dwolla()
+        self.set_funding_source_stripe()
         self.fill_transactions()
+
+    def make_transfer_prepare_condition(self):
+        """
+        TransferPrepare works when user's collected roundup
+        is more than settings.TRANSFER_TO_DONKIES_MIN_AMOUNT
+        Make this condition True.
+        """
+        sum = self.user.get_not_processed_roundup_sum()
+        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
 
     def get_datetime(self, date):
         """
@@ -65,8 +74,9 @@ class Emulator:
         return [
             date - datetime.timedelta(days=x) for x in range(0, num_days)]
 
-    def set_funding_source(self):
+    def set_funding_source_dwolla(self):
         """
+        For Dwolla tests.
         Set funding source for user.
         """
         account = self.debit_accounts[0]
@@ -76,6 +86,14 @@ class Emulator:
         FundingSource.objects.create_funding_source_iav(
             account.id, dwolla_id, test_dic)
 
+        Account.objects.set_funding_source(account.id)
+
+    def set_funding_source_stripe(self):
+        """
+        For Dwolla tests.
+        Set funding source for user.
+        """
+        account = self.debit_accounts[0]
         Account.objects.set_funding_source(account.id)
 
     def clear_funding_source(self):

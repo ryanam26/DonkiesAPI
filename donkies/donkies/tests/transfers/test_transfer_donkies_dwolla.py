@@ -1,9 +1,7 @@
 import pytest
 import time
-from django.conf import settings
 from bank.services.dwolla_api import DwollaApi
-from finance.models import TransferDonkies
-from bank.models import Customer
+from bank.models import Customer, TransferDonkies
 from donkies.tests.services.emulator import Emulator
 from ..factories import CustomerFactory
 from .. import base
@@ -156,9 +154,7 @@ class TestTransferDonkiesDwolla(base.Mixin):
 
         e = Emulator(num_debit_accounts=1)
         e.init()
-
-        sum = e.user.get_not_processed_roundup_sum()
-        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+        e.make_transfer_prepare_condition()
 
         Emulator.run_transfer_prepare()
         Emulator.run_transfer_donkies_prepare()
@@ -190,9 +186,7 @@ class TestTransferDonkiesDwolla(base.Mixin):
 
         e = Emulator(num_debit_accounts=1)
         e.init()
-
-        sum = e.user.get_not_processed_roundup_sum()
-        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+        e.make_transfer_prepare_condition()
 
         Emulator.run_transfer_prepare()
         Emulator.run_transfer_donkies_prepare()
@@ -243,9 +237,7 @@ class TestTransferDonkiesDwolla(base.Mixin):
 
         e = Emulator(num_debit_accounts=1)
         e.init()
-
-        sum = e.user.get_not_processed_roundup_sum()
-        settings.TRANSFER_TO_DONKIES_MIN_AMOUNT = sum - 1
+        e.make_transfer_prepare_condition()
 
         Emulator.run_transfer_prepare()
         Emulator.run_transfer_donkies_prepare()

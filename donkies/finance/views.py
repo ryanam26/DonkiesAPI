@@ -9,7 +9,8 @@ from finance.tasks import process_plaid_webhooks
 from web.views import AuthMixin, r400
 from finance.models import (
     Account, Institution, Item, Stat, Transaction,
-    TransferPrepare, TransferDonkies, TransferUser, TransferDebt)
+    TransferPrepare, TransferUser, TransferDebt)
+from bank.models import TransferDonkies
 
 logger = logging.getLogger('app')
 

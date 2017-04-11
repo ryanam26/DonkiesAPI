@@ -7,9 +7,8 @@ from django.utils import timezone
 from faker import Faker
 from finance.services.plaid_api import PlaidApi
 from web.models import User, Email
-from finance.models import (
-    Account, Item, Institution, Transaction, TransferDonkies)
-from bank.models import Customer
+from finance.models import Account, Item, Institution, Transaction
+from bank.models import Customer, TransferDonkies
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -27,11 +26,19 @@ class UserFactory(factory.django.DjangoModelFactory):
     ssn = Faker().ssn()
     is_active = True
     is_confirmed = True
-    confirmed_at = timezone.now() - datetime.timedelta(days=200)
+    confirmed_at = timezone.now() - datetime.timedelta(days=365)
 
     @staticmethod
     def get_user():
-        return UserFactory(email=Faker().email())
+        """
+        Roundups applied to user from signup date.
+        Change signup date.
+        """
+        user = UserFactory(email=Faker().email())
+        dt = datetime.datetime.now() - datetime.timedelta(days=365)
+        user.confirmed_at = timezone.make_aware(dt)
+        user.save()
+        return user
 
 
 class EmailFactory(factory.django.DjangoModelFactory):
@@ -129,14 +136,14 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     account = factory.SubFactory(AccountFactory)
     guid = factory.Sequence(lambda n: 'guid{0}'.format(n))
     plaid_id = factory.Sequence(lambda n: 'plaid_id{0}'.format(n))
-    amount = decimal.Decimal('10.56')
+    amount = decimal.Decimal('-10.56')
     name = 'Some transaction name'
 
     @staticmethod
     def generate_amount():
         dollars = random.randint(3, 30)
         cents = random.randint(0, 99)
-        return decimal.Decimal('{}.{}'.format(dollars, cents))
+        return decimal.Decimal('-{}.{}'.format(dollars, cents))
 
     @staticmethod
     def get_transaction(account=None, date=None):

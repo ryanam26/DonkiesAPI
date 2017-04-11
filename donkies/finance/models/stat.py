@@ -12,7 +12,7 @@ class StatManager(models.Manager):
         """
         Transaction = apps.get_model('finance', 'Transaction')
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
-        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
 
         sum1 = Transaction.objects\
             .filter(account__item__user_id=user_id, is_processed=False)\
@@ -33,9 +33,10 @@ class StatManager(models.Manager):
 
     def get_to_donkies_amount(self, user_id):
         """
-        Returns total roundup transferred to Donkis.
+        Dwolla implementation.
+        Returns total roundup transferred to Donkies.
         """
-        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
         sum = TransferDonkies.objects\
             .filter(account__item__user_id=user_id, is_sent=True)\
             .aggregate(Sum('amount'))['amount__sum']
@@ -57,9 +58,10 @@ class StatManager(models.Manager):
 
     def get_available_amount(self, user_id):
         """
+        Dwolla implementation.
         Returns total amount available to transfer.
         """
-        TransferDonkies = apps.get_model('finance', 'TransferDonkies')
+        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
         qs = TransferDonkies.objects.get_user_queryset(user_id)
         sum = qs\
             .aggregate(Sum('amount'))['amount__sum']

@@ -264,6 +264,22 @@ class Account(ActiveModel):
             return False
         return True
 
+    def get_ds_type(self):
+        if self.type in self.DEBIT_TYPES:
+            return self.DEBIT
+        if self.type in self.DEBT_TYPES:
+            return self.DEBT
+        return self.OTHER
+
+    def get_stripe_token(self):
+        """
+        One-time Stripe's token.
+        Used to create Charge in Stripe.
+        """
+        pa = PlaidApi()
+        return pa.get_stripe_token(
+            self.access_token, self.plaid_id)
+
     def save(self, *args, **kwargs):
         """
         Assume that account can not change type.
@@ -275,13 +291,6 @@ class Account(ActiveModel):
 
         self.balance = self.get_balance()
         super().save(*args, **kwargs)
-
-    def get_ds_type(self):
-        if self.type in self.DEBIT_TYPES:
-            return self.DEBIT
-        if self.type in self.DEBT_TYPES:
-            return self.DEBT
-        return self.OTHER
 
 
 @receiver(post_save, sender=Account)

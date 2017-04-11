@@ -3,7 +3,7 @@ from web.models import User
 from django.contrib import auth
 from django.conf import settings
 from web.exceptions import PasswordsNotMatch
-from bank.serializers import CustomerSerializer
+# from bank.serializers import CustomerSerializer
 
 
 class EncIdMixin:
@@ -165,7 +165,7 @@ class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    dwolla_customer = serializers.SerializerMethodField()
+    # dwolla_customer = serializers.SerializerMethodField()
     signup_steps = serializers.SerializerMethodField()
     profile_image_url = serializers.SerializerMethodField()
 
@@ -187,7 +187,7 @@ class UserSerializer(serializers.ModelSerializer):
             'date_of_birth',
             'ssn',
             'phone',
-            'dwolla_customer',
+            # 'dwolla_customer',
             'is_profile_completed',
             'minimum_transfer_amount',
             'signup_steps',
@@ -207,10 +207,10 @@ class UserSerializer(serializers.ModelSerializer):
             'is_closed_account'
         )
 
-    def get_dwolla_customer(self, obj):
-        if hasattr(obj, 'customer'):
-            return CustomerSerializer(obj.customer).data
-        return None
+    # def get_dwolla_customer(self, obj):
+    #     if hasattr(obj, 'customer'):
+    #         return CustomerSerializer(obj.customer).data
+    #     return None
 
     def get_signup_steps(self, obj):
         return obj.signup_steps()

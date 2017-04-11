@@ -3,8 +3,8 @@ from django.conf import settings
 from ach.services.stripe_api import StripeApi
 from finance.services.plaid_api import PlaidApi
 from ach.models import Charge
-from .import base
-from .factories import AccountFactory, ItemFactory
+from ...factories import AccountFactory, ItemFactory
+from ...import base
 
 
 class TestStripe(base.Mixin):

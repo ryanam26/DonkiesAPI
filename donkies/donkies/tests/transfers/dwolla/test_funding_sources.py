@@ -2,8 +2,7 @@ import json
 import pytest
 from donkies.tests.services.dwolla.emulator import Emulator
 from bank.models import FundingSource, FundingSourceIAVLog
-
-from ...factories import AccountFactory
+from donkies.tests.services.dwolla.factories import AccountFactory
 from ...import base
 
 

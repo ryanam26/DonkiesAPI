@@ -15,7 +15,7 @@ python manage.py initproject
 python manage.py makemigrations
 python manage.py makemigrations web
 python manage.py makemigrations finance
-python manage.py makemigrations bank
+# python manage.py makemigrations bank
 python manage.py makemigrations ach
 python manage.py migrate
 
@@ -68,7 +68,6 @@ clear
 # py.test -s donkies/tests/test_items.py
 # py.test -s donkies/tests/test_plaid.py
 # py.test -s donkies/tests/test_plaid_webhooks.py
-# py.test -s donkies/tests/test_stripe.py
 # py.test -s donkies/tests/test_transactions.py
 # py.test -s donkies/tests/test_users.py
 
@@ -76,6 +75,7 @@ clear
 # Stripe transfers
 
 # py.test -s donkies/tests/transfers/stripe/test_api.py
+py.test -s donkies/tests/test_stripe.py
 # py.test -s donkies/tests/transfers/stripe/test_transactions.py
 # py.test -s donkies/tests/transfers/stripe/test_transfer_donkies.py
 # py.test -s donkies/tests/transfers/stripe/test_transfer_prepare.py
@@ -83,13 +83,14 @@ clear
 
 
 # Dwolla Transfers
+# "bank" app disabled. (All tests for "bank" app passed.)
 
-py.test -s donkies/tests/transfers/dwolla/test_funding_sources.py
-py.test -s donkies/tests/transfers/dwolla/test_api.py
-py.test -s donkies/tests/transfers/dwolla/test_transactions.py
-py.test -s donkies/tests/transfers/dwolla/test_transfer_donkies.py
-py.test -s donkies/tests/transfers/dwolla/test_transfer_prepare.py
-py.test -s donkies/tests/transfers/dwolla/test_transfer_user.py
+# py.test -s donkies/tests/transfers/dwolla/test_funding_sources.py
+# py.test -s donkies/tests/transfers/dwolla/test_api.py
+# py.test -s donkies/tests/transfers/dwolla/test_transactions.py
+# py.test -s donkies/tests/transfers/dwolla/test_transfer_donkies.py
+# py.test -s donkies/tests/transfers/dwolla/test_transfer_prepare.py
+# py.test -s donkies/tests/transfers/dwolla/test_transfer_user.py
 
 # Run these tests only from US Server
 # py.test -s donkies/tests/test_dwolla.py

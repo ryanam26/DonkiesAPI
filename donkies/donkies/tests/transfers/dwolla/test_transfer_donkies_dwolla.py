@@ -3,7 +3,7 @@ import time
 from bank.services.dwolla_api import DwollaApi
 from bank.models import Customer, TransferDonkies
 from donkies.tests.services.dwolla.emulator import Emulator
-from ...factories import CustomerFactory
+from donkies.tests.services.dwolla.factories import CustomerFactory
 from ... import base
 
 

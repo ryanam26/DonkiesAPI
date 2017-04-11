@@ -66,7 +66,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'web',
     'finance',
-    'bank',
+    # 'bank',
     'ach'
 )
 

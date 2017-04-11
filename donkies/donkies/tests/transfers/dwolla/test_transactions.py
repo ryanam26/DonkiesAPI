@@ -1,7 +1,7 @@
 import pytest
-from ... import base
-from ...factories import TransactionFactory
+from donkies.tests.services.dwolla.factories import TransactionFactory
 from finance.models import Transaction
+from ... import base
 
 
 class TestTransaction(base.Mixin):

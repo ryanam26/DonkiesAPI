@@ -1,6 +1,6 @@
 ### Difference between Stripe and Dwolla.
 
-When user added Item via Plaid Link - we can fetch all accounts that available for institution. In Stripe we already can get stripe token for any account and assign account as funding source for transfers.
+When user added Item via Plaid Link - we can fetch all accounts that available for institution. In Stripe we already can get stripe token for any account and assign account as funding source for transfers. All institutions should have "auth" product. Not "auth" institutions can not be integrated to Stripe. In case with Dwolla and micro-deposits for not "auth" institutions it is not possible to get account_number and routing_number by Plaid API.
 
 In Dwolla we need to create funding source first - via IAV or micro-deposits.
 To create funding source - we also need to create customer in Dwolla (user's profile should be completed). With Stripe user doesn't need to complete profile.

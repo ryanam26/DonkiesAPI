@@ -1,7 +1,7 @@
 import pytest
 
 from donkies.tests.services.emulator import Emulator
-from ..import base
+from donkies.tests import base
 
 
 class TestApi(base.Mixin):

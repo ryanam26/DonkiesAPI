@@ -5,7 +5,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from donkies.tests.services.emulator import Emulator
 from bank.models import TransferUser, TransferDebt, TransferDonkies
-from .. import base
+from donkies.tests import base
 
 
 class TestTransferUser(base.Mixin):

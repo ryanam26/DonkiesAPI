@@ -1,5 +1,5 @@
 import pytest
-from .. import base
+from donkies.tests import base
 from ..factories import TransactionFactory
 from finance.models import Transaction
 

@@ -4,7 +4,7 @@ from bank.services.dwolla_api import DwollaApi
 from bank.models import Customer, TransferDonkies
 from donkies.tests.services.emulator import Emulator
 from ..factories import CustomerFactory
-from .. import base
+from donkies.tests import base
 
 
 TEST_EMAIL = 'test@example.com'

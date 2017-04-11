@@ -75,7 +75,7 @@ clear
 # Stripe transfers
 
 # py.test -s donkies/tests/transfers/stripe/test_api.py
-py.test -s donkies/tests/test_stripe.py
+py.test -s donkies/tests/transfers/stripe/test_stripe.py
 # py.test -s donkies/tests/transfers/stripe/test_transactions.py
 # py.test -s donkies/tests/transfers/stripe/test_transfer_donkies.py
 # py.test -s donkies/tests/transfers/stripe/test_transfer_prepare.py

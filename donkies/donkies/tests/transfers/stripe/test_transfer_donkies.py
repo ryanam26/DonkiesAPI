@@ -3,7 +3,7 @@ from django.db.models import Sum
 from donkies.tests.services.emulator import Emulator
 from finance.models import TransferPrepare
 from bank.models import TransferDonkies, TransferDonkiesFailed
-from .. import base
+from donkies.tests import base
 
 
 class TestTransferDonkies(base.Mixin):

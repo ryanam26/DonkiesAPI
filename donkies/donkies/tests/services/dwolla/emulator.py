@@ -1,3 +1,7 @@
+"""
+Separate Emulator for Dwolla.
+"""
+
 import datetime
 import random
 import uuid

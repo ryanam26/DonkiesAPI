@@ -15,27 +15,36 @@ Transfer flow to TransferStripe model.
 """
 
 import datetime
-from django.db import transaction
 from django.utils import timezone
 from django.apps import apps
+from django.conf import settings
 from django.db.models import Sum
 from django.db import models
 from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
+from ach.services.stripe_api import StripeApi
 
 
 class TransferStripeManager(models.Manager):
-    def create_charge(self, account, stripe_charge):
+    def create_charge(self, account, amount):
         """
         stripe_charge - Stripe's API charge dict like object.
         """
-        d = stripe_charge
-        charge = self.model(account=account)
+        ChargeLog = apps.get_model('ach', 'ChargeLog')
+
+        stripe_token = account.get_stripe_token()
+        sa = StripeApi()
+        d = sa.create_charge(amount, stripe_token)
+
+        log = ChargeLog(account=account, data=d)
+        log.save()
+
+        ts = self.model(account=account)
 
         dt = datetime.datetime.fromtimestamp(d.pop('created'))
-        charge.created_at = timezone.make_aware(dt)
-        charge.stripe_id = d.pop('id')
-        charge.amount_stripe = d.pop('amount')
+        ts.created_at = timezone.make_aware(dt)
+        ts.stripe_id = d.pop('id')
+        ts.amount_stripe = d.pop('amount')
 
         fields = (
             'status', 'balance_transaction', 'currency',
@@ -43,10 +52,10 @@ class TransferStripeManager(models.Manager):
             'metadata', 'paid', 'source')
 
         for key in fields:
-            setattr(charge, key, d[key])
+            setattr(ts, key, d[key])
 
-        charge.save()
-        return charge
+        ts.save()
+        return ts
 
     def process_prepare(self):
         """
@@ -62,10 +71,9 @@ class TransferStripeManager(models.Manager):
             .distinct()
 
         for user_id in users:
-            self.charge_user(user_id)
+            self.create_transfer(user_id)
 
-    @transaction.atomic
-    def charge_user(self, user_id):
+    def create_transfer(self, user_id):
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
         User = apps.get_model('web', 'User')
 
@@ -77,25 +85,17 @@ class TransferStripeManager(models.Manager):
             account__item__user=user)\
             .aggregate(Sum('roundup'))['roundup__sum']
 
+        if amount < settings.TRANSFER_TO_STRIPE_MIN_AMOUNT:
+            return None
+
         # Create charge in Stripe for that amount
-
-        
-
-
+        ts = self.create_charge(fs, amount)
 
         TransferPrepare.objects.filter(
             is_processed=False,
             account__item__user=user).update(is_processed=True)
 
-        tds = self.model(account=fs, amount=sum)
-        tds.save()
-
-    
-    
-
-   
-
-   
+        return ts
 
     def get_date_queryset(self, is_date_filter=True):
         """

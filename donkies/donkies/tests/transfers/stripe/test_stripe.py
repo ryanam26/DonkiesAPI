@@ -2,9 +2,9 @@ import pytest
 from django.conf import settings
 from ach.services.stripe_api import StripeApi
 from finance.services.plaid_api import PlaidApi
-from ach.models import Charge
-from ...factories import AccountFactory, ItemFactory
-from ...import base
+from ach.models import TransferStripe
+from donkies.tests.factories import AccountFactory, ItemFactory
+from donkies.tests import base
 
 
 class TestStripe(base.Mixin):
@@ -16,7 +16,7 @@ class TestStripe(base.Mixin):
        Stripe token can be used only once.
        Using this method in the app.
     """
-    def get_stripe_token(self):
+    def init(self):
         """
         In order not to create access_token each time,
         store in Redis.
@@ -39,32 +39,45 @@ class TestStripe(base.Mixin):
         access_token = rs.get('access_token').decode()
         account_id = rs.get('account_id').decode()
 
-        token = pa.get_stripe_token(access_token, account_id)
-
         self.account = AccountFactory.get_account()
         self.account.access_token = access_token
+        self.account.plaid_id = account_id
         self.account.save()
-        return token
 
     @pytest.mark.django_db
     def test_create_customer01(self):
         """
+        Debug.
         To get Stripe token: Plaid account and Stripe account
         should be linked via Plaid dashboard.
         We need access_token and account_id.
         """
         return
-        token = self.get_stripe_token()
+        self.init()
+        token = self.account.get_stripe_token()
         sa = StripeApi()
         customer = sa.create_customer(token, 'some description')
         print(customer)
 
     @pytest.mark.django_db
     def test_create_charge01(self):
-        token = self.get_stripe_token()
+        """
+        Debug.
+        Test Stripe's API.
+        """
+        return
+        self.init()
+        token = self.account.get_stripe_token()
         sa = StripeApi()
         stripe_charge = sa.create_charge('10.20', token)
-        charge = Charge.objects.create_charge(self.account, stripe_charge)
-        charge = sa.get_charge(charge.stripe_id)
-        print(charge)
+        print(stripe_charge)
 
+    @pytest.mark.django_db
+    def test_create_charge02(self):
+        """
+        Test manager's method.
+        """
+        self.init()
+        ts = TransferStripe.objects.create_charge(
+            self.account, '10.56')
+        print(ts.__dict__)

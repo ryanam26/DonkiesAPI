@@ -285,6 +285,9 @@ DONKIES_DWOLLA_EMAIL_PROD = 'bank@donkies.co'
 # As soon as user reach that amount - send transfer to Donkies in Dwolla.
 TRANSFER_TO_DONKIES_MIN_AMOUNT = 5
 
+# Minimum transfer amount for collected roundup.
+TRANSFER_TO_STRIPE_MIN_AMOUNT = 5
+
 US_STATES = (
     ('AL', 'Alabama'),
     ('AK', 'Alaska'),

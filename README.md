@@ -1,4 +1,10 @@
-### Difference between Stripe and Dwolla.
+### Transfers
+
+Initially transfers were implemented for Dwolla. 
+To save all functionality for Dwolla and not destroy it, everything was moved to "bank" app. Dwolla functionality has own set of models, tasks, views, serializers, tests, Emulator. In case in future to be able to switch to Dwolla back again.
+
+
+### Difference between Stripe and Dwolla in user's signup.
 
 When user added Item via Plaid Link - we can fetch all accounts that available for institution. In Stripe we already can get stripe token for any account and assign account as funding source for transfers. All institutions should have "auth" product. Not "auth" institutions can not be integrated to Stripe. In case with Dwolla and micro-deposits for not "auth" institutions it is not possible to get account_number and routing_number by Plaid API.
 
@@ -27,8 +33,10 @@ Instructions in TransferPrepare and TransferDonkies model.
 
 4) In settings User set minimum_transfer_amount (By default $5 and can be changed in settings) and is_auto_transfer.
 
-5) Roundup is transfered to Donkies as soon as user's collected roundup is more than settings.TRANSFER_TO_DONKIES_MIN_AMOUNT
+5) Roundup is transfered to Donkies as soon as user's collected roundup is more than settings.TRANSFER_TO_DONKIES_MIN_AMOUNT. This was implemented to Dwolla.
 
-6) On 15th of current month if user set auto transfer and total amount of previous month more than minimum transfer amount (in user settings), send money to user (TransferUser model).
+6) For Stripe collected roundup transfered at the last day of the month.
+
+7) On 15th of current month if user set auto transfer and total amount of previous month more than minimum transfer amount (in user settings), send money to user (TransferUser model).
 
 7) Send money to user's debt accounts from TransferUser (TransferDebt) model. (Currently manually by cheques)

@@ -48,7 +48,7 @@ class StatManager(models.Manager):
         """
         Returns total roundup transferred to User.
         """
-        TransferDebt = apps.get_model('finance', 'TransferDebt')
+        TransferDebt = apps.get_model('bank', 'TransferDebt')
         sum = TransferDebt.objects\
             .filter(account__item__user_id=user_id, is_processed=True)\
             .aggregate(Sum('amount'))['amount__sum']
@@ -70,7 +70,7 @@ class StatManager(models.Manager):
         return 0
 
     def get_payments_count(self, user_id):
-        TransferDebt = apps.get_model('finance', 'TransferDebt')
+        TransferDebt = apps.get_model('bank', 'TransferDebt')
         return TransferDebt.objects\
             .filter(account__item__user_id=user_id, is_processed=True)\
             .count()

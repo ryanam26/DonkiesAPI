@@ -13,7 +13,7 @@ class TransferDebt(models.Model):
     In current implementations by cheques manually.
     """
     account = models.ForeignKey(
-        'Account',
+        'finance.Account',
         related_name='transfers_user',
         help_text='Debt account.')
     tu = models.ForeignKey(
@@ -26,7 +26,7 @@ class TransferDebt(models.Model):
     objects = TransferDebtManager()
 
     class Meta:
-        app_label = 'finance'
+        app_label = 'bank'
         verbose_name = 'transfer debt'
         verbose_name_plural = 'transfers debt'
         ordering = ['-processed_at']

@@ -5,8 +5,9 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from web.views import AuthMixin, r400
 from bank.services.dwolla_api import DwollaApi
-from bank.models import FundingSource
 from finance.models import Account
+from bank.models import (
+    FundingSource, TransferDonkies, TransferUser, TransferDebt)
 
 
 logger = logging.getLogger('app')
@@ -81,3 +82,26 @@ class GetIAVToken(AuthMixin, APIView):
         if token is None:
             return Response({'message': 'Server error.'}, status=400)
         return Response({'token': token})
+
+
+class TransfersDebt(AuthMixin, generics.ListAPIView):
+    serializer_class = sers.TransferDebtSerializer
+
+    def get_queryset(self):
+        return TransferDebt.objects.filter(
+            account__item__user=self.request.user)
+
+
+class TransfersDonkies(AuthMixin, generics.ListAPIView):
+    serializer_class = sers.TransferDonkiesSerializer
+
+    def get_queryset(self):
+        return TransferDonkies.objects.filter(
+            account__item__user=self.request.user, is_sent=True)
+
+
+class TransfersUser(AuthMixin, generics.ListAPIView):
+    serializer_class = sers.TransferUserSerializer
+
+    def get_queryset(self):
+        return TransferUser.objects.filter(user=self.request.user)

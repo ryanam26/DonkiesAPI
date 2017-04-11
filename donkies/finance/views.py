@@ -8,9 +8,7 @@ from rest_framework.views import APIView
 from finance.tasks import process_plaid_webhooks
 from web.views import AuthMixin, r400
 from finance.models import (
-    Account, Institution, Item, Stat, Transaction,
-    TransferPrepare, TransferUser, TransferDebt)
-from bank.models import TransferDonkies
+    Account, Institution, Item, Stat, Transaction, TransferPrepare)
 
 logger = logging.getLogger('app')
 
@@ -270,32 +268,9 @@ class Transactions(AuthMixin, ListAPIView):
             account__item__user=self.request.user)
 
 
-class TransfersDebt(AuthMixin, ListAPIView):
-    serializer_class = sers.TransferDebtSerializer
-
-    def get_queryset(self):
-        return TransferDebt.objects.filter(
-            account__item__user=self.request.user)
-
-
-class TransfersDonkies(AuthMixin, ListAPIView):
-    serializer_class = sers.TransferDonkiesSerializer
-
-    def get_queryset(self):
-        return TransferDonkies.objects.filter(
-            account__item__user=self.request.user, is_sent=True)
-
-
 class TransfersPrepare(AuthMixin, ListAPIView):
     serializer_class = sers.TransferPrepareSerializer
 
     def get_queryset(self):
         return TransferPrepare.objects.filter(
             account__item__user=self.request.user)
-
-
-class TransfersUser(AuthMixin, ListAPIView):
-    serializer_class = sers.TransferUserSerializer
-
-    def get_queryset(self):
-        return TransferUser.objects.filter(user=self.request.user)

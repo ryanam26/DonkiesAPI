@@ -4,8 +4,7 @@ from freezegun import freeze_time
 from django.db.models import Sum
 from django.utils import timezone
 from donkies.tests.services.emulator import Emulator
-from finance.models import TransferUser, TransferDebt
-from bank.models import TransferDonkies
+from bank.models import TransferUser, TransferDebt, TransferDonkies
 from .. import base
 
 

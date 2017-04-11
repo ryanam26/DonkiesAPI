@@ -64,7 +64,6 @@ clear
 # py.test -s donkies/tests/test_auth.py
 # py.test -s donkies/tests/test_customers.py
 # py.test -s donkies/tests/test_facebook.py
-# py.test -s donkies/tests/test_funding_sources.py
 # py.test -s donkies/tests/test_institutions.py
 # py.test -s donkies/tests/test_items.py
 # py.test -s donkies/tests/test_plaid.py
@@ -74,17 +73,28 @@ clear
 # py.test -s donkies/tests/test_users.py
 
 
-# Transfers
-py.test -s donkies/tests/transfers/test_api.py
-py.test -s donkies/tests/transfers/test_transactions.py
-py.test -s donkies/tests/transfers/test_transfer_donkies.py
-py.test -s donkies/tests/transfers/test_transfer_prepare.py
-# py.test -s donkies/tests/transfers/test_transfer_user.py
+# Stripe transfers
+
+# py.test -s donkies/tests/transfers/stripe/test_api.py
+# py.test -s donkies/tests/transfers/stripe/test_transactions.py
+# py.test -s donkies/tests/transfers/stripe/test_transfer_donkies.py
+# py.test -s donkies/tests/transfers/stripe/test_transfer_prepare.py
+# py.test -s donkies/tests/transfers/stripe/test_transfer_user.py
 
 
-# Testing Dwolla on US Server
+# Dwolla Transfers
+
+py.test -s donkies/tests/transfers/dwolla/test_funding_sources.py
+py.test -s donkies/tests/transfers/dwolla/test_api.py
+py.test -s donkies/tests/transfers/dwolla/test_transactions.py
+py.test -s donkies/tests/transfers/dwolla/test_transfer_donkies.py
+py.test -s donkies/tests/transfers/dwolla/test_transfer_prepare.py
+py.test -s donkies/tests/transfers/dwolla/test_transfer_user.py
+
+# Run these tests only from US Server
 # py.test -s donkies/tests/test_dwolla.py
 # py.test -s donkies/tests/transfers/test_transfer_donkies_dwolla.py
+
 
 else
 clear

@@ -13,9 +13,9 @@ class TestTransactions(base.Mixin):
     @pytest.mark.django_db
     def test_roundup01(self, client):
         t = TransactionFactory.get_transaction()
-        assert t.calculate_roundup(Decimal('10.22')) == Decimal('0.78')
-        assert t.calculate_roundup(Decimal('10.01')) == Decimal('0.99')
-        assert t.calculate_roundup(Decimal('10.90')) == Decimal('0.10')
+        assert t.calculate_roundup(Decimal('-10.22')) == Decimal('0.78')
+        assert t.calculate_roundup(Decimal('-10.01')) == Decimal('0.99')
+        assert t.calculate_roundup(Decimal('-10.90')) == Decimal('0.10')
 
     @pytest.mark.django_db
     def test_roundup02(self, client):
@@ -28,7 +28,7 @@ class TestTransactions(base.Mixin):
         user.save()
 
         t.refresh_from_db()
-        assert t.calculate_roundup(Decimal('10.00')) == Decimal('1.00')
+        assert t.calculate_roundup(Decimal('-10.00')) == Decimal('1.00')
 
     @pytest.mark.django_db
     def test_roundup03(self, client):

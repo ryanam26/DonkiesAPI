@@ -88,7 +88,7 @@ class TransferUserManager(models.Manager):
         res = TransferDonkies.objects.get_user_queryset(
             user_id, is_date_filter=is_date_filter).aggregate(Sum('amount'))
         sum = res['amount__sum']
-        if sum < user.minimum_transfer_amount and not force_process:
+        if abs(sum) < user.minimum_transfer_amount and not force_process:
             return False
 
         return True
@@ -112,12 +112,12 @@ class TransferUser(models.Model):
         max_digits=10, decimal_places=2, null=True,
         default=None, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    items = models.ManyToManyField('bank.TransferDonkies')
+    items = models.ManyToManyField('TransferDonkies')
 
     objects = TransferUserManager()
 
     class Meta:
-        app_label = 'finance'
+        app_label = 'bank'
         verbose_name = 'transfer user'
         verbose_name_plural = 'transfers user'
         ordering = ['-created_at']
@@ -144,7 +144,7 @@ class TransferUser(models.Model):
         At the time when TransferUser created itself.
         """
         Account = apps.get_model('finance', 'Account')
-        TransferDebt = apps.get_model('finance', 'TransferDebt')
+        TransferDebt = apps.get_model('bank', 'TransferDebt')
 
         user = self.user
         qs = Account.objects.debt_accounts().filter(item__user=user)

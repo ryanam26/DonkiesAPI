@@ -192,7 +192,7 @@ class TransferDonkiesFactory(factory.django.DjangoModelFactory):
 
         return TransferDonkiesFactory(
             account=account,
-            amount=TransactionFactory.generate_amount(),
+            amount=abs(TransactionFactory.generate_amount()),
             created_at=sent_at,
             initiated_at=sent_at,
             sent_at=sent_at,

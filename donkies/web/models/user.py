@@ -500,7 +500,7 @@ class User(AbstractBaseUser):
             (mark is_active=False)
         """
         Item = apps.get_model('finance', 'Item')
-        TransferUser = apps.get_model('finance', 'TransferUser')
+        TransferUser = apps.get_model('bank', 'TransferUser')
 
         TransferUser.objects.process_user(self.id, force_process=True)
 

@@ -21,4 +21,19 @@ urlpatterns = [
         r'^(?P<version>(v1))/get_iav_token/(?P<dwolla_customer_id>[a-z0-9-]+)$',
         v.GetIAVToken.as_view(),
         name='get_iav_token'),
+
+    url(
+        r'^(?P<version>(v1))/transfers_debt$',
+        v.TransfersDebt.as_view(),
+        name='transfers_debt'),
+
+    url(
+        r'^(?P<version>(v1))/transfers_donkies$',
+        v.TransfersDonkies.as_view(),
+        name='transfers_donkies'),
+
+    url(
+        r'^(?P<version>(v1))/transfers_user$',
+        v.TransfersUser.as_view(),
+        name='transfers_user'),
 ]

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from finance.serializers import AccountSerializer
-from bank.models import Customer, FundingSource
+from bank.models import (
+    Customer, FundingSource, TransferDonkies, TransferUser, TransferDebt)
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -66,3 +67,48 @@ class FundingSourceCreateSerializer(serializers.ModelSerializer):
         d['account'] = account
         fs = FundingSource.objects.create_funding_source(**d)
         return fs
+
+
+class TransferDebtSerializer(serializers.ModelSerializer):
+    account = serializers.CharField(source='account.name', read_only=True)
+    created_at = serializers.DateTimeField(
+        source='tu.created_at', read_only=True)
+
+    class Meta:
+        model = TransferDebt
+        fields = (
+            'id',
+            'account',
+            'amount',
+            'share',
+            'created_at',
+            'processed_at',
+            'is_processed'
+        )
+
+
+class TransferDonkiesSerializer(serializers.ModelSerializer):
+    account = serializers.CharField(source='account.name', read_only=True)
+
+    class Meta:
+        model = TransferDonkies
+        fields = (
+            'id',
+            'account',
+            'amount',
+            'status',
+            'sent_at',
+            'is_sent'
+        )
+
+
+class TransferUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransferUser
+        fields = (
+            'id',
+            'user',
+            'amount',
+            'cached_amount',
+            'created_at',
+        )

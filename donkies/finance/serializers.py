@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from finance.models import (
-    Account, Institution, Item, Transaction,
-    TransferPrepare, TransferUser, TransferDebt)
-from bank.models import TransferDonkies
+    Account, Institution, Item, Transaction, TransferPrepare)
 
 
 class InstitutionSerializer(serializers.ModelSerializer):
@@ -113,39 +111,6 @@ class TransactionSerializer(serializers.ModelSerializer):
         )
 
 
-class TransferDebtSerializer(serializers.ModelSerializer):
-    account = serializers.CharField(source='account.name', read_only=True)
-    created_at = serializers.DateTimeField(
-        source='tu.created_at', read_only=True)
-
-    class Meta:
-        model = TransferDebt
-        fields = (
-            'id',
-            'account',
-            'amount',
-            'share',
-            'created_at',
-            'processed_at',
-            'is_processed'
-        )
-
-
-class TransferDonkiesSerializer(serializers.ModelSerializer):
-    account = serializers.CharField(source='account.name', read_only=True)
-
-    class Meta:
-        model = TransferDonkies
-        fields = (
-            'id',
-            'account',
-            'amount',
-            'status',
-            'sent_at',
-            'is_sent'
-        )
-
-
 class TransferPrepareSerializer(serializers.ModelSerializer):
     account = serializers.CharField(source='account.name', read_only=True)
 
@@ -156,16 +121,4 @@ class TransferPrepareSerializer(serializers.ModelSerializer):
             'account',
             'roundup',
             'created_at'
-        )
-
-
-class TransferUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TransferUser
-        fields = (
-            'id',
-            'user',
-            'amount',
-            'cached_amount',
-            'created_at',
         )

@@ -1,5 +1,5 @@
 import pytest
-from .import base
+from ...import base
 from bank.models import Customer
 
 

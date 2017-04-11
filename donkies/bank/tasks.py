@@ -30,8 +30,7 @@ def create_customer(user_id):
 # @rs_singleton(rs, 'CREATE_MODEL_CUSTOMERS_IS_PROCESSING')
 def create_customers():
     """
-    Task that creates customers in Customer model in case
-    if regular task fails.
+    Task that creates customers in Customer model.
     """
     Customer = apps.get_model('bank', 'Customer')
     User = apps.get_model('web', 'User')
@@ -183,3 +182,11 @@ def reinitiate_dwolla_transfers():
             failure_code=None,
             status=None
         )
+
+
+# @periodic_task(run_every=crontab(minute=10, hour='*'))
+# @production(settings.PRODUCTION)
+# @rs_singleton(rs, 'TRANSFER_USER_IS_PROCESSING')
+def transfer_user():
+    TransferUser = apps.get_model('bank', 'TransferUser')
+    TransferUser.objects.process()

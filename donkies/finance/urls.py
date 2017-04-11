@@ -78,22 +78,7 @@ urlpatterns = [
         name='transactions'),
 
     url(
-        r'^(?P<version>(v1))/transfers_debt$',
-        v.TransfersDebt.as_view(),
-        name='transfers_debt'),
-
-    url(
-        r'^(?P<version>(v1))/transfers_donkies$',
-        v.TransfersDonkies.as_view(),
-        name='transfers_donkies'),
-
-    url(
         r'^(?P<version>(v1))/transfers_prepare$',
         v.TransfersPrepare.as_view(),
         name='transfers_prepare'),
-
-    url(
-        r'^(?P<version>(v1))/transfers_user$',
-        v.TransfersUser.as_view(),
-        name='transfers_user'),
 ]

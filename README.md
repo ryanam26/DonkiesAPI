@@ -13,8 +13,6 @@ To create funding source - we also need to create customer in Dwolla (user's pro
 4) User is able to assign any value in dashboard.
 5) The sum of share of all debt accounts should be equal 100%.
 
-### Transfers TDD
-donkies/tests/transfers/README.md
 
 ### Transfer flow.
 Instructions in TransferPrepare and TransferDonkies model.

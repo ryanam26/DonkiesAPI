@@ -5,6 +5,4 @@ from .item import Item
 from .plaid_webhook import PlaidWebhook
 from .stat import Stat
 from .transaction import Transaction
-from .transfer_debt import TransferDebt
-from .transfer_user import TransferUser
 from .transfer_prepare import TransferPrepare

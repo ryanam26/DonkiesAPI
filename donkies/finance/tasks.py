@@ -1,6 +1,4 @@
-import datetime
 import logging
-from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
 from donkies import capp
@@ -30,11 +28,3 @@ def process_plaid_webhooks(data):
 def process_roundups():
     TransferPrepare = apps.get_model('finance', 'TransferPrepare')
     TransferPrepare.objects.process_roundups()
-
-
-@periodic_task(run_every=crontab(minute=10, hour='*'))
-@production(settings.PRODUCTION)
-@rs_singleton(rs, 'TRANSFER_USER_IS_PROCESSING')
-def transfer_user():
-    TransferUser = apps.get_model('finance', 'TransferUser')
-    TransferUser.objects.process()

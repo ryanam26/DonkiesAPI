@@ -3,8 +3,8 @@ import random
 import uuid
 from django.utils import timezone
 from django.conf import settings
-from finance.models import Account, TransferPrepare, TransferDebt
-from bank.models import FundingSource, TransferDonkies
+from finance.models import Account, TransferPrepare
+from bank.models import FundingSource, TransferDonkies, TransferDebt
 from donkies.tests.factories import (
     AccountFactory, ItemFactory, TransactionFactory,
     TransferDonkiesFactory, UserFactory)

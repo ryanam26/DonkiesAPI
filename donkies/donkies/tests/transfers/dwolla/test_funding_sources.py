@@ -1,9 +1,10 @@
 import json
 import pytest
-from .import base
-from donkies.tests.services.emulator import Emulator
+from donkies.tests.services.dwolla.emulator import Emulator
 from bank.models import FundingSource, FundingSourceIAVLog
-from .factories import AccountFactory
+
+from ...factories import AccountFactory
+from ...import base
 
 
 class TestFundingSource(base.Mixin):

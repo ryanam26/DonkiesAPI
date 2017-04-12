@@ -294,7 +294,7 @@ class Account(ActiveModel):
         """
         pa = PlaidApi()
         return pa.get_stripe_token(
-            self.access_token, self.plaid_id)
+            self.item.access_token, self.plaid_id)
 
     def save(self, *args, **kwargs):
         """

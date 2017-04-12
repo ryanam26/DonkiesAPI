@@ -1,9 +1,7 @@
 import pytest
-from django.conf import settings
 from ach.services.stripe_api import StripeApi
-from finance.services.plaid_api import PlaidApi
 from ach.models import TransferStripe
-from donkies.tests.factories import AccountFactory, ItemFactory
+from donkies.tests.factories import AccountFactory
 from donkies.tests import base
 
 
@@ -17,32 +15,14 @@ class TestStripe(base.Mixin):
        Using this method in the app.
     """
     def init(self):
-        """
-        In order not to create access_token each time,
-        store in Redis.
-        """
-        pa = PlaidApi()
-        rs = settings.REDIS_DB
-
-        access_token = rs.get('access_token')
-        if access_token is None:
-            item = ItemFactory.get_plaid_item()
-            access_token = item.access_token
-            rs.set('access_token', access_token)
-
-            res = pa.get_accounts(access_token)
-            accounts = res['accounts']
-            accounts = [acc for acc in accounts if acc['type'] == 'depository']
-            acc = accounts[0]
-            rs.set('account_id', acc['account_id'])
-
-        access_token = rs.get('access_token').decode()
-        account_id = rs.get('account_id').decode()
-
+        access_token, account_id = self.get_access_token()
         self.account = AccountFactory.get_account()
-        self.account.access_token = access_token
         self.account.plaid_id = account_id
         self.account.save()
+
+        item = self.account.item
+        item.access_token = access_token
+        item.save()
 
     @pytest.mark.django_db
     def test_create_customer01(self):

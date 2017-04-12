@@ -16,6 +16,7 @@ Transfer flow to TransferStripe model.
 
 import calendar
 import datetime
+import decimal
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
@@ -27,6 +28,16 @@ from ach.services.stripe_api import StripeApi
 
 
 class TransferStripeManager(models.Manager):
+    def can_process(self):
+        """
+        Can process at the last day of the month.
+        """
+        dt = datetime.date.today()
+        _, last = calendar.monthrange(dt.year, dt.month)
+        if last == dt.day:
+            return True
+        return False
+
     def create_charge(self, account, amount):
         """
         stripe_charge - Stripe's API charge dict like object.
@@ -66,7 +77,7 @@ class TransferStripeManager(models.Manager):
         """
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
 
-        if not self.can_process:
+        if not self.can_process():
             return
 
         users = TransferPrepare.objects.filter(is_processed=False)\
@@ -140,16 +151,6 @@ class TransferStripeManager(models.Manager):
             return dt.replace(day=1)
         return today.replace(day=1)
 
-    def can_process(self):
-        """
-        Can process at the last day of the month.
-        """
-        dt = datetime.date.today()
-        _, last = calendar.monthrange(dt.year, dt.month)
-        if last == dt.day:
-            return True
-        return False
-
 
 class TransferStripe(models.Model):
     PENDING = 'pending'
@@ -184,7 +185,8 @@ class TransferStripe(models.Model):
     source = JSONField(null=True, default=None)
     created_at = models.DateTimeField(null=True, default=None)
     # Other fields
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    amount = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, default=None)
     is_processed_to_user = models.BooleanField(
         default=False, help_text='Funds processed to TransferUser model.')
     processed_at = models.DateTimeField(null=True, default=None, blank=True)
@@ -199,6 +201,11 @@ class TransferStripe(models.Model):
 
     def __str__(self):
         return self.stripe_id
+
+    def save(self, *args, **kwargs):
+        if not self.amount:
+            self.amount = decimal.Decimal(self.amount_stripe) / 100
+        super().save(*args, **kwargs)
 
 
 @admin.register(TransferStripe)

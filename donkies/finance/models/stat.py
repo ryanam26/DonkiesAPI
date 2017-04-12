@@ -12,7 +12,7 @@ class StatManager(models.Manager):
         """
         Transaction = apps.get_model('finance', 'Transaction')
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
-        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
+        TransferStripe = apps.get_model('ach', 'TransferStripe')
 
         sum1 = Transaction.objects\
             .filter(account__item__user_id=user_id, is_processed=False)\
@@ -22,8 +22,8 @@ class StatManager(models.Manager):
             .filter(account__item__user_id=user_id, is_processed=False)\
             .aggregate(Sum('roundup'))['roundup__sum']
 
-        sum3 = TransferDonkies.objects\
-            .filter(account__item__user_id=user_id, is_sent=False)\
+        sum3 = TransferStripe.objects\
+            .filter(account__item__user_id=user_id, paid=False)\
             .aggregate(Sum('amount'))['amount__sum']
 
         sum1 = sum1 if sum1 is not None else 0
@@ -31,14 +31,13 @@ class StatManager(models.Manager):
         sum3 = sum3 if sum3 is not None else 0
         return sum1 + sum2 + sum3
 
-    def get_to_donkies_amount(self, user_id):
+    def get_to_stripe_amount(self, user_id):
         """
-        Dwolla implementation.
-        Returns total roundup transferred to Donkies.
+        Returns total roundup transferred to Stripe.
         """
-        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
-        sum = TransferDonkies.objects\
-            .filter(account__item__user_id=user_id, is_sent=True)\
+        TransferStripe = apps.get_model('ach', 'TransferStripe')
+        sum = TransferStripe.objects\
+            .filter(account__item__user_id=user_id, paid=True)\
             .aggregate(Sum('amount'))['amount__sum']
         if sum is not None:
             return sum
@@ -48,7 +47,7 @@ class StatManager(models.Manager):
         """
         Returns total roundup transferred to User.
         """
-        TransferDebt = apps.get_model('bank', 'TransferDebt')
+        TransferDebt = apps.get_model('ach', 'TransferDebt')
         sum = TransferDebt.objects\
             .filter(account__item__user_id=user_id, is_processed=True)\
             .aggregate(Sum('amount'))['amount__sum']
@@ -61,8 +60,8 @@ class StatManager(models.Manager):
         Dwolla implementation.
         Returns total amount available to transfer.
         """
-        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
-        qs = TransferDonkies.objects.get_user_queryset(user_id)
+        TransferStripe = apps.get_model('ach', 'TransferStripe')
+        qs = TransferStripe.objects.get_user_queryset(user_id)
         sum = qs\
             .aggregate(Sum('amount'))['amount__sum']
         if sum is not None:
@@ -70,14 +69,14 @@ class StatManager(models.Manager):
         return 0
 
     def get_payments_count(self, user_id):
-        TransferDebt = apps.get_model('bank', 'TransferDebt')
+        TransferDebt = apps.get_model('ach', 'TransferDebt')
         return TransferDebt.objects\
             .filter(account__item__user_id=user_id, is_processed=True)\
             .count()
 
     def get_json(self, user_id):
         return {
-            'amount_to_donkies': self.get_to_donkies_amount(user_id),
+            'amount_to_stripe': self.get_to_stripe_amount(user_id),
             'amount_to_user': self.get_to_user_amount(user_id),
             'amount_available': self.get_available_amount(user_id),
             'payments': self.get_payments_count(user_id)

@@ -28,6 +28,11 @@ from ach.services.stripe_api import StripeApi
 
 
 class TransferStripeManager(models.Manager):
+    FIELDS = (
+        'status', 'balance_transaction', 'currency',
+        'captured', 'description', 'failure_code', 'livemode',
+        'metadata', 'paid', 'source')
+
     def can_process_users(self):
         """
         Can process at the last day of the month.
@@ -72,12 +77,7 @@ class TransferStripeManager(models.Manager):
         ts.stripe_id = d.pop('id')
         ts.amount_stripe = d.pop('amount')
 
-        fields = (
-            'status', 'balance_transaction', 'currency',
-            'captured', 'description', 'failure_code', 'livemode',
-            'metadata', 'paid', 'source')
-
-        for key in fields:
+        for key in self.FIELDS:
             setattr(ts, key, d[key])
 
         ts.save()
@@ -128,6 +128,21 @@ class TransferStripeManager(models.Manager):
             account__item__user=user).update(is_processed=True)
 
         return ts
+
+    def update_transfers(self):
+        """
+        Updates PENDING transfers.
+        """
+        for ts in self.model.objects.filter(status=self.model.PENDING):
+            self.update_transfer(ts)
+
+    def update_transfer(self, ts):
+        sa = StripeApi()
+        d = sa.get_charge(ts.stripe_id)
+        if d['status'] != self.model.PENDING:
+            for key in self.FIELDS:
+                setattr(ts, key, d[key])
+            ts.save()
 
     def get_date_queryset(self, is_date_filter=True):
         """

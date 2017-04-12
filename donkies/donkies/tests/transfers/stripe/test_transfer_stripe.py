@@ -12,6 +12,7 @@ class TestTransferStripe(base.Mixin):
     @pytest.mark.django_db
     def test_01(self):
         """
+        Create Stripe transfer.
         After prepare transfer from TransferPrepare,
         TransferStripe should get 1 row for 1 user.
         The account is user's funding source.
@@ -72,3 +73,38 @@ class TestTransferStripe(base.Mixin):
         # 4
         qs = TransferPrepare.objects.filter(is_processed=False)
         assert qs.count() == 0
+
+    @pytest.mark.django_db
+    def test_02(self):
+        """
+        Update Stripe transfer.
+        """
+        e = Emulator()
+        e.init()
+        Emulator.run_transfer_prepare()
+        qs = TransferPrepare.objects.all()
+        assert qs.count() > 1
+
+        # Required for real request to Stripe API in
+        # TransferStripe.objects.process_transfers()
+        account = e.user.get_funding_source_account()
+        access_token, account_id = self.get_access_token()
+        account.plaid_id = account_id
+        account.save()
+
+        item = account.item
+        item.access_token = access_token
+        item.save()
+
+        dt = self.get_last_date_of_the_month()
+        with freeze_time(dt.strftime('%Y-%m-%d %H:%M:%S')):
+            # Emulate last day of the month
+            TransferStripe.objects.process_transfers()
+            assert TransferStripe.objects.count() == 1
+
+        # In sandbox all transfers automatically become SUCCEEDED
+        # after creation. (On production few days).
+        TransferStripe.objects.update_transfers()
+        ts = TransferStripe.objects.first()
+        assert ts.status == TransferStripe.SUCCEEDED
+        assert ts.paid is True

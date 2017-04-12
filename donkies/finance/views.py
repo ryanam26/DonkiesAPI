@@ -108,7 +108,8 @@ class AccountsEditShare(AuthMixin, APIView):
 class AccountsSetActive(AuthMixin, APIView):
     """
     Activate / Deactivate account.
-    Can not deactivate account if member has only 1 active account.
+    1) Can not deactivate account if Item has only 1 active account.
+    2) Can not deactivate funding source.
     """
     def put(self, request, **kwargs):
         id = kwargs['pk']
@@ -127,6 +128,10 @@ class AccountsSetActive(AuthMixin, APIView):
                     'at financial institution'
                 )
                 return r400(msg)
+
+        if account.is_funding_source_for_transfer:
+            msg = 'You can not deactivate funding source account.'
+            return r400(msg)
 
         Account.objects.change_active(account.id, is_active)
         return Response(status=204)

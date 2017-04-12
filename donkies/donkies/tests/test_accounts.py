@@ -108,7 +108,7 @@ class TestAccounts(base.Mixin):
         assert account.is_active is True
 
     @pytest.mark.django_db
-    def test_deactivate_account(self, client):
+    def test_deactivate_account01(self, client):
         """
         1) Can deactivate if there are others active accounts.
         2) Can not deactivate last active account in item.
@@ -117,13 +117,29 @@ class TestAccounts(base.Mixin):
         a2 = AccountFactory.get_account(item=a1.item)
         client = self.get_auth_client(a1.item.user)
 
-        url = '/v1/accounts/set_active/{}'.format(a1.id)
+        url = '/v1/accounts/set_active/{}'.format(a2.id)
         dic = {'is_active': False}
         data = json.dumps(dic)
         response = client.put(url, data, content_type='application/json')
         assert response.status_code == 204
 
-        url = '/v1/accounts/set_active/{}'.format(a2.id)
+        url = '/v1/accounts/set_active/{}'.format(a1.id)
+        data = json.dumps(dic)
+        response = client.put(url, data, content_type='application/json')
+        assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_deactivate_account02(self, client):
+        """
+        Can not deactivate funding source.
+        First created account is funding source by default.
+        """
+        a = AccountFactory.get_account(type=Account.DEPOSITORY)
+        AccountFactory.get_account(item=a.item, type=Account.DEPOSITORY)
+        client = self.get_auth_client(a.item.user)
+
+        url = '/v1/accounts/set_active/{}'.format(a.id)
+        dic = {'is_active': False}
         data = json.dumps(dic)
         response = client.put(url, data, content_type='application/json')
         assert response.status_code == 400
@@ -193,3 +209,16 @@ class TestAccounts(base.Mixin):
         response = client.post(url, data, content_type='application/json')
         assert response.status_code == 201
         assert Account.objects.count() == 1
+
+    @pytest.mark.django_db
+    def test_funding_source01(self, client):
+        """
+        When first debit account is created - make it
+        automatically as funding source.
+        """
+        account = AccountFactory.get_account()
+        account.type = Account.DEPOSITORY
+        account.save()
+
+        account.refresh_from_db()
+        assert account.is_funding_source_for_transfer is True

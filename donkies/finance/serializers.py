@@ -66,7 +66,6 @@ class AccountSerializer(serializers.ModelSerializer):
             'subtype',
             'transfer_share',
             'is_funding_source_for_transfer',
-            'is_dwolla_created',
             'is_active',
             'institution',
             'item',

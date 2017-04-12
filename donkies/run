@@ -60,7 +60,7 @@ elif [ "$1" == "test" ]
 then
 clear
 
-# py.test -s donkies/tests/test_accounts.py
+py.test -s donkies/tests/test_accounts.py
 # py.test -s donkies/tests/test_auth.py
 # py.test -s donkies/tests/test_customers.py
 # py.test -s donkies/tests/test_facebook.py
@@ -77,7 +77,7 @@ clear
 # py.test -s donkies/tests/transfers/stripe/test_api.py
 # py.test -s donkies/tests/transfers/stripe/test_stripe.py
 # py.test -s donkies/tests/transfers/stripe/test_transactions.py
-py.test -s donkies/tests/transfers/stripe/test_transfer_stripe.py
+# py.test -s donkies/tests/transfers/stripe/test_transfer_stripe.py
 # py.test -s donkies/tests/transfers/stripe/test_transfer_prepare.py
 # py.test -s donkies/tests/transfers/stripe/test_transfer_user.py
 # py.test -s donkies/tests/transfers/stripe/test_stat.py

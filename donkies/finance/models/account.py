@@ -322,6 +322,20 @@ def apply_transfer_share(sender, instance, created, **kwargs):
                 id=instance.id).update(transfer_share=100)
 
 
+@receiver(post_save, sender=Account)
+def make_funding_source(sender, instance, created, **kwargs):
+    """
+    If user adds first debit account, make it automatically
+    as funding source.
+    """
+    if instance.type_ds == Account.DEBIT:
+        qs = Account.objects.active().filter(
+            item__user=instance.item.user, type_ds=Account.DEBIT)
+        if qs.count() == 1:
+            Account.objects.active().filter(
+                id=instance.id).update(is_funding_source_for_transfer=True)
+
+
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
     list_display = (

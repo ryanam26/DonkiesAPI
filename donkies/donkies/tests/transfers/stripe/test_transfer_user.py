@@ -3,8 +3,8 @@ import pytest
 from freezegun import freeze_time
 from django.db.models import Sum
 from django.utils import timezone
-from donkies.tests.services.emulator import Emulator
-from bank.models import TransferUser, TransferDebt, TransferDonkies
+from donkies.tests.services.stripe.emulator import Emulator
+from ach.models import TransferUser, TransferDebt, TransferStripe
 from donkies.tests import base
 
 
@@ -27,9 +27,9 @@ class TestTransferUser(base.Mixin):
         """
         e = Emulator(num_debt_accounts=0)
         e.init()
-        e.create_dwolla_transfers(60)
+        e.create_stripe_transfers(90)
 
-        TransferUser.objects.process()
+        TransferUser.objects.process_users()
         assert TransferUser.objects.count() == 0
 
     @pytest.mark.django_db
@@ -40,12 +40,12 @@ class TestTransferUser(base.Mixin):
         """
         e = Emulator()
         e.init()
-        e.create_dwolla_transfers(60)
+        e.create_stripe_transfers(90)
 
         e.user.is_auto_transfer = False
         e.user.save()
 
-        TransferUser.objects.process()
+        TransferUser.objects.process_users()
         assert TransferUser.objects.count() == 0
 
     @pytest.mark.django_db
@@ -57,12 +57,12 @@ class TestTransferUser(base.Mixin):
         """
         e = Emulator()
         e.init()
-        e.create_dwolla_transfers(60)
+        e.create_stripe_transfers(90)
 
         e.user.minimum_transfer_amount = 1000000
         e.user.save()
 
-        TransferUser.objects.process()
+        TransferUser.objects.process_users()
         assert TransferUser.objects.count() == 0
 
     @pytest.mark.django_db
@@ -72,50 +72,55 @@ class TestTransferUser(base.Mixin):
         """
         e = Emulator()
         e.init()
-        e.create_dwolla_transfers(60)
+        e.create_stripe_transfers(90)
 
-        TransferUser.objects.process()
+        TransferUser.objects.process_users()
         assert TransferUser.objects.count() > 0
+        assert TransferDebt.objects.count() > 0
 
     @pytest.mark.django_db
     def test_process05(self):
         """
-        Test running "process" manager's method before 15th of the month.
-        It should process all TransferDonkies, from month before previous.
+        Test running "process_users" manager's method
+        before 15th of the month.
+        It should process all TransferStripe,
+        from month before previous.
         """
         e = Emulator()
         e.init()
-        e.create_dwolla_transfers(60)
+        e.create_stripe_transfers(90)
 
         dt = timezone.now().replace(day=14)
         dt_str = dt.strftime('%Y-%m-%d %H:%M:%S')
         with freeze_time(dt_str):
             dt = self.get_first_day_of_previous_month()
 
-            TransferUser.objects.process()
-            qs1 = TransferDonkies.objects.filter(is_processed_to_user=True)
-            qs2 = TransferDonkies.objects.filter(sent_at__lt=dt)
+            TransferUser.objects.process_users()
+            qs1 = TransferStripe.objects.filter(is_processed_to_user=True)
+            qs2 = TransferStripe.objects.filter(created_at__lt=dt)
             assert qs1.count() == qs2.count()
             assert TransferUser.objects.count() == 1
 
     @pytest.mark.django_db
     def test_process06(self):
         """
-        Test running "process" manager's method after 15th of the month.
-        It should process all TransferDonkies, from previous month.
+        Test running "process_users" manager's method
+        after 15th of the month.
+        It should process all TransferDonkies,
+        from previous month.
         """
         e = Emulator()
         e.init()
-        e.create_dwolla_transfers(30)
+        e.create_stripe_transfers(30)
 
         dt = timezone.now().replace(day=15)
         dt_str = dt.strftime('%Y-%m-%d %H:%M:%S')
         with freeze_time(dt_str):
             dt = self.get_first_day_of_current_month()
 
-            TransferUser.objects.process()
-            qs1 = TransferDonkies.objects.filter(is_processed_to_user=True)
-            qs2 = TransferDonkies.objects.filter(sent_at__lt=dt)
+            TransferUser.objects.process_users()
+            qs1 = TransferStripe.objects.filter(is_processed_to_user=True)
+            qs2 = TransferStripe.objects.filter(created_at__lt=dt)
             assert qs1.count() == qs2.count()
             assert TransferUser.objects.count() == 1
 
@@ -126,7 +131,7 @@ class TestTransferUser(base.Mixin):
         """
         e = Emulator(num_debt_accounts=3)
         e.init()
-        e.create_dwolla_transfers(60)
+        e.create_stripe_transfers(90)
 
         a = e.debt_accounts[0]
         a.transfer_share = 33
@@ -141,7 +146,7 @@ class TestTransferUser(base.Mixin):
         a.save()
 
         assert TransferUser.objects.count() == 0
-        TransferUser.objects.process()
+        TransferUser.objects.process_users()
 
         tu = TransferUser.objects.first()
         qs = TransferDebt.objects.filter(tu=tu)
@@ -157,7 +162,7 @@ class TestTransferUser(base.Mixin):
         """
         e = Emulator(num_debt_accounts=2)
         e.init()
-        e.create_dwolla_transfers(60)
+        e.create_stripe_transfers(90)
 
         a = e.debt_accounts[0]
         a.transfer_share = 99
@@ -167,7 +172,7 @@ class TestTransferUser(base.Mixin):
         a.transfer_share = 1
         a.save()
 
-        TransferUser.objects.process()
+        TransferUser.objects.process_users()
 
         tu = TransferUser.objects.first()
         qs = TransferDebt.objects.filter(tu=tu)
@@ -185,7 +190,7 @@ class TestTransferUser(base.Mixin):
 
         e = Emulator()
         e.init()
-        e.create_dwolla_transfers(60)
+        e.create_stripe_transfers(90)
 
         a = e.debt_accounts[0]
         a.transfer_share = 100
@@ -195,7 +200,7 @@ class TestTransferUser(base.Mixin):
         a.transfer_share = 0
         a.save()
 
-        TransferUser.objects.process()
+        TransferUser.objects.process_users()
 
         tu = TransferUser.objects.first()
         qs = TransferDebt.objects.filter(tu=tu)
@@ -207,14 +212,14 @@ class TestTransferUser(base.Mixin):
     @pytest.mark.django_db
     def test_process10(self):
         """
-        All TransferDonkies that have been processed should be marked
+        All TransferStripe that have been processed should be marked
         as is_processed_to_user.
         """
         e = Emulator(num_debt_accounts=1)
         e.init()
-        e.create_dwolla_transfers(60)
+        e.create_stripe_transfers(90)
 
-        TransferUser.objects.process()
+        TransferUser.objects.process_users()
 
         tu = TransferUser.objects.first()
         assert tu.items.filter(is_processed_to_user=False).count() == 0

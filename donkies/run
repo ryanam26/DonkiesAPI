@@ -78,8 +78,8 @@ clear
 # py.test -s donkies/tests/transfers/stripe/test_stripe.py
 # py.test -s donkies/tests/transfers/stripe/test_transactions.py
 # py.test -s donkies/tests/transfers/stripe/test_transfer_stripe.py
-py.test -s donkies/tests/transfers/stripe/test_transfer_prepare.py
-# py.test -s donkies/tests/transfers/stripe/test_transfer_user.py
+# py.test -s donkies/tests/transfers/stripe/test_transfer_prepare.py
+py.test -s donkies/tests/transfers/stripe/test_transfer_user.py
 
 
 # Dwolla Transfers

@@ -28,13 +28,27 @@ from ach.services.stripe_api import StripeApi
 
 
 class TransferStripeManager(models.Manager):
-    def can_process(self):
+    def can_process_users(self):
         """
         Can process at the last day of the month.
         """
         dt = datetime.date.today()
         _, last = calendar.monthrange(dt.year, dt.month)
         if last == dt.day:
+            return True
+        return False
+
+    def can_process_user(self, user_id):
+        """
+        Stripe transfer for particular user
+        can be processed only once a day.
+        The second call should not be processed.
+        """
+        today = datetime.date.today()
+        count = TransferStripe.objects.filter(
+            account__item__user_id=user_id,
+            created_at__day=today.day).count()
+        if count == 0:
             return True
         return False
 
@@ -77,7 +91,7 @@ class TransferStripeManager(models.Manager):
         """
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
 
-        if not self.can_process():
+        if not self.can_process_users():
             return
 
         users = TransferPrepare.objects.filter(is_processed=False)\
@@ -88,9 +102,12 @@ class TransferStripeManager(models.Manager):
         for user_id in users:
             self.create_transfer(user_id)
 
-    def create_transfer(self, user_id, is_test=False):
+    def create_transfer(self, user_id):
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
         User = apps.get_model('web', 'User')
+
+        if not self.can_process_user(user_id):
+            return
 
         user = User.objects.get(id=user_id)
         fs = user.get_funding_source_account()

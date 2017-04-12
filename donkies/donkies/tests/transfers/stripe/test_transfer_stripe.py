@@ -1,5 +1,6 @@
 import pytest
 from freezegun import freeze_time
+from django.utils import timezone
 from django.db.models import Sum
 from donkies.tests.services.stripe.emulator import Emulator
 from finance.models import TransferPrepare
@@ -17,10 +18,11 @@ class TestTransferStripe(base.Mixin):
         Transfers to Stripe are created on the last day of the month.
 
         1) TransferStripe should have 1 row
-        2) The amount (total roundup) in TransferStripe row
+        2) The second transfer for the same user in the same day
+           should not work.
+        3) The amount (total roundup) in TransferStripe row
            should be equal to total sum in TransferPrepare rows.
-
-        3) All TransferPrepare should be processed:
+        4) All TransferPrepare should be processed:
            (is_processed=True)
         """
         e = Emulator()
@@ -49,13 +51,24 @@ class TestTransferStripe(base.Mixin):
             # Emulate last day of the month
             TransferStripe.objects.process_transfers()
 
-        # 1
-        assert TransferStripe.objects.count() == 1
+            assert TransferStripe.objects.can_process_user(e.user.id) is True
 
-        # 2
+            # 1
+            assert TransferStripe.objects.count() == 1
+
+            tr = TransferStripe.objects.first()
+            # "created_at" is not match to our mock date
+            # Make this condition.
+            tr.created_at = timezone.now()
+            tr.save()
+
+            # 2
+            assert TransferStripe.objects.can_process_user(e.user.id) is False
+
+        # 3
         qs = TransferStripe.objects.filter(account__item__user=e.user)
         assert qs.first().amount == sum
 
-        # 3
+        # 4
         qs = TransferPrepare.objects.filter(is_processed=False)
         assert qs.count() == 0

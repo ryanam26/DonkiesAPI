@@ -2,9 +2,15 @@
 Signup flow.
 After signup user need to go through following steps:
 
+For Dwolla:
+
 1) Complete profile
 2) Add debit bank to Plaid
 3) Add debit bank to Dwolla (IAV)
+4) Add debt to Plaid
+
+For Stripe:
+2) Add debit bank to Plaid
 4) Add debt to Plaid
 """
 
@@ -449,40 +455,36 @@ class User(AbstractBaseUser):
         self.profile_image.save(filename, ContentFile(bytes))
 
     def signup_steps(self):
-        return None
-        if not settings.PRODUCTION:
-            return None
-
-        Account = apps.get_model('finance', 'Account')
+        # Account = apps.get_model('finance', 'Account')
         if self.is_signup_completed:
             return None
 
-        url_3rd_step = None
-        if self.check_signup_step2():
-            account = Account.objects.debit_accounts().filter(
-                item__user=self).first()
-            url_3rd_step = '/create_funding_source?account_guid={}'.format(
-                account.guid)
+        # url_3rd_step = None
+        # if self.check_signup_step2():
+        #     account = Account.objects.debit_accounts().filter(
+        #         item__user=self).first()
+        #     url_3rd_step = '/create_funding_source?account_guid={}'.format(
+        #         account.guid)
 
         return [
-            {
-                'name': 'Complete user profile',
-                'message': 'Please complete your profile',
-                'allowed_url': '/user_profile',
-                'is_completed': self.check_signup_step1()
-            },
+            # {
+            #     'name': 'Complete user profile',
+            #     'message': 'Please complete your profile',
+            #     'allowed_url': '/user_profile',
+            #     'is_completed': self.check_signup_step1()
+            # },
             {
                 'name': 'Add debit account to Atrium.',
                 'message': 'Please add debit account.',
                 'allowed_url': '/add_bank',
                 'is_completed': self.check_signup_step2()
             },
-            {
-                'name': 'Add debit account to Dwolla.',
-                'message': 'Please verify your debit account in Dwolla.',
-                'allowed_url': url_3rd_step,
-                'is_completed': self.check_signup_step3()
-            },
+            # {
+            #     'name': 'Add debit account to Dwolla.',
+            #     'message': 'Please verify your debit account in Dwolla.',
+            #     'allowed_url': url_3rd_step,
+            #     'is_completed': self.check_signup_step3()
+            # },
             {
                 'name': 'Add debt account to Atrium.',
                 'message': 'Please add debt account.',

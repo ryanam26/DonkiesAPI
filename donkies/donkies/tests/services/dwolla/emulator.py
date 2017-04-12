@@ -43,7 +43,6 @@ class Emulator:
         self.fill_debit_accounts()
         self.fill_debt_accounts()
         self.set_funding_source_dwolla()
-        self.set_funding_source_stripe()
         self.fill_transactions()
 
     def make_transfer_prepare_condition(self):
@@ -90,14 +89,6 @@ class Emulator:
         FundingSource.objects.create_funding_source_iav(
             account.id, dwolla_id, test_dic)
 
-        Account.objects.set_funding_source(account.id)
-
-    def set_funding_source_stripe(self):
-        """
-        For Dwolla tests.
-        Set funding source for user.
-        """
-        account = self.debit_accounts[0]
         Account.objects.set_funding_source(account.id)
 
     def clear_funding_source(self):

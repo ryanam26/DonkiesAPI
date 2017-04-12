@@ -8,9 +8,9 @@ from django.utils import timezone
 
 
 class TransferUserManager(models.Manager):
-    def process(self):
-        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
-        users = TransferDonkies.objects.get_date_queryset()\
+    def process_users(self):
+        TransferStripe = apps.get_model('ach', 'TransferStripe')
+        users = TransferStripe.objects.get_date_queryset()\
             .order_by('account__item__user_id')\
             .values_list('account__item__user_id', flat=True)\
             .distinct()
@@ -25,13 +25,13 @@ class TransferUserManager(models.Manager):
         It is used when user closes account in Donkies.
 
         1) Create TransferUser instance.
-        2) Add to instance.items all TransferDonkies items.
-        3) All TransferDonkies items set:
+        2) Add to instance.items all TransferStripe items.
+        3) All TransferStripe items set:
             is_processed_to_user = True
             processed_at = now
         4) Create TransferDebt instances accordingly to share.
         """
-        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
+        TransferStripe = apps.get_model('ach', 'TransferStripe')
 
         if not self.can_process_user(user_id, force_process):
             return
@@ -40,7 +40,7 @@ class TransferUserManager(models.Manager):
         tu.save()
 
         is_date_filter = not force_process
-        qs = TransferDonkies.objects.get_user_queryset(
+        qs = TransferStripe.objects.get_user_queryset(
             user_id, is_date_filter=is_date_filter)
 
         for td in qs:
@@ -66,11 +66,11 @@ class TransferUserManager(models.Manager):
            less than aggregated amount.
         """
         Account = apps.get_model('finance', 'Account')
-        TransferDonkies = apps.get_model('bank', 'TransferDonkies')
+        TransferStripe = apps.get_model('ach', 'TransferStripe')
         User = apps.get_model('web', 'User')
 
         is_date_filter = not force_process
-        qs = TransferDonkies.objects.get_user_queryset(
+        qs = TransferStripe.objects.get_user_queryset(
             user_id, is_date_filter=is_date_filter)
         if not qs:
             return False
@@ -85,7 +85,7 @@ class TransferUserManager(models.Manager):
         if not user.is_auto_transfer and not force_process:
             return False
 
-        res = TransferDonkies.objects.get_user_queryset(
+        res = TransferStripe.objects.get_user_queryset(
             user_id, is_date_filter=is_date_filter).aggregate(Sum('amount'))
         sum = res['amount__sum']
         if abs(sum) < user.minimum_transfer_amount and not force_process:
@@ -97,8 +97,8 @@ class TransferUserManager(models.Manager):
 class TransferUser(models.Model):
     """
     Donkies LLC holds user's money.
-    All transfers from user's debit accounts to TransferDonkies
-    are stored in TransferDonkies model.
+    All transfers from user's debit accounts to Stripe
+    are stored in TransferStripe model.
 
     On 15th of current month, funds can be transferred to TransferUser
     model, if user set "is_auto_transfer" and if total amount more than

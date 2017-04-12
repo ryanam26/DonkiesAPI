@@ -120,5 +120,7 @@ class TransferPrepareSerializer(serializers.ModelSerializer):
             'id',
             'account',
             'roundup',
-            'created_at'
+            'created_at',
+            'is_processed',
+            'processed_at'
         )

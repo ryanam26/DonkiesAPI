@@ -1,13 +1,13 @@
+import calendar
 import datetime
 import random
-import uuid
 from django.utils import timezone
 from django.conf import settings
 from finance.models import Account, TransferPrepare
-from bank.models import FundingSource, TransferDonkies, TransferDebt
+from ach.models import TransferDebt, TransferUser
 from donkies.tests.factories import (
     AccountFactory, ItemFactory, TransactionFactory,
-    TransferDonkiesFactory, UserFactory)
+    TransferStripeFactory, UserFactory)
 
 
 class Emulator:
@@ -38,8 +38,7 @@ class Emulator:
     def init(self):
         self.fill_debit_accounts()
         self.fill_debt_accounts()
-        self.set_funding_source_dwolla()
-        self.set_funding_source_stripe()
+        self.set_funding_source()
         self.fill_transactions()
 
     def make_transfer_prepare_condition(self):
@@ -74,25 +73,13 @@ class Emulator:
         return [
             date - datetime.timedelta(days=x) for x in range(0, num_days)]
 
-    def set_funding_source_dwolla(self):
-        """
-        For Dwolla tests.
-        Set funding source for user.
-        """
-        account = self.debit_accounts[0]
-        dwolla_id = 'some-dwolla-id-{}'.format(random.randint(10000, 99999))
-        test_dic = self.get_funding_source_dic(dwolla_id)
+    def is_last_day_of_the_month(self, dt):
+        _, last = calendar.monthrange(dt.year, dt.month)
+        if last == dt.day:
+            return True
+        return False
 
-        FundingSource.objects.create_funding_source_iav(
-            account.id, dwolla_id, test_dic)
-
-        Account.objects.set_funding_source(account.id)
-
-    def set_funding_source_stripe(self):
-        """
-        For Dwolla tests.
-        Set funding source for user.
-        """
+    def set_funding_source(self):
         account = self.debit_accounts[0]
         Account.objects.set_funding_source(account.id)
 
@@ -139,48 +126,23 @@ class Emulator:
             tr = TransactionFactory(account=account, date=dt.date())
             self.transactions.append(tr)
 
-    def emulate_dwolla_transfers(self):
+    def create_stripe_transfers(self, num_days):
         """
-        Emulate that all transfers have been sent to Dwolla
-        from TransferDonkies.
-        """
-        dt = timezone.now() +\
-            datetime.timedelta(minutes=random.randint(10, 100))
-
-        qs = TransferDonkies.objects.filter(
-            account__item__user=self.user, is_sent=False)
-        for td in qs:
-            td.status = TransferDonkies.PROCESSED
-            td.is_initiated = True
-            td.is_sent = True
-            td.sent_at = dt
-            td.created_at = dt
-            td.updated_at = dt
-            td.processed_at = dt
-            td.dwolla_id = uuid.uuid4().hex
-            td.save()
-
-    def emulate_transfers_to_user(self):
-        TransferDebt.objects\
-            .filter(is_processed=False)\
-            .update(is_processed=True, processed_at=timezone.now())
-
-    def create_dwolla_transfers(self, num_days):
-        """
-        Creates transfers to Dwolla for num_days back from today.
-        1 transfer per day.
-
-        Emulating Donkies transfers to dwolla for many days
-        takes too much time, therefore this method creates dwolla transfers
-        directly in db without emulation. It is OK for testing.
-        All transfers are PROCESSED.
+        Creates transfers to Stripe for num_days back from today.
+        Current requirement: transfer is created in the last day
+        of the month. Create directly in db without full flow emulation.
+        Requirements in spec are changing constantly.
+        So, we loop by days, but create only at the last day of the month.
         """
         account = self.user.get_funding_source_account()
+
         for date in self.get_dates_range(num_days):
+            if not self.is_last_day_of_the_month(date):
+                continue
             dt = self.get_datetime(date)
             dt = timezone.make_aware(dt)
-            TransferDonkiesFactory.get_transfer(
-                account=account, sent_at=dt)
+            TransferStripeFactory.get_transfer(
+                account=account, created_at=dt)
 
     def get_total_roundup(self, l):
         """
@@ -194,24 +156,6 @@ class Emulator:
             total += tr.roundup
         return total
 
-    def get_funding_source_dic(self, dwolla_id):
-        """
-        When user creates funding source account in Dwolla (via dwolla.js),
-        Dwolla respond with similar dict.
-        """
-        return {
-            'created': '2017-01-16T08:16:07.000Z',
-            'removed': False,
-            'balance': {
-                'currency': 'USD',
-                'value': '0.00'
-            },
-            'id': dwolla_id,
-            'type': 'balance',
-            'status': 'verified',
-            'name': 'Balance'
-        }
-
     @staticmethod
     def run_transfer_prepare():
         """
@@ -220,5 +164,18 @@ class Emulator:
         TransferPrepare.objects.process_roundups()
 
     @staticmethod
-    def run_transfer_donkies_prepare():
-        TransferDonkies.objects.process_prepare()
+    def run_process_users():
+        """
+        All user's payments from debit accounts to Stripe,
+        delegate to TransferUser and then to TransferDebt.
+        """
+        TransferUser.objects.process_users()
+
+    @staticmethod
+    def emulate_transfers_to_users(self):
+        """
+        All transfers have been sent to user's debt accounts.
+        """
+        TransferDebt.objects\
+            .filter(is_processed=False)\
+            .update(is_processed=True, processed_at=timezone.now())

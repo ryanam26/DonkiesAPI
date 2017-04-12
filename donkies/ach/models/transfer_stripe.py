@@ -14,6 +14,7 @@ Transfer flow to TransferStripe model.
    Update status and all corresponding Charge's fields.
 """
 
+import calendar
 import datetime
 from django.utils import timezone
 from django.apps import apps
@@ -57,13 +58,16 @@ class TransferStripeManager(models.Manager):
         ts.save()
         return ts
 
-    def process_prepare(self):
+    def process_transfers(self):
         """
         Called by celery scheduled task.
         Process TransferPrepare to TransferStripe model.
         Create Charge on Stripe.
         """
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
+
+        if not self.can_process:
+            return
 
         users = TransferPrepare.objects.filter(is_processed=False)\
             .order_by('account__item__user_id')\
@@ -73,7 +77,7 @@ class TransferStripeManager(models.Manager):
         for user_id in users:
             self.create_transfer(user_id)
 
-    def create_transfer(self, user_id):
+    def create_transfer(self, user_id, is_test=False):
         TransferPrepare = apps.get_model('finance', 'TransferPrepare')
         User = apps.get_model('web', 'User')
 
@@ -103,10 +107,10 @@ class TransferStripeManager(models.Manager):
         """
         filters = dict(
             is_processed_to_user=False,
-            is_sent=True
+            paid=True
         )
         if is_date_filter:
-            filters['sent_at__lt'] = self.get_date()
+            filters['created_at__lt'] = self.get_date()
         return self.model.objects.filter(**filters)
 
     def get_user_queryset(self, user_id, is_date_filter=True):
@@ -135,6 +139,16 @@ class TransferStripeManager(models.Manager):
             dt = today.replace(day=1) - datetime.timedelta(days=1)
             return dt.replace(day=1)
         return today.replace(day=1)
+
+    def can_process(self):
+        """
+        Can process at the last day of the month.
+        """
+        dt = datetime.date.today()
+        _, last = calendar.monthrange(dt.year, dt.month)
+        if last == dt.day:
+            return True
+        return False
 
 
 class TransferStripe(models.Model):

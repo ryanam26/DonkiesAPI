@@ -17,7 +17,7 @@ class TransfersStripe(AuthMixin, generics.ListAPIView):
 
     def get_queryset(self):
         return TransferStripe.objects.filter(
-            account__item__user=self.request.user, is_sent=True)
+            account__item__user=self.request.user, paid=True)
 
 
 class TransfersUser(AuthMixin, generics.ListAPIView):

@@ -64,6 +64,22 @@ class AccountManager(ActiveManager):
     def set_funding_source(self, account_id):
         """
         Set debit account as funding source for user.
+        """
+        account = self.model.objects.get(
+            id=account_id, type_ds=self.model.DEBIT)
+
+        self.model.objects.active().filter(
+            item__user=account.item.user)\
+            .update(is_funding_source_for_transfer=False)
+        account.is_funding_source_for_transfer = True
+        account.save()
+        return account
+
+    @transaction.atomic
+    def set_funding_source_dwolla(self, account_id):
+        """
+        Dwolla implementation.
+        Set debit account as funding source for user.
         Account should exist in FundingSource.
         """
         FundingSource = apps.get_model('bank', 'FundingSource')

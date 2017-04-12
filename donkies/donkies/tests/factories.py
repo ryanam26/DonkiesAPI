@@ -8,7 +8,7 @@ from faker import Faker
 from finance.services.plaid_api import PlaidApi
 from web.models import User, Email
 from finance.models import Account, Item, Institution, Transaction
-from bank.models import Customer, TransferDonkies
+from ach.models import TransferStripe
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -161,44 +161,28 @@ class TransactionFactory(factory.django.DjangoModelFactory):
         )
 
 
-class CustomerFactory(factory.django.DjangoModelFactory):
+class TransferStripeFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = Customer
-
-    user = factory.SubFactory(UserFactory)
-
-    @staticmethod
-    def get_customer(email=None):
-        if email is None:
-            email = Faker().email()
-
-        user = UserFactory(email=email)
-        return Customer.objects.create_customer(user)
-
-
-class TransferDonkiesFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = TransferDonkies
+        model = TransferStripe
 
     account = factory.SubFactory(AccountFactory)
 
     @staticmethod
-    def get_transfer(account=None, sent_at=None):
+    def get_transfer(account=None, created_at=None):
         if not account:
             account = AccountFactory.get_account()
 
-        if not sent_at:
-            sent_at = timezone.now()
+        if not created_at:
+            created_at = timezone.now()
 
-        return TransferDonkiesFactory(
+        amount = abs(TransactionFactory.generate_amount())
+
+        return TransferStripeFactory(
             account=account,
-            amount=abs(TransactionFactory.generate_amount()),
-            created_at=sent_at,
-            initiated_at=sent_at,
-            sent_at=sent_at,
-            updated_at=sent_at,
-            is_initiated=True,
-            is_sent=True,
-            status=TransferDonkies.PROCESSED,
-            dwolla_id=uuid.uuid4().hex
+            created_at=created_at,
+            amount=amount,
+            amount_stripe=amount * 100,
+            paid=True,
+            status=TransferStripe.SUCCEEDED,
+            stripe_id=uuid.uuid4().hex
         )

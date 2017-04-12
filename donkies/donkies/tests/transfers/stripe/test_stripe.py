@@ -80,4 +80,4 @@ class TestStripe(base.Mixin):
         self.init()
         ts = TransferStripe.objects.create_charge(
             self.account, '10.56')
-        print(ts.__dict__)
+        assert isinstance(ts, TransferStripe)

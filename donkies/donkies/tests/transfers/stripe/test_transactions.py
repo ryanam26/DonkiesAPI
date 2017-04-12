@@ -1,6 +1,6 @@
 import pytest
 from donkies.tests import base
-from ..factories import TransactionFactory
+from donkies.tests.factories import TransactionFactory
 from finance.models import Transaction
 
 

@@ -2,7 +2,7 @@ import pytest
 from django.db.models import Sum
 from django.conf import settings
 from donkies.tests import base
-from donkies.tests.services.emulator import Emulator
+from donkies.tests.services.stripe.emulator import Emulator
 from finance.models import TransferPrepare, Transaction
 
 

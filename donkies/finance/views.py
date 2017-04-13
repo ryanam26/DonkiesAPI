@@ -5,7 +5,7 @@ from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from finance.tasks import process_plaid_webhooks
+from finance.tasks import process_plaid_webhooks, fetch_transactions
 from web.views import AuthMixin, r400
 from finance.models import (
     Account, Institution, Item, Stat, Transaction, TransferPrepare)
@@ -235,6 +235,8 @@ class Items(AuthMixin, ListCreateAPIView):
             request.user, public_token)
 
         Account.objects.create_or_update_accounts(item.access_token)
+        fetch_transactions.delay(item.access_token)
+
         s = sers.ItemSerializer(item)
         return Response(s.data, status=201)
 

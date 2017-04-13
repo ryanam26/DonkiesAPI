@@ -1,4 +1,5 @@
 import datetime
+import logging
 import math
 import uuid
 from django.db import models
@@ -9,6 +10,8 @@ from django.contrib.postgres.fields import JSONField
 from web.models import ActiveModel, ActiveManager
 from finance.services.plaid_api import PlaidApi
 
+logger = logging.getLogger('app')
+
 
 class TransactionManager(ActiveManager):
     @transaction.atomic
@@ -18,11 +21,17 @@ class TransactionManager(ActiveManager):
         1) Create new transactions.
         2) Or update transactions that already exists.
         """
+        logger.debug(
+            'Start to update transactions: {}'.format(access_token))
         Item = apps.get_model('finance', 'Item')
         item = Item.objects.get(access_token=access_token)
 
+        logger.debug('Item: {}'.format(item.id))
+
         l = self.get_plaid_transactions(
             item, start_date=start_date, end_date=end_date)
+
+        logger.debug('Number of transactions: {}'.format(len(l)))
 
         for tr in l:
             self.create_or_update_transaction(tr)
@@ -33,6 +42,8 @@ class TransactionManager(ActiveManager):
         If transaction's account is deleted (is_active=False),
         do not process this transaction.
         """
+        logger.debug('Start to create/update transaction')
+
         Account = apps.get_model('finance', 'Account')
         d = api_response
 
@@ -50,9 +61,12 @@ class TransactionManager(ActiveManager):
         try:
             tr = self.model.objects.get(plaid_id=d['plaid_id'])
             tr.__dict__.update(d)
+            logger.debug('Transaction updated')
         except self.model.DoesNotExist:
             tr = self.model(**d)
+            logger.debug('Transaction created')
         tr.save()
+
         return tr
 
     def get_plaid_transactions(self, item, start_date=None, end_date=None):

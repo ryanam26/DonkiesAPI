@@ -20,6 +20,17 @@ def process_plaid_webhooks(data):
     PlaidWebhook.objects.process_webhook(data)
 
 
+@capp.task
+def fetch_transactions(access_token):
+    """
+    Used when new item is created.
+    On production transactions can be fetched by webhook.
+    But on development can't get webhook.
+    """
+    Transaction = apps.get_model('finance', 'Transaction')
+    Transaction.objects.create_or_update_transactions(access_token)
+
+
 # --- Transfers
 
 @periodic_task(run_every=crontab(minute='*/15', hour='*'))

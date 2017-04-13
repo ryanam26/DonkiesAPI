@@ -49,6 +49,7 @@ class Tester:
         data['item_id'] = item.plaid_id
 
         url = 'http://localhost:8000/v1/plaid/webhooks'
+        url = 'https://api.donkies.co/v1/plaid/webhooks'
         r = requests.post(url, data=data)
         print(r.status_code)
 

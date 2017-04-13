@@ -22,7 +22,10 @@ python manage.py migrate
 python manage.py createsuperuser
 python manage.py createemails
 
+# Plaid institutions
 python manage.py loaddata institutions
+# Manual institutions
+python manage.py createmanualinstitutions
 python manage.py loaddata categories_dev
 
 elif [ "$1" == "migr" ]

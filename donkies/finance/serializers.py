@@ -11,7 +11,9 @@ class InstitutionSerializer(serializers.ModelSerializer):
             'plaid_id',
             'name',
             'has_mfa',
-            'address'
+            'address',
+            'box',
+            'link'
         )
 
 

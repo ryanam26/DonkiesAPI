@@ -98,6 +98,10 @@ class Institution(models.Model):
     address = models.CharField(
         max_length=500, null=True, default=None, blank=True,
         help_text='Used for manual institutions.')
+    box = models.CharField(
+        max_length=100, null=True, default=None, blank=True)
+    link = models.CharField(
+        max_length=255, null=True, default=None, blank=True)
     is_manual = models.BooleanField(
         default=False,
         help_text='Used for debt accounts. Not exist in Plaid.')
@@ -133,6 +137,8 @@ class InstitutionAdmin(admin.ModelAdmin):
         'name',
         'address',
         'plaid_id',
+        'box',
+        'link',
         'has_mfa',
         'products',
         'sort',

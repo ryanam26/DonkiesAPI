@@ -496,13 +496,13 @@ class User(AbstractBaseUser):
     def close_account(self):
         """
         Close account in Donkies and refund all roundup.
-        1) Transfer all funds that currently Donkies hold in Dwolla
+        1) Transfer all funds that currently Donkies hold in Stripe
            to TransferUser model.
         2) Delete all items, accounts and transactions
             (mark is_active=False)
         """
         Item = apps.get_model('finance', 'Item')
-        TransferUser = apps.get_model('bank', 'TransferUser')
+        TransferUser = apps.get_model('ach', 'TransferUser')
 
         TransferUser.objects.process_user(self.id, force_process=True)
 

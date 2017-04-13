@@ -63,7 +63,7 @@ elif [ "$1" == "test" ]
 then
 clear
 
-py.test -s donkies/tests/test_accounts.py
+# py.test -s donkies/tests/test_accounts.py
 # py.test -s donkies/tests/test_auth.py
 # py.test -s donkies/tests/test_customers.py
 # py.test -s donkies/tests/test_facebook.py
@@ -72,7 +72,7 @@ py.test -s donkies/tests/test_accounts.py
 # py.test -s donkies/tests/test_plaid.py
 # py.test -s donkies/tests/test_plaid_webhooks.py
 # py.test -s donkies/tests/test_transactions.py
-# py.test -s donkies/tests/test_users.py
+py.test -s donkies/tests/test_users.py
 
 
 # Stripe transfers

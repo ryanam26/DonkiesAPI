@@ -7,7 +7,7 @@ from donkies.tests.services.stripe.emulator import Emulator
 from web.management.commands.createemails import Command
 from web.models import User, Emailer, ChangeEmailHistory
 from finance.models import Account, Item, Transaction
-from bank.models import TransferDonkies, TransferDebt, TransferUser
+from ach.models import TransferStripe, TransferDebt, TransferUser
 from .factories import UserFactory, AccountFactory, ItemFactory
 from .import base
 
@@ -421,12 +421,12 @@ class TestUsers(base.Mixin):
         e = Emulator()
         e.init()
 
-        # Emulate transfers to Dwolla
-        e.create_dwolla_transfers(30)
-        count = TransferDonkies.objects.filter(is_sent=True).count()
+        # Emulate transfers to Stripe
+        e.create_stripe_transfers(90)
+        count = TransferStripe.objects.filter(paid=True).count()
         assert count > 0
 
-        count = TransferDonkies.objects.filter(
+        count = TransferStripe.objects.filter(
             is_processed_to_user=True).count()
         assert count == 0
 
@@ -436,18 +436,18 @@ class TestUsers(base.Mixin):
         # Close user's account
         e.user.close_account()
 
-        # All user's members, accounts and transactions should
+        # All user's items, accounts and transactions should
         # be not active
         assert Item.objects.filter(is_active=True).count() == 0
         assert Account.objects.filter(is_active=True).count() == 0
         assert Transaction.objects.filter(is_active=True).count() == 0
 
-        # All transfers from TransferDonkies should be processed.
-        count = TransferDonkies.objects.filter(
+        # All transfers from TransferStripe should be processed.
+        count = TransferStripe.objects.filter(
             is_processed_to_user=False).count()
         assert count == 0
 
-        count = TransferDonkies.objects.filter(
+        count = TransferStripe.objects.filter(
             is_processed_to_user=True).count()
         assert count > 0
 
@@ -470,7 +470,7 @@ class TestUsers(base.Mixin):
         """
         e = Emulator()
         e.init()
-        e.create_dwolla_transfers(30)
+        e.create_stripe_transfers(90)
         client = self.get_auth_client(e.user)
 
         url = '/v1/user_close_account'

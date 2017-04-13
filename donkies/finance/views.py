@@ -29,12 +29,16 @@ class Accounts(AuthMixin, ListAPIView):
         (for debt accounts).
         All accounts that are in Plaid come from Item
         and do not created by API.
+
+        Accounts come in array.
+        Creates multiple accounts.
         """
-        s = sers.CreateAccountSerializer(data=request.data)
-        s.is_valid(raise_exception=True)
-        account = s.save(user=request.user)
-        s = self.serializer_class(account)
-        return Response(s.data, status=201)
+        l = request.data.get('accounts')
+        for data in l:
+            s = sers.CreateAccountSerializer(data=data)
+            s.is_valid(raise_exception=True)
+            s.save(user=request.user)
+        return Response(status=201)
 
 
 class AccountDetail(AuthMixin, RetrieveDestroyAPIView):

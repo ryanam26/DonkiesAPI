@@ -127,6 +127,11 @@ class AccountManager(ActiveManager):
     def create_manual_account(
             self, user_id, institution_id, account_number,
             additional_info):
+        """
+        If Item (institution) already exists for manual account
+        and user adds other debt account for the same institution,
+        do not create additional Item (use existing).
+        """
         User = apps.get_model('web', 'User')
         Item = apps.get_model('finance', 'Item')
         Institution = apps.get_model('finance', 'Institution')
@@ -135,8 +140,11 @@ class AccountManager(ActiveManager):
         institution = Institution.objects.get(
             id=institution_id, is_manual=True)
 
-        item = Item(user=user, institution=institution)
-        item.save()
+        try:
+            item = Item.objects.get(user=user, institution=institution)
+        except Item.DoesNotExist:
+            item = Item(user=user, institution=institution)
+            item.save()
 
         account = self.model(
             name=institution.name,

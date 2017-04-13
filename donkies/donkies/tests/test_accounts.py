@@ -4,7 +4,7 @@ from django.db.models import Q
 from .import base
 from .factories import (
     AccountFactory, InstitutionFactory, ItemFactory, UserFactory)
-from finance.models import Account, Institution
+from finance.models import Account, Institution, Item
 
 
 class TestAccounts(base.Mixin):
@@ -193,6 +193,24 @@ class TestAccounts(base.Mixin):
     @pytest.mark.django_db
     def test_create_manual_account02(self, client):
         """
+        If user already have Item (institution) for debt account,
+        and user adds more debt accounts for same institution,
+        use existing Item.
+        """
+        user = UserFactory.get_user()
+        institution = InstitutionFactory.get_manual_institution()
+        account = Account.objects.create_manual_account(
+            user.id, institution.id, '1111111', '')
+        assert isinstance(account, Account)
+        assert account.type_ds == Account.DEBT
+
+        account = Account.objects.create_manual_account(
+            user.id, institution.id, '2222222', 'some')
+        assert Item.objects.count() == 1
+
+    @pytest.mark.django_db
+    def test_create_manual_account03(self, client):
+        """
         Test API endpoint.
         """
         user = UserFactory.get_user()
@@ -201,14 +219,23 @@ class TestAccounts(base.Mixin):
         url = '/v1/accounts'
 
         dic = {
-            'institution_id': institution.id,
-            'account_number': 'AAA111',
-            'additional_info': ''
+            'accounts': [
+                {
+                    'institution_id': institution.id,
+                    'account_number': 'AAA111',
+                    'additional_info': ''
+                },
+                {
+                    'institution_id': institution.id,
+                    'account_number': 'BBB111',
+                    'additional_info': ''
+                }
+            ]
         }
         data = json.dumps(dic)
         response = client.post(url, data, content_type='application/json')
         assert response.status_code == 201
-        assert Account.objects.count() == 1
+        assert Account.objects.count() == 2
 
     @pytest.mark.django_db
     def test_funding_source01(self, client):

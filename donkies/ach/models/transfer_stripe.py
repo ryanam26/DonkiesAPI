@@ -37,6 +37,8 @@ class TransferStripeManager(models.Manager):
         """
         Can process at the last day of the month.
         """
+        # !!! Temporary disable last day of the month
+        return True
         dt = datetime.date.today()
         _, last = calendar.monthrange(dt.year, dt.month)
         if last == dt.day:

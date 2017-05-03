@@ -31,6 +31,24 @@ def fetch_transactions(access_token):
     Transaction.objects.create_or_update_transactions(access_token)
 
 
+@capp.task
+def fetch_history_transactions():
+    """
+    Fetch recursively one by one until finish.
+    """
+    Transaction = apps.get_model('finance', 'Transaction')
+    FetchTransactions = apps.get_model('finance', 'FetchTransactions')
+
+    ft = FetchTransactions.objects.filter(is_processed=False).first()
+    if ft is not None:
+        Transaction.objects.create_or_update_transactions(
+            ft.item.access_token,
+            start_date=ft.start_date, end_date=ft.end_date)
+        ft.is_processed = True
+        ft.save()
+        fetch_history_transactions.delay()
+
+
 # --- Transfers
 
 @periodic_task(run_every=crontab(minute='*/15', hour='*'))

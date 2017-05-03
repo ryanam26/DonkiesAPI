@@ -113,7 +113,7 @@ class Transaction(ActiveModel):
         help_text='Internal field. "Roundup" amount.')
     is_processed = models.NullBooleanField(
         default=False,
-        help_text='Internal flag. Roundup has been transferred')
+        help_text='Internal flag. Roundup has been applied')
 
     objects = TransactionManager()
 
@@ -132,7 +132,9 @@ class Transaction(ActiveModel):
         which date less than user's signup date.
         """
         # Roundup only expense.
-        if value >= 0:
+        # Expense come with "+"
+        # Debit comes with "-"
+        if value <= 0:
             return 0
 
         value = abs(value)
@@ -172,6 +174,7 @@ class Transaction(ActiveModel):
 class TransactionAdmin(admin.ModelAdmin):
     list_display = (
         'date',
+        'plaid_id',
         'account',
         'amount',
         'roundup',

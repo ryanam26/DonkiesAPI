@@ -5,10 +5,12 @@ from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from finance.tasks import process_plaid_webhooks, fetch_transactions
+from finance.tasks import (
+    process_plaid_webhooks, fetch_transactions, fetch_history_transactions)
 from web.views import AuthMixin, r400
 from finance.models import (
-    Account, Institution, Item, Stat, Transaction, TransferPrepare)
+    Account, FetchTransactions, Institution, Item, Stat, Transaction,
+    TransferPrepare)
 
 logger = logging.getLogger('app')
 
@@ -238,8 +240,17 @@ class Items(AuthMixin, ListCreateAPIView):
         item = Item.objects.create_item_by_public_token(
             request.user, public_token)
 
+        # Fill FetchTransactions (history model)
+        FetchTransactions.objects.create_all(item)
+
+        # Get accounts
         Account.objects.create_or_update_accounts(item.access_token)
+
+        # Fetch recent transactions
         fetch_transactions.delay(item.access_token)
+
+        # Fetch history transactions
+        fetch_history_transactions.apply_async(countdown=60)
 
         s = sers.ItemSerializer(item)
         return Response(s.data, status=201)

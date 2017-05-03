@@ -53,19 +53,44 @@ class Tester:
         r = requests.post(url, data=data)
         print(r.status_code)
 
-    def temp(self):
-        Institution = apps.get_model('finance', 'Institution')
+    def test_transactions_roundup(self):
+        Transaction = apps.get_model('finance', 'Transaction')
+        User = apps.get_model('web', 'User')
 
-        file = '{}/temp.txt'.format(settings.BASE_DIR)
-        data = open(file).read()
-        for chunk in data.split('\n\n'):
-            l = chunk.split('\n')
-            name = l[0]
-            address = '{}\n{}'.format(l[1], l[2])
+        user = User.objects.get(email='ryanatp26@yahoo.co.uk')
+        dt = user.confirmed_at.date()
 
-            i = Institution(name=name, address=address, is_manual=True)
-            i.save()
+        qs = Transaction.objects.filter(
+            account__item__user=user, date__gt=dt)
+        for tr in qs:
+            print(tr.amount, tr.calculate_roundup(tr.amount))
 
 if __name__ == '__main__':
     t = Tester()
-    t.debug_transactions_webhook()
+    from finance.tasks import fetch_history_transactions
+
+    fetch_history_transactions.apply_async(countdown=10)
+
+
+    # t.test_transactions_roundup()
+    # import datetime
+    # from web.models import User
+    # from finance.models import Item
+    # from finance.services.plaid_api import PlaidApi
+    # user = User.objects.get(email='ryanatp26@yahoo.co.uk')
+    # item = Item.objects.first()
+
+    # today = datetime.date.today()
+
+    # start_date = today - datetime.timedelta(days=400)
+    # end_date = today - datetime.timedelta(days=430)
+    # start_date = start_date.strftime('%Y-%m-%d')
+    # end_date = end_date.strftime('%Y-%m-%d')
+
+    # pa = PlaidApi()
+    # d = pa.client.Transactions.get(
+    #     item.access_token,
+    #     start_date=start_date,
+    #     end_date=end_date
+    # )
+    # print(d)

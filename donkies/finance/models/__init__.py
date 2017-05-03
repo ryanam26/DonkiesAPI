@@ -1,5 +1,6 @@
 from .account import Account
 from .category import Category
+from .fetch_transactions import FetchTransactions
 from .institution import Institution
 from .item import Item
 from .plaid_webhook import PlaidWebhook

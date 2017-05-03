@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib import admin
+from django.conf import settings
+from web.services.sparkpost_service import SparkPostService
 
 
 class AlertManager(models.Manager):
@@ -36,6 +38,32 @@ class Alert(models.Model):
 
     def __str__(self):
         return self.subject
+
+    def send(self):
+        """
+        Currently only one type.
+        """
+        if self.type == Alert.EMAIL:
+            self.send_email()
+
+    def send_email(self):
+        if self.is_processed:
+            return
+
+        if settings.PRODUCTION:
+            email = settings.ALERTS_EMAIL
+        else:
+            email = 'vladigris@gmail.com'
+
+        sps = SparkPostService()
+        sps.send_email(
+            email,
+            self.subject,
+            self.message,
+            html=self.message)
+
+        self.is_processed = True
+        self.save()
 
 
 @admin.register(Alert)

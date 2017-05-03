@@ -309,10 +309,16 @@ class User(AbstractBaseUser):
         return link.format(**dic)
 
     def signup(self):
+        # Uncomment to enable sending confirm email to user.
         # Emailer = apps.get_model('web', 'Emailer')
         # Email = apps.get_model('web', 'Email')
         # Emailer.objects.process_email(Email.SIGNUP, user=self)
-        pass
+
+        Alert = apps.get_model('web', 'Alert')
+        Alert.objects.create_alert(
+            Alert.EMAIL,
+            'Alert: New user signup',
+            'New user signup')
 
     def signup_confirm(self):
         """

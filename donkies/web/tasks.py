@@ -3,7 +3,7 @@ import time
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 from django.utils import timezone
-from web.models import Emailer, Logging
+from web.models import Emailer, Logging, Alert
 from web.services.sparkpost_service import SparkPostService
 
 
@@ -32,6 +32,18 @@ def send_email():
         em.report = str(response)
         em.save()
 
+        time.sleep(1)
+
+
+@periodic_task(run_every=crontab())
+def send_alert():
+    """
+    Alert for admin.
+    Runs every minute.
+    Checks not processed alerts and send them.
+    """
+    for alert in Alert.objects.filter(is_processed=False):
+        alert.send()
         time.sleep(1)
 
 

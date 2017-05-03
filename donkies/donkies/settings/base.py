@@ -45,6 +45,9 @@ BACKEND_URL = 'https://api.donkies.co'
 FRONTEND_DOMAIN = 'app.donkies.co'
 FRONTEND_URL = 'https://app.donkies.co'
 
+# Admin email for sending alerts
+ALERTS_EMAIL = 'ryanatp26@yahoo.co.uk'
+
 AUTH_USER_MODEL = 'web.User'
 APPEND_SLASH = False
 

@@ -121,7 +121,7 @@ class Transaction(ActiveModel):
         app_label = 'finance'
         verbose_name = 'transaction'
         verbose_name_plural = 'transactions'
-        ordering = ['account', '-date']
+        ordering = ['-date']
 
     def __str__(self):
         return self.guid
@@ -138,14 +138,6 @@ class Transaction(ActiveModel):
             return 0
 
         value = abs(value)
-
-        dt = self.date
-        if isinstance(dt, str):
-            dt = datetime.datetime.strptime(dt, '%Y-%m-%d').date()
-
-        user = self.account.item.user
-        if dt < user.confirmed_at.date():
-            return 0
 
         top = math.ceil(float(value))
         roundup = top - value
@@ -182,6 +174,7 @@ class TransactionAdmin(admin.ModelAdmin):
         'category'
     )
     list_filter = ('account',)
+    list_per_page = 500
 
     readonly_fields = (
         'account',

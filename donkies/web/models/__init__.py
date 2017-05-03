@@ -1,3 +1,4 @@
+from .alert import Alert
 from .change_email_history import ChangeEmailHistory
 from .active import ActiveModel, ActiveManager
 from .email import Email

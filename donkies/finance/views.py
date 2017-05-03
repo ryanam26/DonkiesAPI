@@ -1,3 +1,4 @@
+import datetime
 import logging
 import finance.serializers as sers
 from django.core.exceptions import ValidationError
@@ -281,13 +282,15 @@ class StatView(AuthMixin, APIView):
 
 class Transactions(AuthMixin, ListAPIView):
     """
-    All user's transactions.
+    User's transactions for the past month.
     """
     serializer_class = sers.TransactionSerializer
 
     def get_queryset(self):
         return Transaction.objects.active().filter(
-            account__item__user=self.request.user)
+            account__item__user=self.request.user,
+            date__gte=datetime.date.today() - datetime.timedelta(days=30)
+        )
 
 
 class TransfersPrepare(AuthMixin, ListAPIView):

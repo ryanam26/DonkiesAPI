@@ -309,9 +309,10 @@ class User(AbstractBaseUser):
         return link.format(**dic)
 
     def signup(self):
-        Emailer = apps.get_model('web', 'Emailer')
-        Email = apps.get_model('web', 'Email')
-        Emailer.objects.process_email(Email.SIGNUP, user=self)
+        # Emailer = apps.get_model('web', 'Emailer')
+        # Email = apps.get_model('web', 'Email')
+        # Emailer.objects.process_email(Email.SIGNUP, user=self)
+        pass
 
     def signup_confirm(self):
         """
@@ -474,7 +475,7 @@ class User(AbstractBaseUser):
             #     'is_completed': self.check_signup_step1()
             # },
             {
-                'name': 'Add debit account to Atrium.',
+                'name': 'Add debit account to Plaid.',
                 'message': 'Please add debit account.',
                 'allowed_url': '/add_bank',
                 'is_completed': self.check_signup_step2()
@@ -485,12 +486,12 @@ class User(AbstractBaseUser):
             #     'allowed_url': url_3rd_step,
             #     'is_completed': self.check_signup_step3()
             # },
-            {
-                'name': 'Add debt account to Atrium.',
-                'message': 'Please add debt account.',
-                'allowed_url': '/add_lender',
-                'is_completed': self.check_signup_step4()
-            },
+            # {
+            #     'name': 'Add debt account to Atrium.',
+            #     'message': 'Please add debt account.',
+            #     'allowed_url': '/add_lender',
+            #     'is_completed': self.check_signup_step4()
+            # },
         ]
 
     def close_account(self):

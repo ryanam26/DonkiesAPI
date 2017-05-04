@@ -68,6 +68,11 @@ urlpatterns = [
         name='lenders'),
 
     url(
+        r'^(?P<version>(v1))/lenders/(?P<id>\d+)$',
+        v.LenderDetail.as_view(),
+        name='lender_detail'),
+
+    url(
         r'^(?P<version>(v1))/plaid/webhooks$',
         v.PlaidWebhooks.as_view(),
         name='plaid_webhooks'),

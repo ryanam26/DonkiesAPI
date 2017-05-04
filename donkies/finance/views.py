@@ -283,6 +283,13 @@ class Lenders(AuthMixin, ListCreateAPIView):
         return Response(status=201)
 
 
+class LenderDetail(AuthMixin, APIView):
+    def delete(self, request, **kwargs):
+        id = kwargs['id']
+        Lender.objects.filter(user=request.user, id=id).delete()
+        return Response(status=204)
+
+
 class PlaidWebhooks(APIView):
     def post(self, request, **kwargs):
         data = request.data

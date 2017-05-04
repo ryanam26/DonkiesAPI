@@ -76,6 +76,21 @@ class AccountManager(ActiveManager):
         return account
 
     @transaction.atomic
+    def set_primary(self, account_id):
+        """
+        Set primary debit account.
+        """
+        account = self.model.objects.get(
+            id=account_id, type_ds=self.model.DEBIT)
+
+        self.model.objects.active().filter(
+            item__user=account.item.user)\
+            .update(is_primary=False)
+        account.is_primary = True
+        account.save()
+        return account
+
+    @transaction.atomic
     def set_funding_source_dwolla(self, account_id):
         """
         Dwolla implementation.
@@ -232,6 +247,7 @@ class Account(ActiveModel):
     is_funding_source_for_transfer = models.BooleanField(
         default=False,
         help_text='For debit account. Funding source for transfer.')
+    is_primary = models.BooleanField(default=False)
     account_number = models.CharField(
         max_length=100, null=True, default=None, blank=True)
     routing_number = models.CharField(
@@ -368,6 +384,7 @@ class AccountAdmin(admin.ModelAdmin):
         'type_ds',
         'transfer_share',
         'is_funding_source_for_transfer',
+        'is_primary',
         'account_number',
         'routing_number',
         'wire_routing',

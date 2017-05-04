@@ -33,6 +33,11 @@ urlpatterns = [
         name='accounts_set_funding_source'),
 
     url(
+        r'^(?P<version>(v1))/accounts/set_primary/(?P<pk>\d+)$',
+        v.AccountsSetPrimary.as_view(),
+        name='accounts_set_primary'),
+
+    url(
         r'^(?P<version>(v1))/institutions_suggest$',
         v.InstitutionsSuggest.as_view(),
         name='institutions_suggest'),

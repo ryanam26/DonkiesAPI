@@ -175,6 +175,18 @@ class AccountsSetFundingSource(AuthMixin, APIView):
         return Response(status=201)
 
 
+class AccountsSetPrimary(AuthMixin, APIView):
+    """
+    Set primary account.
+    """
+    def post(self, request, **kwargs):
+        id = kwargs['pk']
+        account = Account.objects.get(
+            id=id, item__user=request.user)
+        Account.objects.set_primary(account.id)
+        return Response(status=201)
+
+
 class InstitutionsSuggest(AuthMixin, APIView):
     """
     Returns data for React InputAutocompleteAsync.

@@ -286,7 +286,7 @@ class Lenders(AuthMixin, ListCreateAPIView):
 class LenderDetail(AuthMixin, APIView):
     def delete(self, request, **kwargs):
         id = kwargs['id']
-        Lender.objects.filter(user=request.user, id=id).delete()
+        Lender.objects.filter(user=request.user, institution_id=id).delete()
         return Response(status=204)
 
 

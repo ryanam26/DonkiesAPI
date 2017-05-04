@@ -160,6 +160,7 @@ class User(AbstractBaseUser):
     is_signup_completed = models.BooleanField(default=False)
     is_closed_account = models.BooleanField(
         default=False, help_text='User closed account in Donkies')
+    created_at = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()
 

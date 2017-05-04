@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from django.contrib import admin
 from django.db.models import Sum
@@ -74,12 +75,53 @@ class StatManager(models.Manager):
             .filter(account__item__user_id=user_id, is_processed=True)\
             .count()
 
+    def get_roundup_since_signup(self, user_id):
+        Transaction = apps.get_model('finance', 'Transaction')
+        User = apps.get_model('web', 'User')
+
+        user = User.objects.get(id=user_id)
+        sum = Transaction.objects\
+            .filter(
+                account__item__user_id=user_id,
+                date__gt=user.created_at)\
+            .aggregate(Sum('roundup'))['roundup__sum']
+
+        if not sum:
+            return 0
+
+        return sum
+
+    def get_daily_average_roundup(self, user_id):
+        """
+        Average daily roundup  since first available transaction.
+        Returns total roundup/num_days
+        """
+        Transaction = apps.get_model('finance', 'Transaction')
+        sum = Transaction.objects\
+            .filter(account__item__user_id=user_id)\
+            .aggregate(Sum('roundup'))['roundup__sum']
+
+        if not sum:
+            return 0
+
+        first_transaction = Transaction.objects.filter(
+            account__item__user_id=user_id).earliest('date')
+
+        dt = first_transaction.date
+        delta = datetime.date.today() - dt
+        return sum / delta.days
+
+    def get_monthly_average_roundup(self, user_id):
+        return self.get_daily_average_roundup(user_id) * 30
+
+    def get_yearly_average_roundup(self, user_id):
+        return self.get_daily_average_roundup(user_id) * 365
+
     def get_json(self, user_id):
         return {
-            'amount_to_stripe': self.get_to_stripe_amount(user_id),
-            'amount_to_user': self.get_to_user_amount(user_id),
-            'amount_available': self.get_available_amount(user_id),
-            'payments': self.get_payments_count(user_id)
+            'roundup_since_signup': self.get_roundup_since_signup(user_id),
+            'monthly_average_roundup': self.get_monthly_average_roundup(user_id),
+            'yearly_average_roundup': self.get_yearly_average_roundup(user_id)
         }
 
 

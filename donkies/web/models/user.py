@@ -313,12 +313,14 @@ class User(AbstractBaseUser):
         # Emailer = apps.get_model('web', 'Emailer')
         # Email = apps.get_model('web', 'Email')
         # Emailer.objects.process_email(Email.SIGNUP, user=self)
+        pass
 
+    def signup_alert(self):
         Alert = apps.get_model('web', 'Alert')
         Alert.objects.create_alert(
             Alert.EMAIL,
-            'Alert: New user signup',
-            'New user signup')
+            'Alert: New user.',
+            'New user created')
 
     def signup_confirm(self):
         """
@@ -530,6 +532,7 @@ class User(AbstractBaseUser):
             self.encrypted_id = self.encrypt(self.id)
             self.guid = uuid.uuid4().hex
             Token.objects.create(user=self)
+            self.signup_alert()
             self.save()
 
         # If user completed all signup steps - mark in db.

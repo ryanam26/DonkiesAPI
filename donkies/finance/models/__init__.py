@@ -3,6 +3,7 @@ from .category import Category
 from .fetch_transactions import FetchTransactions
 from .institution import Institution
 from .item import Item
+from .lender import Lender
 from .plaid_webhook import PlaidWebhook
 from .stat import Stat
 from .transaction import Transaction

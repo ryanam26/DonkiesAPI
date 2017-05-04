@@ -10,8 +10,8 @@ from finance.tasks import (
     process_plaid_webhooks, fetch_transactions, fetch_history_transactions)
 from web.views import AuthMixin, r400
 from finance.models import (
-    Account, FetchTransactions, Institution, Item, Stat, Transaction,
-    TransferPrepare)
+    Account, FetchTransactions, Institution, Item, Lender, Stat,
+    Transaction, TransferPrepare)
 
 logger = logging.getLogger('app')
 
@@ -266,6 +266,21 @@ class ItemDetail(AuthMixin, RetrieveDestroyAPIView):
 
     def perform_destroy(self, instance):
         Item.objects.delete_item(instance.id)
+
+
+class Lenders(AuthMixin, ListCreateAPIView):
+    serializer_class = sers.InstitutionSerializer
+
+    def get_queryset(self):
+        ids = Lender.objects.filter(
+            user=self.request.user).values_list('institution_id', flat=True)
+        return Institution.objects.filter(id__in=ids)
+
+    def post(self, request, **kwargs):
+        institution_id = request.data.get('institution_id')
+        institution = Institution.objects.get(id=institution_id)
+        Lender.objects.create_lender(request.user, institution)
+        return Response(status=201)
 
 
 class PlaidWebhooks(APIView):

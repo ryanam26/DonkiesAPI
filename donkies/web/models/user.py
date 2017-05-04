@@ -485,7 +485,7 @@ class User(AbstractBaseUser):
             # },
             {
                 'name': 'Add debit account to Plaid.',
-                'message': 'Please add debit account.',
+                'message': 'Please add primary account.',
                 'allowed_url': '/add_bank',
                 'is_completed': self.check_signup_step2()
             },

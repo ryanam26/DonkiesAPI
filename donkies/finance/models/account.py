@@ -365,6 +365,7 @@ class AccountAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'official_name',
+        'balance',
         'type',
         'type_ds',
         'subtype',

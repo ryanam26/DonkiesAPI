@@ -68,6 +68,7 @@ class AccountSerializer(serializers.ModelSerializer):
             'subtype',
             'transfer_share',
             'is_funding_source_for_transfer',
+            'is_primary',
             'is_active',
             'institution',
             'item',

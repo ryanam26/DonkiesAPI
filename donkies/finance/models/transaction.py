@@ -21,6 +21,7 @@ class TransactionManager(ActiveManager):
         1) Create new transactions.
         2) Or update transactions that already exists.
         """
+        Account = apps.get_model('finance', 'Account')
         logger.debug(
             'Start to update transactions: {}'.format(access_token))
         Item = apps.get_model('finance', 'Item')
@@ -35,6 +36,9 @@ class TransactionManager(ActiveManager):
 
         for tr in l:
             self.create_or_update_transaction(tr)
+
+        # After updating transactions, update also accounts
+        Account.objects.create_or_update_accounts(access_token)
 
     def create_or_update_transaction(self, api_response):
         """

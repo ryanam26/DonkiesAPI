@@ -20,6 +20,7 @@ class TransactionManager(ActiveManager):
         """
         1) Create new transactions.
         2) Or update transactions that already exists.
+        3) Update accounts.
         """
         Account = apps.get_model('finance', 'Account')
         logger.debug(

@@ -209,7 +209,7 @@ class InstitutionsSuggest(AuthMixin, APIView):
         ids = list(qs)
 
         l = []
-        qs = Institution.objects.filter(name__icontains=value)
+        qs = Institution.objects.filter(name__icontains=value, is_active=True)
         qs = qs.exclude(id__in=ids)
 
         for i in qs:
@@ -220,7 +220,7 @@ class InstitutionsSuggest(AuthMixin, APIView):
 
 class Institutions(AuthMixin, ListAPIView):
     serializer_class = sers.InstitutionSerializer
-    queryset = Institution.objects.all()
+    queryset = Institution.objects.filter(is_active=True)
 
 
 class DebtInstitutions(AuthMixin, ListAPIView):
@@ -228,12 +228,12 @@ class DebtInstitutions(AuthMixin, ListAPIView):
     Manual institutions.
     """
     serializer_class = sers.InstitutionSerializer
-    queryset = Institution.objects.filter(is_manual=True)
+    queryset = Institution.objects.filter(is_manual=True, is_active=True)
 
 
 class InstitutionDetail(AuthMixin, RetrieveAPIView):
     serializer_class = sers.InstitutionSerializer
-    queryset = Institution.objects.all()
+    queryset = Institution.objects.filter(is_active=True)
 
 
 class Items(AuthMixin, ListCreateAPIView):

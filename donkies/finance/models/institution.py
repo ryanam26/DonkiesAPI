@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib import admin
 from django import forms
+from django.db.models import Q
 from django.db import transaction
 from django.contrib.postgres.fields import JSONField
 from finance.services.plaid_api import PlaidApi
@@ -27,10 +28,7 @@ class InstitutionManager(models.Manager):
             i.save()
         return i
 
-    def create_institution(self, api_data):
-        """
-        Creates or updates.
-        """
+    def create_or_update_institution(self, api_data):
         d = api_data
         try:
             i = self.model.objects.get(plaid_id=d['institution_id'])
@@ -76,14 +74,41 @@ class InstitutionManager(models.Manager):
         d = pa.get_institutions(100, offset=0)
         institutions = d['institutions']
         for data in institutions:
-            self.create_institution(data)
+            self.create_or_update_institution(data)
 
         while len(institutions) < d['total']:
             d = pa.get_institutions(100, offset=len(institutions))
             for data in d['institutions']:
-                self.create_institution(data)
+                self.create_or_update_institution(data)
             institutions.extend(d['institutions'])
             print(len(institutions))
+
+    @transaction.atomic
+    def update_institutions(self):
+        """
+        Fetch all institutions and update in db.
+        """
+        ex_ids = []
+
+        pa = PlaidApi()
+        d = pa.get_institutions(100, offset=0)
+        institutions = d['institutions']
+        for data in institutions:
+            ex_ids.append(data['institution_id'])
+            self.create_or_update_institution(data)
+
+        while len(institutions) < d['total']:
+            d = pa.get_institutions(100, offset=len(institutions))
+            for data in d['institutions']:
+                ex_ids.append(data['institution_id'])
+                self.create_or_update_institution(data)
+            institutions.extend(d['institutions'])
+            print(len(institutions))
+
+        qs = Institution.objects.filter(
+            ~Q(plaid_id__in=ex_ids), is_manual=False)
+        print(qs.count())
+        qs.update(is_active=False)
 
 
 class Institution(models.Model):
@@ -105,6 +130,7 @@ class Institution(models.Model):
     is_manual = models.BooleanField(
         default=False,
         help_text='Used for debt accounts. Not exist in Plaid.')
+    is_active = models.BooleanField(default=True)
 
     sort = models.IntegerField(default=0)
 
@@ -142,9 +168,10 @@ class InstitutionAdmin(admin.ModelAdmin):
         'has_mfa',
         'products',
         'sort',
-        'is_manual'
+        'is_manual',
+        'is_active'
     )
-    list_filter = ('is_manual',)
+    list_filter = ('is_manual', 'is_active')
     list_editable = ('sort',)
     search_fields = ('name', 'plaid_id', 'products')
     readonly_fields = (

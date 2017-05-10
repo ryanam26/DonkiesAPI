@@ -4,7 +4,6 @@ from django.conf import settings
 from donkies import capp
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
-from web.services.helpers import rs_singleton, production
 
 rs = settings.REDIS_DB
 logger = logging.getLogger('console')
@@ -49,11 +48,22 @@ def fetch_history_transactions():
         fetch_history_transactions.delay()
 
 
+@periodic_task(run_every=crontab(minute=10, hour=2))
+def update_institutions():
+    """
+    Once a day.
+    """
+    if not settings.PRODUCTION:
+        return
+
+    Institution = apps.get_model('finance', 'Institution')
+    Institution.objects.update_institutions()
+
+
 # --- Transfers
 
-@periodic_task(run_every=crontab(minute='*/15', hour='*'))
-@production(settings.PRODUCTION)
-@rs_singleton(rs, 'PROCESS_ROUNDUPS_IS_PROCESSING')
+# @periodic_task(run_every=crontab(minute='*/15', hour='*'))
+# @rs_singleton(rs, 'PROCESS_ROUNDUPS_IS_PROCESSING')
 def process_roundups():
     TransferPrepare = apps.get_model('finance', 'TransferPrepare')
     TransferPrepare.objects.process_roundups()

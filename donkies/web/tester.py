@@ -74,8 +74,13 @@ class Tester:
         pa = PlaidApi()
         return pa.get_accounts(item.access_token)
 
+    def update_institutions(self):
+        Institution = apps.get_model('finance', 'Institution')
+        Institution.objects.update_institutions()
+
 
 if __name__ == '__main__':
     t = Tester()
     # t.test_transactions_roundup()
     # t.reprocess_roundups()
+    # t.update_institutions()

@@ -57,7 +57,7 @@ class TestAuth(base.Mixin):
         assert user.email == 'bob@gmail.com'
 
         em = Emailer.objects.first()
-        assert user.confirmation_token in em.txt
+        assert em is not None
         # self.print_emailer()
 
     @pytest.mark.django_db

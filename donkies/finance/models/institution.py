@@ -107,7 +107,6 @@ class InstitutionManager(models.Manager):
 
         qs = Institution.objects.filter(
             ~Q(plaid_id__in=ex_ids), is_manual=False)
-        print(qs.count())
         qs.update(is_active=False)
 
 

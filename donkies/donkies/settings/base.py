@@ -52,7 +52,7 @@ ALERTS_EMAIL = 'vladigris@gmail.com'
 AUTH_USER_MODEL = 'web.User'
 APPEND_SLASH = False
 
-DEFAULT_FROM_EMAIL = 'noreply@domain.com'
+DEFAULT_FROM_EMAIL = 'noreply@donkies.co'
 EMAIL_HOST = 'localhost'
 EMAIL_HOST_PASSWORD = ''
 EMAIL_HOST_USER = ''

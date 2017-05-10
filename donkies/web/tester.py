@@ -58,10 +58,10 @@ class Tester:
         Transaction = apps.get_model('finance', 'Transaction')
         qs = Transaction.objects.all().order_by('-date')
         for tr in qs:
-            print(tr.amount, tr.calculate_roundup(tr.amount))
+            print(tr.amount, tr.calculate_roundup(tr.amount), tr.account.type)
 
     @transaction.atomic
-    def fix_transactions_roundup(self):
+    def reprocess_roundups(self):
         Transaction = apps.get_model('finance', 'Transaction')
         Transaction.objects.all().update(is_processed=False)
         qs = Transaction.objects.all()
@@ -78,5 +78,4 @@ class Tester:
 if __name__ == '__main__':
     t = Tester()
     # t.test_transactions_roundup()
-    # t.fix_transactions_roundup()
-    # t.debug_transactions_webhook()
+    # t.reprocess_roundups()

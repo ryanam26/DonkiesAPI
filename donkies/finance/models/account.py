@@ -78,10 +78,10 @@ class AccountManager(ActiveManager):
     @transaction.atomic
     def set_primary(self, account_id):
         """
-        Set primary debit account.
+        Set primary account (debit account or credit card).
         """
         account = self.model.objects.get(
-            id=account_id, type_ds=self.model.DEBIT)
+            id=account_id, type__in=self.model.ROUNDUP_TYPES)
 
         self.model.objects.active().filter(
             item__user=account.item.user)\
@@ -193,6 +193,7 @@ class Account(ActiveModel):
 
     DEBIT_TYPES = [DEPOSITORY]
     DEBT_TYPES = [CREDIT, LOAN, MORTGAGE]
+    ROUNDUP_TYPES = [DEPOSITORY, CREDIT]
 
     TYPE_CHOICES = (
         (DEPOSITORY, 'depository'),
@@ -370,7 +371,8 @@ class AccountAdmin(admin.ModelAdmin):
         'type_ds',
         'subtype',
         'guid',
-        'plaid_id'
+        'plaid_id',
+        'is_active'
     )
     readonly_fields = (
         'item',

@@ -158,10 +158,10 @@ class Transaction(ActiveModel):
         if not self.pk:
             self.guid = uuid.uuid4().hex
 
-        if self.account.type_ds == Account.DEBIT and not self.is_processed:
+        if self.account.type in Account.ROUNDUP_TYPES and not self.is_processed:
             self.roundup = self.calculate_roundup(self.amount)
 
-        if self.account.type_ds != Account.DEBIT:
+        if self.account.type not in Account.ROUNDUP_TYPES:
             self.is_processed = None
 
         super().save(*args, **kwargs)

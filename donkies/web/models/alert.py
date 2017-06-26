@@ -1,7 +1,10 @@
+import logging
 from django.db import models
 from django.contrib import admin
 from django.conf import settings
 from web.services.sparkpost_service import SparkPostService
+
+logger = logging.getLogger('app')
 
 
 class AlertManager(models.Manager):
@@ -55,12 +58,22 @@ class Alert(models.Model):
         else:
             email = 'vladigris@gmail.com'
 
+        msg = 'Starting to send alert email to {}'.format(email)
+        logger.info(msg)
+
         sps = SparkPostService()
-        sps.send_email(
+        response = sps.send_email(
             email,
             self.subject,
-            self.message,
-            html=self.message)
+            self.message)
+
+        if sps.check_response(response):
+            result = True
+        else:
+            result = False
+
+        msg = 'Result for sending alert email is {}'.format(result)
+        logger.info(msg)
 
         self.is_processed = True
         self.save()

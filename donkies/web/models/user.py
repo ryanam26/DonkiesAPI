@@ -10,6 +10,7 @@ For Dwolla:
 4) Add debt to Plaid
 
 For Stripe:
+
 2) Add debit bank to Plaid
 4) Add debt to Plaid
 """
@@ -238,11 +239,14 @@ class User(AbstractBaseUser):
 
     def check_signup_step2(self):
         """
-        User should add debit account to Atrium.
+        User should have debit account or credit card.
+        The account that used in calculating roundup and
+        called as primary account. (ROUNDUP_TYPES)
         """
         Account = apps.get_model('finance', 'Account')
-        count = Account.objects.debit_accounts().filter(
-            item__user=self).count()
+        count = Account.objects.active().filter(
+            item__user=self, type__in=Account.ROUNDUP_TYPES).count()
+
         if count > 0:
             return True
         return False

@@ -84,6 +84,3 @@ if __name__ == '__main__':
     # t.test_transactions_roundup()
     # t.reprocess_roundups()
     # t.update_institutions()
-    from finance.models import Account
-    acc = Account.objects.get(id=6)
-    acc.set_account_numbers()

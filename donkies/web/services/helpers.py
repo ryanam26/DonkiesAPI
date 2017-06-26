@@ -12,6 +12,15 @@ from datetime import datetime, timedelta
 logger = logging.getLogger('app')
 
 
+def round_to_prev5(n):
+    """
+    Round to nearest prev 5, 10, 15 etc.
+    Examples: Round 12 to 10
+              Round 19 to 15.
+    """
+    return n + (5 - n) % 5 - 5
+
+
 def get_md5(value):
     md5 = hashlib.md5()
     md5.update(str(value).encode())

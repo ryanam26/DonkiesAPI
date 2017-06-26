@@ -4,6 +4,7 @@ from django.conf import settings
 from donkies import capp
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
+from web.services.helpers import round_to_prev5
 
 rs = settings.REDIS_DB
 logger = logging.getLogger('console')
@@ -56,6 +57,32 @@ def fetch_account_numbers(account_id):
     Account = apps.get_model('finance', 'Account')
     account = Account.objects.get(id=account_id)
     account.set_account_numbers()
+
+
+@periodic_task(run_every=crontab(minute=10))
+def create_roundup_alerts():
+    """
+    Create alerts when roundup is more than 5, 10, 15
+    for each user since signup.
+    """
+    User = apps.get_model('web', 'User')
+    Alert = apps.get_model('web', 'Alert')
+    Stat = apps.get_model('finance', 'Stat')
+
+    for user in User.objects.all():
+        print(user)
+        amount = Stat.objects.get_roundup_since_signup(user.id)
+        amount = round_to_prev5(amount)
+
+        if amount > 5 and amount > user.last_alert_amount:
+            message = 'User {} reach next roundup step: ${}'.format(
+                user.email, amount)
+
+            Alert.objects.create_alert(
+                Alert.EMAIL, 'roundup alert', message)
+
+            user.last_alert_amount = amount
+            user.save()
 
 
 @periodic_task(run_every=crontab(minute=10, hour=2))

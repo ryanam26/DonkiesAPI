@@ -120,6 +120,8 @@ class User(AbstractBaseUser):
     reset_at = models.DateTimeField(blank=True, default=None, null=True)
     is_confirmed = models.BooleanField(default=False)
     last_access_date = models.DateTimeField(auto_now_add=True)
+    last_alert_amount = models.IntegerField(
+        default=0, help_text='Last alert roundup amount. 5, 10, 15 etc')
     new_email = models.EmailField(
         max_length=255, null=True, default=None)
     new_email_token = models.CharField(

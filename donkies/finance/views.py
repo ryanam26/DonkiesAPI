@@ -304,8 +304,10 @@ class Lenders(AuthMixin, ListCreateAPIView):
 
     def post(self, request, **kwargs):
         institution_id = request.data.get('institution_id')
+        account_number = request.data.get('account_number')
         institution = Institution.objects.get(id=institution_id)
-        Lender.objects.create_lender(request.user, institution)
+        Lender.objects.create_lender(
+            request.user, institution, account_number)
         return Response(status=201)
 
 

@@ -3,7 +3,7 @@ from django.contrib import admin
 
 
 class LenderManager(models.Manager):
-    def create_lender(self, user, institution):
+    def create_lender(self, user, institution, account_number):
         if not institution.is_manual:
             raise ValueError('Institution should be manual')
 
@@ -11,7 +11,10 @@ class LenderManager(models.Manager):
         if qs.exists():
             return qs.first()
 
-        l = self.model(user=user, institution=institution)
+        l = self.model(
+            user=user,
+            institution=institution,
+            account_number=account_number)
         l.save()
         return l
 
@@ -22,6 +25,8 @@ class Lender(models.Model):
     """
     user = models.ForeignKey('web.User')
     institution = models.ForeignKey('Institution')
+    account_number = models.CharField(
+        max_length=100, default='', blank=True)
 
     objects = LenderManager()
 
@@ -39,5 +44,6 @@ class Lender(models.Model):
 class LenderAdmin(admin.ModelAdmin):
     list_display = (
         'user',
-        'institution'
+        'institution',
+        'account_number'
     )

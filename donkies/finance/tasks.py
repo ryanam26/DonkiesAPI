@@ -48,6 +48,16 @@ def fetch_history_transactions():
         fetch_history_transactions.delay()
 
 
+@capp.task
+def fetch_account_numbers(account_id):
+    """
+    Fetch account_number and routing_number for account.
+    """
+    Account = apps.get_model('finance', 'Account')
+    account = Account.objects.get(id=account_id)
+    account.set_account_numbers()
+
+
 @periodic_task(run_every=crontab(minute=10, hour=2))
 def update_institutions():
     """

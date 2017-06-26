@@ -1,19 +1,33 @@
 import datetime
 import logging
 import finance.serializers as sers
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.core.exceptions import ValidationError
 from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from finance.tasks import (
-    process_plaid_webhooks, fetch_transactions, fetch_history_transactions)
+    process_plaid_webhooks, fetch_transactions, fetch_history_transactions,
+    fetch_account_numbers)
 from web.views import AuthMixin, r400
 from finance.models import (
     Account, FetchTransactions, Institution, Item, Lender, Stat,
     Transaction, TransferPrepare)
 
 logger = logging.getLogger('app')
+
+
+def fetch_account_numbers_view(request, account_id):
+    """
+    Admin view.
+    Run task to fetch account_number and routing_number.
+    """
+    fetch_account_numbers.delay(account_id)
+    msg = 'Request to Plaid sent. Please check result few seconds later.'
+    messages.success(request, msg)
+    return HttpResponseRedirect('/admin/finance/account/')
 
 
 class Accounts(AuthMixin, ListAPIView):

@@ -46,7 +46,7 @@ FRONTEND_DOMAIN = 'app.donkies.co'
 FRONTEND_URL = 'https://app.donkies.co'
 
 # Admin email for sending alerts
-ALERTS_EMAIL = 'ryanatp26@yahoo.co.uk'
+ALERTS_EMAIL = 'ryan@donkies.co'
 
 AUTH_USER_MODEL = 'web.User'
 APPEND_SLASH = False

@@ -321,6 +321,19 @@ class Account(ActiveModel):
         return pa.get_stripe_token(
             self.item.access_token, self.plaid_id)
 
+    def set_account_numbers(self):
+        """
+        Request to Plaid API and set account_number
+        and routing_number for account.
+        """
+        pa = PlaidApi()
+        d = pa.get_accounts_info(self.item.access_token)
+        for dic in d['numbers']:
+            if dic['account_id'] == self.plaid_id:
+                self.account_number = dic['account']
+                self.routing_number = dic['routing']
+                self.save()
+
     def save(self, *args, **kwargs):
         """
         Assume that account can not change type.
@@ -332,6 +345,13 @@ class Account(ActiveModel):
 
         self.balance = self.get_balance()
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_admin_urls():
+        return [
+            (r'^custom/fetch_account_numbers/(?P<account_id>\d+)/$',
+             'fetch_account_numbers_view'),
+        ]
 
 
 @receiver(post_save, sender=Account)
@@ -370,8 +390,8 @@ class AccountAdmin(admin.ModelAdmin):
         'type',
         'type_ds',
         'subtype',
-        'guid',
-        'plaid_id',
+        'show_account_number',
+        'routing_number',
         'is_active'
     )
     readonly_fields = (
@@ -397,3 +417,14 @@ class AccountAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def show_account_number(self, obj):
+        print(obj.account_number)
+        if obj.account_number:
+            return obj.account_number
+
+        href = '/admin/custom/fetch_account_numbers/{}/'.format(obj.id)
+        link = '<a href="{}">fetch</a>'.format(href)
+        return link
+    show_account_number.short_description = 'account number'
+    show_account_number.allow_tags = True

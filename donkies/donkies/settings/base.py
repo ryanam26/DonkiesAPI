@@ -150,6 +150,8 @@ FILE_UPLOAD_TEMP_DIR = MEDIA_ROOT + 'tmp/'
 
 STATICFILES_DIRS = [join(BASE_DIR, 'static')]
 
+STATIC_ROOT = join(BASE_DIR, 'collectedstatic')
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',

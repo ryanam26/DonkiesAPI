@@ -8,6 +8,7 @@ from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from finance.tasks import (
     process_plaid_webhooks, fetch_transactions, fetch_history_transactions,
     fetch_account_numbers)
@@ -15,6 +16,7 @@ from web.views import AuthMixin, r400
 from finance.models import (
     Account, FetchTransactions, Institution, Item, Lender, Stat,
     Transaction, TransferPrepare)
+import finance.swagger_serializer as swag_sers
 
 logger = logging.getLogger('app')
 
@@ -30,35 +32,64 @@ def fetch_account_numbers_view(request, account_id):
     return HttpResponseRedirect('/admin/finance/account/')
 
 
-class Accounts(AuthMixin, ListAPIView):
-    serializer_class = sers.AccountSerializer
+class Accounts(AuthMixin, GenericAPIView):
+    serializer_class = sers.CreateMultipleAccountSerializer
+    queryset = Account.objects.all()
 
-    def get_queryset(self):
+    def get(self, request, **kwargs):
         """
         All accounts including not active.
         """
-        return Account.objects.filter(
-            item__user=self.request.user)
+        return Response(
+            sers.AccountSerializer(
+                Account.objects.filter(item__user=self.request.user),
+                many=True
+            ).data
+        )
 
     def post(self, request, **kwargs):
         """
-        Creating only manual accounts
-        (for debt accounts).
-        All accounts that are in Plaid come from Item
-        and do not created by API.
+        Creating only manual accounts<br/>
+        (for debt accounts).<br/>
+        All accounts that are in Plaid come from Item<br/>
+        and do not created by API.<br/>
 
-        Accounts come in array.
-        Creates multiple accounts.
+        Accounts come in array.<br/>
+        Creates multiple accounts.<br/>
+
+        Example request:
+        <pre>
+        {
+            "accounts": [
+                {
+                    "institution_id": <b>int</b>
+                    "account_number": <b>string</b>
+                    "additional_info": <b>string</b>
+                }
+            ]
+        }
+        </pre>
+
         """
         l = request.data.get('accounts')
+
         for data in l:
             s = sers.CreateAccountSerializer(data=data)
             s.is_valid(raise_exception=True)
             s.save(user=request.user)
-        return Response(status=201)
+
+        return Response(
+            status=201
+        )
 
 
 class AccountDetail(AuthMixin, RetrieveDestroyAPIView):
+    """
+    get:
+        Return Account by id
+    delete:
+        Not implement yet
+    """
     serializer_class = sers.AccountSerializer
 
     def get_queryset(self):
@@ -66,17 +97,9 @@ class AccountDetail(AuthMixin, RetrieveDestroyAPIView):
             item__user=self.request.user)
 
 
-class AccountsEditShare(AuthMixin, APIView):
-    """
-    Edit transfer_share for debt accounts.
+class AccountsEditShare(AuthMixin, GenericAPIView):
+    serializer_class = sers.AccountsEditShareSerializer
 
-    Example request: {id7: 35, id8: 65}
-    1) The ids should be equal to ids in database.
-    2) The total sum of share should be equal to 100.
-
-    Returns 200 or 400, no error messages.
-    Frontend checks everything before sending data.
-    """
     def get_queryset(self):
         return Account.objects.active().filter(
             item__user=self.request.user,
@@ -115,6 +138,26 @@ class AccountsEditShare(AuthMixin, APIView):
             Account.objects.active().filter(id=id).update(transfer_share=share)
 
     def put(self, request, **kwargs):
+        """
+        <b>Edit transfer_share for debt accounts.</b>
+
+        Example request:
+        <pre>
+        {
+            id7: 35,
+            id8: 65
+        }
+        </pre>
+        <ol>
+            <li>The ids should be equal to ids in database.</li>
+            <li>The total sum of share should be equal to 100.</li>
+        </ol>
+
+        Returns 200 or 400, no error messages.<br/>
+        Frontend checks everything before sending data.
+
+        """
+
         l = self.get_list(request.data)
         if not self.validate_ids(l):
             return Response(status=400)
@@ -126,12 +169,14 @@ class AccountsEditShare(AuthMixin, APIView):
         return Response()
 
 
-class AccountsSetActive(AuthMixin, APIView):
+class AccountsSetActive(AuthMixin, GenericAPIView):
     """
-    Activate / Deactivate account.
-    1) Can not deactivate account if Item has only 1 active account.
+    Activate / Deactivate account.<br/>
+    1) Can not deactivate account if Item has only 1 active account.<br/>
     2) Can not deactivate funding source.
     """
+    serializer_class = sers.AccountsSetActiveSerializer
+
     def put(self, request, **kwargs):
         id = kwargs['pk']
         account = Account.objects.get(
@@ -158,11 +203,22 @@ class AccountsSetActive(AuthMixin, APIView):
         return Response(status=204)
 
 
-class AccountsSetNumber(AuthMixin, APIView):
+class AccountsSetNumber(AuthMixin, ListAPIView):
     """
-    Set account_number.
+    get:
+        Not implement yet!!
     """
+    serializer_class = swag_sers.AccountsSetNumberSwaggerSerializer
+
     def post(self, request, **kwargs):
+        """
+        Set account_number.
+        ---
+        response_serializer: AccountSerializer
+        parameters:
+            - name: account_number
+              pytype: AccountSerializer
+        """
         account = Account.objects.get(
             id=kwargs['pk'], item__user=request.user)
 
@@ -181,7 +237,9 @@ class AccountsSetFundingSource(AuthMixin, APIView):
     """
     Set funding source for transfer for debit accounts.
     """
+
     def post(self, request, **kwargs):
+
         id = kwargs['pk']
         account = Account.objects.get(
             id=id, item__user=request.user)
@@ -193,6 +251,7 @@ class AccountsSetPrimary(AuthMixin, APIView):
     """
     Set primary account.
     """
+
     def post(self, request, **kwargs):
         id = kwargs['pk']
         account = Account.objects.get(

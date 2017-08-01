@@ -14,6 +14,27 @@ import web.serializers as sers
 from web.models import User
 from finance.models import Item
 from bank.tasks import create_customer
+import web.swagger_serializer as swagg_sers
+
+from rest_framework.permissions import AllowAny
+from rest_framework.schemas import SchemaGenerator
+from rest_framework_swagger import renderers
+from rest_framework.generics import ListAPIView, GenericAPIView
+
+
+class SwaggerSchemaView(APIView):
+    permission_classes = [AllowAny]
+    renderer_classes = [
+        renderers.OpenAPIRenderer,
+        renderers.SwaggerUIRenderer
+    ]
+
+    def get(self, request):
+        generator = SchemaGenerator()
+        schema = generator.get_schema(request=request)
+
+        return Response(schema)
+
 
 logger = logging.getLogger('app')
 
@@ -49,7 +70,9 @@ def home(request):
     return HttpResponse('API')
 
 
-class AuthFacebook(APIView):
+class AuthFacebook(GenericAPIView):
+    serializer_class = sers.FacebookAuthSerializer
+
     def post(self, request, **kwargs):
         serializer = sers.FacebookAuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -64,7 +87,9 @@ class AuthFacebook(APIView):
         return Response({'token': user.get_token().key})
 
 
-class Login(APIView):
+class Login(GenericAPIView):
+    serializer_class = sers.LoginSerializer
+
     def post(self, request, **kwargs):
         serializer = sers.LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -78,7 +103,9 @@ class Login(APIView):
         return Response(data, status=200)
 
 
-class PasswordResetRequest(APIView):
+class PasswordResetRequest(GenericAPIView):
+    serializer_class = sers.PasswordResetRequestSerializer
+
     def post(self, request, **kwargs):
         serializer = sers.PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -88,7 +115,9 @@ class PasswordResetRequest(APIView):
         return Response({}, status=204)
 
 
-class PasswordReset(APIView):
+class PasswordReset(GenericAPIView):
+    serializer_class = sers.PasswordResetSerializer
+
     def post(self, request, **kwargs):
         serializer = sers.PasswordResetSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -98,7 +127,9 @@ class PasswordReset(APIView):
         return Response({}, status=204)
 
 
-class Signup(APIView):
+class Signup(GenericAPIView):
+    serializer_class = sers.SignupSerializer
+
     def post(self, request, **kwargs):
         serializer = sers.SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -106,7 +137,9 @@ class Signup(APIView):
         return Response({}, status=204)
 
 
-class SignupConfirm(APIView):
+class SignupConfirm(GenericAPIView):
+    serializer_class = sers.SignupConfirmSerializer
+
     def post(self, request, **kwargs):
         serializer = sers.SignupConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -122,6 +155,7 @@ class Settings(AuthMixin, APIView):
     """
     Global settings for auth users.
     """
+
     def get(self, request, **kwargs):
         d = {
             'transfer_amounts': [t[0] for t in User.TRANSFER_AMOUNT_CHOICES],
@@ -138,13 +172,17 @@ class SettingsLogin(APIView):
     """
     Social settings for login page.
     """
+
     def get(self, request, **kwargs):
         d = {}
         d['facebook_login_url'] = User.get_facebook_login_url()
         return Response(d, status=200)
 
 
-class UserDetail(AuthMixin, APIView):
+class UserDetail(AuthMixin, GenericAPIView):
+    serializer_class = sers.SignupSerializer
+    queryset = User.objects.all()
+
     def get(self, request, **kwargs):
         s = sers.UserSerializer(self.request.user)
         return Response(s.data)
@@ -175,8 +213,9 @@ class UserResendRegConfirmationLink(AuthMixin, APIView):
         })
 
 
-class UserChangePassword(AuthMixin, APIView):
+class UserChangePassword(AuthMixin, GenericAPIView):
     message = 'Your password has been changed!'
+    serializer_class = sers.ChangePasswordSerializer
 
     def post(self, request, **kwargs):
         serializer = sers.ChangePasswordSerializer(
@@ -188,11 +227,12 @@ class UserChangePassword(AuthMixin, APIView):
         return Response({'message': self.message})
 
 
-class UserChangeEmail(AuthMixin, APIView):
+class UserChangeEmail(AuthMixin, GenericAPIView):
     message = (
         'Email with confirmation link has been sent to {}! '
         'The link will expire in an 1 hour.'
     )
+    serializer_class = sers.ChangeEmailSerializer
 
     def post(self, request, **kwargs):
         serializer = sers.ChangeEmailSerializer(

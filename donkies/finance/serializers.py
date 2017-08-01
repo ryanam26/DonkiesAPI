@@ -49,6 +49,18 @@ class CreateAccountSerializer(serializers.ModelSerializer):
         return Account.objects.create_manual_account(**d)
 
 
+class CreateMultipleAccountSerializer(serializers.Serializer):
+    accounts = serializers.ListField(child=serializers.JSONField())
+
+
+class AccountsEditShareSerializer(serializers.Serializer):
+    idN = serializers.IntegerField()
+
+
+class AccountsSetActiveSerializer(serializers.Serializer):
+    is_active = serializers.BooleanField()
+
+
 class AccountSerializer(serializers.ModelSerializer):
     item = ItemSerializer()
     institution = serializers.SerializerMethodField()

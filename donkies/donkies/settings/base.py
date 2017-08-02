@@ -45,6 +45,8 @@ BACKEND_URL = 'https://api.donkies.co'
 FRONTEND_DOMAIN = 'app.donkies.co'
 FRONTEND_URL = 'https://app.donkies.co'
 
+DWOLLA_PROCESSOR_TOKEN_CREATE = 'https://sandbox.plaid.com/processor/dwolla/processor_token/create'
+
 # Admin email for sending alerts
 ALERTS_EMAIL = 'ryan@donkies.co'
 

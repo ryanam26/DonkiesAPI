@@ -63,6 +63,11 @@ class User(AbstractBaseUser):
         (100, 100)
     )
 
+    TYPE_CHOICES = (
+        ('personal', 'Personal'),
+        ('business', 'Business'),
+    )
+
     encrypted_id = models.CharField(max_length=32, default='')
     guid = models.CharField(
         max_length=100,
@@ -101,8 +106,17 @@ class User(AbstractBaseUser):
         default=None,
         validators=[
             RegexValidator(
-                regex='^\d{3}\-\d{2}\-\d{4}$',
-                message='Should be XXX-XX-XXXX')]
+                regex='^\d{4}$',
+                message='Should be XXXX'
+            )
+        ]
+    )
+    ipAddress = models.GenericIPAddressField(blank=True, null=True)
+
+    # TODO: MAKE MIGRATIONS
+
+    type = models.CharField(
+        choices=TYPE_CHOICES, default='personal', max_length=255
     )
     phone = models.CharField(
         max_length=10,

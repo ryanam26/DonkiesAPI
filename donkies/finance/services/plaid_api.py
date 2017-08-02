@@ -118,14 +118,26 @@ class PlaidApi:
         d = self.client.Item.public_token.create(access_token)
         return d['public_token']
 
-    def exchange_public_token(self, public_token):
+    def dwolla_processor_token(self, access_token, account_id):
+        url = settings.DWOLLA_PROCESSOR_TOKEN_CREATE
+
+        return self.client.post(url, {"client_id": settings.PLAID_CLIENT_ID,
+                                      "secret": settings.PLAID_SECRET,
+                                      "access_token": access_token,
+                                      "account_id": account_id})
+
+    def exchange_public_token(self, public_token, account_id):
         """
         Frontend Link returns public_token.
         We need to exchange it for access token.
         Returns access_token (string).
         """
-        d = self.client.Item.public_token.exchange(public_token)
-        return d['access_token']
+        exchange_token_response = self.client.Item.public_token.exchange(public_token)
+
+        dwolla_token = self.dwolla_processor_token(exchange_token_response['access_token'],
+                                    account_id)
+
+        return exchange_token_response['access_token']
 
     def rotate_access_token(self, access_token):
         """

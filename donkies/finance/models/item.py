@@ -10,7 +10,7 @@ from web.models import ActiveModel, ActiveManager
 
 
 class ItemManager(ActiveManager):
-    def create_item_by_public_token(self, user, public_token):
+    def create_item_by_public_token(self, user, public_token, account_id):
         """
         1) Item created on Plaid by Plaid Link.
         2) Plaid Link returned public_token.
@@ -19,7 +19,7 @@ class ItemManager(ActiveManager):
         4) Create Item in Model.
         """
         pa = PlaidApi()
-        access_token = pa.exchange_public_token(public_token)
+        access_token = pa.exchange_public_token(public_token, account_id)
         data = pa.get_item(access_token)
         return Item.objects.create_item(user, data)
 

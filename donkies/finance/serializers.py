@@ -27,7 +27,7 @@ class ItemSerializer(serializers.ModelSerializer):
             'guid',
             'plaid_id',
             'institution',
-            'name'
+            'name',
         )
 
 

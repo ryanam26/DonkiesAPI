@@ -55,6 +55,13 @@ def shell():
 
 
 @with_settings(warn_only=True)
+def migrate(model=''):
+    print(green('Starting shell...'))
+    with prefix(VIRTUALENV_PATH), cd(PROJECT_PATH_DJANGO):
+        run('python manage.py migrate ' + model)
+
+
+@with_settings(warn_only=True)
 def restart_nginx():
     print(green('Restarting nginx...'))
     run('service nginx restart')
@@ -88,7 +95,7 @@ def deploy():
     if confirm('Install requirements?', default=False):
         execute(install_requirements)
 
-    if confirm('Collect static?', default=False):
+    if confirm('Collect static?', default=True):
         execute(collectstatic)
         execute(restart_nginx)
 

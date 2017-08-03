@@ -43,7 +43,8 @@ class MyUserAdmin(PopupMixin, UserAdmin):
                     'minimum_transfer_amount',
                     'is_confirmed',
                     'is_active',
-                    'is_closed_account')}
+                    'is_closed_account',
+                    'dwolla_verified_url',)}
         ),
     )
     add_fieldsets = (

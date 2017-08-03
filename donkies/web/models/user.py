@@ -113,6 +113,8 @@ class User(AbstractBaseUser):
     )
     ipAddress = models.GenericIPAddressField(blank=True, null=True)
 
+    dwolla_verified_url = models.CharField(max_length=150, blank=True,
+                                           null=True)
     # TODO: MAKE MIGRATIONS
 
     type = models.CharField(

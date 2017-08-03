@@ -23,6 +23,15 @@ class ItemManager(ActiveManager):
         data = pa.get_item(access_token)
         return Item.objects.create_item(user, data)
 
+    def create_item_by_data(self, user, data):
+        pa = PlaidApi()
+        public_token = data.get('public_token')
+        account_id = data.get('account_id')
+        access_token = pa.exchange_public_token(user, public_token, account_id)
+        context = pa.get_item(access_token)
+        context.update(data)
+        return Item.objects.create_item(user, context)
+
     def create_item(self, user, d):
         """
         api_data - Plaid's API response

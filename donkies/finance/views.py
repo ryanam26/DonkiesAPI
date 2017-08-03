@@ -310,9 +310,18 @@ class InstitutionDetail(AuthMixin, RetrieveAPIView):
 
 
 class Items(AuthMixin, ListCreateAPIView):
-    serializer_class = sers.ItemSerializer
+    serializer_class = sers.ItemPostSerializer
     # swag_sers.ItemSwaggerSerializer
     # sers.ItemSerializer
+
+    def get(self, request, **kwargs):
+        return Response(
+            sers.ItemSerializer(
+                Item.objects.filter(user=self.request.user),
+                many=True
+            ).data,
+            status=200
+        )
 
     def get_queryset(self):
         print(self.request.user)
@@ -325,11 +334,9 @@ class Items(AuthMixin, ListCreateAPIView):
         Using this token fetch Item and Accounts from Plaid
         and create them in database.
         """
-
-        public_token = request.data.get('public_token')
-        account_id = request.data.get('account_id')
-        item = Item.objects.create_item_by_public_token(
-            request.user, public_token, account_id)
+        # if not sers.ItemPostSerializer(data=request.data).is_valid():
+        #     return r400('Missing param.')
+        item = Item.objects.create_item_by_data(request.user, request.data)
 
         # Fill FetchTransactions (history model)
         FetchTransactions.objects.create_all(item)

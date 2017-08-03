@@ -44,5 +44,6 @@ DATABASES = {
     }
 }
 
+DONKIES_MODE = 'development'
 PLAID_ENV = 'sandbox'
 # PLAID_ENV = 'development'

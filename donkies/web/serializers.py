@@ -141,6 +141,8 @@ class SignupSerializer(serializers.ModelSerializer):
             'state',
             'date_of_birth',
             'ssn',
+            'ipAddress',
+            'type',
         )
 
     def save(self):
@@ -148,12 +150,12 @@ class SignupSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(data['email'], data['password'])
         user.first_name = data['first_name']
         user.last_name = data['last_name']
-        # user.address1 = data['address1']
-        # user.postal_code = data['postal_code']
-        # user.city = data['city']
-        # user.state = data['state']
-        # user.date_of_birth = data['date_of_birth']
-        # user.ssn = data['ssn']
+        user.address1 = data['address1']
+        user.postal_code = data['postal_code']
+        user.city = data['city']
+        user.state = data['state']
+        user.date_of_birth = data['date_of_birth']
+        user.ssn = data['ssn']
 
         user.save()
 
@@ -207,7 +209,8 @@ class UserSerializer(serializers.ModelSerializer):
             'is_even_roundup',
             'is_closed_account',
             'total_debt',
-            'profile_image_url'
+            'profile_image_url',
+            'type',
         )
         read_only_fields = (
             'id',
@@ -217,7 +220,8 @@ class UserSerializer(serializers.ModelSerializer):
             'is_confirmed',
             'signup_steps',
             'is_confirmed',
-            'is_closed_account'
+            'is_closed_account',
+            'dwolla_verified_url',
         )
 
     # def get_dwolla_customer(self, obj):

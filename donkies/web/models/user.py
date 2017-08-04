@@ -68,28 +68,28 @@ class User(AbstractBaseUser):
         ('business', 'Business'),
     )
 
-    encrypted_id = models.CharField(max_length=32, default='')
+    encrypted_id = models.CharField(max_length=255, default='')
     guid = models.CharField(
-        max_length=100,
+        max_length=255,
         null=True,
         default=None,
         blank=True,
         unique=True)
     email = models.EmailField(
         max_length=255, null=True, unique=True, default=None)
-    first_name = models.CharField(max_length=50, blank=True, default='')
-    last_name = models.CharField(max_length=50, blank=True, default='')
-    address1 = models.CharField(max_length=50, null=True, default=None)
+    first_name = models.CharField(max_length=255, blank=True, default='')
+    last_name = models.CharField(max_length=255, blank=True, default='')
+    address1 = models.CharField(max_length=255, null=True, default=None)
     address2 = models.CharField(
-        max_length=50, null=True, default=None, blank=True)
-    city = models.CharField(max_length=100, null=True, default=None)
+        max_length=255, null=True, default=None, blank=True)
+    city = models.CharField(max_length=255, null=True, default=None)
     state = models.CharField(
-        max_length=2,
+        max_length=255,
         null=True,
         default=None,
         choices=settings.US_STATES)
     postal_code = models.CharField(
-        max_length=5,
+        max_length=255,
         null=True,
         default=None,
         validators=[
@@ -101,7 +101,7 @@ class User(AbstractBaseUser):
         null=True, default=None, help_text='YYYY-MM-DD')
     ssn = models.CharField(
         help_text='Last 4 digits',
-        max_length=11,
+        max_length=255,
         null=True,
         default=None,
         validators=[
@@ -114,13 +114,12 @@ class User(AbstractBaseUser):
     ipAddress = models.GenericIPAddressField(blank=True, null=True)
 
     dwolla_verified_url = models.TextField(blank=True, null=True)
-    # TODO: MAKE MIGRATIONS
 
     type = models.CharField(
         choices=TYPE_CHOICES, default='personal', max_length=255
     )
     phone = models.CharField(
-        max_length=10,
+        max_length=255,
         validators=[
             RegexValidator(
                 regex='^\d{10}$',
@@ -152,18 +151,18 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False, verbose_name='admin')
     is_superuser = models.BooleanField(default=False, verbose_name='superuser')
     fb_id = models.CharField(
-        max_length=100,
+        max_length=255,
         default=None,
         null=True,
         unique=True,
         blank=True)
-    fb_token = models.CharField(max_length=3000, blank=True, default='')
-    fb_link = models.CharField(max_length=1000, blank=True, default='')
+    fb_token = models.TextField(blank=True, default='')
+    fb_link = models.TextField(blank=True, default='')
     fb_name = models.CharField(max_length=255, blank=True, default='')
     fb_first_name = models.CharField(max_length=255, blank=True, default='')
     fb_last_name = models.CharField(max_length=255, blank=True, default='')
-    fb_gender = models.CharField(max_length=50, blank=True, default='')
-    fb_locale = models.CharField(max_length=10, blank=True, default='')
+    fb_gender = models.CharField(max_length=255, blank=True, default='')
+    fb_locale = models.CharField(max_length=255, blank=True, default='')
     fb_age_range = models.IntegerField(default=0)
     fb_timezone = models.IntegerField(default=0)
     fb_verified = models.BooleanField(default=False)

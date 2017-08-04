@@ -77,12 +77,12 @@ class User(AbstractBaseUser):
         unique=True)
     email = models.EmailField(
         max_length=255, null=True, unique=True, default=None)
-    first_name = models.CharField(max_length=255, blank=True, default='')
-    last_name = models.CharField(max_length=255, blank=True, default='')
-    address1 = models.CharField(max_length=255, null=True, default=None)
+    first_name = models.CharField(max_length=255, blank=False, default='')
+    last_name = models.CharField(max_length=255, blank=False, default='')
+    address1 = models.CharField(max_length=255, blank=False, default='default')
     address2 = models.CharField(
         max_length=255, null=True, default=None, blank=True)
-    city = models.CharField(max_length=255, null=True, default=None)
+    city = models.CharField(max_length=255, blank=False, default='city')
     state = models.CharField(
         max_length=255,
         null=True,
@@ -91,7 +91,7 @@ class User(AbstractBaseUser):
     postal_code = models.CharField(
         max_length=255,
         null=True,
-        default=None,
+        default='12345',
         validators=[
             RegexValidator(
                 regex='^\d{5}$',
@@ -103,7 +103,7 @@ class User(AbstractBaseUser):
         help_text='Last 4 digits',
         max_length=255,
         null=True,
-        default=None,
+        default='4242',
         validators=[
             RegexValidator(
                 regex='^\d{4}$',

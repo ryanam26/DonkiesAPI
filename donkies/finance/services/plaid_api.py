@@ -5,8 +5,8 @@ from web.services.helpers import catch_exception
 from plaid import Client
 from plaid.errors import PlaidError
 
-import dwollav2
-from bank.services.dwolla_api import DwollaApi
+import logging
+logger = logging.getLogger('app')
 
 
 class PlaidApi:
@@ -121,32 +121,14 @@ class PlaidApi:
         d = self.client.Item.public_token.create(access_token)
         return d['public_token']
 
-    def create_verified_customer(self, user):
-        client = dwollav2.Client(id=settings.DWOLLA_ID_DEV,
-                                 secret=settings.DWOLLA_SECRET_DEV,
-                                 environment='sandbox')
-        app_token = client.Auth.client()
-        request_body = {'firstName': user.first_name,
-                        'lastName': user.last_name,
-                        'email': user.email,
-                        'type': user.type,
-                        'address1': user.address1,
-                        'city': user.city,
-                        'state': user.state,
-                        'postalCode': user.postal_code,
-                        'dateOfBirth': user.date_of_birth,
-                        'ssn': user.ssn}
-        customer = app_token.post('customers', request_body)
-        user.dwolla_verified_url = customer.headers['location']
-        user.save()
-
     def dwolla_processor_token(self, access_token, account_id, user):
         url = settings.DWOLLA_PROCESSOR_TOKEN_CREATE
-        self.client.post(url,
-                         {"client_id": settings.PLAID_CLIENT_ID,
-                          "secret": settings.PLAID_SECRET,
-                          "access_token": access_token,
-                          "account_id": account_id})
+
+        dwolla_token = self.client.post(url,
+                                        {"client_id": settings.PLAID_CLIENT_ID,
+                                         "secret": settings.PLAID_SECRET,
+                                         "access_token": access_token,
+                                         "account_id": account_id})
         # processor_token = dwolla_token['processor_token']
 
     def exchange_public_token(self, user, public_token, account_id):
@@ -157,11 +139,10 @@ class PlaidApi:
         """
         exchange_token_response = self.client.Item.public_token.exchange(public_token)
 
-        self.dwolla_processor_token(exchange_token_response['access_token'],
-                                    account_id,
-                                    user)
-        if settings.DONKIES_MODE == 'production':
-            self.create_verified_customer(user)
+        # self.dwolla_processor_token(exchange_token_response['access_token'],
+        #                             account_id,
+        #                             user)
+
         return exchange_token_response['access_token']
 
     def rotate_access_token(self, access_token):

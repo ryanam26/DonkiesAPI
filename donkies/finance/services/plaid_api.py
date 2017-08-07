@@ -6,6 +6,7 @@ from plaid import Client
 from plaid.errors import PlaidError
 
 import logging
+import dwollav2
 logger = logging.getLogger('app')
 
 
@@ -122,14 +123,30 @@ class PlaidApi:
         return d['public_token']
 
     def dwolla_processor_token(self, access_token, account_id, user):
-        url = settings.DWOLLA_PROCESSOR_TOKEN_CREATE
+        """
+        Create processor token and funding source
+        """
+        client = dwollav2.Client(id=settings.DWOLLA_ID_SANDBOX,
+                                 secret=settings.DWOLLA_SECRET_SANDBOX,
+                                 environment=settings.PLAID_ENV)
+        app_token = client.Auth.client()
 
+        url = settings.DWOLLA_PROCESSOR_TOKEN_CREATE
         dwolla_token = self.client.post(url,
                                         {"client_id": settings.PLAID_CLIENT_ID,
                                          "secret": settings.PLAID_SECRET,
                                          "access_token": access_token,
                                          "account_id": account_id})
-        # processor_token = dwolla_token['processor_token']
+        processor_token = dwolla_token['processor_token']
+        customer_url = user.dwolla_verified_url
+
+        request_body = {'plaidToken': processor_token,
+                        'name': '{} {}’s Checking'.format(user.first_name, user.last_name)}
+
+        customer = app_token.post('%s/funding-sources' % customer_url, request_body)
+
+        user.funding_sources_url = customer.headers['location']
+        user.save()
 
     def exchange_public_token(self, user, public_token, account_id):
         """
@@ -139,9 +156,10 @@ class PlaidApi:
         """
         exchange_token_response = self.client.Item.public_token.exchange(public_token)
 
-        # self.dwolla_processor_token(exchange_token_response['access_token'],
-        #                             account_id,
-        #                             user)
+        if settings.DONKIES_MODE == 'production':
+            self.dwolla_processor_token(exchange_token_response['access_token'],
+                                        account_id,
+                                        user)
 
         return exchange_token_response['access_token']
 

@@ -40,8 +40,8 @@ def create_verified_customer(user):
     Creates Dwolla verified customer
     and plugin to User model
     """
-    client = dwollav2.Client(id=settings.DWOLLA_ID_DEV,
-                             secret=settings.DWOLLA_SECRET_DEV,
+    client = dwollav2.Client(id=settings.DWOLLA_ID_SANDBOX,
+                             secret=settings.DWOLLA_SECRET_SANDBOX,
                              environment=settings.PLAID_ENV)
     app_token = client.Auth.client()
     request_body = {'firstName': user.first_name,
@@ -354,8 +354,6 @@ class InstitutionDetail(AuthMixin, RetrieveAPIView):
 
 class Items(AuthMixin, ListCreateAPIView):
     serializer_class = sers.ItemPostSerializer
-    # swag_sers.ItemSwaggerSerializer
-    # sers.ItemSerializer
 
     def get(self, request, **kwargs):
         return Response(
@@ -376,9 +374,9 @@ class Items(AuthMixin, ListCreateAPIView):
         Using this token fetch Item and Accounts from Plaid
         and create them in database.
         """
-
+        missed_fields = None
         if settings.DONKIES_MODE == 'production':
-            if request.user.dwolla_verified_url is None:
+            if not request.user.dwolla_verified_url:
                 missed_fields = create_verified_customer(request.user)
         if missed_fields:
             return Response({'missed params': missed_fields}, status=400)
@@ -387,7 +385,6 @@ class Items(AuthMixin, ListCreateAPIView):
             return r400('Missing param.')
 
         item = Item.objects.create_item_by_data(request.user, request.data)
-
 
         # Fill FetchTransactions (history model)
         FetchTransactions.objects.create_all(item)
@@ -402,6 +399,7 @@ class Items(AuthMixin, ListCreateAPIView):
         fetch_history_transactions.apply_async(countdown=60)
 
         s = sers.ItemSerializer(item)
+
         return Response(s.data, status=201)
 
 
@@ -471,3 +469,6 @@ class TransfersPrepare(AuthMixin, ListAPIView):
     def get_queryset(self):
         return TransferPrepare.objects.filter(
             account__item__user=self.request.user)
+
+
+

@@ -20,9 +20,6 @@ class InstitutionSerializer(serializers.ModelSerializer):
 class ItemPostSerializer(serializers.Serializer):
     public_token = serializers.CharField()
     account_id = serializers.CharField()
-    # account_name = serializers.CharField()
-    # institution_type = serializers.CharField()
-    # institution_name = serializers.CharField()
 
 
 class ItemSerializer(serializers.ModelSerializer):

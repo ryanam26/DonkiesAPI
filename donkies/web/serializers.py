@@ -150,6 +150,12 @@ class SignupSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(data['email'], data['password'])
         user.first_name = data['first_name']
         user.last_name = data['last_name']
+        user.address1 = data['address1']
+        user.postal_code = data['postal_code']
+        user.city = data['city']
+        user.state = data['state']
+        user.date_of_birth = data['date_of_birth']
+        user.ssn = data['ssn']
 
         user.save()
 

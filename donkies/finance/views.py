@@ -17,51 +17,9 @@ from finance.models import (
     Account, FetchTransactions, Institution, Item, Lender, Stat,
     Transaction, TransferPrepare)
 import finance.swagger_serializer as swag_sers
-from django.conf import settings
-import dwollav2
+
 
 logger = logging.getLogger('app')
-
-
-def has_missed_fields(request_body):
-    """
-    Check fields for Dwolla verified customer
-    """
-    missed_values = []
-    for key in request_body:
-        if request_body[key] is None:
-            missed_values.append(key)
-
-    return missed_values
-
-
-def create_verified_customer(user):
-    """
-    Creates Dwolla verified customer
-    and plugin to User model
-    """
-    client = dwollav2.Client(id=settings.DWOLLA_ID_SANDBOX,
-                             secret=settings.DWOLLA_SECRET_SANDBOX,
-                             environment=settings.PLAID_ENV)
-    app_token = client.Auth.client()
-    request_body = {'firstName': user.first_name,
-                    'lastName': user.last_name,
-                    'email': user.email,
-                    'type': user.type,
-                    'address1': user.address1,
-                    'city': user.city,
-                    'state': user.state,
-                    'postalCode': user.postal_code,
-                    'dateOfBirth': str(user.date_of_birth),
-                    'ssn': user.ssn}
-    missed_fields = has_missed_fields(request_body)
-    if missed_fields:
-        return missed_fields
-    customer = app_token.post('customers', request_body)
-    user.dwolla_verified_url = customer.headers['location']
-    user.save()
-
-    return missed_fields
 
 
 def fetch_account_numbers_view(request, account_id):
@@ -374,13 +332,6 @@ class Items(AuthMixin, ListCreateAPIView):
         Using this token fetch Item and Accounts from Plaid
         and create them in database.
         """
-        missed_fields = None
-        if settings.DONKIES_MODE == 'production':
-            if not request.user.dwolla_verified_url:
-                missed_fields = create_verified_customer(request.user)
-        if missed_fields:
-            return Response({'missed params': missed_fields}, status=400)
-
         if not sers.ItemPostSerializer(data=request.data).is_valid():
             return r400('Missing param.')
 

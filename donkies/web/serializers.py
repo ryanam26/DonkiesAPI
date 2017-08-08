@@ -211,6 +211,8 @@ class UserSerializer(serializers.ModelSerializer):
             'total_debt',
             'profile_image_url',
             'type',
+            'dwolla_verified_url',
+            'funding_sources_url',
         )
         read_only_fields = (
             'id',

@@ -21,6 +21,7 @@ from rest_framework.schemas import SchemaGenerator
 from rest_framework_swagger import renderers
 from rest_framework.generics import ListAPIView, GenericAPIView
 import dwollav2
+from django.contrib.auth import logout
 
 
 def has_missed_fields(request_body):
@@ -143,6 +144,16 @@ class Login(GenericAPIView):
         user.last_access_date = timezone.now()
         user.save()
         return Response(data, status=200)
+
+
+class Logout(APIView):
+
+    def get(self, request, **kwargs):
+        """
+        Logout endpoint
+        """
+        logout(request)
+        return Response("logout", status=200)
 
 
 class PasswordResetRequest(GenericAPIView):

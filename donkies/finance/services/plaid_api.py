@@ -141,9 +141,13 @@ class PlaidApi:
         customer_url = user.dwolla_verified_url
 
         request_body = {'plaidToken': processor_token,
-                        'name': '{} {}’s Checking'.format(user.first_name, user.last_name)}
+                        'name': '{} {}’s Checking'.format(
+                            user.first_name,
+                            user.last_name
+                        )}
 
-        customer = app_token.post('%s/funding-sources' % customer_url, request_body)
+        customer = app_token.post('%s/funding-sources' % customer_url,
+                                  request_body)
 
         user.funding_sources_url = customer.headers['location']
         user.save()
@@ -154,12 +158,16 @@ class PlaidApi:
         We need to exchange it for access token.
         Returns access_token (string).
         """
-        exchange_token_response = self.client.Item.public_token.exchange(public_token)
+        exchange_token_response = self.client.Item.public_token.exchange(
+            public_token
+        )
 
         if settings.DONKIES_MODE == 'production':
-            self.dwolla_processor_token(exchange_token_response['access_token'],
-                                        account_id,
-                                        user)
+            self.dwolla_processor_token(
+                exchange_token_response['access_token'],
+                account_id,
+                user
+            )
 
         return exchange_token_response['access_token']
 

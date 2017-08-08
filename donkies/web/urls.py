@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from django.views.generic import TemplateView
 from .import views as v
 
+
 handler404 = v.error404
 handler500 = v.error500
 
@@ -29,6 +30,11 @@ urlpatterns = [
         r'^(?P<version>[v1]+)/auth/login$',
         v.Login.as_view(),
         name='login'),
+
+    url(
+        r'^(?P<version>[v1]+)/auth/logout$',
+        v.Logout.as_view(),
+        name='logout'),
 
     url(
         r'^(?P<version>[v1]+)/auth/facebook$',

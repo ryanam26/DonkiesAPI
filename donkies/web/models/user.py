@@ -114,8 +114,7 @@ class User(AbstractBaseUser):
     ipAddress = models.GenericIPAddressField(blank=True, null=True)
 
     dwolla_verified_url = models.TextField(blank=True, null=True)
-    funding_sources_url = models.CharField(max_length=255, blank=True,
-                                           null=True, default=None)
+
     type = models.CharField(
         choices=TYPE_CHOICES, default='personal', max_length=255
     )

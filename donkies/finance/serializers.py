@@ -2,6 +2,8 @@ from rest_framework import serializers
 from finance.models import (
     Account, Institution, Item, Transaction, TransferPrepare)
 
+from finance.models.funding_source import FundingSource
+
 
 class InstitutionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -142,4 +144,15 @@ class TransferPrepareSerializer(serializers.ModelSerializer):
             'created_at',
             'is_processed',
             'processed_at'
+        )
+
+
+class FundingSourceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FundingSource
+        fields = (
+            'id',
+            'user',
+            'funding_source_url',
         )

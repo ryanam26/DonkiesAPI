@@ -7,6 +7,10 @@ from plaid.errors import PlaidError
 
 import logging
 import dwollav2
+
+from finance.models.funding_source import FundingSource
+
+
 logger = logging.getLogger('app')
 
 
@@ -149,8 +153,10 @@ class PlaidApi:
         customer = app_token.post('%s/funding-sources' % customer_url,
                                   request_body)
 
-        user.funding_sources_url = customer.headers['location']
-        user.save()
+        FundingSource.objects.create(
+            user=user,
+            funding_sources_url=customer.headers['location']
+        )
 
     def exchange_public_token(self, user, public_token, account_id):
         """

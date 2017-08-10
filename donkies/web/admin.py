@@ -44,8 +44,7 @@ class MyUserAdmin(PopupMixin, UserAdmin):
                     'is_confirmed',
                     'is_active',
                     'is_closed_account',
-                    'dwolla_verified_url',
-                    'funding_sources_url',)}
+                    'dwolla_verified_url',)}
         ),
     )
     add_fieldsets = (

@@ -1,4 +1,4 @@
-from web.models import ActiveModel, ActiveManager
+from web.models import ActiveModel
 from django.db import models
 
 from web.models.user import User

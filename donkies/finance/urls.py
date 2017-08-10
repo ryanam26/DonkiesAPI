@@ -61,6 +61,9 @@ urlpatterns = [
         r'^(?P<version>[v1]+)/items$',
         v.Items.as_view(),
         name='items'),
+    url(r'^(?P<varsion>[v1]+)/items/create_transaction$',
+        v.CreateTransaction.as_view(),
+        name='create_transaction'),
 
     url(
         r'^(?P<version>[v1]+)/items/(?P<guid>\w+)$',

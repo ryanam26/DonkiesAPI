@@ -137,11 +137,11 @@ class ItemAdmin(admin.ModelAdmin):
         'billed_products',
         'created_at',
         'updated_at',
+        'access_token',
     )
     readonly_fields = (
         'user',
         'guid',
-        'access_token',
         'institution',
         'plaid_id',
         'webhook',

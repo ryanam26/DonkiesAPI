@@ -3,6 +3,7 @@ from web.models import User
 from django.contrib import auth
 from django.conf import settings
 from web.exceptions import PasswordsNotMatch
+from finance.serializers import FundingSourceSerializer
 # from bank.serializers import CustomerSerializer
 
 
@@ -183,6 +184,7 @@ class UserSerializer(serializers.ModelSerializer):
     # dwolla_customer = serializers.SerializerMethodField()
     signup_steps = serializers.SerializerMethodField()
     profile_image_url = serializers.SerializerMethodField()
+    funding_sources_user = FundingSourceSerializer(many=True)
 
     class Meta:
         model = User
@@ -212,6 +214,7 @@ class UserSerializer(serializers.ModelSerializer):
             'profile_image_url',
             'type',
             'dwolla_verified_url',
+            'funding_sources_user',
         )
         read_only_fields = (
             'id',

@@ -9,6 +9,7 @@ from django.db import transaction
 from django.contrib.postgres.fields import JSONField
 from web.models import ActiveModel, ActiveManager
 from finance.services.plaid_api import PlaidApi
+from .transfer_calculation import TransferCalculation
 
 logger = logging.getLogger('app')
 
@@ -119,7 +120,10 @@ class Transaction(ActiveModel):
     is_processed = models.NullBooleanField(
         default=False,
         help_text='Internal flag. Roundup has been applied')
-
+    transfer_calculation = models.ForeignKey(TransferCalculation,
+                                             related_name='transactions',
+                                             blank=True, null=True,
+                                             default=None)
     objects = TransactionManager()
 
     class Meta:
@@ -155,6 +159,9 @@ class Transaction(ActiveModel):
 
     def save(self, *args, **kwargs):
         Account = apps.get_model('finance', 'Account')
+        TransferCalculation = apps.get_model('finance',
+                                             'TransferCalculation')
+
         if not self.pk:
             self.guid = uuid.uuid4().hex
 
@@ -163,6 +170,15 @@ class Transaction(ActiveModel):
 
         if self.account.type not in Account.ROUNDUP_TYPES:
             self.is_processed = None
+
+        user = self.account.item.user
+        if self.transfer_calculation is None:
+            tr_calc, created = TransferCalculation.objects.get_or_create(
+                user=user
+            )
+
+            self.transfer_calculation = tr_calc
+            tr_calc.save(self.roundup)
 
         super().save(*args, **kwargs)
 

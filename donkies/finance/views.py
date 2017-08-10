@@ -310,6 +310,25 @@ class InstitutionDetail(AuthMixin, RetrieveAPIView):
     queryset = Institution.objects.filter(is_active=True)
 
 
+class CreateTransaction(AuthMixin, ListCreateAPIView):
+    serializer_class = sers.CreateTransactionSerializer
+
+    def get_queryset(self):
+        return Response('nothing', status=200)
+
+    def post(self, request, **kwargs):
+        access_token = request.data['access_token']
+        Transaction.objects.create_or_update_transactions(access_token)
+        Transaction.objects.filter(account__item__user=request.user)
+        return Response(
+            sers.TransferPrepareSerializer(
+                Transaction.objects.filter(account__item__user=request.user),
+                many=True
+            ).data,
+            status=200
+        )
+
+
 class Items(AuthMixin, ListCreateAPIView):
     serializer_class = sers.ItemPostSerializer
 

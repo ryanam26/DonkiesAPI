@@ -24,6 +24,11 @@ class ItemPostSerializer(serializers.Serializer):
     account_id = serializers.CharField()
 
 
+class CreateTransactionSerializer(serializers.Serializer):
+    access_token = serializers.CharField()
+
+
+
 class ItemSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='institution.name')
 
@@ -154,5 +159,5 @@ class FundingSourceSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'user',
-            'funding_source_url',
+            'funding_sources_url',
         )

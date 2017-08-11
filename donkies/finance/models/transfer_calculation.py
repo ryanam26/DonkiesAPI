@@ -10,7 +10,10 @@ from web.models import User
 
 def get_founding_source(user):
     FundingSource = apps.get_model('finance', 'FundingSource')
-    founding_instance = FundingSource.objects.filter(user=user).first()
+    Account = apps.get_model('finance', 'Account')
+
+    account = Account.objects.filter(item__user=user, is_primary=True).first()
+    founding_instance = FundingSource.objects.get(item=account.item)
 
     return founding_instance.funding_sources_url
 
@@ -69,10 +72,14 @@ class TransferCalculation(models.Model):
 
 @admin.register(TransferCalculation)
 class TransactionAdmin(admin.ModelAdmin):
+
     list_display = (
         'user',
         'roundup_sum',
         'total_roundaps',
         'min_amount',
     )
-
+    readonly_fields = (
+        'roundup_sum',
+        'total_roundaps',
+    )

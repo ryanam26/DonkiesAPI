@@ -61,9 +61,14 @@ urlpatterns = [
         r'^(?P<version>[v1]+)/items$',
         v.Items.as_view(),
         name='items'),
-    url(r'^(?P<varsion>[v1]+)/items/create_transaction$',
+
+    url(r'^(?P<version>[v1]+)/items/create_transaction$',
         v.CreateTransaction.as_view(),
         name='create_transaction'),
+
+    url(r'^(?P<version>[v1]+)/transfer/set_the_minimum_value_for_transfers$',
+        v.SetMinimumValueForTransfer.as_view(),
+        name='set_min_val'),
 
     url(
         r'^(?P<version>[v1]+)/items/(?P<guid>\w+)$',

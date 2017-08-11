@@ -23,6 +23,8 @@ from rest_framework.generics import ListAPIView, GenericAPIView
 import dwollav2
 from django.contrib.auth import logout
 
+from finance.services.dwolla_api import DwollaAPI
+
 
 def has_missed_fields(request_body):
     """
@@ -193,12 +195,11 @@ class Signup(GenericAPIView):
         """
         Create dwolla customer
         """
-        missed_fields = None
-        if settings.DONKIES_MODE == 'production':
-            if not user.dwolla_verified_url:
-                missed_fields = create_verified_customer(user)
-        if missed_fields:
-            return Response({'missed params': missed_fields}, status=400)
+        dw = DwollaAPI()
+        creaded_customer = dw.create_verified_customer(user)
+
+        if not creaded_customer:
+            return Response("customer has not been created", status=204)
 
         return Response({}, status=204)
 
@@ -260,7 +261,6 @@ class UserDetail(AuthMixin, GenericAPIView):
         s = sers.UserSerializer(self.request.user, data=request.data)
         s.is_valid(raise_exception=True)
         s.save()
-
         # Create customer after User completed profile
         create_customer.apply_async(args=[request.user.id], countdown=5)
         return Response(s.data)

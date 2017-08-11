@@ -15,8 +15,10 @@ from finance.tasks import (
 from web.views import AuthMixin, r400
 from finance.models import (
     Account, FetchTransactions, Institution, Item, Lender, Stat,
-    Transaction, TransferPrepare)
+    Transaction, TransferPrepare, TransferCalculation)
 import finance.swagger_serializer as swag_sers
+from finance.services.plaid_api import PlaidApi
+from finance.services.dwolla_api import DwollaAPI
 
 
 logger = logging.getLogger('app')
@@ -314,7 +316,14 @@ class CreateTransaction(AuthMixin, ListCreateAPIView):
     serializer_class = sers.CreateTransactionSerializer
 
     def get_queryset(self):
-        return Response('nothing', status=200)
+        return Response(
+            sers.TransactionSerializer(
+                Transaction.objects.filter(
+                    account__item__user=self.request.user),
+                many=True
+            ).data,
+            status=200
+        )
 
     def post(self, request, **kwargs):
         access_token = request.data['access_token']
@@ -355,6 +364,18 @@ class Items(AuthMixin, ListCreateAPIView):
             return r400('Missing param.')
 
         item = Item.objects.create_item_by_data(request.user, request.data)
+        if item:
+            pa = PlaidApi()
+            dw = DwollaAPI()
+            processor_token = pa.create_dwolla_processor_token(
+                item.access_token,
+                request.data["account_id"],
+                request.user
+            )
+            fs = dw.create_dwolla_funding_source(
+                request.user, processor_token, item
+            )
+            print(fs)
 
         # Fill FetchTransactions (history model)
         FetchTransactions.objects.create_all(item)
@@ -441,4 +462,18 @@ class TransfersPrepare(AuthMixin, ListAPIView):
             account__item__user=self.request.user)
 
 
+class SetMinimumValueForTransfer(AuthMixin, ListCreateAPIView):
+    serializer_class = sers.SetMinValueSerializer
 
+    def get_queryset(self):
+        return Response('ok', status=200)
+
+    def post(self, request, **kwargs):
+        transfer_calc, created = TransferCalculation.objects.get_or_create(
+            user=request.user
+        )
+        transfer_calc.min_amount = request.data['min_value']
+        transfer_calc.save()
+
+        serializer = sers.TransferCalculationSerializer(transfer_calc)
+        return Response(serializer.data, status=200)

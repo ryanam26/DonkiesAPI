@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from finance.models import (
-    Account, Institution, Item, Transaction, TransferPrepare)
+    Account, Institution, Item, Transaction, TransferPrepare, TransferCalculation)
 
 from finance.models.funding_source import FundingSource
 
@@ -161,3 +161,20 @@ class FundingSourceSerializer(serializers.ModelSerializer):
             'user',
             'funding_sources_url',
         )
+
+
+class TransferCalculationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransferCalculation
+        fields = (
+            'id',
+            'user',
+            'roundup_sum',
+            'total_roundaps',
+            'min_amount',
+        )
+
+
+class SetMinValueSerializer(serializers.Serializer):
+    min_value = serializers.CharField()

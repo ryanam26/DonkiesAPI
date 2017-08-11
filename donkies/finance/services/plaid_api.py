@@ -4,12 +4,7 @@ from django.conf import settings
 from web.services.helpers import catch_exception
 from plaid import Client
 from plaid.errors import PlaidError
-
 import logging
-import dwollav2
-
-from finance.models.funding_source import FundingSource
-
 
 logger = logging.getLogger('app')
 
@@ -126,15 +121,10 @@ class PlaidApi:
         d = self.client.Item.public_token.create(access_token)
         return d['public_token']
 
-    def dwolla_processor_token(self, access_token, account_id, user):
+    def create_dwolla_processor_token(self, access_token, account_id, user):
         """
-        Create processor token and funding source
+        Create processor token
         """
-        client = dwollav2.Client(id=settings.DWOLLA_ID_SANDBOX,
-                                 secret=settings.DWOLLA_SECRET_SANDBOX,
-                                 environment=settings.PLAID_ENV)
-        app_token = client.Auth.client()
-
         url = settings.DWOLLA_PROCESSOR_TOKEN_CREATE
         dwolla_token = self.client.post(url,
                                         {"client_id": settings.PLAID_CLIENT_ID,
@@ -142,21 +132,8 @@ class PlaidApi:
                                          "access_token": access_token,
                                          "account_id": account_id})
         processor_token = dwolla_token['processor_token']
-        customer_url = user.dwolla_verified_url
 
-        request_body = {'plaidToken': processor_token,
-                        'name': '{} {}’s Checking'.format(
-                            user.first_name,
-                            user.last_name
-                        )}
-
-        customer = app_token.post('%s/funding-sources' % customer_url,
-                                  request_body)
-
-        FundingSource.objects.create(
-            user=user,
-            funding_sources_url=customer.headers['location']
-        )
+        return processor_token
 
     def exchange_public_token(self, user, public_token, account_id):
         """
@@ -167,13 +144,6 @@ class PlaidApi:
         exchange_token_response = self.client.Item.public_token.exchange(
             public_token
         )
-
-        if settings.DONKIES_MODE == 'production':
-            self.dwolla_processor_token(
-                exchange_token_response['access_token'],
-                account_id,
-                user
-            )
 
         return exchange_token_response['access_token']
 

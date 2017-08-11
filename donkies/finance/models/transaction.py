@@ -178,7 +178,7 @@ class Transaction(ActiveModel):
             )
 
             self.transfer_calculation = tr_calc
-            tr_calc.save(self.roundup)
+            tr_calc.save(self.roundup, self)
 
         super().save(*args, **kwargs)
 

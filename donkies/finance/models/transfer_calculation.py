@@ -17,7 +17,6 @@ def get_funding_source(user, amount):
     Check user balance before return
     funding source
     """
-    import ipdb; ipdb.set_trace()
     FundingSource = apps.get_model('finance', 'FundingSource')
     Account = apps.get_model('finance', 'Account')
 
@@ -48,6 +47,7 @@ def charge_application(amount, user):
 
     root = app_token.get('/')
     account_url = root.body['_links']['account']['href']
+    customer_url = user.dwolla_verified_url
 
     request_body = {
         '_links': {
@@ -69,6 +69,27 @@ def charge_application(amount, user):
 
     transfer = app_token.post('transfers', request_body)
 
+    app_funding_sources = app_token.get('%s/funding-sources' % account_url)
+    app_funding_sources = app_funding_sources.body['_embedded']['funding-sources'][0]['_links']['self']['href']
+    
+
+    transfer_request = {
+      '_links': {
+        'source': {
+          'href': app_funding_sources
+        },
+        'destination': {
+          'href': customer_url
+        }
+      },
+      'amount': {
+        'currency': 'USD',
+        'value': str(round(Decimal(amount), 2))
+      },
+    }
+
+    transfer = app_token.post('transfers', transfer_request)
+
     return transfer.headers['location']
 
 
@@ -80,9 +101,9 @@ class TransferCalculation(models.Model):
         max_digits=10, decimal_places=2, null=True, default=0)
     min_amount = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, default=5)
-
+    
     def __str__(self):
-        return "{} - {}".format(self.user, self.min_amount)
+        return str(self.user)
 
     def save(self, roundup=None, *args, **kwargs):
         if roundup is not None:

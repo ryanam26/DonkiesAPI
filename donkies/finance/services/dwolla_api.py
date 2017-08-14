@@ -82,32 +82,3 @@ class DwollaAPI:
             funding_sources_url=customer.headers['location'],
             item=item
         )
-
-    def charge_application(self, user, amount, funding_source):
-        """
-        Transfer roundups to Dwolla application
-        """
-        root = self.app_token.get('/')
-        account_url = root.body['_links']['account']['href']
-
-        request_body = {
-            '_links': {
-                'source': {
-                    'href': founding_source
-                },
-                'destination': {
-                    'href': account_url
-                }
-            },
-            'amount': {
-                'currency': 'USD',
-                'value': str(round(Decimal(amount), 2))
-            },
-            'metadata': {
-                'donkie': 'user reached minimum value',
-            }
-        }
-
-        transfer = app_token.post('transfers', request_body)
-
-        return transfer.headers['location']

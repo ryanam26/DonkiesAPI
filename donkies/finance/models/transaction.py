@@ -192,7 +192,8 @@ class TransactionAdmin(admin.ModelAdmin):
         'amount',
         'roundup',
         'name',
-        'category'
+        'category',
+        'transfer_calculation',
     )
     list_filter = ('account',)
     list_per_page = 500

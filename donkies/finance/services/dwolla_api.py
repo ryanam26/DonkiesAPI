@@ -3,6 +3,7 @@ from django.apps import apps
 from django.conf import settings
 from rest_framework.response import Response
 import dwollav2
+from decimal import *
 
 
 class DwollaAPI:
@@ -18,13 +19,20 @@ class DwollaAPI:
         self.app_token = self.client.Auth.client()
 
     def validate_user(self, user):
+        """
+        Check user credentials
+        """
         User = apps.get_model('web', 'User')
         user_dict = User.objects.values().get(email=user.email)
 
         serialiser = UserSerializer(data=user_dict)
+        
         return serialiser.is_valid(raise_exception=True)
 
     def create_verified_customer(self, user):
+        """
+        Create customer on Dwolla
+        """
         valid_user = self.validate_user(user)
 
         if not valid_user:
@@ -53,6 +61,9 @@ class DwollaAPI:
         return res
 
     def create_dwolla_funding_source(self, user, processor_token, item):
+        """
+        Create funding source on Dwolla
+        """
         FundingSource = apps.get_model('finance', 'FundingSource')
 
         customer_url = user.dwolla_verified_url
@@ -71,3 +82,32 @@ class DwollaAPI:
             funding_sources_url=customer.headers['location'],
             item=item
         )
+
+    def charge_application(self, user, amount, funding_source):
+        """
+        Transfer roundups to Dwolla application
+        """
+        root = self.app_token.get('/')
+        account_url = root.body['_links']['account']['href']
+
+        request_body = {
+            '_links': {
+                'source': {
+                    'href': founding_source
+                },
+                'destination': {
+                    'href': account_url
+                }
+            },
+            'amount': {
+                'currency': 'USD',
+                'value': str(round(Decimal(amount), 2))
+            },
+            'metadata': {
+                'donkie': 'user reached minimum value',
+            }
+        }
+
+        transfer = app_token.post('transfers', request_body)
+
+        return transfer.headers['location']

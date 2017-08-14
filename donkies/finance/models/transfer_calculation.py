@@ -5,32 +5,54 @@ from django.apps import apps
 from django.conf import settings
 from decimal import *
 import dwollav2
+import logging
+
 from web.models import User
 
+logger = logging.getLogger('app')
 
-def get_founding_source(user):
+
+def get_funding_source(user, amount):
+    """
+    Check user balance before return
+    funding source
+    """
+    import ipdb; ipdb.set_trace()
     FundingSource = apps.get_model('finance', 'FundingSource')
     Account = apps.get_model('finance', 'Account')
 
     account = Account.objects.filter(item__user=user, is_primary=True).first()
-    founding_instance = FundingSource.objects.get(item=account.item)
 
-    return founding_instance.funding_sources_url
+    if account.balance > amount:
+        founding_instance = FundingSource.objects.get(item=account.item)
+
+        return founding_instance.funding_sources_url
+
+    raise Exception('Insufficient funds')
 
 
 def charge_application(amount, user):
-    founding_source = get_founding_source(user)
+    """
+    Try to get funding source 
+    make tranfer via DwollaApi
+    """
+    try:
+        funding_source = get_funding_source(user, amount)
+    except Exception as error:
+        raise Exception(error)
+
     client = dwollav2.Client(id=settings.DWOLLA_ID_SANDBOX,
                              secret=settings.DWOLLA_SECRET_SANDBOX,
-                             environment=settings.PLAID_ENV)
+                             environment=settings.DWOLLA_ENV)
     app_token = client.Auth.client()
+
     root = app_token.get('/')
     account_url = root.body['_links']['account']['href']
 
     request_body = {
         '_links': {
             'source': {
-                'href': founding_source
+                'href': funding_source
             },
             'destination': {
                 'href': account_url
@@ -46,6 +68,7 @@ def charge_application(amount, user):
     }
 
     transfer = app_token.post('transfers', request_body)
+
     return transfer.headers['location']
 
 
@@ -58,14 +81,20 @@ class TransferCalculation(models.Model):
     min_amount = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, default=5)
 
+    def __str__(self):
+        return "{} - {}".format(self.user, self.min_amount)
+
     def save(self, roundup=None, *args, **kwargs):
         if roundup is not None:
             self.roundup_sum += round(Decimal(roundup), 2)
             self.total_roundaps += round(Decimal(roundup), 2)
 
             if self.roundup_sum >= self.min_amount:
-                self.roundup_sum = self.roundup_sum - self.min_amount
-                charge_application(self.min_amount, self.user)
+                try:
+                    charge_application(self.min_amount, self.user)
+                    self.roundup_sum = self.roundup_sum - self.min_amount
+                except Exception as error:
+                    logger.info(error)
 
         super().save(*args, **kwargs)
 

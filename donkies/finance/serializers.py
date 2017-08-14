@@ -178,3 +178,7 @@ class TransferCalculationSerializer(serializers.ModelSerializer):
 
 class SetMinValueSerializer(serializers.Serializer):
     min_value = serializers.CharField()
+
+
+class MakeTransferSerializer(serializers.Serializer):
+    amount = serializers.CharField()

@@ -20,6 +20,9 @@ import finance.swagger_serializer as swag_sers
 from finance.services.plaid_api import PlaidApi
 from finance.services.dwolla_api import DwollaAPI
 
+from finance.models.transfer_calculation import charge_application
+from decimal import *
+
 
 logger = logging.getLogger('app')
 
@@ -336,6 +339,24 @@ class CreateTransaction(AuthMixin, ListCreateAPIView):
             ).data,
             status=200
         )
+
+
+class MakeTransfer(AuthMixin, ListCreateAPIView):
+    """
+    This endpoint only for testing
+    """
+    serializer_class = sers.MakeTransferSerializer
+
+    def get_queryset(self):
+        return Response(status=200)
+
+    def post(self, request, **kwargs):
+        """
+        Transfer amount to user dwolla account
+        """
+        amount = Decimal(request.data['amount'])
+        transfer = charge_application(amount, request.user)
+        return Response(transfer, status=200)
 
 
 class Items(AuthMixin, ListCreateAPIView):

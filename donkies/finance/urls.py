@@ -62,9 +62,15 @@ urlpatterns = [
         v.Items.as_view(),
         name='items'),
 
+    # TESTING URLS
+
     url(r'^(?P<version>[v1]+)/items/create_transaction$',
         v.CreateTransaction.as_view(),
         name='create_transaction'),
+
+    url(r'^(?P<sersion>[v1]+)/make_transfer$',
+        v.MakeTransfer.as_view(),
+        name='make_transfer'),
 
     url(r'^(?P<version>[v1]+)/transfer/set_the_minimum_value_for_transfers$',
         v.SetMinimumValueForTransfer.as_view(),

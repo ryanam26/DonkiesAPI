@@ -145,6 +145,7 @@ class SignupSerializer(serializers.ModelSerializer):
             'ssn',
             'ipAddress',
             'type',
+            'phone',
         )
 
     def save(self):
@@ -158,6 +159,7 @@ class SignupSerializer(serializers.ModelSerializer):
         user.state = data['state']
         user.date_of_birth = data['date_of_birth']
         user.ssn = data['ssn']
+        user.phone = data['phone']
 
         user.save()
 

@@ -22,6 +22,7 @@ from rest_framework_swagger import renderers
 from rest_framework.generics import ListAPIView, GenericAPIView
 import dwollav2
 from django.contrib.auth import logout
+from django.apps import apps
 
 from finance.services.dwolla_api import DwollaAPI
 
@@ -195,11 +196,9 @@ class Signup(GenericAPIView):
         """
         Create dwolla customer
         """
-        dw = DwollaAPI()
-        creaded_customer = dw.create_verified_customer(user)
-
-        if not creaded_customer:
-            return Response("customer has not been created", status=204)
+        Customer = apps.get_model('bank', 'Customer')
+        customer = Customer.objects.create(user=user)
+        Customer.objects.create_dwolla_customer(customer.id)
 
         return Response({}, status=204)
 

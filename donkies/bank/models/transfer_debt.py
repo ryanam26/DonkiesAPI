@@ -14,7 +14,7 @@ class TransferDebt(models.Model):
     """
     account = models.ForeignKey(
         'finance.Account',
-        related_name='transfers_user',
+        related_name='accounts_transfers_user',
         help_text='Debt account.')
     tu = models.ForeignKey(
         'TransferUser', help_text='TransferUser transfer')

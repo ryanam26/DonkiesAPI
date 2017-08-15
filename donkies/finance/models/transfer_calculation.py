@@ -32,7 +32,7 @@ def get_funding_source(user, amount):
 
 def charge_application(amount, user):
     """
-    Try to get funding source 
+    Try to get funding source
     make tranfer via DwollaApi
     """
     try:
@@ -71,7 +71,7 @@ def charge_application(amount, user):
 
     app_funding_sources = app_token.get('%s/funding-sources' % account_url)
     app_funding_sources = app_funding_sources.body['_embedded']['funding-sources'][0]['_links']['self']['href']
-    
+
 
     transfer_request = {
       '_links': {
@@ -101,7 +101,7 @@ class TransferCalculation(models.Model):
         max_digits=10, decimal_places=2, null=True, default=0)
     min_amount = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, default=5)
-    
+
     def __str__(self):
         return str(self.user)
 
@@ -112,8 +112,10 @@ class TransferCalculation(models.Model):
 
             if self.roundup_sum >= self.min_amount:
                 try:
-                    charge_application(self.min_amount, self.user)
-                    self.roundup_sum = self.roundup_sum - self.min_amount
+                    temp_diff = self.roundup_sum % self.min_amount
+                    amount = self.roundup_sum - temp_diff
+                    charge_application(amount, self.user)
+                    self.roundup_sum = temp_diff
                 except Exception as error:
                     logger.info(error)
 

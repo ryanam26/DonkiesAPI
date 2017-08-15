@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib import admin
 from django.db.models import Sum
 from django.apps import apps
+from decimal import *
 
 
 class StatManager(models.Manager):
@@ -80,11 +81,9 @@ class StatManager(models.Manager):
         User = apps.get_model('web', 'User')
 
         user = User.objects.get(id=user_id)
-        sum = Transaction.objects\
-            .filter(
-                account__item__user_id=user_id,
-                date__gt=user.created_at)\
-            .aggregate(Sum('roundup'))['roundup__sum']
+        sum = Transaction.objects.filter(
+            account__item__user=user, date__gte=user.created_at
+        ).aggregate(Sum('roundup'))['roundup__sum']
 
         if not sum:
             return 0

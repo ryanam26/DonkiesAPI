@@ -107,7 +107,7 @@ class TransferUser(models.Model):
     TransferUser model delegates funds to TransferDebt model
     to user's debt accounts accordingly to share.
     """
-    user = models.ForeignKey('web.User', related_name='transfers')
+    user = models.ForeignKey('web.User', related_name='transfers_users')
     cached_amount = models.DecimalField(
         max_digits=10, decimal_places=2, null=True,
         default=None, blank=True)

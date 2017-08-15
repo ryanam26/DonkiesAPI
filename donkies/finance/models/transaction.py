@@ -203,7 +203,7 @@ class TransactionAdmin(admin.ModelAdmin):
         'guid',
         'plaid_id',
         'amount',
-        'date',
+        # 'date',
         'name',
         'transaction_type',
         'category',

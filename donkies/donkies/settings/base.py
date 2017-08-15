@@ -75,7 +75,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'web',
     'finance',
-    # 'bank',
+    'bank',
     'ach',
     'django_extensions'
 )

@@ -32,9 +32,12 @@ class DwollaApi:
             settings, 'DONKIES_DWOLLA_EMAIL_{}'.format(self.mode))
 
         self.client = dwollav2.Client(
-            id=self.client_id,
-            secret=self.client_secret,
-            environment=environment)
+            id=settings.DWOLLA_ID_SANDBOX,
+            secret=settings.DWOLLA_SECRET_SANDBOX,
+            environment='sandbox')
+        # self.client_id,
+        # self.client_secret,
+        # environment
         self.token = self.client.Auth.client()
 
     def press_sandbox_button(self):

@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib import admin
 from django.db.models import Sum
 from django.apps import apps
+from bank.services.dwolla_api import DwollaApi
 from decimal import *
 
 
@@ -116,11 +117,33 @@ class StatManager(models.Manager):
     def get_yearly_average_roundup(self, user_id):
         return self.get_daily_average_roundup(user_id) * 365
 
+    def get_funds_in_coinstash(self, user_id):
+        User = apps.get_model('web', 'User')
+
+        user = User.objects.get(id=user_id)
+        dw = DwollaApi()
+
+        customer_url = "{}customers/{}/funding-sources".format(
+            dw.get_api_url(), user.dwolla_verified_url.split('/')[-1]
+        )
+
+        funding_sources = dw.token.get(customer_url)
+        balance_url = None
+
+        for i in funding_sources.body['_embedded']['funding-sources']:
+            if "balance" in i['_links'].keys():
+                balance_url = i['_links']['balance']['href']
+
+        balance = dw.token.get(balance_url)
+
+        return balance.body['balance']
+
     def get_json(self, user_id):
         return {
             'roundup_since_signup': self.get_roundup_since_signup(user_id),
             'monthly_average_roundup': self.get_monthly_average_roundup(user_id),
-            'yearly_average_roundup': self.get_yearly_average_roundup(user_id)
+            'yearly_average_roundup': self.get_yearly_average_roundup(user_id),
+            'funds_in_coinstash': self.get_funds_in_coinstash(user_id)
         }
 
 

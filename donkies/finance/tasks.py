@@ -104,3 +104,13 @@ def update_institutions():
 def process_roundups():
     TransferPrepare = apps.get_model('finance', 'TransferPrepare')
     TransferPrepare.objects.process_roundups()
+
+
+@periodic_task(run_every=crontab(0, 0, day_of_month='28'))
+def charge_dwoll_buisness():
+    """
+    Transfer money to dwolla buisness
+    on the 28 day of every month.
+    """
+    User = apps.get_model('web', 'User')
+    pass

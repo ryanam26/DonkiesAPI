@@ -18,6 +18,14 @@ class DwollaAPI:
                                       environment=env)
         self.app_token = self.client.Auth.client()
 
+    def get_api_url(self):
+        """
+        For RAW requests.
+        """
+        if settings.DWOLLA_API_MODE == 'PROD':
+            return 'https://api.dwolla.com/'
+        return 'https://api-uat.dwolla.com/'
+
     def validate_user(self, user):
         """
         Check user credentials
@@ -26,7 +34,7 @@ class DwollaAPI:
         user_dict = User.objects.values().get(email=user.email)
 
         serialiser = UserSerializer(data=user_dict)
-        
+
         return serialiser.is_valid(raise_exception=True)
 
     def create_verified_customer(self, user):
@@ -65,17 +73,20 @@ class DwollaAPI:
         Create funding source on Dwolla
         """
         FundingSource = apps.get_model('finance', 'FundingSource')
+        Customer = apps.get_model('bank', 'Customer')
 
-        customer_url = user.dwolla_verified_url
+        customer = Customer.objects.get(user=user)
+        customer_url = '{}customers/{}'.format(
+            self.get_api_url(), customer.dwolla_id)
 
         request_body = {'plaidToken': processor_token,
-                        'name': '{} {}’s Checking'.format(
+                        'name': '{} {}'.format(
                             user.first_name,
                             user.last_name
                         )}
 
-        customer = self.app_token.post('%s/funding-sources' % customer_url,
-                                       request_body)
+        customer = self.app_token.post(
+            '{}/funding-sources'.format(customer_url), request_body)
 
         return FundingSource.objects.create(
             user=user,

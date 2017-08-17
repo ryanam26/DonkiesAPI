@@ -5,6 +5,8 @@ from donkies import capp
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 from web.services.helpers import round_to_prev5
+from bank.services.dwolla_api import DwollaApi
+from decimal import *
 
 rs = settings.REDIS_DB
 logger = logging.getLogger('console')
@@ -106,11 +108,65 @@ def process_roundups():
     TransferPrepare.objects.process_roundups()
 
 
+def transfer_money(amount, funding_source):
+    TransferCalculation = apps.get_model('finance', 'TransferCalculation')
+    FundingSource = apps.get_model('finance', 'FundingSource')
+
+    dw = DwollaApi()
+
+    destination = settings.DWOLLA_TEMP_BUSINESS_ACCOUNT
+
+    request_body = {
+        '_links': {
+            'source': {
+                'href': funding_source
+            },
+            'destination': {
+                'href': destination
+            }
+        },
+        'amount': {
+            'currency': 'USD',
+            'value': amount
+        }
+    }
+    try:
+        transfer = dw.token.post('transfers', request_body)
+        print(transfer.headers['location'])
+        trans_calc = TransferCalculation.objects.get(
+            user=FundingSource.objects.get(
+                funding_sources_url=funding_source
+            ).user
+        )
+        trans_calc.applied_funds = Decimal(amount)
+        trans_calc.save()
+    except Exception as error:
+        logger.info(error)
+
+
 @periodic_task(run_every=crontab(0, 0, day_of_month='28'))
 def charge_dwoll_buisness():
     """
     Transfer money to dwolla buisness
     on the 28 day of every month.
     """
+    FundingSource = apps.get_model('finance', 'FundingSource')
+    Account = apps.get_model('finance', 'Account')
     User = apps.get_model('web', 'User')
-    pass
+
+    fi = Account.objects.filter(is_primary=True).values_list(
+        'item__funding_items', flat=True
+    ).distinct()  # id funding sources
+
+    fs = FundingSource.objects.filter(pk__in=fi).exclude(
+        funding_sources_url=None
+    ).distinct().values_list('user', 'funding_sources_url')  # user and url
+
+    for pk, url in fs:
+        amount = User.objects.get(pk=pk).user_calulations.values_list(
+            'total_in_stash_account', flat=True
+        ).first()
+
+        if amount == 0 or amount is None:
+            continue
+        transfer_money(amount, url)

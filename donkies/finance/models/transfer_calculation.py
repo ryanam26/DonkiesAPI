@@ -70,7 +70,7 @@ def charge_application(amount, user):
     transfer = app_token.post('transfers', request_body)
 
     app_funding_sources = app_token.get('%s/funding-sources' % account_url)
-    app_funding_sources = app_funding_sources.body['_embedded']['funding-sources'][0]['_links']['self']['href']
+    app_funding_sources = app_funding_sources.body['_embedded']['funding-sources'][1]['_links']['self']['href']
 
 
     transfer_request = {
@@ -93,6 +93,12 @@ def charge_application(amount, user):
     return transfer.headers['location']
 
 
+def get_total_in_stash(user_id):
+    Stat = apps.get_model('finance', 'Stat')
+    balance = Stat.objects.get_funds_in_coinstash(user_id)
+    return balance['value']
+
+
 class TransferCalculation(models.Model):
     user = models.ForeignKey(User, related_name='user_calulations')
     roundup_sum = models.DecimalField(
@@ -101,6 +107,10 @@ class TransferCalculation(models.Model):
         max_digits=10, decimal_places=2, null=True, default=0)
     min_amount = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, default=5)
+    total_in_stash_account = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, default=0)
+    applied_funds = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, default=0)
 
     def __str__(self):
         return str(self.user)
@@ -116,6 +126,8 @@ class TransferCalculation(models.Model):
                     amount = self.roundup_sum - temp_diff
                     charge_application(amount, self.user)
                     self.roundup_sum = temp_diff
+                    self.total_in_stash_account = Decimal(
+                        get_total_in_stash(self.user.id))
                 except Exception as error:
                     logger.info(error)
 
@@ -130,6 +142,8 @@ class TransactionAdmin(admin.ModelAdmin):
         'roundup_sum',
         'total_roundaps',
         'min_amount',
+        'total_in_stash_account',
+        'applied_funds',
     )
     readonly_fields = (
         'roundup_sum',

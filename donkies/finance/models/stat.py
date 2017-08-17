@@ -138,12 +138,21 @@ class StatManager(models.Manager):
 
         return balance.body['balance']
 
+    def get_applied_funds(self, user_id):
+        User = apps.get_model('web', 'User')
+        TransferCalculation = apps.get_model('finance', 'TransferCalculation')
+        user = User.objects.get(id=user_id)
+        tr = TransferCalculation.objects.get(user=user)
+
+        return tr.applied_funds
+
     def get_json(self, user_id):
         return {
             'roundup_since_signup': self.get_roundup_since_signup(user_id),
             'monthly_average_roundup': self.get_monthly_average_roundup(user_id),
             'yearly_average_roundup': self.get_yearly_average_roundup(user_id),
-            'funds_in_coinstash': self.get_funds_in_coinstash(user_id)
+            'funds_in_coinstash': self.get_funds_in_coinstash(user_id),
+            'applied_funds': self.get_applied_funds(user_id)
         }
 
 

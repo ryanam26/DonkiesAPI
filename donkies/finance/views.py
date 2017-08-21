@@ -415,6 +415,47 @@ class Items(AuthMixin, ListCreateAPIView):
         return Response(s.data, status=201)
 
 
+class PauseItems(AuthMixin, ListCreateAPIView):
+    serializer_class = sers.PauseItemsSerializer
+
+    def get_queryset(self):
+        return Response(
+            sers.ItemSerializer(
+                Item.objects.filter(user=self.request.user),
+                many=True
+            ).data,
+            status=200
+        )
+
+    def get(self, request, **kwargs):
+        return Response(
+            sers.ItemSerializer(
+                Item.objects.filter(user=request.user),
+                many=True
+            ).data,
+            status=200
+        )
+
+    def post(self, request, **kwargs):
+        item_id = request.data['item_id']
+        pause = request.data['pause']
+        item = Item.objects.get(id=item_id, user=request.user)
+
+        if pause:
+            item.pause_on()
+
+        if not pause:
+            item.pause_off()
+
+        return Response(
+            sers.ItemSerializer(
+                Item.objects.filter(user=self.request.user),
+                many=True
+            ).data,
+            status=200
+        )
+
+
 class ItemDetail(AuthMixin, RetrieveDestroyAPIView):
     serializer_class = sers.ItemSerializer
     lookup_field = 'guid'

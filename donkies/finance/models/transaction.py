@@ -31,16 +31,17 @@ class TransactionManager(ActiveManager):
 
         logger.debug('Item: {}'.format(item.id))
 
-        l = self.get_plaid_transactions(
-            item, start_date=start_date, end_date=end_date)
+        if not item.pause:
+            l = self.get_plaid_transactions(
+                item, start_date=start_date, end_date=end_date)
 
-        logger.debug('Number of transactions: {}'.format(len(l)))
+            logger.debug('Number of transactions: {}'.format(len(l)))
 
-        for tr in l:
-            self.create_or_update_transaction(tr)
+            for tr in l:
+                self.create_or_update_transaction(tr)
 
-        # After updating transactions, update also accounts
-        Account.objects.create_or_update_accounts(access_token)
+            # After updating transactions, update also accounts
+            Account.objects.create_or_update_accounts(access_token)
 
     def create_or_update_transaction(self, api_response):
         """
@@ -176,9 +177,9 @@ class Transaction(ActiveModel):
             tr_calc, created = TransferCalculation.objects.get_or_create(
                 user=user
             )
-
-            self.transfer_calculation = tr_calc
-            tr_calc.save(self.roundup, self)
+            # TODO: Check constraint
+            # self.transfer_calculation = tr_calc
+            # tr_calc.save(self.roundup, self)
 
         super().save(*args, **kwargs)
 

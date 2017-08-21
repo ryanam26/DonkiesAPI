@@ -68,6 +68,10 @@ urlpatterns = [
         v.CreateTransaction.as_view(),
         name='create_transaction'),
 
+    url(r'^(?P<version>[v1]+)/items/pause$',
+        v.PauseItems.as_view(),
+        name='pause_item'),
+
     url(r'^(?P<sersion>[v1]+)/make_transfer$',
         v.MakeTransfer.as_view(),
         name='make_transfer'),

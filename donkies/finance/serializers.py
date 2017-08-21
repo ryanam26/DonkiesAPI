@@ -40,6 +40,8 @@ class ItemSerializer(serializers.ModelSerializer):
             'plaid_id',
             'institution',
             'name',
+            'pause',
+            'access_token',
         )
 
 
@@ -182,3 +184,8 @@ class SetMinValueSerializer(serializers.Serializer):
 
 class MakeTransferSerializer(serializers.Serializer):
     amount = serializers.CharField()
+
+
+class PauseItemsSerializer(serializers.Serializer):
+    item_id = serializers.IntegerField()
+    pause = serializers.BooleanField(default=False)

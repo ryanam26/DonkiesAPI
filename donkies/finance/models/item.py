@@ -108,6 +108,7 @@ class Item(ActiveModel):
     billed_products = JSONField(null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True, default=None, blank=True)
+    pause = models.BooleanField(default=False, blank=True)
 
     objects = ItemManager()
 
@@ -125,6 +126,14 @@ class Item(ActiveModel):
             self.guid = uuid.uuid4().hex
         super().save(*args, **kwargs)
 
+    def pause_on(self, *args, **kwargs):
+        self.pause = True
+        self.save()
+
+    def pause_off(self, *args, **kwargs):
+        self.pause = False
+        self.save()
+
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
@@ -138,6 +147,7 @@ class ItemAdmin(admin.ModelAdmin):
         'created_at',
         'updated_at',
         'access_token',
+        'pause',
     )
     readonly_fields = (
         'user',
@@ -149,4 +159,5 @@ class ItemAdmin(admin.ModelAdmin):
         'billed_products',
         'created_at',
         'updated_at',
+        'pause',
     )

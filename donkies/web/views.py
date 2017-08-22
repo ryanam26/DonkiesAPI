@@ -189,16 +189,10 @@ class Signup(GenericAPIView):
     def post(self, request, **kwargs):
         serializer = sers.SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        res = serializer.save()
 
-        user = User.objects.get(email=request.data['email'])
-
-        """
-        Create dwolla customer
-        """
-        Customer = apps.get_model('bank', 'Customer')
-        customer = Customer.objects.create(user=user)
-        Customer.objects.create_dwolla_customer(customer.id)
+        if res is None:
+            return Response('The user did not create', status=403)
 
         return Response({}, status=204)
 

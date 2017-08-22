@@ -6,6 +6,8 @@ from web.exceptions import PasswordsNotMatch
 from finance.serializers import (FundingSourceSerializer,
                                  TransferCalculationSerializer)
 # from bank.serializers import CustomerSerializer
+from django.apps import apps
+from bank.services.dwolla_api import DwollaApi
 
 
 class EncIdMixin:
@@ -150,21 +152,49 @@ class SignupSerializer(serializers.ModelSerializer):
 
     def save(self):
         data = self.validated_data
-        user = User.objects.create_user(data['email'], data['password'])
-        user.first_name = data['first_name']
-        user.last_name = data['last_name']
-        user.address1 = data['address1']
-        user.postal_code = data['postal_code']
-        user.city = data['city']
-        user.state = data['state']
-        user.date_of_birth = data['date_of_birth']
-        user.ssn = data['ssn']
-        user.phone = data['phone']
 
-        user.save()
+        request_body = {
+            'firstName': data['first_name'],
+            'lastName': data['last_name'],
+            'email': data['email'],
+            'type': data['type'],
+            'address1': data['address1'],
+            'city': data['city'],
+            'state': data['state'],
+            'postalCode': data['postal_code'],
+            'dateOfBirth': str(data['date_of_birth']),
+            'ssn': data['ssn'],
+            'phone': data['phone'],
+        }
+        dw = DwollaApi()
+        id = dw.create_customer(request_body)
 
-        # Post save operations, send email e.t.c
-        user.signup()
+        if id is not None:
+            user = User.objects.create_user(data['email'], data['password'])
+            user.first_name = data['first_name']
+            user.last_name = data['last_name']
+            user.address1 = data['address1']
+            user.postal_code = data['postal_code']
+            user.city = data['city']
+            user.state = data['state']
+            user.date_of_birth = data['date_of_birth']
+            user.ssn = data['ssn']
+            user.phone = data['phone']
+
+            user.save()
+
+            Customer = apps.get_model('bank', 'Customer')
+            customer = Customer.objects.create(user=user)
+            customer.dwolla_id = id
+
+            customer.save()
+
+            # Post save operations, send email e.t.c
+            user.signup()
+
+            return user
+
+        return None
 
 
 class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):

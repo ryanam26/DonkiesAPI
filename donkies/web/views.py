@@ -192,7 +192,7 @@ class Signup(GenericAPIView):
         res = serializer.save()
 
         if res is None:
-            return Response('The user did not create', status=403)
+            return Response({"message": "The user did not create"}, status=403)
 
         return Response(serializer.data, status=201)
 

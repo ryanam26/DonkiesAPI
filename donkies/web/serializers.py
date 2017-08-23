@@ -151,6 +151,7 @@ class SignupSerializer(serializers.ModelSerializer):
         )
 
     def save(self):
+
         data = self.validated_data
 
         request_body = {

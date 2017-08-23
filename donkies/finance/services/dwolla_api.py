@@ -74,7 +74,6 @@ class DwollaAPI:
         """
         FundingSource = apps.get_model('finance', 'FundingSource')
         Customer = apps.get_model('bank', 'Customer')
-
         customer = Customer.objects.get(user=user)
         customer_url = '{}customers/{}'.format(
             self.get_api_url(), customer.dwolla_id)

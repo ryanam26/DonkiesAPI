@@ -194,7 +194,7 @@ class Signup(GenericAPIView):
         if res is None:
             return Response('The user did not create', status=403)
 
-        return Response({}, status=204)
+        return Response("The user was created successfully", status=201)
 
 
 class SignupConfirm(GenericAPIView):

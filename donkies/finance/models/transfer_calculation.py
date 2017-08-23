@@ -1,3 +1,7 @@
+"""
+"""
+
+
 from django.db import transaction
 from django.contrib import admin
 from django.db import models
@@ -115,7 +119,7 @@ class TransferCalculation(models.Model):
     def __str__(self):
         return str(self.user)
 
-    def save(self, roundup=None, *args, **kwargs):
+    def calculate_roundups(self, roundup=None, *args, **kwargs):
         if roundup is not None:
             self.roundup_sum += round(Decimal(roundup), 2)
             self.total_roundaps += round(Decimal(roundup), 2)
@@ -131,7 +135,7 @@ class TransferCalculation(models.Model):
                 except Exception as error:
                     logger.info(error)
 
-        super().save(*args, **kwargs)
+        self.save()
 
 
 @admin.register(TransferCalculation)

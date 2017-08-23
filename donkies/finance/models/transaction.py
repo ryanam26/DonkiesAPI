@@ -121,6 +121,7 @@ class Transaction(ActiveModel):
     is_processed = models.NullBooleanField(
         default=False,
         help_text='Internal flag. Roundup has been applied')
+
     transfer_calculation = models.ForeignKey(TransferCalculation,
                                              related_name='transactions',
                                              blank=True, null=True,
@@ -173,13 +174,14 @@ class Transaction(ActiveModel):
             self.is_processed = None
 
         user = self.account.item.user
+
         if self.transfer_calculation is None:
             tr_calc, created = TransferCalculation.objects.get_or_create(
                 user=user
             )
-            # TODO: Check constraint
-            # self.transfer_calculation = tr_calc
-            # tr_calc.save(self.roundup, self)
+
+            tr_calc.calculate_roundups(self.roundup)
+            self.transfer_calculation = tr_calc
 
         super().save(*args, **kwargs)
 

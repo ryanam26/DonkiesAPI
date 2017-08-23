@@ -25,6 +25,7 @@ from django.contrib.auth import logout
 from django.apps import apps
 
 from finance.services.dwolla_api import DwollaAPI
+import json
 
 
 def has_missed_fields(request_body):
@@ -191,8 +192,8 @@ class Signup(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         res = serializer.save()
 
-        if res is None:
-            return Response({"message": "The user did not create"}, status=403)
+        if res is not None:
+            return Response(res.args[0].args[0].body['_embedded'], status=403)
 
         return Response(serializer.data, status=201)
 

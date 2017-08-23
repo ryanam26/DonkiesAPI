@@ -168,7 +168,10 @@ class SignupSerializer(serializers.ModelSerializer):
             'phone': data['phone'],
         }
         dw = DwollaApi()
-        id = dw.create_customer(request_body)
+        try:
+            id = dw.create_customer(request_body)
+        except Exception as e:
+            return Exception(e)
 
         if id is not None:
             user = User.objects.create_user(data['email'], data['password'])
@@ -192,8 +195,6 @@ class SignupSerializer(serializers.ModelSerializer):
 
             # Post save operations, send email e.t.c
             user.signup()
-
-            return user
 
         return None
 

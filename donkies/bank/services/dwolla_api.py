@@ -122,16 +122,17 @@ class DwollaApi:
             if r.status == 201:
                 return self.get_id_from_headers(r.headers)
         except dwollav2.Error as e:
-            if self.is_duplicate(e):
-                res = self.get_customer_by_email(data['email'])
-                if res is not None:
-                    return res['id']
-            self.set_logs(
-                '"create_customer" failed',
-                json.dumps(data),
-                str(e)
-            )
-        return None
+            raise Exception(e)
+            # if self.is_duplicate(e):
+            #     res = self.get_customer_by_email(data['email'])
+            #     if res is not None:
+            #         return res['id']
+            # self.set_logs(
+            #     '"create_customer" failed',
+            #     json.dumps(data),
+            #     str(e)
+            # )
+        # return None
 
     def get_customers(self, removed=False):
         d = {'removed': removed}

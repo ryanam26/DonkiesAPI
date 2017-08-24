@@ -20,6 +20,8 @@ import finance.swagger_serializer as swag_sers
 from finance.services.plaid_api import PlaidApi
 from finance.services.dwolla_api import DwollaAPI
 
+from web.formatResponse import format_response
+
 from finance.models.transfer_calculation import charge_application
 from decimal import *
 
@@ -384,19 +386,13 @@ class Items(AuthMixin, ListCreateAPIView):
         if not sers.ItemPostSerializer(data=request.data).is_valid():
             return r400('Missing param.')
 
-        item = Item.objects.create_item_by_data(request.user, request.data)
-        if item:
-            pa = PlaidApi()
-            dw = DwollaAPI()
-            processor_token = pa.create_dwolla_processor_token(
-                item.access_token,
-                request.data["account_id"],
-                request.user
+        try:
+            item = Item.objects.create_item_by_data(request.user, request.data)
+        except Exception as e:
+            return Response(
+                format_response(e.body, e.status),
+                e.status
             )
-            fs = dw.create_dwolla_funding_source(
-                request.user, processor_token, item
-            )
-            print(fs)
 
         # Fill FetchTransactions (history model)
         FetchTransactions.objects.create_all(item)

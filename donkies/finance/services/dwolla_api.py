@@ -68,11 +68,10 @@ class DwollaAPI:
             res = True
         return res
 
-    def create_dwolla_funding_source(self, user, processor_token, item):
+    def create_dwolla_funding_source(self, user, processor_token):
         """
         Create funding source on Dwolla
         """
-        FundingSource = apps.get_model('finance', 'FundingSource')
         Customer = apps.get_model('bank', 'Customer')
         customer = Customer.objects.get(user=user)
         customer_url = '{}customers/{}'.format(
@@ -83,12 +82,19 @@ class DwollaAPI:
                             user.first_name,
                             user.last_name
                         )}
+        try:
+            customer = self.app_token.post(
+                '{}/fudinng-sources'.format(customer_url), request_body)
+        except Exception as e:
+            raise e
 
-        customer = self.app_token.post(
-            '{}/funding-sources'.format(customer_url), request_body)
+        return customer.headers['location']
+
+    def save_funding_source(self, item, user, funding_source):
+        FundingSource = apps.get_model('finance', 'FundingSource')
 
         return FundingSource.objects.create(
             user=user,
-            funding_sources_url=customer.headers['location'],
+            funding_sources_url=funding_source,
             item=item
         )

@@ -168,10 +168,11 @@ class SignupSerializer(serializers.ModelSerializer):
             'phone': data['phone'],
         }
         dw = DwollaApi()
+
         try:
             id = dw.create_customer(request_body)
         except Exception as e:
-            return Exception(e)
+            raise Exception(e)
 
         if id is not None:
             user = User.objects.create_user(data['email'], data['password'])

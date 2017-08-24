@@ -25,6 +25,7 @@ from django.contrib.auth import logout
 from django.apps import apps
 
 from finance.services.dwolla_api import DwollaAPI
+from web.formatResponse import format_response
 import json
 
 
@@ -157,7 +158,9 @@ class Logout(APIView):
         Logout endpoint
         """
         logout(request)
-        return Response("logout", status=200)
+        return Response(
+            format_response({"message": "logout success"}, 200), status=200
+        )
 
 
 class PasswordResetRequest(GenericAPIView):
@@ -190,12 +193,16 @@ class Signup(GenericAPIView):
     def post(self, request, **kwargs):
         serializer = sers.SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        res = serializer.save()
 
-        if res is not None:
-            return Response(res.args[0].args[0].body['_embedded'], status=403)
+        try:
+            serializer.save()
+        except Exception as e:
+            res = format_response(e.args[0].args[0].body['_embedded'], 403)
+            return Response(res, status=403)
 
-        return Response(serializer.data, status=201)
+        return Response(
+            format_response(serializer.data, 201), status=201
+        )
 
 
 class SignupConfirm(GenericAPIView):

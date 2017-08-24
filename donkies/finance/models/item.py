@@ -6,6 +6,7 @@ from django.contrib.postgres.fields import JSONField
 from django.conf import settings
 from django.apps import apps
 from finance.services.plaid_api import PlaidApi
+
 from web.models import ActiveModel, ActiveManager
 
 
@@ -24,13 +25,33 @@ class ItemManager(ActiveManager):
         return Item.objects.create_item(user, data)
 
     def create_item_by_data(self, user, data):
+        from finance.services.dwolla_api import DwollaAPI
+
         pa = PlaidApi()
         public_token = data.get('public_token')
         account_id = data.get('account_id')
         access_token = pa.exchange_public_token(user, public_token, account_id)
+
+        dw = DwollaAPI()
+        processor_token = pa.create_dwolla_processor_token(
+            access_token,
+            data["account_id"],
+            user
+        )
+        try:
+            fs = dw.create_dwolla_funding_source(
+                user, processor_token
+            )
+        except Exception as e:
+            raise e
+
         context = pa.get_item(access_token)
         context.update(data)
-        return Item.objects.create_item(user, context)
+        item = Item.objects.create_item(user, context)
+
+        dw.save_funding_source(item, user, fs)
+
+        return item
 
     def create_item(self, user, d):
         """

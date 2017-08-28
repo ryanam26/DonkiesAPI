@@ -148,7 +148,7 @@ class Login(GenericAPIView):
 
         user.last_access_date = timezone.now()
         user.save()
-        return Response(data, status=200)
+        return Response(format_response(data, 200), status=200)
 
 
 class Logout(APIView):
@@ -216,7 +216,7 @@ class SignupConfirm(GenericAPIView):
 
         token = user.signup_confirm()
         data = {'token': token.key}
-        return Response(data, status=201)
+        return Response(format_response(data), status=201)
 
 
 class Settings(AuthMixin, APIView):

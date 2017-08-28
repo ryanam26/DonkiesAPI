@@ -119,13 +119,14 @@ class StatManager(models.Manager):
 
     def get_funds_in_coinstash(self, user_id):
         User = apps.get_model('web', 'User')
+        Customer = apps.get_model('bank', 'Customer')
 
         user = User.objects.get(id=user_id)
+        customer = Customer.objects.get(user=user)
         dw = DwollaApi()
 
         customer_url = "{}customers/{}/funding-sources".format(
-            dw.get_api_url(), user.dwolla_verified_url.split('/')[-1]
-        )
+            dw.get_api_url(), customer.dwolla_id)
 
         funding_sources = dw.token.get(customer_url)
         balance_url = None
@@ -136,13 +137,13 @@ class StatManager(models.Manager):
 
         balance = dw.token.get(balance_url)
 
-        return balance.body['balance']
+        return balance.body['balance']['value']
 
     def get_applied_funds(self, user_id):
         User = apps.get_model('web', 'User')
         TransferCalculation = apps.get_model('finance', 'TransferCalculation')
         user = User.objects.get(id=user_id)
-        tr = TransferCalculation.objects.get(user=user)
+        tr, created = TransferCalculation.objects.get_or_create(user=user)
 
         return tr.applied_funds
 

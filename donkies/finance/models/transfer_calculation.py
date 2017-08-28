@@ -1,7 +1,3 @@
-"""
-"""
-
-
 from django.db import transaction
 from django.contrib import admin
 from django.db import models

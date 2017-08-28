@@ -76,7 +76,6 @@ class DwollaAPI:
         customer = Customer.objects.get(user=user)
         customer_url = '{}customers/{}'.format(
             self.get_api_url(), customer.dwolla_id)
-
         request_body = {'plaidToken': processor_token,
                         'name': '{} {}'.format(
                             user.first_name,
@@ -84,7 +83,7 @@ class DwollaAPI:
                         )}
         try:
             customer = self.app_token.post(
-                '{}/fudinng-sources'.format(customer_url), request_body)
+                '%s/funding-sources' % customer_url, request_body)
         except Exception as e:
             raise e
 

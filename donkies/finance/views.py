@@ -366,10 +366,13 @@ class Items(AuthMixin, ListCreateAPIView):
 
     def get(self, request, **kwargs):
         return Response(
-            sers.ItemSerializer(
-                Item.objects.filter(user=self.request.user),
-                many=True
-            ).data,
+            format_response(
+                sers.ItemSerializer(
+                    Item.objects.filter(user=self.request.user),
+                    many=True
+                ).data,
+                200
+            ),
             status=200
         )
 
@@ -380,12 +383,11 @@ class Items(AuthMixin, ListCreateAPIView):
         """
         Initially Item is created in Plaid by Plaid Link.
         Plaid Link returns public_token.
-        Using this token fetch Item and Accounts from Plaid
+        Using this token and account_id fetch Item and Accounts from Plaid
         and create them in database.
         """
         if not sers.ItemPostSerializer(data=request.data).is_valid():
             return r400('Missing param.')
-
         try:
             item = Item.objects.create_item_by_data(request.user, request.data)
         except Exception as e:
@@ -408,7 +410,7 @@ class Items(AuthMixin, ListCreateAPIView):
 
         s = sers.ItemSerializer(item)
 
-        return Response(s.data, status=201)
+        return Response(format_response(s.data, 201), status=201)
 
 
 class PauseItems(AuthMixin, ListCreateAPIView):

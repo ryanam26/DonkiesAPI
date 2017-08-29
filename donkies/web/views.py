@@ -14,7 +14,6 @@ import web.serializers as sers
 from web.models import User
 from finance.models import Item
 from bank.tasks import create_customer
-import web.swagger_serializer as swagg_sers
 
 from rest_framework.permissions import AllowAny
 from rest_framework.schemas import SchemaGenerator
@@ -23,10 +22,6 @@ from rest_framework.generics import ListAPIView, GenericAPIView
 import dwollav2
 from django.contrib.auth import logout
 from django.apps import apps
-
-from finance.services.dwolla_api import DwollaAPI
-from web.formatResponse import format_response
-import json
 
 
 def has_missed_fields(request_body):
@@ -148,7 +143,7 @@ class Login(GenericAPIView):
 
         user.last_access_date = timezone.now()
         user.save()
-        return Response(format_response(data, 200), status=200)
+        return Response(data, status=200)
 
 
 class Logout(APIView):
@@ -157,10 +152,11 @@ class Logout(APIView):
         """
         Logout endpoint
         """
+        Token = apps.get_model('web', 'Token')
+        token = Token.objects.get(user=request.user)
+        token.delete()
         logout(request)
-        return Response(
-            format_response({"message": "logout success"}, 200), status=200
-        )
+        return Response({"message": "logout success"}, status=200)
 
 
 class PasswordResetRequest(GenericAPIView):
@@ -197,12 +193,21 @@ class Signup(GenericAPIView):
         try:
             serializer.save()
         except Exception as e:
-            res = format_response(e.args[0].args[0].body['_embedded'], 403)
+            res = e.args[0].args[0].body['_embedded']
             return Response(res, status=403)
 
-        return Response(
-            format_response(serializer.data, 201), status=201
-        )
+        return Response(serializer.data, status=201)
+
+
+# class SignupParent(GenericAPIView):
+#     serializer_class = sers.SignupParentSerializer
+
+#     def post(self, request, **kwargs):
+#         serializer = sers.SignupParentSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+
+#         return Response(serializer.data, status=201)
 
 
 class SignupConfirm(GenericAPIView):
@@ -216,7 +221,7 @@ class SignupConfirm(GenericAPIView):
 
         token = user.signup_confirm()
         data = {'token': token.key}
-        return Response(format_response(data), status=201)
+        return Response(data, status=201)
 
 
 class Settings(AuthMixin, APIView):

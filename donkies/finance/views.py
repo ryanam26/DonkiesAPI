@@ -20,8 +20,6 @@ import finance.swagger_serializer as swag_sers
 from finance.services.plaid_api import PlaidApi
 from finance.services.dwolla_api import DwollaAPI
 
-from web.formatResponse import format_response
-
 from finance.models.transfer_calculation import charge_application
 from decimal import *
 
@@ -365,15 +363,12 @@ class Items(AuthMixin, ListCreateAPIView):
     serializer_class = sers.ItemPostSerializer
 
     def get(self, request, **kwargs):
+        import ipdb; ipdb.set_trace()
+        print('asdljha')
         return Response(
-            format_response(
-                sers.ItemSerializer(
-                    Item.objects.filter(user=self.request.user),
-                    many=True
-                ).data,
-                200
-            ),
-            status=200
+            sers.ItemSerializer(
+                Item.objects.filter(user=self.request.user), many=True
+            ).data, status=200
         )
 
     def get_queryset(self):
@@ -391,10 +386,7 @@ class Items(AuthMixin, ListCreateAPIView):
         try:
             item = Item.objects.create_item_by_data(request.user, request.data)
         except Exception as e:
-            return Response(
-                format_response(e.body, e.status),
-                e.status
-            )
+            return Response(e.body, e.status)
 
         # Fill FetchTransactions (history model)
         FetchTransactions.objects.create_all(item)
@@ -410,7 +402,7 @@ class Items(AuthMixin, ListCreateAPIView):
 
         s = sers.ItemSerializer(item)
 
-        return Response(format_response(s.data, 201), status=201)
+        return Response(s.data, status=201)
 
 
 class PauseItems(AuthMixin, ListCreateAPIView):

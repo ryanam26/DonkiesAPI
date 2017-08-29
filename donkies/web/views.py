@@ -199,15 +199,15 @@ class Signup(GenericAPIView):
         return Response(serializer.data, status=201)
 
 
-# class SignupParent(GenericAPIView):
-#     serializer_class = sers.SignupParentSerializer
+class SignupParent(GenericAPIView):
+    serializer_class = sers.SignupParentSerializer
 
-#     def post(self, request, **kwargs):
-#         serializer = sers.SignupParentSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
+    def post(self, request, **kwargs):
+        serializer = sers.SignupParentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-#         return Response(serializer.data, status=201)
+        return Response(serializer.data, status=201)
 
 
 class SignupConfirm(GenericAPIView):

@@ -73,13 +73,20 @@ class DwollaAPI:
         Create funding source on Dwolla
         """
         Customer = apps.get_model('bank', 'Customer')
-        customer = Customer.objects.get(user=user)
+
+        if user.is_parent:
+            child = user.childs.all().first()
+            customer = Customer.objects.get(user=child)
+        else:
+            customer = Customer.objects.get(user=user)
+
         customer_url = '{}customers/{}'.format(
             self.get_api_url(), customer.dwolla_id)
         request_body = {'plaidToken': processor_token,
-                        'name': '{} {}'.format(
+                        'name': '{} {} {}'.format(
                             user.first_name,
-                            user.last_name
+                            user.last_name,
+                            'Parent' if user.is_parent else ''
                         )}
         try:
             customer = self.app_token.post(

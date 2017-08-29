@@ -129,6 +129,44 @@ class PasswordResetSerializer(EncIdMixin, serializers.Serializer):
         return data
 
 
+class SignupParentSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(min_length=8)
+    id_child = serializers.IntegerField()
+
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'email',
+            'password',
+            'address1',
+            'city',
+            'state',
+            'postal_code',
+            'id_child',
+        )
+
+    def save(self):
+        data = self.validated_data
+        user = User.objects.create_user(data['email'], data['password'])
+        user.first_name = data['first_name']
+        user.last_name = data['last_name']
+        user.address1 = data['address1']
+        user.postal_code = data['postal_code']
+        user.city = data['city']
+        user.state = data['state']
+        user.is_parent = True
+
+        child = User.objects.filter(id=data['id_child']).first()
+        child.child = user
+        child.save()
+
+        user.save()
+        # Post save operations, send email e.t.c
+        user.signup()
+
+
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(min_length=8)
 

@@ -179,6 +179,11 @@ class User(AbstractBaseUser):
         default=False, help_text='User closed account in Donkies')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    is_parent = models.BooleanField(blank=True, default=False)
+    child = models.ForeignKey(
+        "self", blank=True, null=True,
+        related_name='childs', on_delete=models.SET_NULL)
+
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
@@ -223,7 +228,7 @@ class User(AbstractBaseUser):
             'postal_code',
             'date_of_birth',
             'ssn',
-            'phone'
+            'phone',
         )
         for field in fields:
             if getattr(self, field) is None:
@@ -604,7 +609,7 @@ class User(AbstractBaseUser):
             'picture',
             'timezone',
             'updated_time',
-            'verified'
+            'verified',
         )
 
         url = 'https://graph.facebook.com/me?fields={}'.format(

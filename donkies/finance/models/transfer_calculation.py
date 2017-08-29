@@ -40,14 +40,28 @@ def charge_application(amount, user):
     except Exception as error:
         raise Exception(error)
 
+    Customer = apps.get_model('bank', 'Customer')
     client = dwollav2.Client(id=settings.DWOLLA_ID_SANDBOX,
                              secret=settings.DWOLLA_SECRET_SANDBOX,
                              environment=settings.DWOLLA_ENV)
     app_token = client.Auth.client()
-
     root = app_token.get('/')
     account_url = root.body['_links']['account']['href']
-    customer_url = user.dwolla_verified_url
+
+    if user.is_parent:
+        customer = Customer.objects.get(user=user.childs.first())
+    else:
+        customer = Customer.objects.get(user=user)
+
+    if settings.DWOLLA_API_MODE == 'PROD':
+        url_type = 'https://api.dwolla.com/'
+    else:
+        url_type = 'https://api-uat.dwolla.com/'
+
+    customer_url = '{}accounts/{}'.format(
+        url_type,
+        customer.dwolla_id
+    )
 
     request_body = {
         '_links': {
@@ -70,22 +84,21 @@ def charge_application(amount, user):
     transfer = app_token.post('transfers', request_body)
 
     app_funding_sources = app_token.get('%s/funding-sources' % account_url)
-    app_funding_sources = app_funding_sources.body['_embedded']['funding-sources'][1]['_links']['self']['href']
-
+    app_funding_source = app_funding_sources.body['_embedded']['funding-sources'][1]['_links']['self']['href']
 
     transfer_request = {
-      '_links': {
-        'source': {
-          'href': app_funding_sources
+        '_links': {
+            'source': {
+                'href': app_funding_source
+            },
+            'destination': {
+                'href': customer_url
+            }
         },
-        'destination': {
-          'href': customer_url
-        }
-      },
-      'amount': {
-        'currency': 'USD',
-        'value': str(round(Decimal(amount), 2))
-      },
+        'amount': {
+            'currency': 'USD',
+            'value': str(round(Decimal(amount), 2))
+        },
     }
 
     transfer = app_token.post('transfers', transfer_request)
@@ -96,7 +109,7 @@ def charge_application(amount, user):
 def get_total_in_stash(user_id):
     Stat = apps.get_model('finance', 'Stat')
     balance = Stat.objects.get_funds_in_coinstash(user_id)
-    return balance['value']
+    return balance
 
 
 class TransferCalculation(models.Model):

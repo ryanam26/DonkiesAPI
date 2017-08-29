@@ -120,9 +120,11 @@ class StatManager(models.Manager):
     def get_funds_in_coinstash(self, user_id):
         User = apps.get_model('web', 'User')
         Customer = apps.get_model('bank', 'Customer')
-
         user = User.objects.get(id=user_id)
-        customer = Customer.objects.get(user=user)
+        if user.is_parent:
+            customer = Customer.objects.get(user=user.childs.first())
+        else:
+            customer = Customer.objects.get(user=user)
         dw = DwollaApi()
 
         customer_url = "{}customers/{}/funding-sources".format(

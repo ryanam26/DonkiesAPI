@@ -22,6 +22,11 @@ urlpatterns = [
         name='signup'),
 
     url(
+        r'^(?P<version>[v1]+)/auth/signup_parent$',
+        v.SignupParent.as_view(),
+        name='signup_parent'),
+
+    url(
         r'^(?P<version>[v1]+)/auth/signup/confirm$',
         v.SignupConfirm.as_view(),
         name='signup_confirm'),

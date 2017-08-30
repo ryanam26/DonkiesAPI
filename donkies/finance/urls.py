@@ -62,7 +62,10 @@ urlpatterns = [
         v.Items.as_view(),
         name='items'),
 
-    # TESTING URLS
+    url(
+        r'^(?P<version>[v1]+)/items/fake_roundup$',
+        v.FakeRoundups.as_view(),
+        name='fake_roundups'),
 
     url(r'^(?P<version>[v1]+)/items/create_transaction$',
         v.CreateTransaction.as_view(),

@@ -444,8 +444,22 @@ class FakeRoundups(AuthMixin, GenericAPIView):
     serializer_class = sers.FakeRoundupsSerilizer
 
     def post(self, request, **kwargs):
+        """
+        This endpoint only for testing <br/>
+        Imitate situation if user reached $5 and system make transfer
+        to coinstash
 
-        return Response('fake', status=200)
+        parameters:
+            - roundup: roundup_amount
+        """
+        tr_calc = TransferCalculation.objects.filter(user=request.user).first()
+        roundup = round(Decimal(request.data['roundup']), 2)
+        tr_calc.calculate_roundups(roundup)
+
+        return Response(
+            TransferCalculation.objects.values().get(id=tr_calc.id),
+            status=200
+        )
 
 
 class ItemDetail(AuthMixin, RetrieveDestroyAPIView):

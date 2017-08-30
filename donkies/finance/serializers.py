@@ -24,25 +24,12 @@ class ItemPostSerializer(serializers.Serializer):
     account_id = serializers.CharField()
 
 
+class FakeRoundupsSerilizer(serializers.Serializer):
+    roundup = serializers.DecimalField(max_digits=5, decimal_places=2)
+
+
 class CreateTransactionSerializer(serializers.Serializer):
     access_token = serializers.CharField()
-
-
-
-class ItemSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='institution.name')
-
-    class Meta:
-        model = Item
-        fields = (
-            'id',
-            'guid',
-            'plaid_id',
-            'institution',
-            'name',
-            'pause',
-            'access_token',
-        )
 
 
 class CreateAccountSerializer(serializers.ModelSerializer):
@@ -76,7 +63,6 @@ class AccountsSetActiveSerializer(serializers.Serializer):
 
 
 class AccountSerializer(serializers.ModelSerializer):
-    item = ItemSerializer()
     institution = serializers.SerializerMethodField()
     account_number = serializers.SerializerMethodField()
 
@@ -84,6 +70,7 @@ class AccountSerializer(serializers.ModelSerializer):
         model = Account
         fields = (
             'id',
+            'item',
             'guid',
             'name',
             'official_name',
@@ -97,7 +84,6 @@ class AccountSerializer(serializers.ModelSerializer):
             'is_primary',
             'is_active',
             'institution',
-            'item',
             'account_number',
             'additional_info'
         )
@@ -113,6 +99,24 @@ class AccountSerializer(serializers.ModelSerializer):
         if obj.account_number is None:
             return None
         return obj.account_number[-4:]
+
+
+class ItemSerializer(serializers.ModelSerializer):
+    accounts = AccountSerializer(many=True)
+    name = serializers.CharField(source='institution.name')
+
+    class Meta:
+        model = Item
+        fields = (
+            'id',
+            'guid',
+            'plaid_id',
+            'institution',
+            'name',
+            'pause',
+            'access_token',
+            'accounts',
+        )
 
 
 class TransactionSerializer(serializers.ModelSerializer):

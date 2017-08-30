@@ -315,18 +315,8 @@ class InstitutionDetail(AuthMixin, RetrieveAPIView):
     queryset = Institution.objects.filter(is_active=True)
 
 
-class CreateTransaction(AuthMixin, ListCreateAPIView):
+class CreateTransaction(AuthMixin, GenericAPIView):
     serializer_class = sers.CreateTransactionSerializer
-
-    def get_queryset(self):
-        return Response(
-            sers.TransactionSerializer(
-                Transaction.objects.filter(
-                    account__item__user=self.request.user),
-                many=True
-            ).data,
-            status=200
-        )
 
     def post(self, request, **kwargs):
         access_token = request.data['access_token']
@@ -362,17 +352,21 @@ class MakeTransfer(AuthMixin, ListCreateAPIView):
 class Items(AuthMixin, ListCreateAPIView):
     serializer_class = sers.ItemPostSerializer
 
-    def get(self, request, **kwargs):
-        import ipdb; ipdb.set_trace()
-        print('asdljha')
+    def get_queryset(self):
+
         return Response(
             sers.ItemSerializer(
                 Item.objects.filter(user=self.request.user), many=True
             ).data, status=200
         )
 
-    def get_queryset(self):
-        return Item.objects.filter(user=self.request.user)
+    def get(self, request, **kwargs):
+
+        return Response(
+            sers.ItemSerializer(
+                Item.objects.filter(user=self.request.user), many=True
+            ).data, status=200
+        )
 
     def post(self, request, **kwargs):
         """
@@ -444,6 +438,14 @@ class PauseItems(AuthMixin, ListCreateAPIView):
             ).data,
             status=200
         )
+
+
+class FakeRoundups(AuthMixin, GenericAPIView):
+    serializer_class = sers.FakeRoundupsSerilizer
+
+    def post(self, request, **kwargs):
+
+        return Response('fake', status=200)
 
 
 class ItemDetail(AuthMixin, RetrieveDestroyAPIView):

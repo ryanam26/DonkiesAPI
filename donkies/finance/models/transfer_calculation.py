@@ -25,7 +25,10 @@ def get_funding_source(user, amount):
     if account.balance > amount:
         founding_instance = FundingSource.objects.get(item=account.item)
 
-        return founding_instance.funding_sources_url
+        return {
+            'funding_soure': founding_instance.funding_sources_url,
+            'dwolla_balance': founding_instance.dwolla_balance_id
+        }
 
     raise Exception('Insufficient funds')
 
@@ -35,75 +38,19 @@ def charge_application(amount, user):
     Try to get funding source
     make tranfer via DwollaApi
     """
+    from finance.services.dwolla_api import DwollaAPI
+
     try:
         funding_source = get_funding_source(user, amount)
     except Exception as error:
         raise Exception(error)
 
-    Customer = apps.get_model('bank', 'Customer')
-    client = dwollav2.Client(id=settings.DWOLLA_ID_SANDBOX,
-                             secret=settings.DWOLLA_SECRET_SANDBOX,
-                             environment=settings.DWOLLA_ENV)
-    app_token = client.Auth.client()
-    root = app_token.get('/')
-    account_url = root.body['_links']['account']['href']
-
-    if user.is_parent:
-        customer = Customer.objects.get(user=user.childs.first())
-    else:
-        customer = Customer.objects.get(user=user)
-
-    if settings.DWOLLA_API_MODE == 'PROD':
-        url_type = 'https://api.dwolla.com/'
-    else:
-        url_type = 'https://api-uat.dwolla.com/'
-
-    customer_url = '{}accounts/{}'.format(
-        url_type,
-        customer.dwolla_id
+    dw = DwollaAPI()
+    dw.transfer_to_customer_dwolla_balance(
+        funding_source['funding_soure'],
+        funding_source['dwolla_balance'],
+        amount
     )
-
-    request_body = {
-        '_links': {
-            'source': {
-                'href': funding_source
-            },
-            'destination': {
-                'href': account_url
-            }
-        },
-        'amount': {
-            'currency': 'USD',
-            'value': str(round(Decimal(amount), 2))
-        },
-        'metadata': {
-            'donkie': 'user reached minimum value',
-        }
-    }
-
-    transfer = app_token.post('transfers', request_body)
-
-    app_funding_sources = app_token.get('%s/funding-sources' % account_url)
-    app_funding_source = app_funding_sources.body['_embedded']['funding-sources'][1]['_links']['self']['href']
-
-    transfer_request = {
-        '_links': {
-            'source': {
-                'href': app_funding_source
-            },
-            'destination': {
-                'href': customer_url
-            }
-        },
-        'amount': {
-            'currency': 'USD',
-            'value': str(round(Decimal(amount), 2))
-        },
-    }
-
-    transfer = app_token.post('transfers', transfer_request)
-
-    return transfer.headers['location']
 
 
 def get_total_in_stash(user_id):

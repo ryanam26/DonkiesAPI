@@ -9,6 +9,7 @@ class FundingSource(ActiveModel):
     user = models.ForeignKey(User, related_name='funding_sources_user')
     funding_sources_url = models.CharField(max_length=255, blank=True,
                                            null=True)
+    dwolla_balance_id = models.CharField(max_length=255, blank=True, null=True)
     item = models.ForeignKey(Item, related_name='funding_items', blank=True,
                              null=True)
 
@@ -20,4 +21,5 @@ class FundingSourceAdmin(admin.ModelAdmin):
         'user',
         'funding_sources_url',
         'item',
+        'dwolla_balance_id',
     )

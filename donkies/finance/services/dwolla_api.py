@@ -96,11 +96,38 @@ class DwollaAPI:
 
         return customer.headers['location']
 
-    def save_funding_source(self, item, user, funding_source):
+    def save_funding_source(self, item, user,
+                            funding_source, dwolla_balance_id):
+
         FundingSource = apps.get_model('finance', 'FundingSource')
 
         return FundingSource.objects.create(
             user=user,
             funding_sources_url=funding_source,
-            item=item
+            item=item,
+            dwolla_balance_id=dwolla_balance_id
         )
+
+    def transfer_to_customer_dwolla_balance(self, funding_source,
+                                            balance_id, amount):
+
+        balance_fundong_source = '{}funding-sources/{}'.format(
+            self.get_api_url(), balance_id
+        )
+        request_body = {
+            '_links': {
+                'source': {
+                    'href': funding_source
+                },
+                'destination': {
+                    'href': balance_fundong_source
+                }
+            },
+            'amount': {
+                'currency': 'USD',
+                'value': str(round(Decimal(amount), 2))
+            }
+        }
+
+        transfer = self.app_token.post('transfers', request_body)
+        return transfer.headers['Location']

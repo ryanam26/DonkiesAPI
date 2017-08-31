@@ -30,7 +30,6 @@ class TransactionManager(ActiveManager):
         item = Item.objects.get(access_token=access_token)
 
         logger.debug('Item: {}'.format(item.id))
-
         if not item.pause:
             l = self.get_plaid_transactions(
                 item, start_date=start_date, end_date=end_date)

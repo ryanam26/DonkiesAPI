@@ -23,11 +23,13 @@ def get_funding_source(user, amount):
     account = Account.objects.filter(item__user=user, is_primary=True).first()
 
     if account.balance > amount:
-        founding_instance = FundingSource.objects.get(item=account.item)
+        funding_instance = FundingSource.objects.get(item=account.item)
 
         return {
-            'funding_soure': founding_instance.funding_sources_url,
-            'dwolla_balance': founding_instance.dwolla_balance_id
+            'funding_soure': funding_instance.funding_sources_url,
+            'dwolla_balance': funding_instance.dwolla_balance_id,
+            'account': account,
+            'funding_instance': funding_instance
         }
 
     raise Exception('Insufficient funds')
@@ -41,15 +43,22 @@ def charge_application(amount, user):
     from finance.services.dwolla_api import DwollaAPI
 
     try:
-        funding_source = get_funding_source(user, amount)
+        funding_info = get_funding_source(user, amount)
     except Exception as error:
         raise Exception(error)
 
     dw = DwollaAPI()
-    dw.transfer_to_customer_dwolla_balance(
-        funding_source['funding_soure'],
-        funding_source['dwolla_balance'],
+    transfer_url = dw.transfer_to_customer_dwolla_balance(
+        funding_info['funding_soure'],
+        funding_info['dwolla_balance'],
         amount
+    )
+
+    TransferBalance = apps.get_model('finance', 'TransferBalance')
+
+    fees = dw.app_token.get(transfer_url)
+    TransferBalance.objects.create_transfer_balance(
+        funding_info['funding_instance'], funding_info['account'], fees.body
     )
 
 

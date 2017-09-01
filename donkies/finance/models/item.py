@@ -30,38 +30,12 @@ class ItemManager(ActiveManager):
         pa = PlaidApi()
         public_token = data.get('public_token')
         account_id = data.get('account_id')
-        access_token = pa.exchange_public_token(user, public_token, account_id)
 
-        dw = DwollaAPI()
-        processor_token = pa.create_dwolla_processor_token(
-            access_token,
-            data["account_id"],
-            user
-        )
-        try:
-            fs = dw.create_dwolla_funding_source(
-                user, processor_token
-            )
-        except Exception as e:
-            raise e
+        access_token = pa.exchange_public_token(user, public_token, account_id)
 
         context = pa.get_item(access_token)
         context.update(data)
         item = Item.objects.create_item(user, context)
-
-        Customer = apps.get_model('bank', 'Customer')
-        customer = Customer.objects.get(user=user)
-        customer_url = '{}customers/{}'.format(
-            dw.get_api_url(), customer.dwolla_id
-        )
-        funding_sources = dw.app_token.get('%s/funding-sources' % customer_url)
-        dwolla_balance_id = None
-
-        for i in funding_sources.body['_embedded']['funding-sources']:
-            if 'type' in i and i['type'] == 'balance':
-                dwolla_balance_id = i['id']
-
-        dw.save_funding_source(item, user, fs, dwolla_balance_id)
 
         return item
 

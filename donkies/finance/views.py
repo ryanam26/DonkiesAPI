@@ -381,15 +381,20 @@ class Items(AuthMixin, ListCreateAPIView):
         try:
             item = Item.objects.create_item_by_data(request.user, request.data)
         except Exception as e:
-            return Response(e.body, e.status)
+            if hasattr(e, 'body'):
+                return Response(e.body, e.status)
+            return Response(e.args, 500)
 
         # Fill FetchTransactions (history model)
         FetchTransactions.objects.create_all(item)
 
         # Get accounts
-        Account.objects.create_or_update_accounts(
-            item, request.user, item.access_token
-        )
+        try:
+            Account.objects.create_or_update_accounts(
+                item, request.user, item.access_token
+            )
+        except Exception as e:
+            return Response(e.body, e.status)
         # request.data['account_id']
         # Fetch recent transactions
         fetch_transactions.delay(item.access_token)

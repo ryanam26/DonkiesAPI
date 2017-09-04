@@ -17,10 +17,14 @@ class AccountManager(ActiveManager):
         """
         Input: api response from plaid API.
         """
+
         Item = apps.get_model('finance', 'Item')
 
         pa = PlaidApi()
-        api_data = pa.get_accounts(item, user, access_token)
+        try:
+            api_data = pa.get_accounts(item, user, access_token)
+        except Exception as e:
+            raise e
 
         accounts = api_data['accounts']
         item = Item.objects.get(plaid_id=api_data['item']['item_id'])

@@ -102,7 +102,6 @@ class PlaidApi:
         Returns accounts for particular item.
         """
         from finance.services.dwolla_api import DwollaAPI
-
         accounts = self.client.Accounts.get(access_token)
 
         accounts_dict = accounts['accounts']

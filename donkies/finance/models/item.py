@@ -28,11 +28,14 @@ class ItemManager(ActiveManager):
         pa = PlaidApi()
         public_token = data.get('public_token')
 
-        access_token = pa.exchange_public_token(user, public_token)
+        try:
+            access_token = pa.exchange_public_token(user, public_token)
 
-        context = pa.get_item(access_token)
-        context.update(data)
-        item = Item.objects.create_item(user, context)
+            context = pa.get_item(access_token)
+            context.update(data)
+            item = Item.objects.create_item(user, context)
+        except Exception as e:
+            raise e
 
         return item
 
@@ -54,7 +57,11 @@ class ItemManager(ActiveManager):
             billed_products=d.get('billed_products', None),
             available_products=d.get('available_products', None)
         )
-        item.save()
+        try:
+            item.save()
+        except Exception as e:
+            raise e
+
         return item
 
     def delete_item(self, id):

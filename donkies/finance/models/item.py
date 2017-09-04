@@ -110,9 +110,9 @@ class Item(ActiveModel):
     institution = models.ForeignKey('Institution')
     guid = models.CharField(max_length=50, unique=True)
     plaid_id = models.CharField(
-        max_length=255, unique=True, null=True, default=None)
+        max_length=255, unique=False, null=True, default=None)
     access_token = models.CharField(
-        max_length=255, unique=True, null=True, default=None)
+        max_length=255, unique=False, null=True, default=None)
     webhook = models.CharField(
         max_length=50, null=True, default=None, blank=True)
     available_products = JSONField(null=True, default=None)

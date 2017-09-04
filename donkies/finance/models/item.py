@@ -11,7 +11,7 @@ from web.models import ActiveModel, ActiveManager
 
 
 class ItemManager(ActiveManager):
-    def create_item_by_public_token(self, user, public_token, account_id):
+    def create_item_by_public_token(self, user, public_token):
         """
         1) Item created on Plaid by Plaid Link.
         2) Plaid Link returned public_token.
@@ -20,18 +20,15 @@ class ItemManager(ActiveManager):
         4) Create Item in Model.
         """
         pa = PlaidApi()
-        access_token = pa.exchange_public_token(public_token, account_id)
+        access_token = pa.exchange_public_token(public_token)
         data = pa.get_item(access_token)
         return Item.objects.create_item(user, data)
 
     def create_item_by_data(self, user, data):
-        from finance.services.dwolla_api import DwollaAPI
-
         pa = PlaidApi()
         public_token = data.get('public_token')
-        account_id = data.get('account_id')
 
-        access_token = pa.exchange_public_token(user, public_token, account_id)
+        access_token = pa.exchange_public_token(user, public_token)
 
         context = pa.get_item(access_token)
         context.update(data)

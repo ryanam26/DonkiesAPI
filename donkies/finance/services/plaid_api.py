@@ -97,7 +97,7 @@ class PlaidApi:
         d = self.client.Institutions.get_by_id(plaid_id)
         return d['institution']
 
-    def get_accounts(self, item, user, access_token, account_id):
+    def get_accounts(self, item, user, access_token):
         """
         Returns accounts for particular item.
         """
@@ -120,21 +120,22 @@ class PlaidApi:
                 except Exception as e:
                     raise e
 
-            Customer = apps.get_model('bank', 'Customer')
-            customer = Customer.objects.get(user=user)
-            customer_url = '{}customers/{}'.format(
-                dw.get_api_url(), customer.dwolla_id
-            )
-            funding_sources = dw.app_token.get(
-                '%s/funding-sources' % customer_url
-            )
-            dwolla_balance_id = None
+                Customer = apps.get_model('bank', 'Customer')
+                customer = Customer.objects.get(user=user)
+                customer_url = '{}customers/{}'.format(
+                    dw.get_api_url(), customer.dwolla_id
+                )
+                funding_sources = dw.app_token.get(
+                    '%s/funding-sources' % customer_url
+                )
+                dwolla_balance_id = None
 
-            for i in funding_sources.body['_embedded']['funding-sources']:
-                if 'type' in i and i['type'] == 'balance':
-                    dwolla_balance_id = i['id']
+                for i in funding_sources.body['_embedded']['funding-sources']:
+                    if 'type' in i and i['type'] == 'balance':
+                        dwolla_balance_id = i['id']
 
-            dw.save_funding_source(item, user, fs, dwolla_balance_id)
+                dw.save_funding_source(item, user, fs, dwolla_balance_id)
+
         return accounts
 
     def get_accounts_info(self, access_token):
@@ -170,7 +171,7 @@ class PlaidApi:
 
         return processor_token
 
-    def exchange_public_token(self, user, public_token, account_id):
+    def exchange_public_token(self, user, public_token):
         """
         Frontend Link returns public_token.
         We need to exchange it for access token.

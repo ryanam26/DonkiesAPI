@@ -375,8 +375,9 @@ class Items(AuthMixin, ListCreateAPIView):
         Using this token and account_id fetch Item and Accounts from Plaid
         and create them in database.
         """
-        # if not sers.ItemPostSerializer(data=request.data).is_valid():
-        #     return r400('Missing param.')
+        if not sers.ItemPostSerializer(data=request.data).is_valid():
+            return r400('Missing param.')
+
         try:
             item = Item.objects.create_item_by_data(request.user, request.data)
         except Exception as e:
@@ -387,7 +388,7 @@ class Items(AuthMixin, ListCreateAPIView):
 
         # Get accounts
         Account.objects.create_or_update_accounts(
-            item, request.user, item.access_token, request.data['account_id']
+            item, request.user, item.access_token
         )
         # request.data['account_id']
         # Fetch recent transactions

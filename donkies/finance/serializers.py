@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from finance.models import (
-    Account, Institution, Item, Transaction, TransferPrepare, TransferCalculation)
+    Account, Institution, Item, Transaction,
+    TransferPrepare, TransferCalculation)
 
 from finance.models.funding_source import FundingSource
 
@@ -21,7 +22,6 @@ class InstitutionSerializer(serializers.ModelSerializer):
 
 class ItemPostSerializer(serializers.Serializer):
     public_token = serializers.CharField()
-    account_id = serializers.CharField()
 
 
 class FakeRoundupsSerilizer(serializers.Serializer):

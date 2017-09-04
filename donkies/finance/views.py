@@ -19,7 +19,7 @@ from finance.models import (
 import finance.swagger_serializer as swag_sers
 from finance.services.plaid_api import PlaidApi
 from finance.services.dwolla_api import DwollaAPI
-
+from web.formatResponse import format_response
 from finance.models.transfer_calculation import charge_application
 from decimal import *
 
@@ -383,7 +383,7 @@ class Items(AuthMixin, ListCreateAPIView):
         except Exception as e:
             if hasattr(e, 'body'):
                 return Response(e.body, e.status)
-            return Response(e.args, 500)
+            return Response(format_response(e.args, 400), 400)
 
         # Fill FetchTransactions (history model)
         FetchTransactions.objects.create_all(item)

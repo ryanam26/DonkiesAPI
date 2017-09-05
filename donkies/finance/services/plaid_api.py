@@ -97,45 +97,11 @@ class PlaidApi:
         d = self.client.Institutions.get_by_id(plaid_id)
         return d['institution']
 
-    def get_accounts(self, item, user, access_token):
+    def get_accounts(self, item, access_token):
         """
         Returns accounts for particular item.
         """
-        from finance.services.dwolla_api import DwollaAPI
-        accounts = self.client.Accounts.get(access_token)
-
-        accounts_dict = accounts['accounts']
-        dw = DwollaAPI()
-        for account in accounts_dict:
-            if account['subtype'] == 'checking':
-                processor_token = self.create_dwolla_processor_token(
-                    access_token,
-                    account['account_id'],
-                    user)
-                try:
-                    fs = dw.create_dwolla_funding_source(
-                        user, processor_token
-                    )
-                except Exception as e:
-                    raise e
-
-                Customer = apps.get_model('bank', 'Customer')
-                customer = Customer.objects.get(user=user)
-                customer_url = '{}customers/{}'.format(
-                    dw.get_api_url(), customer.dwolla_id
-                )
-                funding_sources = dw.app_token.get(
-                    '%s/funding-sources' % customer_url
-                )
-                dwolla_balance_id = None
-
-                for i in funding_sources.body['_embedded']['funding-sources']:
-                    if 'type' in i and i['type'] == 'balance':
-                        dwolla_balance_id = i['id']
-
-                dw.save_funding_source(item, user, fs, dwolla_balance_id)
-
-        return accounts
+        return self.client.Accounts.get(access_token)
 
     def get_accounts_info(self, access_token):
         """
@@ -156,7 +122,7 @@ class PlaidApi:
         d = self.client.Item.public_token.create(access_token)
         return d['public_token']
 
-    def create_dwolla_processor_token(self, access_token, account_id, user):
+    def create_dwolla_processor_token(self, access_token, account_id):
         """
         Create processor token
         """

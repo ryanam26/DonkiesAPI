@@ -19,23 +19,24 @@ class AccountManager(ActiveManager):
         """
 
         Item = apps.get_model('finance', 'Item')
-
         pa = PlaidApi()
         try:
-            api_data = pa.get_accounts(item, user, access_token)
+            api_data = pa.get_accounts(item, access_token)
         except Exception as e:
             raise e
 
         accounts = api_data['accounts']
         item = Item.objects.get(plaid_id=api_data['item']['item_id'])
         for d in accounts:
-            self.create_or_update_account(item, d)
+            self.create_or_update_account(item, d, user)
 
-    def create_or_update_account(self, item, data):
+    def create_or_update_account(self, item, data, user):
         """
         data is dictionary with response result.
         If account is deleted in Donkies (is_active=False), do not process.
         """
+        from finance.services.dwolla_api import DwollaAPI
+
         m_fields = self.model._meta.get_fields()
         m_fields = [f.name for f in m_fields]
 
@@ -50,8 +51,67 @@ class AccountManager(ActiveManager):
             acc.__dict__.update(d)
         except self.model.DoesNotExist:
             acc = self.model(**d)
+
+        try:
+            funding_data = self.create_account_funding_source(
+                data, item.access_token, user
+            )
+        except Exception as e:
+            raise e
+
+        if funding_data is not None:
+
+            dw = DwollaAPI()
+
+            dw.save_funding_source(
+                item,
+                user,
+                funding_data['funding_source'],
+                funding_data['dwolla_balance_id']
+            )
+
+            acc.is_funding_source_for_transfer = True
         acc.save()
+
         return acc
+
+    def create_account_funding_source(self, account, access_token, user):
+        from finance.services.dwolla_api import DwollaAPI
+
+        if account['subtype'] == 'checking':
+            dw = DwollaAPI()
+            pa = PlaidApi()
+            processor_token = pa.create_dwolla_processor_token(
+                access_token,
+                account['account_id'])
+            try:
+                fs = dw.create_dwolla_funding_source(
+                    user, processor_token
+                )
+            except Exception as e:
+                raise e
+
+            Customer = apps.get_model('bank', 'Customer')
+            customer = Customer.objects.get(user=user)
+
+            customer_url = '{}customers/{}'.format(
+                dw.get_api_url(), customer.dwolla_id
+            )
+            funding_sources = dw.app_token.get(
+                '%s/funding-sources' % customer_url
+            )
+            dwolla_balance_id = None
+
+            for i in funding_sources.body['_embedded']['funding-sources']:
+                if 'type' in i and i['type'] == 'balance':
+                    dwolla_balance_id = i['id']
+
+            return {
+                "funding_source": fs,
+                "dwolla_balance_id": dwolla_balance_id
+            }
+
+        return None
 
     def get_plaid_accounts(self, access_token):
         pa = PlaidApi()

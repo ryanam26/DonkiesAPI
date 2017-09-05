@@ -470,6 +470,20 @@ class FakeRoundups(AuthMixin, GenericAPIView):
         )
 
 
+class SetMinimumValueForTransfer(AuthMixin, GenericAPIView):
+    serializer_class = sers.SetMinValueSerializer
+
+    def post(self, request, **kwargs):
+        transfer_calc, created = TransferCalculation.objects.get_or_create(
+            user=request.user
+        )
+        transfer_calc.min_amount = request.data['min_value']
+        transfer_calc.save()
+
+        serializer = sers.TransferCalculationSerializer(transfer_calc)
+        return Response(serializer.data, status=200)
+
+
 class ItemDetail(AuthMixin, RetrieveDestroyAPIView):
     serializer_class = sers.ItemSerializer
     lookup_field = 'guid'
@@ -536,20 +550,3 @@ class TransfersPrepare(AuthMixin, ListAPIView):
     def get_queryset(self):
         return TransferPrepare.objects.filter(
             account__item__user=self.request.user)
-
-
-class SetMinimumValueForTransfer(AuthMixin, ListCreateAPIView):
-    serializer_class = sers.SetMinValueSerializer
-
-    def get_queryset(self):
-        return Response('ok', status=200)
-
-    def post(self, request, **kwargs):
-        transfer_calc, created = TransferCalculation.objects.get_or_create(
-            user=request.user
-        )
-        transfer_calc.min_amount = request.data['min_value']
-        transfer_calc.save()
-
-        serializer = sers.TransferCalculationSerializer(transfer_calc)
-        return Response(serializer.data, status=200)

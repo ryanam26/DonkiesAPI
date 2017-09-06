@@ -15,7 +15,7 @@ from finance.tasks import (
 from web.views import AuthMixin, r400
 from finance.models import (
     Account, FetchTransactions, Institution, Item, Lender, Stat,
-    Transaction, TransferPrepare, TransferCalculation)
+    Transaction, TransferPrepare, TransferCalculation, TransferBalance)
 import finance.swagger_serializer as swag_sers
 from finance.services.plaid_api import PlaidApi
 from finance.services.dwolla_api import DwollaAPI
@@ -321,7 +321,6 @@ class CreateTransaction(AuthMixin, GenericAPIView):
     def post(self, request, **kwargs):
         access_token = request.data['access_token']
         Transaction.objects.create_or_update_transactions(access_token)
-        Transaction.objects.filter(account__item__user=request.user)
         return Response(
             sers.TransferPrepareSerializer(
                 Transaction.objects.filter(account__item__user=request.user),
@@ -347,6 +346,24 @@ class MakeTransfer(AuthMixin, ListCreateAPIView):
         amount = Decimal(request.data['amount'])
         transfer = charge_application(amount, request.user)
         return Response(transfer, status=200)
+
+
+class BalanceTransaction(AuthMixin, GenericAPIView):
+    serializer_class = sers.TransferBalanceSerializer
+
+    def get_queryset(self):
+        pass
+
+    def get(self, request, **kwargs):
+
+        return Response(
+            sers.TransferBalanceSerializer(
+                TransferBalance.objects.filter(
+                    account__item__user=request.user
+                ),
+                many=True
+            ).data, status=200
+        )
 
 
 class Items(AuthMixin, ListCreateAPIView):

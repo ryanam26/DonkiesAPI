@@ -51,7 +51,11 @@ urlpatterns = [
     #     r'^(?P<version>[v1]+)/institutions$',
     #     v.Institutions.as_view(),
     #     name='institutions'),
-
+    url(
+        r'^(?P<version>[v1]+)/tranfer_balance$',
+        v.BalanceTransaction.as_view(),
+        name='tranfer_balance'
+    ),
     url(
         r'^(?P<version>[v1]+)/institutions/(?P<pk>\d+)$',
         v.InstitutionDetail.as_view(),

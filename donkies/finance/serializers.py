@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from finance.models import (
     Account, Institution, Item, Transaction,
-    TransferPrepare, TransferCalculation)
+    TransferPrepare, TransferCalculation, TransferBalance)
 
 from finance.models.funding_source import FundingSource
 
@@ -9,14 +9,20 @@ from finance.models.funding_source import FundingSource
 class InstitutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institution
+        fields = '__all__'
+
+
+class TransferBalanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransferBalance
         fields = (
-            'id',
-            'plaid_id',
-            'name',
-            'has_mfa',
-            'address',
-            'box',
-            'link'
+            'funding_source',
+            'account',
+            'amount',
+            'currency',
+            'created',
+            'transfer_id',
+            'status'
         )
 
 

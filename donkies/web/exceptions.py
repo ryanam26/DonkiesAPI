@@ -3,12 +3,12 @@ from rest_framework.views import exception_handler
 
 
 class TokenExpired(APIException):
-    status_code = 400
+    status_code = 401
     default_detail = 'Token expired.'
 
 
 class TokenInvalid(APIException):
-    status_code = 400
+    status_code = 401
     default_detail = 'Invalid token.'
 
 

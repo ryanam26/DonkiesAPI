@@ -54,8 +54,7 @@ urlpatterns = [
     url(
         r'^(?P<version>[v1]+)/tranfer_balance$',
         v.BalanceTransaction.as_view(),
-        name='tranfer_balance'
-    ),
+        name='tranfer_balance'),
     url(
         r'^(?P<version>[v1]+)/institutions/(?P<pk>\d+)$',
         v.InstitutionDetail.as_view(),
@@ -70,6 +69,11 @@ urlpatterns = [
         r'^(?P<version>[v1]+)/items/fake_roundup$',
         v.FakeRoundups.as_view(),
         name='fake_roundups'),
+
+    url(
+        r'^(?P<version>[v1]+)/items/transfer_to_checking_account$',
+        v.TransferChecking.as_view(),
+        name='tansfer_checking'),
 
     url(r'^(?P<version>[v1]+)/items/create_transaction$',
         v.CreateTransaction.as_view(),

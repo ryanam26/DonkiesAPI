@@ -26,6 +26,11 @@ class DwollaAPI:
             return 'https://api.dwolla.com/'
         return 'https://api-uat.dwolla.com/'
 
+    def get_balance_funding_source(self, balance_id):
+        return '{}funding-sources/{}'.format(
+            self.get_api_url(), balance_id
+        )
+
     def validate_user(self, user):
         """
         Check user credentials
@@ -110,17 +115,13 @@ class DwollaAPI:
 
     def transfer_to_customer_dwolla_balance(self, funding_source,
                                             balance_id, amount):
-
-        balance_fundong_source = '{}funding-sources/{}'.format(
-            self.get_api_url(), balance_id
-        )
         request_body = {
             '_links': {
                 'source': {
                     'href': funding_source
                 },
                 'destination': {
-                    'href': balance_fundong_source
+                    'href': self.get_balance_funding_source(balance_id)
                 }
             },
             'amount': {
@@ -131,3 +132,48 @@ class DwollaAPI:
 
         transfer = self.app_token.post('transfers', request_body)
         return transfer.headers['Location']
+
+    def transfer_from_balance_to_check_acc(self, funding_source,
+                                           balance_id):
+
+        balance_fundong_source = self.get_balance_funding_source(balance_id)
+
+        try:
+            balance = self.app_token.get(
+                '%s/balance' % balance_fundong_source
+            )
+        except Exception as e:
+            raise e
+
+        if Decimal(balance.body['balance']['value']) > 0:
+
+            request_body = {
+                '_links': {
+                    'source': {
+                        'href': balance_fundong_source
+                    },
+                    'destination': {
+                        'href': funding_source
+                    }
+                },
+                'amount': {
+                    'currency': balance.body['balance']['currency'],
+                    'value': balance.body['balance']['value']
+                }
+            }
+
+            try:
+                transfer = self.app_token.post('transfers', request_body)
+            except Exception as e:
+                raise e
+
+            return {
+                'message': self.app_token.get(
+                    transfer.headers['Location']).body,
+                'status': 201
+            }
+
+        return {
+            'message': 'Dwolla balance is empty',
+            'status': 400
+        }

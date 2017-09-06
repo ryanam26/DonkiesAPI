@@ -21,6 +21,7 @@ from finance.services.plaid_api import PlaidApi
 from finance.services.dwolla_api import DwollaAPI
 from web.formatResponse import format_response
 from finance.models.transfer_calculation import charge_application
+from django.apps import apps
 from decimal import *
 
 
@@ -567,3 +568,28 @@ class TransfersPrepare(AuthMixin, ListAPIView):
     def get_queryset(self):
         return TransferPrepare.objects.filter(
             account__item__user=self.request.user)
+
+
+class TransferChecking(APIView):
+
+    def post(self, request, **kwargs):
+        FundingSource = apps.get_model('finance', 'FundingSource')
+
+        try:
+            fs = FundingSource.objects.get(user=request.user)
+        except FundingSource.DoesNotExist as e:
+            return Response({
+                'error': 'DoesNotExist',
+                'message': e.args[0]
+            }, status=404)
+
+        dw = DwollaAPI()
+
+        try:
+            transfer_response = dw.transfer_from_balance_to_check_acc(
+                fs.funding_sources_url, fs.dwolla_balance_id
+            )
+        except Exception as e:
+            return Response(e.body, e.status)
+
+        return Response(transfer_response, transfer_response['status'])

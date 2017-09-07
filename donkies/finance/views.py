@@ -478,7 +478,9 @@ class FakeRoundups(AuthMixin, GenericAPIView):
         parameters:
             - roundup: roundup_amount
         """
-        tr_calc = TransferCalculation.objects.filter(user=request.user).first()
+        tr_calc, created = TransferCalculation.objects.get_or_create(
+            user=request.user
+        )
         roundup = round(Decimal(request.data['roundup']), 2)
         tr_calc.calculate_roundups(roundup)
 

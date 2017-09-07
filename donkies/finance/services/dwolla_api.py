@@ -91,10 +91,11 @@ class DwollaAPI:
         customer_url = '{}customers/{}'.format(
             self.get_api_url(), customer.dwolla_id)
         request_body = {'plaidToken': processor_token,
-                        'name': '{} {} {} checking'.format(
+                        'name': '{} {} {} {}'.format(
                             user.first_name,
                             user.last_name,
-                            'Parent' if user.is_parent else ''
+                            'savings' if user.is_parent else 'checking'
+                            '(parent)' if user.is_parent else '',
                         )}
         try:
             customer = self.app_token.post(

@@ -20,7 +20,9 @@ def get_funding_source(user, amount):
     FundingSource = apps.get_model('finance', 'FundingSource')
     Account = apps.get_model('finance', 'Account')
 
-    account = Account.objects.filter(item__user=user, is_primary=True).first()
+    account = Account.objects.filter(item__user=user,
+                                     is_funding_source_for_transfer=True
+                                     ).first()
 
     if account.balance > amount:
         funding_instance = FundingSource.objects.get(item=account.item)
@@ -58,7 +60,8 @@ def charge_application(amount, user):
 
     fees = dw.app_token.get(transfer_url)
     TransferBalance.objects.create_transfer_balance(
-        funding_info['funding_instance'], funding_info['account'], fees.body
+        funding_info['funding_instance'], funding_info['account'],
+        fees.body, 'account --> dwolla_balance'
     )
 
 

@@ -133,8 +133,27 @@ class DwollaAPI:
         transfer = self.app_token.post('transfers', request_body)
         return transfer.headers['Location']
 
-    def transfer_from_balance_to_check_acc(self, funding_source,
-                                           balance_id):
+    def transfer_from_balance_to_check_acc(self, user):
+        FundingSource = apps.get_model('finance', 'FundingSource')
+        Account = apps.get_model('finance', 'Account')
+
+        accounts = Account.objects.filter(
+            item__user=user,
+            is_funding_source_for_transfer=True,
+            subtype='checking'
+        )
+        if len(accounts) is 0:
+            return {
+                'message': 'Funding source does not exist.',
+                'status': 400
+            }
+        account = accounts.first()
+
+        funding_source = FundingSource.objects.filter(
+            item=account.item).first()
+
+        funding_source_url = funding_source.funding_sources_url
+        balance_id = funding_source.dwolla_balance_id
 
         balance_fundong_source = self.get_balance_funding_source(balance_id)
 
@@ -153,7 +172,7 @@ class DwollaAPI:
                         'href': balance_fundong_source
                     },
                     'destination': {
-                        'href': funding_source
+                        'href': funding_source_url
                     }
                 },
                 'amount': {
@@ -167,9 +186,16 @@ class DwollaAPI:
             except Exception as e:
                 raise e
 
+            fees = self.app_token.get(transfer.headers['Location'])
+
+            TransferBalance = apps.get_model('finance', 'TransferBalance')
+            TransferBalance.objects.create_transfer_balance(
+                funding_source, account,
+                fees.body, 'dwolla_balance --> account'
+            )
+
             return {
-                'message': self.app_token.get(
-                    transfer.headers['Location']).body,
+                'message': fees.body,
                 'status': 201
             }
 

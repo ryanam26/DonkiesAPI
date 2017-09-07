@@ -10,7 +10,8 @@ from finance.models.account import Account
 
 class TransferBalanceManaget(models.Manager):
 
-    def create_transfer_balance(self, funding_source, account, transfer):
+    def create_transfer_balance(self, funding_source, account,
+                                transfer, direction):
         transfer = self.model(
             funding_source=funding_source,
             account=account,
@@ -21,6 +22,8 @@ class TransferBalanceManaget(models.Manager):
             created=datetime.strptime(
                 transfer['created'].split('.')[0], "%Y-%m-%dT%H:%M:%S"
             ),
+            transfer_direction=direction,
+            clearing=transfer['clearing'] if 'clearing' in transfer else None
         )
 
         transfer.save()
@@ -39,6 +42,13 @@ class TransferBalance(models.Model):
         (PENDING, 'pending'),
         (PROCESSED, 'processed')
     )
+    ACCOUNT_DWOLLA = 'account --> dwolla_balance'
+    DWOLLA_ACCOUNT = 'dwolla_balance --> account'
+
+    TRANSFER_DIRECTION = (
+        (ACCOUNT_DWOLLA, 'account --> dwolla_balance'),
+        (DWOLLA_ACCOUNT, 'dwolla_balance --> account')
+    )
 
     funding_source = models.ForeignKey(FundingSource,
                                        related_name='funding_sources',
@@ -51,24 +61,30 @@ class TransferBalance(models.Model):
     transfer_id = models.CharField(max_length=255, blank=False)
     status = models.CharField(max_length=100, choices=STATUS,
                               default='pending')
+    transfer_direction = models.CharField(max_length=255,
+                                          choices=TRANSFER_DIRECTION,
+                                          default='account --> dwolla_balance')
+    clearing = JSONField(blank=False, null=True, default=None)
 
     objects = TransferBalanceManaget()
 
     def __str__(self):
-        return '{} {}'.format(self.funding_source.user, self.account)
+        return self.transfer_direction
 
 
 @admin.register(TransferBalance)
 class ItemAdmin(admin.ModelAdmin):
     list_display = (
-        'funding_source',
         'account',
+        'transfer_direction',
+    )
+    readonly_fields = (
+        'funding_source',
         'amount',
         'currency',
         'created',
         'transfer_id',
-        'status',
-    )
-    readonly_fields = (
         '_links',
+        'status',
+        'clearing',
     )

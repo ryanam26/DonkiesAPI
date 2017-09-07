@@ -573,21 +573,12 @@ class TransfersPrepare(AuthMixin, ListAPIView):
 class TransferChecking(APIView):
 
     def post(self, request, **kwargs):
-        FundingSource = apps.get_model('finance', 'FundingSource')
-
-        try:
-            fs = FundingSource.objects.get(user=request.user)
-        except FundingSource.DoesNotExist as e:
-            return Response({
-                'error': 'DoesNotExist',
-                'message': e.args[0]
-            }, status=404)
 
         dw = DwollaAPI()
 
         try:
             transfer_response = dw.transfer_from_balance_to_check_acc(
-                fs.funding_sources_url, fs.dwolla_balance_id
+                request.user
             )
         except Exception as e:
             return Response(e.body, e.status)

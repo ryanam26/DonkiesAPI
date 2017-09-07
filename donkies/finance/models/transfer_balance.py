@@ -30,6 +30,18 @@ class TransferBalanceManaget(models.Manager):
 
         return transfer
 
+    def update_status_transaction(self):
+        from finance.services.dwolla_api import DwollaAPI
+
+        dw = DwollaAPI()
+
+        transfers = self.model.objects.filter(status='pending')
+        for transfer in transfers:
+            transfer_url = dw.get_transfer_url(transfer.transfer_id)
+            fees = dw.app_token.get(transfer_url)
+            transfer.status = fees.body['status']
+            transfer.save()
+
 
 class TransferBalance(models.Model):
     """

@@ -26,6 +26,9 @@ class DwollaAPI:
             return 'https://api.dwolla.com/'
         return 'https://api-uat.dwolla.com/'
 
+    def get_transfer_url(self, transfer_id):
+        return '{}transfers/{}'.format(self.get_api_url(), transfer_id)
+
     def get_balance_funding_source(self, balance_id):
         return '{}funding-sources/{}'.format(
             self.get_api_url(), balance_id

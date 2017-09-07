@@ -170,3 +170,9 @@ def charge_dwoll_buisness():
         if amount == 0 or amount is None:
             continue
         transfer_money(amount, url)
+
+
+@periodic_task(run_every=crontab(minute=0, hour='*/3'))
+def process_transfers():
+    TransferBalance = apps.get_model('finance', 'TransferBalance')
+    TransferBalance.objects.update_status_transaction()

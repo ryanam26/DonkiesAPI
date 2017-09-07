@@ -78,7 +78,14 @@ class AccountManager(ActiveManager):
     def create_account_funding_source(self, account, access_token, user):
         from finance.services.dwolla_api import DwollaAPI
 
-        if account['subtype'] == 'checking':
+        searching_customer = user
+        searching_type = 'checking'
+
+        if user.is_parent:
+            searching_customer = user.childs.first()
+            searching_type = 'savings'
+
+        if account['subtype'] == searching_type:
             dw = DwollaAPI()
             pa = PlaidApi()
             processor_token = pa.create_dwolla_processor_token(
@@ -92,7 +99,7 @@ class AccountManager(ActiveManager):
                 raise e
 
             Customer = apps.get_model('bank', 'Customer')
-            customer = Customer.objects.get(user=user)
+            customer = Customer.objects.get(user=searching_customer)
 
             customer_url = '{}customers/{}'.format(
                 dw.get_api_url(), customer.dwolla_id

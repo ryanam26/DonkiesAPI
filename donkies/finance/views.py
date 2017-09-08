@@ -321,7 +321,9 @@ class CreateTransaction(AuthMixin, GenericAPIView):
 
     def post(self, request, **kwargs):
         access_token = request.data['access_token']
-        Transaction.objects.create_or_update_transactions(access_token)
+        Transaction.objects.create_or_update_transactions(
+            access_token)
+
         return Response(
             sers.TransferPrepareSerializer(
                 Transaction.objects.filter(account__item__user=request.user),
@@ -409,7 +411,7 @@ class Items(AuthMixin, ListCreateAPIView):
         # Get accounts
         try:
             Account.objects.create_or_update_accounts(
-                item, request.user, item.access_token
+                item.access_token, request.user
             )
         except Exception as e:
             return Response(e.body, e.status)
@@ -425,41 +427,26 @@ class Items(AuthMixin, ListCreateAPIView):
         return Response(s.data, status=201)
 
 
-class PauseItems(AuthMixin, ListCreateAPIView):
-    serializer_class = sers.PauseItemsSerializer
-
-    def get_queryset(self):
-        return Response(
-            sers.ItemSerializer(
-                Item.objects.filter(user=self.request.user),
-                many=True
-            ).data,
-            status=200
-        )
-
-    def get(self, request, **kwargs):
-        return Response(
-            sers.ItemSerializer(
-                Item.objects.filter(user=request.user),
-                many=True
-            ).data,
-            status=200
-        )
+class PauseAccont(AuthMixin, GenericAPIView):
+    serializer_class = sers.PauseAccountSerializer
 
     def post(self, request, **kwargs):
-        item_id = request.data['item_id']
-        pause = request.data['pause']
-        item = Item.objects.get(id=item_id, user=request.user)
+        plaid_id = request.data.get('plaid_id', None)
+        pause = request.data.get('pause', None)
+
+        account = Account.objects.get(
+            plaid_id=plaid_id, item__user=request.user
+        )
 
         if pause:
-            item.pause_on()
+            account.pause_on()
 
         if not pause:
-            item.pause_off()
+            account.pause_off()
 
         return Response(
-            sers.ItemSerializer(
-                Item.objects.filter(user=self.request.user),
+            sers.AccountSerializer(
+                Account.objects.filter(item__user=self.request.user),
                 many=True
             ).data,
             status=200

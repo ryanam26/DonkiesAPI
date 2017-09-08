@@ -13,15 +13,14 @@ from finance.services.plaid_api import PlaidApi
 
 class AccountManager(ActiveManager):
     @transaction.atomic
-    def create_or_update_accounts(self, item, user, access_token):
+    def create_or_update_accounts(self, access_token, user=None):
         """
         Input: api response from plaid API.
         """
-
         Item = apps.get_model('finance', 'Item')
         pa = PlaidApi()
         try:
-            api_data = pa.get_accounts(item, access_token)
+            api_data = pa.get_accounts(access_token)
         except Exception as e:
             raise e
 
@@ -52,25 +51,26 @@ class AccountManager(ActiveManager):
         except self.model.DoesNotExist:
             acc = self.model(**d)
 
-        try:
-            funding_data = self.create_account_funding_source(
-                data, item.access_token, user
-            )
-        except Exception as e:
-            raise e
+        if user is not None:
+            try:
+                funding_data = self.create_account_funding_source(
+                    data, item.access_token, user
+                )
+            except Exception as e:
+                raise e
 
-        if funding_data is not None:
+            if funding_data is not None:
 
-            dw = DwollaAPI()
+                dw = DwollaAPI()
 
-            dw.save_funding_source(
-                item,
-                user,
-                funding_data['funding_source'],
-                funding_data['dwolla_balance_id']
-            )
+                dw.save_funding_source(
+                    item,
+                    user,
+                    funding_data['funding_source'],
+                    funding_data['dwolla_balance_id']
+                )
 
-            acc.is_funding_source_for_transfer = True
+                acc.is_funding_source_for_transfer = True
         acc.save()
 
         return acc
@@ -91,6 +91,7 @@ class AccountManager(ActiveManager):
             processor_token = pa.create_dwolla_processor_token(
                 access_token,
                 account['account_id'])
+
             try:
                 fs = dw.create_dwolla_funding_source(
                     user, processor_token
@@ -331,6 +332,7 @@ class Account(ActiveModel):
         help_text='Used for manual debt accounts.')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True, default=None)
+    pause = models.BooleanField(default=False, blank=True)
 
     objects = AccountManager()
 
@@ -405,6 +407,14 @@ class Account(ActiveModel):
                 self.routing_number = dic['routing']
                 self.save()
 
+    def pause_on(self, *args, **kwargs):
+        self.pause = True
+        self.save()
+
+    def pause_off(self, *args, **kwargs):
+        self.pause = False
+        self.save()
+
     def save(self, *args, **kwargs):
         """
         Assume that account can not change type.
@@ -463,12 +473,13 @@ class AccountAdmin(admin.ModelAdmin):
         'subtype',
         'show_account_number',
         'routing_number',
-        'is_active'
+        'is_active',
+        'plaid_id',
+        'pause',
     )
     readonly_fields = (
         'item',
         'guid',
-        'plaid_id',
         'name',
         'official_name',
         'balances',

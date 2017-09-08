@@ -91,7 +91,9 @@ class AccountSerializer(serializers.ModelSerializer):
             'is_active',
             'institution',
             'account_number',
-            'additional_info'
+            'additional_info',
+            'plaid_id',
+            'pause',
         )
 
     def get_institution(self, obj):
@@ -119,7 +121,6 @@ class ItemSerializer(serializers.ModelSerializer):
             'plaid_id',
             'institution',
             'name',
-            'pause',
             'access_token',
             'accounts',
         )
@@ -196,6 +197,6 @@ class MakeTransferSerializer(serializers.Serializer):
     amount = serializers.CharField()
 
 
-class PauseItemsSerializer(serializers.Serializer):
-    item_id = serializers.IntegerField()
+class PauseAccountSerializer(serializers.Serializer):
+    plaid_id = serializers.CharField()
     pause = serializers.BooleanField(default=False)

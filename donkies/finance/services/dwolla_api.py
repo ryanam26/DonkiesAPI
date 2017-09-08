@@ -94,7 +94,7 @@ class DwollaAPI:
                         'name': '{} {} {} {}'.format(
                             user.first_name,
                             user.last_name,
-                            'savings' if user.is_parent else 'checking'
+                            'savings' if user.is_parent else 'checking',
                             '(parent)' if user.is_parent else '',
                         )}
         try:

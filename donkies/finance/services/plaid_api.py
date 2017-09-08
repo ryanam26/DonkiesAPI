@@ -97,7 +97,7 @@ class PlaidApi:
         d = self.client.Institutions.get_by_id(plaid_id)
         return d['institution']
 
-    def get_accounts(self, item, access_token):
+    def get_accounts(self, access_token):
         """
         Returns accounts for particular item.
         """

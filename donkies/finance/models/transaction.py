@@ -30,17 +30,17 @@ class TransactionManager(ActiveManager):
         item = Item.objects.get(access_token=access_token)
 
         logger.debug('Item: {}'.format(item.id))
-        if not item.pause:
-            l = self.get_plaid_transactions(
-                item, start_date=start_date, end_date=end_date)
 
-            logger.debug('Number of transactions: {}'.format(len(l)))
+        l = self.get_plaid_transactions(
+            item, start_date=start_date, end_date=end_date)
 
-            for tr in l:
-                self.create_or_update_transaction(tr)
+        logger.debug('Number of transactions: {}'.format(len(l)))
 
-            # After updating transactions, update also accounts
-            Account.objects.create_or_update_accounts(access_token)
+        for tr in l:
+            self.create_or_update_transaction(tr)
+
+        # After updating transactions, update also accounts
+        Account.objects.create_or_update_accounts(access_token)
 
     def create_or_update_transaction(self, api_response):
         """
@@ -49,14 +49,16 @@ class TransactionManager(ActiveManager):
         do not process this transaction.
         """
         logger.debug('Start to create/update transaction')
-
         Account = apps.get_model('finance', 'Account')
         d = api_response
 
         account_plaid_id = d.pop('account_id')
+
         d['account'] = Account.objects.get(plaid_id=account_plaid_id)
-        if not d['account'].is_active:
+
+        if not d['account'].is_active or d['account'].pause:
             return None
+
         d['plaid_id'] = d.pop('transaction_id')
 
         m_fields = self.model._meta.get_fields()

@@ -37,6 +37,10 @@ urlpatterns = [
         v.AccountsSetPrimary.as_view(),
         name='accounts_set_primary'),
 
+    url(r'^(?P<version>[v1]+)/accounts/pause$',
+        v.PauseAccont.as_view(),
+        name='PauseAccont'),
+
     url(
         r'^(?P<version>[v1]+)/institutions_suggest$',
         v.InstitutionsSuggest.as_view(),
@@ -78,10 +82,6 @@ urlpatterns = [
     url(r'^(?P<version>[v1]+)/items/create_transaction$',
         v.CreateTransaction.as_view(),
         name='create_transaction'),
-
-    url(r'^(?P<version>[v1]+)/items/pause$',
-        v.PauseItems.as_view(),
-        name='pause_item'),
 
     url(r'^(?P<sersion>[v1]+)/make_transfer$',
         v.MakeTransfer.as_view(),

@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.core.exceptions import ValidationError
 from rest_framework.generics import (
-    ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView)
+    ListAPIView, RetrieveAPIView, RetrieveDestroyAPIView, ListCreateAPIView,
+    DestroyAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
@@ -90,12 +91,25 @@ class Accounts(AuthMixin, GenericAPIView):
         )
 
 
-class AccountDetail(AuthMixin, RetrieveDestroyAPIView):
+class AccountDetail(AuthMixin, DestroyAPIView):
+    """
+    delete:
+        Endpoint for soft deleting account
+        parameters - version: v1, id: id_account (account id in database)
+
+    """
+    serializer_class = sers.AccountSerializer
+
+    def get_queryset(self):
+        return Account.objects.active().filter(
+            item__user=self.request.user)
+
+
+class AccountDetailRetrive(AuthMixin, RetrieveAPIView):
     """
     get:
         Return Account by id
-    delete:
-        Not implement yet
+
     """
     serializer_class = sers.AccountSerializer
 

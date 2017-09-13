@@ -8,9 +8,14 @@ urlpatterns = [
         name='accounts'),
 
     url(
-        r'^(?P<version>[v1]+)/accounts/(?P<pk>\d+)$',
+        r'^(?P<version>[v1]+)/accounts/delete/(?P<pk>\d+)$',
         v.AccountDetail.as_view(),
         name='account'),
+
+    url(
+        r'^(?P<version>[v1]+)/accounts/(?P<pk>\d+)$',
+        v.AccountDetailRetrive.as_view(),
+        name="retrive_account"),
 
     url(
         r'^(?P<version>[v1]+)/accounts/edit_share$',

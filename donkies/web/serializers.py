@@ -131,7 +131,8 @@ class PasswordResetSerializer(EncIdMixin, serializers.Serializer):
 
 class SignupParentSerializer(serializers.ModelSerializer):
     password = serializers.CharField(min_length=8)
-    id_child = serializers.IntegerField()
+    email_child = serializers.CharField(required=False)
+    guid = serializers.CharField(required=False)
 
     class Meta:
         model = User
@@ -144,7 +145,8 @@ class SignupParentSerializer(serializers.ModelSerializer):
             'city',
             'state',
             'postal_code',
-            'id_child',
+            'email_child',
+            'guid',
         )
 
     def save(self):
@@ -158,7 +160,17 @@ class SignupParentSerializer(serializers.ModelSerializer):
         user.state = data['state']
         user.is_parent = True
 
-        child = User.objects.filter(id=data['id_child']).first()
+        guid = data.get('guid', None)
+        child_email = data.get('email_child', None)
+
+        try:
+            if guid:
+                child = User.objects.get(guid=guid)
+            elif child_email:
+                child = User.objects.get(email=data['email_child'])
+        except User.DoesNotExist as e:
+            raise e
+
         child.child = user
         child.save()
 
@@ -327,3 +339,7 @@ class UserSettingsSerializer(serializers.ModelSerializer):
             'minimum_transfer_amount',
             'is_even_roundup'
         )
+
+
+class InviteParentSerilizer(serializers.Serializer):
+    email = serializers.EmailField()

@@ -101,5 +101,10 @@ urlpatterns = [
         v.UserCloseAccount.as_view(),
         name='user_close_account'),
 
+    url(
+        r'^(?P<version>[v1]+)/invite_parent$',
+        v.InviteParent.as_view(),
+        name='invite_parent'),
+
     url(r'^$', v.home, name='home'),
 ]

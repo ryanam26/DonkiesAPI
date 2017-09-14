@@ -22,6 +22,7 @@ from rest_framework.generics import ListAPIView, GenericAPIView
 import dwollav2
 from django.contrib.auth import logout
 from django.apps import apps
+from web.services.sparkpost_service import SparkPostService
 
 
 def has_missed_fields(request_body):
@@ -203,9 +204,14 @@ class SignupParent(GenericAPIView):
     serializer_class = sers.SignupParentSerializer
 
     def post(self, request, **kwargs):
+
         serializer = sers.SignupParentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+
+        try:
+            serializer.save()
+        except Exception as e:
+            return Response({'data': e.args[0], 'status': 400}, status=400)
 
         return Response(serializer.data, status=201)
 
@@ -346,3 +352,28 @@ class UserCloseAccount(AuthMixin, APIView):
     def post(self, request, **kwargs):
         self.request.user.close_account()
         return Response(status=204)
+
+
+class InviteParent(AuthMixin, GenericAPIView):
+    serializer_class = sers.InviteParentSerilizer
+
+    message = 'Your child wants to add you as a parent on Donkies. Please sign up here {}'
+
+    def post(self, request, **kwargs):
+        url = '{}/registration_parent?ref={}'.format(
+            settings.FRONTEND_URL, request.user.guid
+        )
+        message = self.message.format(url)
+
+        sps = SparkPostService()
+        email = request.data.get('email', None)
+
+        if not email:
+            return Response({'message': 'Email parameter missed'}, status=400)
+
+        response = sps.send_email(
+            email,
+            'Invite Parent on Donkies',
+            message)
+
+        return Response(response, status=200)

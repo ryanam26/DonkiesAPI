@@ -213,7 +213,7 @@ class SignupParent(GenericAPIView):
         try:
             serializer.save()
         except Exception as e:
-            return Response({'data': e.args[0], 'status': 400}, status=400)
+            return Response({'email_child': [e.args[0]], 'status': 400}, status=400)
 
         return Response(serializer.data, status=201)
 

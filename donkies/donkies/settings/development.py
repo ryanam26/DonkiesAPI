@@ -48,3 +48,9 @@ DONKIES_MODE = 'development'
 PLAID_ENV = 'sandbox'
 DWOLLA_ENV = 'sandbox'
 # PLAID_ENV = 'development'
+
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'postmaster@sandbox2824da8569374d539e23a393d242455e.mailgun.org'
+EMAIL_HOST_PASSWORD = '9fdc14104071f71ed1c7f522a4ed5b41'
+EMAIL_USE_TLS = True

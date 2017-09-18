@@ -9,27 +9,28 @@ from django.dispatch import receiver
 from django.contrib.postgres.fields import JSONField
 from web.models import ActiveModel, ActiveManager
 from finance.services.plaid_api import PlaidApi
-
+from finance.models.item import Item
 
 class AccountManager(ActiveManager):
     @transaction.atomic
-    def create_or_update_accounts(self, access_token, user=None):
+    def create_or_update_accounts(self, context, user=None):
         """
         Input: api response from plaid API.
         """
         Item = apps.get_model('finance', 'Item')
         pa = PlaidApi()
         try:
-            api_data = pa.get_accounts(access_token)
+            api_data = pa.get_accounts(context['access_token'])
         except Exception as e:
             raise e
 
         accounts = api_data['accounts']
-        item = Item.objects.get(plaid_id=api_data['item']['item_id'])
-        for d in accounts:
-            self.create_or_update_account(item, d, user)
 
-    def create_or_update_account(self, item, data, user):
+        for d in accounts:
+            res = self.create_or_update_account(context['access_token'], d, user, context)
+
+
+    def create_or_update_account(self, access_token, data, user, context):
         """
         data is dictionary with response result.
         If account is deleted in Donkies (is_active=False), do not process.
@@ -40,7 +41,6 @@ class AccountManager(ActiveManager):
         m_fields = [f.name for f in m_fields]
 
         d = {k: v for (k, v) in data.items() if k in m_fields}
-        d['item'] = item
         d['plaid_id'] = data['account_id']
 
         try:
@@ -54,8 +54,10 @@ class AccountManager(ActiveManager):
         if user is not None:
             try:
                 funding_data = self.create_account_funding_source(
-                    data, item.access_token, user
+                    data, context['access_token'], user
                 )
+                item = Item.objects.create_item(user, context)
+                acc.item = item
             except Exception as e:
                 raise e
 

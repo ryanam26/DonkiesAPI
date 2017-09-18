@@ -413,22 +413,24 @@ class Items(AuthMixin, ListCreateAPIView):
             return r400('Missing param.')
 
         try:
-            item = Item.objects.create_item_by_data(request.user, request.data)
+            context = Item.objects.create_item_by_data(request.user, request.data)
         except Exception as e:
             if hasattr(e, 'body'):
                 return Response(e.body, e.status)
             return Response(format_response(e.args, 400), 400)
 
-        # Fill FetchTransactions (history model)
-        FetchTransactions.objects.create_all(item)
         # Get accounts
         try:
-            Account.objects.create_or_update_accounts(
-                item.access_token, request.user
+            item = Account.objects.create_or_update_accounts(
+                context, request.user
             )
         except Exception as e:
             return Response(e.body, e.status)
-        # request.data['account_id']
+
+        item = Item.objects.get(access_token=context['access_token'])
+        # Fill FetchTransactions (history model)
+        FetchTransactions.objects.create_all(item)
+
         # Fetch recent transactions
         fetch_transactions.delay(item.access_token)
 

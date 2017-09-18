@@ -33,16 +33,20 @@ class ItemManager(ActiveManager):
 
             context = pa.get_item(access_token)
             context.update(data)
-            item = Item.objects.create_item(user, context)
         except Exception as e:
             raise e
 
-        return item
+        return context
 
     def create_item(self, user, d):
         """
         api_data - Plaid's API response
         """
+        item = self.model.objects.filter(access_token=d['access_token']).first()
+
+        if item:
+            return item
+
         Institution = apps.get_model('finance', 'Institution')
         access_token = d['access_token']
         institution = Institution.objects.get_or_create_institution(

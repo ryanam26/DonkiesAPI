@@ -421,7 +421,6 @@ class Items(AuthMixin, ListCreateAPIView):
 
         # Fill FetchTransactions (history model)
         FetchTransactions.objects.create_all(item)
-
         # Get accounts
         try:
             Account.objects.create_or_update_accounts(

@@ -198,8 +198,11 @@ class Signup(GenericAPIView):
         except Exception as e:
             res = e.args[0].args[0].body['_embedded']
             return Response(res, status=403)
+        user = User.objects.get(email=request.data.get('email', None))
 
-        return Response(serializer.data, status=201)
+        return Response({
+            'token': user.get_token().key
+        }, status=201)
 
 
 class SignupParent(GenericAPIView):

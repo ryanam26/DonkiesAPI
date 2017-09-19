@@ -8,6 +8,7 @@ from finance.serializers import (FundingSourceSerializer,
 # from bank.serializers import CustomerSerializer
 from django.apps import apps
 from bank.services.dwolla_api import DwollaApi
+import hashlib
 
 
 class EncIdMixin:
@@ -132,7 +133,8 @@ class PasswordResetSerializer(EncIdMixin, serializers.Serializer):
 class SignupParentSerializer(serializers.ModelSerializer):
     password = serializers.CharField(min_length=8)
     email_child = serializers.CharField(required=False)
-    guid = serializers.CharField(required=False)
+    hash_user = serializers.CharField(required=False)
+    id_user = serializers.CharField(required=False)
 
     class Meta:
         model = User
@@ -146,7 +148,8 @@ class SignupParentSerializer(serializers.ModelSerializer):
             'state',
             'postal_code',
             'email_child',
-            'guid',
+            'hash_user',
+            'id_user',
         )
 
     def save(self):
@@ -160,12 +163,27 @@ class SignupParentSerializer(serializers.ModelSerializer):
         user.state = data['state']
         user.is_parent = True
 
-        guid = data.get('guid', None)
+        personal_string = 'id-{}_mail-{}'
+
+        hash_user = data.get('hash_user', None)
+        id_user = data.get('id_user', None)
         child_email = data.get('email_child', None)
 
         try:
-            if guid:
-                child = User.objects.get(guid=guid)
+            if hash_user and id_user is not None:
+                m = hashlib.md5()
+                id_user = int(id_user)
+                child = User.objects.get(id=id_user)
+                email = child.email
+
+                personal_string = personal_string.format(id_user, email)
+                m.update(personal_string.encode())
+                m_hash = m.hexdigest()
+                print(m_hash)
+                if m_hash == hash_user:
+                    child = User.objects.get(id=id_user, email=email)
+                else:
+                    raise Exception('hash not equal')
             elif child_email:
                 child = User.objects.get(email=data['email_child'])
         except User.DoesNotExist as e:

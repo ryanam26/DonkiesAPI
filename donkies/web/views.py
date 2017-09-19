@@ -24,6 +24,7 @@ from django.contrib.auth import logout
 from django.apps import apps
 from web.services.sparkpost_service import SparkPostService
 from django.core.mail import send_mail
+import hashlib
 
 
 def has_missed_fields(request_body):
@@ -209,7 +210,6 @@ class SignupParent(GenericAPIView):
     serializer_class = sers.SignupParentSerializer
 
     def post(self, request, **kwargs):
-
         serializer = sers.SignupParentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -363,6 +363,7 @@ class InviteParent(AuthMixin, GenericAPIView):
     serializer_class = sers.InviteParentSerilizer
 
     message = 'Your child wants to add you as a parent on Donkies. Please sign up here {}'
+    personal_string = 'id-{}_mail-{}'
 
     def post(self, request, **kwargs):
 
@@ -371,38 +372,23 @@ class InviteParent(AuthMixin, GenericAPIView):
         elif settings.DONKIES_MODE == 'development':
             front_end_url = 'http://localhost:8080'
 
-        url = '{}/registration_parent?ref={}'.format(
-            front_end_url, request.user.guid
+        m = hashlib.md5()
+        personal_string = self.personal_string.format(request.user.id, request.user.email)
+        m.update(personal_string.encode())
+
+        url = '{}/registration_parent?ref={}&?u={}'.format(
+            front_end_url, m.hexdigest(), request.user.id
         )
 
         message = self.message.format(url)
 
-        sps = SparkPostService()
+
         email = request.data.get('email', None)
 
         if not email:
             return Response({'message': 'Email parameter missed'}, status=400)
 
-        if settings.DONKIES_MODE == 'production':
-            try:
-                response = sps.send_email(
-                    email,
-                    'Invite Parent on Donkies',
-                    message)
-            except Exception as e:
-                return Response({
-                    'success': False,
-                    'message': e.args
-                }, e.status)
-        else:
-            response = send_mail(
-                'Invite Parent on Donkies',
-                message,
-                settings.SPARKPOST_FROM_EMAIL,
-                [email]
-            )
 
         return Response({
-            'mail_status': response,
-            'mail_message': message
+            'link': url,
         }, status=200)

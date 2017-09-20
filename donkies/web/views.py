@@ -213,12 +213,16 @@ class SignupParent(GenericAPIView):
         serializer = sers.SignupParentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        Token = apps.get_model('web', 'Token')
+
         try:
             serializer.save()
         except Exception as e:
             return Response({'email_child': [e.args[0]], 'status': 400}, status=400)
+        user = User.objects.get(email=request.data['email'])
+        token = Token.objects.get(user=user)
 
-        return Response(serializer.data, status=201)
+        return Response({'token': token.key}, status=201)
 
 
 class SignupConfirm(GenericAPIView):
@@ -359,9 +363,7 @@ class UserCloseAccount(AuthMixin, APIView):
         return Response(status=204)
 
 
-class InviteParent(AuthMixin, GenericAPIView):
-    serializer_class = sers.InviteParentSerilizer
-
+class InviteParent(AuthMixin, APIView):
     message = 'Your child wants to add you as a parent on Donkies. Please sign up here {}'
     personal_string = 'id-{}_mail-{}'
 
@@ -381,13 +383,6 @@ class InviteParent(AuthMixin, GenericAPIView):
         )
 
         message = self.message.format(url)
-
-
-        email = request.data.get('email', None)
-
-        if not email:
-            return Response({'message': 'Email parameter missed'}, status=400)
-
 
         return Response({
             'link': url,

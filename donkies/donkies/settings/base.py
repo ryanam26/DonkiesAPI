@@ -51,6 +51,9 @@ FRONTEND_URL = 'https://app.donkies.co'
 DWOLLA_PROCESSOR_TOKEN_CREATE = 'https://sandbox.plaid.com/processor/dwolla/processor_token/create'
 DWOLLA_TEMP_BUSINESS_ACCOUNT = 'https://api-uat.dwolla.com/funding-sources/6f9038e7-b7ba-4ef1-a43f-f919703a2d79'
 
+# secret hash genereted from word - donkiesv1  hashlib.md5()
+SALT = 'e01cb7c3ed0975ea229b75b6111896ce'
+
 # Admin email for sending alerts
 ALERTS_EMAIL = 'ryan@donkies.co'
 

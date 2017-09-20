@@ -365,7 +365,7 @@ class UserCloseAccount(AuthMixin, APIView):
 
 class InviteParent(AuthMixin, APIView):
     message = 'Your child wants to add you as a parent on Donkies. Please sign up here {}'
-    personal_string = 'id-{}_mail-{}'
+    personal_string = 'id-{}_salt-{}'
 
     def post(self, request, **kwargs):
 
@@ -375,7 +375,7 @@ class InviteParent(AuthMixin, APIView):
             front_end_url = 'http://localhost:8080'
 
         m = hashlib.md5()
-        personal_string = self.personal_string.format(request.user.id, request.user.email)
+        personal_string = self.personal_string.format(request.user.id, settings.SALT)
         m.update(personal_string.encode())
 
         url = '{}/registration_parent?ref={}&?u={}'.format(

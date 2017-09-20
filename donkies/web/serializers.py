@@ -163,7 +163,7 @@ class SignupParentSerializer(serializers.ModelSerializer):
         user.state = data['state']
         user.is_parent = True
 
-        personal_string = 'id-{}_mail-{}'
+        personal_string = 'id-{}_salt-{}'
 
         hash_user = data.get('hash_user', None)
         id_user = data.get('id_user', None)
@@ -176,10 +176,10 @@ class SignupParentSerializer(serializers.ModelSerializer):
                 child = User.objects.get(id=id_user)
                 email = child.email
 
-                personal_string = personal_string.format(id_user, email)
+                personal_string = personal_string.format(id_user, settings.SALT)
                 m.update(personal_string.encode())
                 m_hash = m.hexdigest()
-                print(m_hash)
+
                 if m_hash == hash_user:
                     child = User.objects.get(id=id_user, email=email)
                 else:

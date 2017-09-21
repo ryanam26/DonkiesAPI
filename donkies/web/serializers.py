@@ -289,8 +289,7 @@ class UserSerializer(serializers.ModelSerializer):
     signup_steps = serializers.SerializerMethodField()
     profile_image_url = serializers.SerializerMethodField()
     funding_sources_user = FundingSourceSerializer(required=False, many=True)
-
-    user_calulations = TransferCalculationSerializer(required=False, many=True)
+    user_calculations = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -321,7 +320,7 @@ class UserSerializer(serializers.ModelSerializer):
             'type',
             'dwolla_verified_url',
             'funding_sources_user',
-            'user_calulations',
+            'user_calculations',
         )
         read_only_fields = (
             'id',
@@ -339,6 +338,12 @@ class UserSerializer(serializers.ModelSerializer):
     #     if hasattr(obj, 'customer'):
     #         return CustomerSerializer(obj.customer).data
     #     return None
+
+    def get_user_calculations(self, obj):
+        TransferCalculation = apps.get_model('finance', 'TransferCalculation')
+
+        return TransferCalculationSerializer(
+            TransferCalculation.objects.filter(user=obj), many=True).data
 
     def get_signup_steps(self, obj):
         return obj.signup_steps()

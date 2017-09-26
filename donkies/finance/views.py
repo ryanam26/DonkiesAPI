@@ -339,7 +339,7 @@ class CreateTransaction(AuthMixin, GenericAPIView):
             access_token)
 
         return Response(
-            sers.TransferPrepareSerializer(
+            sers.TransactionSerializer(
                 Transaction.objects.filter(account__item__user=request.user),
                 many=True
             ).data,

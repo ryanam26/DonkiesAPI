@@ -40,7 +40,7 @@ class TransactionManager(ActiveManager):
             self.create_or_update_transaction(tr)
 
         # After updating transactions, update also accounts
-        Account.objects.create_or_update_accounts(access_token)
+        Account.objects.create_or_update_accounts({'access_token': access_token})
 
     def create_or_update_transaction(self, api_response):
         """

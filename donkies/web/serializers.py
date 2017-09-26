@@ -235,6 +235,7 @@ class SignupSerializer(serializers.ModelSerializer):
             'ssn': data['ssn'],
             'phone': data['phone'],
         }
+
         dw = DwollaApi()
 
         try:
@@ -251,7 +252,6 @@ class SignupSerializer(serializers.ModelSerializer):
             user.city = data['city']
             user.state = data['state']
             user.date_of_birth = data['date_of_birth']
-            user.ssn = data['ssn']
             user.phone = data['phone']
 
             user.save()

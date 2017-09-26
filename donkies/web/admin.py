@@ -38,7 +38,6 @@ class MyUserAdmin(PopupMixin, UserAdmin):
                     'state',
                     'postal_code',
                     'date_of_birth',
-                    'ssn',
                     'phone',
                     'minimum_transfer_amount',
                     'is_confirmed',
@@ -68,7 +67,8 @@ class MyUserAdmin(PopupMixin, UserAdmin):
         'guid',
         'profile_image',
         'is_active',
-        'is_admin'
+        'is_admin',
+        'ssn',
     )
     list_filter = ()
     list_display_links = ('id',)

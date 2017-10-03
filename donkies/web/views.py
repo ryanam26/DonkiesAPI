@@ -276,7 +276,7 @@ class UserDetail(AuthMixin, GenericAPIView):
         return Response(s.data)
 
     def put(self, request, **kwargs):
-        
+
         s = sers.UserSerializer(self.request.user, data=request.data)
         s.is_valid(raise_exception=True)
         s.save()
@@ -365,7 +365,7 @@ class InviteParent(AuthMixin, APIView):
     message = 'Your child wants to add you as a parent on Donkies. Please sign up here {}'
     personal_string = 'id-{}_salt-{}'
 
-    def post(self, request, **kwargs):
+    def get(self, request, **kwargs):
 
         if settings.DONKIES_MODE == 'production':
             front_end_url = settings.FRONTEND_URL

@@ -333,6 +333,11 @@ class InstitutionDetail(AuthMixin, RetrieveAPIView):
 class CreateTransaction(AuthMixin, GenericAPIView):
     serializer_class = sers.CreateTransactionSerializer
 
+    def get_queryset(self):
+        return Transaction.objects.filter(
+            account__item__user=self.request.user
+        )
+
     def post(self, request, **kwargs):
         access_token = request.data['access_token']
         Transaction.objects.create_or_update_transactions(

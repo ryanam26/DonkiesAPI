@@ -9,6 +9,7 @@ from django.db import transaction
 from django.contrib.postgres.fields import JSONField
 from web.models import ActiveModel, ActiveManager
 from finance.services.plaid_api import PlaidApi
+from django.shortcuts import get_object_or_404
 from .transfer_calculation import TransferCalculation
 
 logger = logging.getLogger('app')
@@ -27,7 +28,7 @@ class TransactionManager(ActiveManager):
         logger.debug(
             'Start to update transactions: {}'.format(access_token))
         Item = apps.get_model('finance', 'Item')
-        item = Item.objects.get(access_token=access_token)
+        item = get_object_or_404(Item, access_token=access_token)
 
         logger.debug('Item: {}'.format(item.id))
 

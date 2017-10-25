@@ -123,6 +123,25 @@ class CheckEmailSerializer(serializers.Serializer):
         return {'is_exist': False}
 
 
+class UserUpdateFieldsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'is_confirmed',
+            'address1',
+            'address2',
+            'city',
+            'state',
+            'postal_code',
+            'date_of_birth',
+            'ssn',
+            'phone',
+            'is_profile_completed',
+            'signup_steps',
+            'is_closed_account',
+        )
+
+
 class PasswordResetSerializer(EncIdMixin, serializers.Serializer):
     encrypted_id = serializers.CharField()
     reset_token = serializers.CharField()

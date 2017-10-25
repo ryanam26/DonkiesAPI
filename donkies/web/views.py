@@ -394,3 +394,13 @@ class CheckEmail(GenericAPIView):
         serializer = sers.CheckEmailSerializer()
         d = serializer.check_email(request.POST.get('email'))
         return Response(d, 200)
+
+
+class UserUpdateFields(AuthMixin, generics.UpdateAPIView):
+    serializer_class = sers.UserUpdateFieldsSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
+
+    def get_object(self):
+        return User.objects.get(id=self.request.user.id)

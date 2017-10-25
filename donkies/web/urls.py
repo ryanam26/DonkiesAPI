@@ -108,7 +108,12 @@ urlpatterns = [
     url(
         r'^(?P<version>[v1]+)/check_email$',
         v.CheckEmail.as_view(),
-        name='user_close_account'),
+        name='check_email'),
+
+    url(
+        r'^(?P<version>[v1]+)/user_update_fields$',
+        v.UserUpdateFields.as_view(),
+        name='user_update_fields'),
 
     url(r'^$', v.home, name='home'),
 ]

@@ -45,7 +45,8 @@ class MyUserAdmin(PopupMixin, UserAdmin):
                     'is_closed_account',
                     'dwolla_verified_url',
                     'is_parent',
-                    'child',)}
+                    'child',
+                    'is_paused')}
         ),
     )
     add_fieldsets = (

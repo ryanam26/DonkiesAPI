@@ -54,3 +54,6 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'postmaster@sandbox2824da8569374d539e23a393d242455e.mailgun.org'
 EMAIL_HOST_PASSWORD = '9fdc14104071f71ed1c7f522a4ed5b41'
 EMAIL_USE_TLS = True
+BROKER_URL = 'redis://donkies-redis:6379/0'
+REDIS_DB = redis.StrictRedis(host='donkies-redis', port=6379, db=2)
+LOGGING['loggers']['django.request']['handlers'] += ['console']

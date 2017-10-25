@@ -75,12 +75,9 @@ class TransferPrepareManager(models.Manager):
         for account in accounts:
             total = 0
             for tr in account.transactions.filter(is_processed=False):
-                if tr.roundup == 0:
-                    tr.is_processed = True
-                    tr.save()
-                    continue
+                if tr.roundup and not account.item.user.is_paused:
+                    total += tr.roundup
 
-                total += tr.roundup
                 tr.is_processed = True
                 tr.save()
 

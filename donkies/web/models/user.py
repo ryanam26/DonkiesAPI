@@ -178,6 +178,7 @@ class User(AbstractBaseUser):
     is_closed_account = models.BooleanField(
         default=False, help_text='User closed account in Donkies')
     created_at = models.DateTimeField(auto_now_add=True)
+    is_paused = models.BooleanField(default=False)
 
     is_parent = models.BooleanField(blank=True, default=False)
     child = models.ForeignKey(

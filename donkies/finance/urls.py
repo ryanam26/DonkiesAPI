@@ -88,7 +88,7 @@ urlpatterns = [
         v.CreateTransaction.as_view(),
         name='create_transaction'),
 
-    url(r'^(?P<sersion>[v1]+)/make_transfer$',
+    url(r'^(?P<version>[v1]+)/make_transfer$',
         v.MakeTransfer.as_view(),
         name='make_transfer'),
 

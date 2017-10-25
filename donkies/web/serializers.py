@@ -112,6 +112,17 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         return value
 
 
+class CheckEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def check_email(self, value):
+        print (value, flush=True)
+        user = User.objects.filter(email__exact=value).all()
+        if user:
+            return {'is_exist': True}
+        return {'is_exist': False}
+
+
 class PasswordResetSerializer(EncIdMixin, serializers.Serializer):
     encrypted_id = serializers.CharField()
     reset_token = serializers.CharField()

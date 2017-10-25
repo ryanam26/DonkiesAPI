@@ -105,6 +105,10 @@ urlpatterns = [
         r'^(?P<version>[v1]+)/invite_parent$',
         v.InviteParent.as_view(),
         name='invite_parent'),
+    url(
+        r'^(?P<version>[v1]+)/check_email$',
+        v.CheckEmail.as_view(),
+        name='user_close_account'),
 
     url(r'^$', v.home, name='home'),
 ]

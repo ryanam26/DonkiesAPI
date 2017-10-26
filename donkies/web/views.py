@@ -20,6 +20,8 @@ from rest_framework.schemas import SchemaGenerator
 from rest_framework_swagger import renderers
 from rest_framework.generics import ListAPIView, GenericAPIView
 import dwollav2
+from finance.services.plaid_api import PlaidApi
+from finance.services.dwolla_api import DwollaAPI
 from django.contrib.auth import logout
 from django.apps import apps
 from web.services.sparkpost_service import SparkPostService
@@ -404,3 +406,37 @@ class UserUpdateFields(AuthMixin, generics.UpdateAPIView):
 
     def get_object(self):
         return User.objects.get(id=self.request.user.id)
+
+
+class CloseUser(APIView):
+    def delete(self, request, **kwargs):
+        Customer = apps.get_model('bank', 'Customer')
+        dw = DwollaAPI()
+        pa = PlaidApi()
+        try:
+            transfer_response = dw.transfer_from_balance_to_check_acc(
+                request.user
+            )
+            #print(transfer_response, flush=True)
+        except Exception as e:
+            #return Response(e.body, e.status)
+            print (e, flush=True)
+        customer_url = dw.get_api_url()+"customers/"+Customer.objects.filter(user=request.user).first().dwolla_id
+        request_body = {
+            "status": "deactivated"
+        }
+        try:
+            deactivated_customer = dw.app_token.post(customer_url, request_body)
+        except Exception as e:
+            deactivated_customer = dw.app_token.get(customer_url)
+        user_items = Item.objects.active().filter(user=request.user)
+        for item in user_items:
+            Item.objects.delete_item(id=item.id)
+        closing_user = User.objects.get(id=request.user.id)
+        closing_user.is_closed_account = True
+        closing_user.save()
+        return_data = {
+            'is_closed': closing_user.is_closed_account,
+            'dwolla_customer_status': deactivated_customer.body['status']
+        }
+        return Response(return_data, status=200)

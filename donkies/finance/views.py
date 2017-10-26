@@ -358,7 +358,7 @@ class MakeTransfer(AuthMixin, ListCreateAPIView):
     """
     serializer_class = sers.MakeTransferSerializer
 
-     def get_queryset(self):
+    def get_queryset(self):
          return Response(status=200)
 
     def post(self, request, **kwargs):

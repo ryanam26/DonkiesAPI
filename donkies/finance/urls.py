@@ -130,4 +130,9 @@ urlpatterns = [
         r'^(?P<version>[v1]+)/transfers_prepare$',
         v.TransfersPrepare.as_view(),
         name='transfers_prepare'),
+
+    url(
+        r'^(?P<version>[v1]+)/$',
+        v.TransfersPrepare.as_view(),
+        name='transfers_prepare'),
 ]

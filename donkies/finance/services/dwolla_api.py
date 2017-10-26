@@ -207,3 +207,13 @@ class DwollaAPI:
             'message': 'Dwolla balance is empty',
             'status': 400
         }
+
+    def suspend_customer(self, user):
+        Customer = apps.get_model('bank', 'Customer')
+        customer_url = self.get_api_url()+"customers/"+Customer.objects.filter(user=user).first().dwolla_id
+        request_body = {
+            "status": "deactivated"
+        }
+        customer = self.app_token.post(customer_url, request_body)
+
+        return customer.body['status']

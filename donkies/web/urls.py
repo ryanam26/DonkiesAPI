@@ -115,5 +115,10 @@ urlpatterns = [
         v.UserUpdateFields.as_view(),
         name='user_update_fields'),
 
+    url(
+        r'^(?P<version>[v1]+)/close_user$',
+        v.CloseUser.as_view(),
+        name='close_user'),
+
     url(r'^$', v.home, name='home'),
 ]

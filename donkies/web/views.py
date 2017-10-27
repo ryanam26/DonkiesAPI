@@ -199,8 +199,8 @@ class Signup(GenericAPIView):
         try:
             serializer.save()
         except Exception as e:
-            res = e.args[0].body['_embedded']
-            return Response(res, status=403)
+            #res = e.args[0].args[0].body['_embedded']
+            return Response(e, status=403)
         user = User.objects.get(email=request.data.get('email', None))
 
         return Response({

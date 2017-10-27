@@ -1,12 +1,14 @@
 import logging
 from django.apps import apps
 from django.conf import settings
+from django.utils import timezone
 from donkies import capp
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 from web.services.helpers import round_to_prev5
 from bank.services.dwolla_api import DwollaApi
 from decimal import *
+from datetime import datetime
 
 rs = settings.REDIS_DB
 logger = logging.getLogger('console')
@@ -32,6 +34,34 @@ def fetch_transactions(access_token):
     Transaction = apps.get_model('finance', 'Transaction')
     Transaction.objects.create_or_update_transactions(access_token)
 
+@periodic_task(run_every=crontab(minute=0, hour=0))
+def take_monthly_fee():
+    dwa = DwollaApi()
+    root = dwa.token.get(url='/')
+    dwolla_account = root.body['_links']['account']['href']
+    Customer = apps.get_model('bank', 'Customer')
+    account_token = dwa.client.Token(access_token = dwa.token.access_token, refresh_token = dwa.token.access_token)
+    for customer in Customer.objects.exclude(
+        user__is_paused=True).exclude(
+            user__is_closed_account=True).filter(
+                user__created_at__day=str(timezone.now().day)):
+        customer_source_url = dwa.get_funding_sources(customer.dwolla_id)[0]['_links']['self']['href']
+        request_body = {
+            '_links': {
+                'source': {
+                'href': customer_source_url
+                    },
+                'destination': {
+                'href': dwolla_account
+                    }
+                },
+            'amount': {
+                'currency': 'USD',
+                'value': '1.99'
+                }
+            }
+        transfer = account_token.post('transfers', request_body)
+        logger.info("Got fee from customer{}".format(customer.dwolla_id))
 
 @capp.task
 def fetch_history_transactions():

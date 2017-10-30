@@ -34,7 +34,8 @@ def fetch_transactions(access_token):
     Transaction = apps.get_model('finance', 'Transaction')
     Transaction.objects.create_or_update_transactions(access_token)
 
-@periodic_task(run_every=crontab(minute=0, hour=0))
+@capp.task
+@periodic_task(run_every=crontab(minute=0, hour=17))
 def take_monthly_fee():
     dwa = DwollaApi()
     root = dwa.token.get(url='/')
@@ -43,24 +44,38 @@ def take_monthly_fee():
     account_token = dwa.client.Token(access_token = dwa.token.access_token, refresh_token = dwa.token.access_token)
     for customer in Customer.objects.exclude(
         user__is_paused=True).exclude(
+            user__is_closed_account=True).exclude(
+                user__active_days=30):
+        customer.user.active_days+=1
+        customer.user.save()
+    for customer in Customer.objects.exclude(
+        user__is_paused=True).exclude(
             user__is_closed_account=True).filter(
-                user__created_at__day=str(timezone.now().day)):
-        customer_source_url = dwa.get_funding_sources(customer.dwolla_id)[0]['_links']['self']['href']
-        request_body = {
-            '_links': {
-                'source': {
-                'href': customer_source_url
+                user__active_days=30):
+        result = dwa.get_funding_sources(customer.dwolla_id)[0]
+        customer_source_url = result['_links']['self']['href']
+        customer_balance_id = result[0]['id']
+        customer_balance = dwa.get_funding_source_balance(customer_balance_id)['balance']['value']
+        if float(customer_balance) < 1.99:
+            request_body = {
+                '_links': {
+                    'source': {
+                    'href': customer_source_url
+                        },
+                    'destination': {
+                    'href': dwolla_account
+                        }
                     },
-                'destination': {
-                'href': dwolla_account
+                'amount': {
+                    'currency': 'USD',
+                    'value': '1.99'
                     }
-                },
-            'amount': {
-                'currency': 'USD',
-                'value': '1.99'
                 }
-            }
-        transfer = account_token.post('transfers', request_body)
+            transfer = account_token.post('transfers', request_body)
+            customer.user.active_days = 0
+            customer.user.save()
+        else:
+            logger.info("Not enough money to fee")
         logger.info("Got fee from customer{}".format(customer.dwolla_id))
 
 @capp.task

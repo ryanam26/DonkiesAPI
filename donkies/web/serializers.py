@@ -139,6 +139,7 @@ class UserUpdateFieldsSerializer(serializers.ModelSerializer):
             'is_profile_completed',
             'signup_steps',
             'is_closed_account',
+            'is_paused',
         )
 
 

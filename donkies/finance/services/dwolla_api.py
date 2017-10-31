@@ -205,7 +205,7 @@ class DwollaAPI:
 
         return {
             'message': 'Dwolla balance is empty',
-            'status': 400
+            'status': 402
         }
 
     def suspend_customer(self, user):

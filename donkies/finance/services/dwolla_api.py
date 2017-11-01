@@ -199,13 +199,11 @@ class DwollaAPI:
             )
 
             return {
-                'message': fees.body,
-                'status': 201
+                'message': fees.body
             }
 
         return {
-            'message': 'Dwolla balance is empty',
-            'status': 402
+            'message': 'Dwolla balance is empty'
         }
 
     def suspend_customer(self, user):

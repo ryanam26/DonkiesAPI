@@ -592,4 +592,4 @@ class TransferChecking(APIView):
         except Exception as e:
             return Response(e, status=400)
 
-        return Response(transfer_response, transfer_response['status'])
+        return Response(transfer_response, 200)

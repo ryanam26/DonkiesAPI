@@ -174,7 +174,7 @@ class PasswordResetRequest(GenericAPIView):
         d = serializer.data
         user = User.objects.get(email=d['email'])
         user.reset_request()
-        return Response({}, status=204)
+        return Response({"message": "success"}, status=204)
 
 
 class PasswordReset(GenericAPIView):
@@ -186,7 +186,7 @@ class PasswordReset(GenericAPIView):
         d = serializer.data
         user = User.objects.get(encrypted_id=d['encrypted_id'])
         user.reset_password(d['new_password'])
-        return Response({}, status=204)
+        return Response({"message": "success"}, status=204)
 
 
 class Signup(GenericAPIView):

@@ -402,10 +402,18 @@ class UserUpdateFields(AuthMixin, generics.UpdateAPIView):
     serializer_class = sers.UserUpdateFieldsSerializer
 
     def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
+        return User.objects.get(id=self.request.user.id)
 
     def get_object(self):
         return User.objects.get(id=self.request.user.id)
+
+    def patch(self, request, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid(raise_exception=False):
+            return Response({'message': 'success'})
+        return Response({'message': serializer.errors}, status=400)
+        
+
 
 
 class CloseUser(APIView):

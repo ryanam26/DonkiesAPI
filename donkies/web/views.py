@@ -410,7 +410,7 @@ class UserUpdateFields(AuthMixin, generics.UpdateAPIView):
     def patch(self, request, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=False):
-            return Response({'message': 'success'})
+            return self.partial_update(request)
         return Response({'message': serializer.errors}, status=400)
         
 

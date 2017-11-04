@@ -98,6 +98,7 @@ LOGOUT_URL = 'rest_framework:logout'
 
 MIDDLEWARE = (
     'web.middleware.AccessControlMiddleware',
+    'web.middleware.CaptureAuthenticationMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

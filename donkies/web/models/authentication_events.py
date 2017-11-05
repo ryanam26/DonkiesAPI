@@ -13,7 +13,7 @@ class AuthenticationEvent(models.Model):
 
 
 @admin.register(AuthenticationEvent)
-class EmailerAdmin(admin.ModelAdmin):
+class AuthenticationEventAdmin(admin.ModelAdmin):
     list_display = (
         'is_success',
         'ip_address',

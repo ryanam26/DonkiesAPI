@@ -115,9 +115,8 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 class CheckEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
-    def check_email(self, value):
-        print (value, flush=True)
-        user = User.objects.filter(email__exact=value).all()
+    def check_email(self):
+        user = User.objects.filter(email=self.data['email']).all()
         if user:
             return {'is_exist': True}
         return {'is_exist': False}

@@ -393,8 +393,9 @@ class CheckEmail(GenericAPIView):
     serializer_class = sers.CheckEmailSerializer
 
     def post(self, request, **kwargs):
-        serializer = sers.CheckEmailSerializer()
-        d = serializer.check_email(request.POST.get('email'))
+        serializer = sers.CheckEmailSerializer(data=request.data)
+        if serializer.is_valid():
+            d = serializer.check_email()
         return Response(d, 200)
 
 

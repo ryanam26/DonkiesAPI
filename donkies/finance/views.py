@@ -591,5 +591,9 @@ class TransferChecking(APIView):
             )
         except Exception as e:
             return Response(e, status=400)
-
-        return Response(transfer_response, 200)
+        
+        result_response =  {}
+        result_response.update(transfer_response['message']['clearing'])
+        result_response.update({"amount": transfer_response['message']['amount']})
+        result_response.update({"status": transfer_response['message']['status']})
+        return Response(result_response, 200)

@@ -412,7 +412,11 @@ class UserUpdateFields(AuthMixin, generics.UpdateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=False):
             return self.partial_update(request)
-        return Response({'message': serializer.errors}, status=400)
+        result_list = []
+        for item in serializer.errors.keys():
+            result_list.append({"field": item, "message": serializer.errors[item][0]})
+        result_response = {"errors": result_list}
+        return Response(result_response, status=400)
         
 
 

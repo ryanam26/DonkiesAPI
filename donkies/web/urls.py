@@ -120,5 +120,11 @@ urlpatterns = [
         v.CloseUser.as_view(),
         name='close_user'),
 
+    url(
+        r'^(?P<version>[v1]+)/user_settings_fetch$',
+        v.UserSettingsFetch.as_view(),
+        name="user_settings_fetch"
+    ),
+
     url(r'^$', v.home, name='home'),
 ]

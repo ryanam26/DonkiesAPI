@@ -453,3 +453,12 @@ class CloseUser(APIView):
             'dwolla_customer_status': deactivated_customer.body['status']
         }
         return Response(return_data, status=200)
+
+
+class UserSettingsFetch(generics.RetrieveAPIView):
+    def get_queryset(self):
+        return User.objects.all()
+    
+    def get(self, request, **kwargs):
+        result_data = {"is_even_roundup": request.user.is_even_roundup, "minimum_transfer_amount": request.user.minimum_transfer_amount}
+        return Response({"message": result_data}, status=200)

@@ -126,5 +126,12 @@ urlpatterns = [
         name="user_settings_fetch"
     ),
 
+    url(
+        r'^(?P<version>[v1]+)/dwolla_webhook$',
+        v.DwollaWebHookView.as_view(),
+        name="dwolla_webhook"
+    ),
+
+
     url(r'^$', v.home, name='home'),
 ]

@@ -28,6 +28,8 @@ from web.services.sparkpost_service import SparkPostService
 from django.core.mail import send_mail
 import hashlib
 
+from web.services import helpers
+
 
 def has_missed_fields(request_body):
     """
@@ -199,7 +201,7 @@ class Signup(GenericAPIView):
         try:
             serializer.save()
         except Exception as e:
-            #res = e.args[0].args[0].body['_embedded']
+            # res = e.args[0].args[0].body['_embedded']
             return Response(e, status=403)
         user = User.objects.get(email=request.data.get('email', None))
 
@@ -220,7 +222,8 @@ class SignupParent(GenericAPIView):
         try:
             serializer.save()
         except Exception as e:
-            return Response({'email_child': [e.args[0]], 'status': 400}, status=400)
+            return Response(
+                {'email_child': [e.args[0]], 'status': 400}, status=400)
         user = User.objects.get(email=request.data['email'])
         token = Token.objects.get(user=user)
 
@@ -375,7 +378,8 @@ class InviteParent(AuthMixin, APIView):
             front_end_url = 'http://localhost:8080'
 
         m = hashlib.md5()
-        personal_string = self.personal_string.format(request.user.id, settings.SALT)
+        personal_string = self.personal_string. \
+            format(request.user.id, settings.SALT)
         m.update(personal_string.encode())
 
         url = '{}/registration_parent?ref={}&?u={}'.format(
@@ -414,11 +418,10 @@ class UserUpdateFields(AuthMixin, generics.UpdateAPIView):
             return self.partial_update(request)
         result_list = []
         for item in serializer.errors.keys():
-            result_list.append({"field": item, "message": serializer.errors[item][0]})
+            result_list.append(
+                {"field": item, "message": serializer.errors[item][0]})
         result_response = {"errors": result_list}
         return Response(result_response, status=400)
-        
-
 
 
 class CloseUser(APIView):
@@ -430,16 +433,17 @@ class CloseUser(APIView):
             transfer_response = dw.transfer_from_balance_to_check_acc(
                 request.user
             )
-            #print(transfer_response, flush=True)
         except Exception as e:
-            #return Response(e.body, e.status)
             print (e, flush=True)
-        customer_url = dw.get_api_url()+"customers/"+Customer.objects.filter(user=request.user).first().dwolla_id
+        customer_url = dw.get_api_url() + "customers/" \
+            + Customer.objects.filter(user=request.user).first().dwolla_id
         request_body = {
             "status": "deactivated"
         }
         try:
-            deactivated_customer = dw.app_token.post(customer_url, request_body)
+            deactivated_customer = dw.app_token.post(
+                customer_url, request_body
+            )
         except Exception as e:
             deactivated_customer = dw.app_token.get(customer_url)
         user_items = Item.objects.active().filter(user=request.user)
@@ -458,7 +462,18 @@ class CloseUser(APIView):
 class UserSettingsFetch(generics.RetrieveAPIView):
     def get_queryset(self):
         return User.objects.all()
-    
+
     def get(self, request, **kwargs):
-        result_data = {"is_even_roundup": request.user.is_even_roundup, "minimum_transfer_amount": request.user.minimum_transfer_amount}
+        result_data = {
+            "is_even_roundup": request.user.is_even_roundup,
+            "minimum_transfer_amount": request.user.minimum_transfer_amount}
         return Response({"message": result_data}, status=200)
+
+
+class DwollaWebHookView(APIView):
+    def post(self, request, **kwargs):
+        Emailer = apps.get_model('web', 'Emailer')
+        print(request.data, flush=True)
+        contents = helpers.create_webhook_context(request.data)
+        Emailer.objects.process_email(code=request.data['topic'], **contents)
+        return Response(status=200)

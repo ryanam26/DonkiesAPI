@@ -7,6 +7,8 @@ import re
 import string
 import time
 from datetime import datetime, timedelta
+from finance.services.dwolla_api import DwollaAPI
+from django.apps import apps
 
 
 logger = logging.getLogger('app')
@@ -115,8 +117,8 @@ class cached:
     def __call__(self, func):
         def inner(*args, **kwargs):
             max_age = kwargs.get('max_age', self.default_max_age)
-            if not max_age or func not in self.cached_function_responses or \
-                    (datetime.now() - self.cached_function_responses[func]['fetch_time'] > max_age):
+            if not max_age or func not in self.cached_function_responses \
+             or (datetime.now() - self.cached_function_responses[func]['fetch_time'] > max_age):
                 if 'max_age' in kwargs:
                     del kwargs['max_age']
                 res = func(*args, **kwargs)
@@ -124,3 +126,66 @@ class cached:
                     'data': res, 'fetch_time': datetime.now()}
             return self.cached_function_responses[func]['data']
         return inner
+
+
+def create_webhook_context(data):
+    dwa = DwollaAPI()
+    value = {}
+    Customer = apps.get_model("bank", "Customer")
+    if data['topic'] == "customer_created" \
+            or data['topic'] == "customer_verified" \
+            or data['topic'] == "customer_suspended" \
+            or data['topic'] == "customer_activated" \
+            or data['topic'] == "customer_deactivated":
+        customer_url = data['_links']['customer']['href']
+        customer_id = dwa.app_token.get(customer_url).body['id']
+        email = Customer.objects.get(dwolla_id=customer_id).email
+        value.update({"email": email})
+        return value
+    if data['topic'] == "customer_funding_source_added" \
+        or data['topic'] == "customer_funding_source_removed" \
+            or data['topic'] == "customer_funding_source_verified":
+        source_url = dwa.get_balance_funding_source(data['resourceId'])
+        source = dwa.app_token.get(source_url).body
+        value.update({"bankName": source['bankName']})
+        value.update({"account_identifier": source['name']})
+        value.update({"date": source['created']})
+        customer_url = data['_links']['customer']['href']
+        customer_id = dwa.app_token.get(customer_url).body['id']
+        email = Customer.objects.get(dwolla_id=customer_id).email
+        value.update({"email": email})
+        return value
+    if data['topic'] == "customer_bank_transfer_created" \
+        or data['topic'] == "customer_bank_transfer_cancelled" \
+        or data['topic'] == "customer_bank_transfer_failed" \
+            or data['topic'] == "customer_bank_transfer_completed":
+        transfer_url = dwa.get_transfer_url(data['resourceId'])
+        transfer = dwa.app_token.get(transfer_url).body
+        value.update({'transfer_type': transfer['status']})
+        value.update({'amount_currency': transfer['amount']['currency']})
+        value.update({'amount_value': transfer['amount']['value']})
+        value.update({'transfer_date': transfer['created']})
+        value.update(
+            {'destination': transfer['_links']['destination']['href']})
+        customer_url = data['_links']['customer']['href']
+        customer_id = dwa.app_token.get(customer_url).body['id']
+        email = Customer.objects.get(dwolla_id=customer_id).email
+        value.update({"email": email})
+        return value
+    if data['topic'] == "customer_transfer_created" \
+        or data['topic'] == "customer_transfer_cancelled" \
+        or data['topic'] == "customer_transfer_failed" \
+            or data['topic'] == "customer_transfer_completed":
+        transfer_url = dwa.get_transfer_url(data['resource_id'])
+        transfer = dwa.app_token.get(transfer_url).body
+        value.update({'transfer_type': transfer['status']})
+        value.update({'amount_currency': transfer['amount']['currency']})
+        value.update({'amount_value': transfer['amount']['value']})
+        value.update({'transfer_date': transfer['created']})
+        value.update(
+            {'destination': transfer['_links']['destination']['href']})
+        customer_url = data['_links']['customer']['href']
+        customer_id = dwa.app_token.get(customer_url).body['id']
+        email = Customer.objects.get(dwolla_id=customer_id).email
+        value.update({"email": email})
+        return value

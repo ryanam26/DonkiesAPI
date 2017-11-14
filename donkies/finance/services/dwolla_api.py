@@ -1,4 +1,3 @@
-from web.serializers import UserSerializer
 from django.apps import apps
 from django.conf import settings
 from rest_framework.response import Response
@@ -38,6 +37,8 @@ class DwollaAPI:
         """
         Check user credentials
         """
+        from web.serializers import UserSerializer
+
         User = apps.get_model('web', 'User')
         user_dict = User.objects.values().get(email=user.email)
 
@@ -208,7 +209,8 @@ class DwollaAPI:
 
     def suspend_customer(self, user):
         Customer = apps.get_model('bank', 'Customer')
-        customer_url = self.get_api_url()+"customers/"+Customer.objects.filter(user=user).first().dwolla_id
+        customer_url = self.get_api_url() + "customers/" \
+            + Customer.objects.filter(user=user).first().dwolla_id
         request_body = {
             "status": "deactivated"
         }

@@ -1,4 +1,5 @@
 from .alert import Alert
+from .authentication_events import AuthenticationEvent
 from .change_email_history import ChangeEmailHistory
 from .active import ActiveModel, ActiveManager
 from .email import Email

@@ -74,6 +74,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework_swagger',
     'corsheaders',
@@ -81,7 +82,8 @@ INSTALLED_APPS = (
     'finance',
     'bank',
     'ach',
-    'django_extensions'
+    'django_extensions',
+    'recaptcha',
 )
 
 SWAGGER_SETTINGS = {

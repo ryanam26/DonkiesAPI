@@ -9,6 +9,7 @@ from finance.serializers import (FundingSourceSerializer,
 from django.apps import apps
 from bank.services.dwolla_api import DwollaApi
 import hashlib
+from recaptcha.fields import ReCaptchaField
 
 
 class EncIdMixin:
@@ -81,12 +82,14 @@ class LoginSerializer(serializers.ModelSerializer):
 
     email = serializers.CharField()
     password = serializers.CharField()
+    recaptcha = ReCaptchaField(write_only=True)
 
     class Meta:
         model = User
         fields = (
             'email',
-            'password'
+            'password',
+            'recaptcha'
         )
 
     def validate(self, data):
@@ -228,6 +231,7 @@ class SignupParentSerializer(serializers.ModelSerializer):
 
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(min_length=8)
+    recaptcha = ReCaptchaField(write_only=True)
 
     class Meta:
         model = User
@@ -245,6 +249,7 @@ class SignupSerializer(serializers.ModelSerializer):
             'ipAddress',
             'type',
             'phone',
+            'recaptcha'
         )
 
     def save(self):

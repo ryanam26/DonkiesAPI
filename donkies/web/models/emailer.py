@@ -43,6 +43,7 @@ class EmailerManager(models.Manager):
         email (email_to).
         """
         Email = apps.get_model('web', 'Email')
+        print(code, flush=True)
         try:
             email = Email.objects.get(code=code)
         except Email.DoesNotExist:

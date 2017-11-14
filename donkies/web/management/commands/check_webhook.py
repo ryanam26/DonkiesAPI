@@ -6,12 +6,14 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         dwa = DwollaAPI()
         webhook_subscription = dwa.app_token.get('webhook-subscriptions')
+        print (webhook_subscription.body)
         if webhook_subscription.body['total'] > 0:
             print("Webhook already exists, exiting")
         else:
             request_body = {
-                  'url': 'http://myapplication.com/webhooks',
-                  'secret': 'sshhhhhh'
+                  'url': 'http://2ac7b357.ngrok.io/v1/dwolla_webhook',
+                  'secret': 'secret'
             }
-            retries = dwa.app_token.post('webhook-subscriptions', request_body)
+            subscript = dwa.app_token.post('webhook-subscriptions', request_body)
+            print (subscript)
             print ("Created webhook on url")

@@ -82,14 +82,14 @@ class LoginSerializer(serializers.ModelSerializer):
 
     email = serializers.CharField()
     password = serializers.CharField()
-    recaptcha = ReCaptchaField(write_only=True)
+    # recaptcha = ReCaptchaField(write_only=True)
 
     class Meta:
         model = User
         fields = (
             'email',
             'password',
-            'recaptcha'
+            # 'recaptcha'
         )
 
     def validate(self, data):
@@ -231,7 +231,7 @@ class SignupParentSerializer(serializers.ModelSerializer):
 
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(min_length=8)
-    recaptcha = ReCaptchaField(write_only=True)
+    # recaptcha = ReCaptchaField(write_only=True)
 
     class Meta:
         model = User
@@ -249,7 +249,7 @@ class SignupSerializer(serializers.ModelSerializer):
             'ipAddress',
             'type',
             'phone',
-            'recaptcha'
+            # 'recaptcha'
         )
 
     def save(self):

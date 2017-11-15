@@ -60,8 +60,10 @@ class EmailerManager(models.Manager):
 
         if 'user' in kwargs:
             email_to = kwargs['user'].email
-        else:
+        elif 'email' in kwargs:
             email_to = kwargs['email']
+        else:
+            return
 
         ctx = Context(d)
         em = self.model(

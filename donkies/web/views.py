@@ -475,5 +475,7 @@ class DwollaWebHookView(APIView):
         Emailer = apps.get_model('web', 'Emailer')
         print(request.data, flush=True)
         contents = helpers.create_webhook_context(request.data)
+        print(request.data['topic'], flush=True)
+        print(contents, flush=True)
         Emailer.objects.process_email(code=request.data['topic'], **contents)
         return Response(status=200)

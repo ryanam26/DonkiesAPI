@@ -137,55 +137,88 @@ def create_webhook_context(data):
             or data['topic'] == "customer_suspended" \
             or data['topic'] == "customer_activated" \
             or data['topic'] == "customer_deactivated":
-        customer_url = data['_links']['customer']['href']
+        customer_url = data['_links']['customer']['href']\
+            .replace('sandbox', 'uat')
+        print(customer_url, flush=True)
         customer_id = dwa.app_token.get(customer_url).body['id']
+        print(customer_id, flush=True)
         email = Customer.objects.get(dwolla_id=customer_id).email
+        print(email, flush=True)
         value.update({"email": email})
-        return value
     if data['topic'] == "customer_funding_source_added" \
         or data['topic'] == "customer_funding_source_removed" \
             or data['topic'] == "customer_funding_source_verified":
         source_url = dwa.get_balance_funding_source(data['resourceId'])
+        print(source_url, flush=True)
         source = dwa.app_token.get(source_url).body
+        print(source, flush=True)
         value.update({"bankName": source['bankName']})
+        print(source['bankName'], flush=True)
         value.update({"account_identifier": source['name']})
+        print(source['name'], flush=True)
         value.update({"date": source['created']})
-        customer_url = data['_links']['customer']['href']
+        print(source['created'], flush=True)
+        customer_url = data['_links']['customer']['href']\
+            .replace('sandbox', 'uat')
+        print(customer_url, flush=True)
         customer_id = dwa.app_token.get(customer_url).body['id']
+        print(customer_id, flush=True)
         email = Customer.objects.get(dwolla_id=customer_id).email
+        print(email, flush=True)
         value.update({"email": email})
-        return value
     if data['topic'] == "customer_bank_transfer_created" \
         or data['topic'] == "customer_bank_transfer_cancelled" \
         or data['topic'] == "customer_bank_transfer_failed" \
             or data['topic'] == "customer_bank_transfer_completed":
         transfer_url = dwa.get_transfer_url(data['resourceId'])
+        print(transfer_url, flush=True)
         transfer = dwa.app_token.get(transfer_url).body
+        print(transfer, flush=True)
         value.update({'transfer_type': transfer['status']})
+        print(transfer['status'], flush=True)
         value.update({'amount_currency': transfer['amount']['currency']})
+        print(transfer['amount']['currency'], flush=True)
         value.update({'amount_value': transfer['amount']['value']})
+        print(transfer['amount']['value'], flush=True)
         value.update({'transfer_date': transfer['created']})
+        print(transfer['created'], flush=True)
         value.update(
-            {'destination': transfer['_links']['destination']['href']})
-        customer_url = data['_links']['customer']['href']
+            {'destination': transfer['_links']['destination']['href']\
+                .replace('sandbox', 'uat')})
+        print(transfer['_links']['destination']['href'], flush=True)
+        customer_url = data['_links']['customer']['href']\
+            .replace('sandbox', 'uat')
+        print(customer_url, flush=True)
         customer_id = dwa.app_token.get(customer_url).body['id']
+        print(customer_id, flush=True)
         email = Customer.objects.get(dwolla_id=customer_id).email
+        print(email, flush=True)
         value.update({"email": email})
-        return value
     if data['topic'] == "customer_transfer_created" \
         or data['topic'] == "customer_transfer_cancelled" \
         or data['topic'] == "customer_transfer_failed" \
             or data['topic'] == "customer_transfer_completed":
-        transfer_url = dwa.get_transfer_url(data['resource_id'])
+        transfer_url = dwa.get_transfer_url(data['resourceId'])
+        print(transfer_url, flush=True)
         transfer = dwa.app_token.get(transfer_url).body
+        print(transfer, flush=True)
         value.update({'transfer_type': transfer['status']})
+        print(transfer['status'], flush=True)
         value.update({'amount_currency': transfer['amount']['currency']})
+        print(transfer['amount']['currency'], flush=True)
         value.update({'amount_value': transfer['amount']['value']})
+        print(transfer['amount']['value'], flush=True)
         value.update({'transfer_date': transfer['created']})
+        print(transfer['created'], flush=True)
         value.update(
             {'destination': transfer['_links']['destination']['href']})
-        customer_url = data['_links']['customer']['href']
+        print(transfer['_links']['destination']['href'], flush=True)
+        customer_url = data['_links']['customer']['href']\
+            .replace('sandbox', 'uat')
+        print(customer_url, flush=True)
         customer_id = dwa.app_token.get(customer_url).body['id']
+        print(customer_id, flush=True)
         email = Customer.objects.get(dwolla_id=customer_id).email
+        print(email, flush=True)
         value.update({"email": email})
-        return value
+    return value

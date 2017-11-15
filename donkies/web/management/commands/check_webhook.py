@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from finance.services.dwolla_api import DwollaAPI
 
 
@@ -11,9 +11,10 @@ class Command(BaseCommand):
             print("Webhook already exists, exiting")
         else:
             request_body = {
-                  'url': 'http://2ac7b357.ngrok.io/v1/dwolla_webhook',
-                  'secret': 'secret'
+                'url': 'http://api.donkies.co/v1/dwolla_webhook',
+                'secret': 'secret'
             }
-            subscript = dwa.app_token.post('webhook-subscriptions', request_body)
+            subscript = dwa.app_token.post('webhook-subscriptions',
+                                           request_body)
             print (subscript)
             print ("Created webhook on url")

@@ -51,9 +51,12 @@ class CaptureAuthenticationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        user = auth.authenticate(email=request.POST.get('email'), password=request.POST.get('password'))
+        user = auth.authenticate(
+            email=request.POST.get('email'), password=request.POST.get('password'))
         auth_event = AuthenticationEvent()
-        auth_event.ip_address = request.META.get('REMOTE_ADDR', '') or request.META.get('HTTP_X_FORWARDED_FOR', '')
+        auth_event.ip_address = \
+            request.META.get('REMOTE_ADDR', '')\
+            or request.META.get('HTTP_X_FORWARDED_FOR', '')
         auth_event.is_success = False if user is None else True
-        auth_event.save()        
-        return self.get_response(request)       
+        auth_event.save()
+        return self.get_response(request)

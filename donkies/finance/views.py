@@ -17,12 +17,11 @@ from web.views import AuthMixin, r400
 from finance.models import (
     Account, FetchTransactions, Institution, Item, Lender, Stat,
     Transaction, TransferPrepare, TransferCalculation, TransferBalance)
+from finance.models.funding_source import FundingSource
 import finance.swagger_serializer as swag_sers
-from finance.services.plaid_api import PlaidApi
 from finance.services.dwolla_api import DwollaAPI
 from web.formatResponse import format_response
 from finance.models.transfer_calculation import charge_application
-from django.apps import apps
 from decimal import *
 
 
@@ -591,9 +590,26 @@ class TransferChecking(APIView):
             )
         except Exception as e:
             return Response(e, status=400)
-        
-        result_response =  {}
+
+        result_response = {}
         result_response.update(transfer_response['message']['clearing'])
-        result_response.update({"amount": transfer_response['message']['amount']})
-        result_response.update({"status": transfer_response['message']['status']})
+        result_response.update(
+            {"amount": transfer_response['message']['amount']})
+        result_response.update(
+            {"status": transfer_response['message']['status']})
         return Response(result_response, 200)
+
+
+class DeleteFundingSource(DestroyAPIView):
+    serializer_class = sers.DeleteFundingSourceSerializer
+
+    def delete(self, request, **kwargs):
+        source = FundingSource.objects\
+            .get(item__plaid_id=request.data.get("item_id"))
+        dwa = DwollaAPI()
+        request_body = {
+            "removed": true
+        }
+
+        dwa.app_token.post(source.funding_sources_url, request_body)
+        return Response(status=204)

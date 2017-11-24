@@ -200,3 +200,12 @@ class MakeTransferSerializer(serializers.Serializer):
 class PauseAccountSerializer(serializers.Serializer):
     plaid_id = serializers.CharField()
     pause = serializers.BooleanField(default=False)
+
+
+class DeleteFundingSourceSerializer(serializers.Serializer):
+    item_id = serializers.CharField()
+
+    class Meta:
+        fields = (
+            'item_id'
+        )

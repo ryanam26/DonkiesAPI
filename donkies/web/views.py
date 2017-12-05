@@ -27,6 +27,7 @@ from django.apps import apps
 from web.services.sparkpost_service import SparkPostService
 from django.core.mail import send_mail
 import hashlib
+from bank.services.dwolla_api import DwollaApi
 
 from web.services import helpers
 
@@ -191,23 +192,107 @@ class PasswordReset(GenericAPIView):
         return Response({"message": "success"}, status=204)
 
 
-class Signup(GenericAPIView):
-    serializer_class = sers.SignupSerializer
+# class Signup(GenericAPIView):
+#     serializer_class = sers.SignupSerializer
 
-    def post(self, request, **kwargs):
-        serializer = sers.SignupSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+#     def post(self, request, **kwargs):
+#         serializer = sers.SignupSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
 
-        try:
-            serializer.save()
-        except Exception as e:
-            # res = e.args[0].args[0].body['_embedded']
-            return Response(e, status=403)
-        user = User.objects.get(email=request.data.get('email', None))
+#         try:
+#             serializer.save()
+#         except Exception as e:
+#             # res = e.args[0].args[0].body['_embedded']
+#             return Response(e, status=403)
+#         user = User.objects.get(email=request.data.get('email', None))
 
-        return Response({
-            'token': user.get_token().key
-        }, status=201)
+#         return Response({
+#             'token': user.get_token().key
+#         }, status=201)
+
+
+class SignupStep1APIView(GenericAPIView):
+    serializer_class = sers.SignupStep1Serializer
+
+    def post(self, request, *args, **kwargs):
+        ser = self.serializer_class(data=request.data)
+
+        if ser.is_valid():
+            user = ser.save()
+            return Response({
+                'token': user.get_token().key
+            }, status=201)
+
+        return Response(ser.errors, status=400)
+
+
+class SignupStep2APIView(AuthMixin, GenericAPIView):
+    serializer_class = sers.SignupStep2Serializer
+
+    def post(self, request, *args, **kwargs):
+        ser = self.serializer_class(request.user, data=request.data)
+
+        if ser.is_valid():
+            user = ser.save()
+            return Response(ser.data, status=200)
+
+        return Response(ser.errors, status=400)
+
+
+class SignupStep3APIView(AuthMixin, GenericAPIView):
+    serializer_class = sers.SignupStep3Serializer
+
+    def post(self, request, *args, **kwargs):
+        ser = self.serializer_class(request.user, data=request.data)
+
+        if ser.is_valid():
+            user = ser.save()
+            return Response(ser.data, status=200)
+
+        return Response(ser.errors, status=400)
+
+
+class SignupStep4APIView(AuthMixin, GenericAPIView):
+    serializer_class = sers.SignupStep4Serializer
+
+    def post(self, request, *args, **kwargs):
+        ser = self.serializer_class(request.user, data=request.data)
+
+        if ser.is_valid():
+            user = ser.save()
+
+            request_body = {
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'email': user.email,
+                'type': user.type,
+                'address1': user.address1,
+                'city': user.city,
+                'state': user.state,
+                'postalCode': user.postal_code,
+                'dateOfBirth': str(user.date_of_birth),
+                'ssn': user.ssn,
+                'phone': user.phone,
+            }
+
+            dw = DwollaApi()
+
+            try:
+                id = dw.create_customer(request_body)
+            except Exception as e:
+                return Response(e, status=400)
+
+            Customer = apps.get_model('bank', 'Customer')
+
+            customer = Customer.objects.create(user=user)
+            customer.dwolla_id = id
+            customer.save()
+
+            user.signup()
+
+            return Response(ser.data, status=200)
+
+        return Response(ser.errors, status=400)
 
 
 class SignupParent(GenericAPIView):

@@ -302,6 +302,35 @@ class SignupSerializer(serializers.ModelSerializer):
         return None
 
 
+class SignupStep1Serializer(serializers.ModelSerializer):
+    password = serializers.CharField(min_length=8)
+
+    class Meta:
+        model = User
+        fields = ['email', 'password']
+
+    def create(self, validated_data, *args, **kwargs):
+        return User.objects.create_user(**validated_data)
+
+
+class SignupStep2Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'phone']
+
+
+class SignupStep3Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['address1', 'city', 'state', 'postal_code']
+
+
+class SignupStep4Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['ssn', 'date_of_birth']
+
+
 class SignupConfirmSerializer(EncIdMixin, serializers.Serializer):
     encrypted_id = serializers.CharField()
     confirmation_token = serializers.CharField()
@@ -324,6 +353,8 @@ class UserSerializer(serializers.ModelSerializer):
     profile_image_url = serializers.SerializerMethodField()
     funding_sources_user = FundingSourceSerializer(required=False, many=True)
     user_calculations = serializers.SerializerMethodField()
+    registration_step = serializers.ReadOnlyField(
+        source='get_registation_step')
 
     class Meta:
         model = User
@@ -355,6 +386,7 @@ class UserSerializer(serializers.ModelSerializer):
             'dwolla_verified_url',
             'funding_sources_user',
             'user_calculations',
+            'registration_step'
         )
         read_only_fields = (
             'id',

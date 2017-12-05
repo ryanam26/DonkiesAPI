@@ -18,8 +18,20 @@ urlpatterns = [
 
     url(
         r'^(?P<version>[v1]+)/auth/signup$',
-        v.Signup.as_view(),
+        v.SignupStep1APIView.as_view(),
         name='signup'),
+    url(
+        r'^(?P<version>[v1]+)/auth/signup/2$',
+        v.SignupStep2APIView.as_view(),
+        name='signup-step-2'),
+    url(
+        r'^(?P<version>[v1]+)/auth/signup/3$',
+        v.SignupStep3APIView.as_view(),
+        name='signup-step-3'),
+    url(
+        r'^(?P<version>[v1]+)/auth/signup/4$',
+        v.SignupStep4APIView.as_view(),
+        name='signup-step-4'),
 
     url(
         r'^(?P<version>[v1]+)/auth/signup_parent$',

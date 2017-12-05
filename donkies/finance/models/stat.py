@@ -2,6 +2,7 @@ import datetime
 from django.db import models
 from django.contrib import admin
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 from django.apps import apps
 from bank.services.dwolla_api import DwollaApi
 from decimal import *
@@ -121,10 +122,12 @@ class StatManager(models.Manager):
         User = apps.get_model('web', 'User')
         Customer = apps.get_model('bank', 'Customer')
         user = User.objects.get(id=user_id)
+        customer_user = user
+
         if user.is_parent:
-            customer = Customer.objects.get(user=user.childs.first())
-        else:
-            customer = Customer.objects.get(user=user)
+            customer_user = user.childs.first()
+
+        customer = get_object_or_404(Customer, user=customer_user)
         dw = DwollaApi()
 
         customer_url = "{}customers/{}/funding-sources".format(

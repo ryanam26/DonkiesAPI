@@ -246,7 +246,7 @@ class SignupStep3APIView(AuthMixin, GenericAPIView):
         ser = self.serializer_class(request.user, data=request.data)
 
         if ser.is_valid():
-            user = ser.save()
+            ser.save()
             return Response(ser.data, status=200)
 
         return Response(ser.errors, status=400)

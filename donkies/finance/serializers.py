@@ -123,6 +123,7 @@ class ItemSerializer(serializers.ModelSerializer):
             'name',
             'access_token',
             'accounts',
+            'is_active'
         )
 
 

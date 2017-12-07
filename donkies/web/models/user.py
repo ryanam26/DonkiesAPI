@@ -513,7 +513,10 @@ class User(AbstractBaseUser):
 
     def signup_steps(self):
         # Account = apps.get_model('finance', 'Account')
-        if self.is_signup_completed:
+        if (
+            self.is_signup_completed and
+            self.items.filter(is_active=True).exists()
+        ):
             return None
 
         # url_3rd_step = None

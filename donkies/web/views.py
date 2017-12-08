@@ -214,6 +214,12 @@ class PasswordReset(GenericAPIView):
 class SignupStep1APIView(GenericAPIView):
     serializer_class = sers.SignupStep1Serializer
 
+    def get(self, request, *args, **kwargs):
+        email = request.query_params.get('email')
+        if User.objects.filter(email=email).exists():
+            return Response(status=400)
+        return Response(status=200)
+
     def post(self, request, *args, **kwargs):
         ser = self.serializer_class(data=request.data)
 

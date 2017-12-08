@@ -32,14 +32,6 @@ def pull():
 
 
 @with_settings(warn_only=True)
-def collectstatic():
-    print(green('Collecting static...'))
-    with prefix(VIRTUALENV_PATH), cd(PROJECT_PATH_DJANGO):
-        run('rm -r ../static/*')
-        run('python manage.py collectstatic --noinput')
-
-
-@with_settings(warn_only=True)
 def install_requirements():
     print(green('Installing requirements...'))
     with prefix(VIRTUALENV_PATH), cd(PROJECT_PATH_DJANGO):
@@ -96,7 +88,6 @@ def deploy():
         execute(install_requirements)
 
     if confirm('Collect static?', default=True):
-        execute(collectstatic)
         execute(restart_nginx)
 
     if confirm('Restart server?', default=False):

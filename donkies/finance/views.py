@@ -519,6 +519,11 @@ class ItemDetail(AuthMixin, RetrieveDestroyAPIView):
 
     def perform_destroy(self, instance):
         Item.objects.delete_item(instance.id)
+        d = DwollaAPI()
+        d.app_token.post(
+            instance.funding_items.first().funding_sources_url,
+            {"removed": True}
+        )
 
 
 class Lenders(AuthMixin, ListCreateAPIView):

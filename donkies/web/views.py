@@ -242,6 +242,15 @@ class SignupStep2APIView(AuthMixin, GenericAPIView):
 class SignupStep3APIView(AuthMixin, GenericAPIView):
     serializer_class = sers.SignupStep3Serializer
 
+    def get(self, request, *args, **kwargs):
+        result = []
+        for short_name, long_name in settings.US_STATES:
+            result.append({
+                'value': short_name,
+                'text': long_name
+            })
+        return Response(result)
+
     def post(self, request, *args, **kwargs):
         ser = self.serializer_class(request.user, data=request.data)
 

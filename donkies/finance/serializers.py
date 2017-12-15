@@ -1,15 +1,24 @@
-from rest_framework import serializers
-from finance.models import (
-    Account, Institution, Item, Transaction,
-    TransferPrepare, TransferCalculation, TransferBalance)
-
+from finance.models import (Account, Institution, Item, Lender, Transaction,
+                            TransferBalance, TransferCalculation,
+                            TransferPrepare)
 from finance.models.funding_source import FundingSource
+from rest_framework import serializers
 
 
 class InstitutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institution
         fields = '__all__'
+
+
+class LenderSerializer(serializers.ModelSerializer):
+    pk = serializers.ReadOnlyField()
+    user_id = serializers.ReadOnlyField(source='user.pk')
+    institution_name = serializers.ReadOnlyField(source='institution.name')
+
+    class Meta:
+        model = Lender
+        fields = ('pk', 'user_id', 'institution_name', 'account_number')
 
 
 class TransferBalanceSerializer(serializers.ModelSerializer):

@@ -107,6 +107,11 @@ urlpatterns = [
         name='lenders'),
 
     url(
+        r'^(?P<version>[v1]+)/user_lenders$',
+        v.UserLenders.as_view(),
+        name='user_lenders'),
+
+    url(
         r'^(?P<version>[v1]+)/lenders/(?P<id>\d+)$',
         v.LenderDetail.as_view(),
         name='lender_detail'),

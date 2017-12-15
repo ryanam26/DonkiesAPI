@@ -543,6 +543,32 @@ class Lenders(AuthMixin, ListCreateAPIView):
         return Response(status=201)
 
 
+class UserLenders(AuthMixin, ListCreateAPIView):
+    serializer_class = sers.LenderSerializer
+
+    def get_queryset(self):
+        return Lender.objects.filter(user=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        pk = request.data.get('pk')
+        account_number = request.data.get('account_number')
+        if not Lender.objects.filter(pk=pk).exists():
+            return Response({
+                'pk': ['Lender with pk {} does not exists'.format(pk)]
+            })
+
+        lender = Lender.objects.get(pk=pk)
+        lender.account_number = account_number
+        lender.save()
+
+        return Response(
+            sers.LenderSerializer(
+                Lender.objects.filter(user=request.user),
+                many=True
+            ).data, 200
+        )
+
+
 class LenderDetail(AuthMixin, APIView):
     def delete(self, request, **kwargs):
         id = kwargs['id']

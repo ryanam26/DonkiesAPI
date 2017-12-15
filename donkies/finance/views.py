@@ -547,7 +547,7 @@ class UserLenders(AuthMixin, ListCreateAPIView):
     serializer_class = sers.LenderSerializer
 
     def get_queryset(self):
-        return Lender.objects.filter(user=self.request.user)
+        return Lender.objects.filter(user=self.request.user).order_by('pk')
 
     def patch(self, request, *args, **kwargs):
         pk = request.data.get('pk')
@@ -563,7 +563,7 @@ class UserLenders(AuthMixin, ListCreateAPIView):
 
         return Response(
             sers.LenderSerializer(
-                Lender.objects.filter(user=request.user),
+                Lender.objects.filter(user=request.user).order_by('pk'),
                 many=True
             ).data, 200
         )
@@ -578,7 +578,7 @@ class UserLenders(AuthMixin, ListCreateAPIView):
 
         return Response(
             sers.LenderSerializer(
-                Lender.objects.filter(user=request.user),
+                Lender.objects.filter(user=request.user).order_by('pk'),
                 many=True
             ).data, 200
         )

@@ -568,6 +568,21 @@ class UserLenders(AuthMixin, ListCreateAPIView):
             ).data, 200
         )
 
+    def delete(self, request, pk=None, *args, **kwargs):
+        if not Lender.objects.filter(pk=pk).exists():
+            return Response({
+                'pk': ['Lender with pk {} does not exists'.format(pk)]
+            })
+
+        Lender.objects.get(pk=pk).delete()
+
+        return Response(
+            sers.LenderSerializer(
+                Lender.objects.filter(user=request.user),
+                many=True
+            ).data, 200
+        )
+
 
 class LenderDetail(AuthMixin, APIView):
     def delete(self, request, **kwargs):

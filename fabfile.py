@@ -90,5 +90,5 @@ def deploy():
     if confirm('Collect static?', default=True):
         execute(restart_nginx)
 
-    if confirm('Restart server?', default=False):
+    if confirm('Restart server?', default=True):
         execute(restart_server)

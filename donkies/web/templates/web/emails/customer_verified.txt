@@ -1,0 +1,11 @@
+Hi, {{ name }}.
+
+Your CoinStash account has been successfully verified!
+
+This email serves to confirm that you have successfully opened a Customer Account with our partner Dwolla, Inc and that you have accepted the Dwolla Terms of Service and Privacy Policy.
+
+Please feel free to review the terms that you have accepted here: https://www.dwolla.com/legal/tos?whitelabel
+
+If you have any questions or concerns please contact support at (813) 815-4647 or support@getcoinstash.com .
+
+Thank you.

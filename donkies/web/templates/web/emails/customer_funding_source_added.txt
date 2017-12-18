@@ -1,0 +1,5 @@
+Hi {{ name }}
+A bank account {{ bankAccountId }} was added to your account on {{ _date }}.
+You’ve agreed that future payments to CoinStash will be processed by the Dwolla payment system using bank account {{ bankName }}.
+To cancel, or if you have any questions or concerns about this bank account being added please contact support at (813) 815-4647 or support@getcoinstash.com.
+Thank you.

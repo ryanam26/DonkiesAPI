@@ -1,0 +1,5 @@
+Hi {{ name }}
+
+A bank account {{ bankAccountId }} was removed from your account on {{ _date }}.
+
+Thank you.

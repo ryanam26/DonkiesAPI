@@ -245,17 +245,17 @@ class User(AbstractBaseUser):
 
         fields = {
             '2': ['first_name', 'last_name', 'phone'],
-            '3': ['address1', 'city', 'state', 'postal_code'],
-            '4': ['ssn', 'date_of_birth'],
+            # '3': ['address1', 'city', 'state', 'postal_code'],
+            # '4': ['ssn', 'date_of_birth'],
         }
         if not all(getattr(self, field) for field in fields['2']):
             return 2
 
-        if not all(getattr(self, field) for field in fields['3']):
-            return 3
+        # if not all(getattr(self, field) for field in fields['3']):
+        #     return 3
 
-        if not all(getattr(self, field) for field in fields['4']):
-            return 4
+        # if not all(getattr(self, field) for field in fields['4']):
+        #     return 4
 
         return False
 

@@ -47,10 +47,14 @@ def shell():
 
 
 @with_settings(warn_only=True)
-def migrate(model=''):
+def migrate():
     print(green('Starting shell...'))
+    model = prompt('Model name (default: all): ')
     with prefix(VIRTUALENV_PATH), cd(PROJECT_PATH_DJANGO):
-        run('python manage.py migrate ' + model)
+        if not model:
+            run('python manage.py migrate')
+        else:
+            run('python manage.py migrate ' + model)
 
 
 @with_settings(warn_only=True)
@@ -87,8 +91,8 @@ def deploy():
     if confirm('Install requirements?', default=False):
         execute(install_requirements)
 
-    if confirm('Collect static?', default=True):
-        execute(restart_nginx)
+    if confirm('Migrate something?', default=False):
+        execute(migrate)
 
     if confirm('Restart server?', default=True):
         execute(restart_server)

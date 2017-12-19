@@ -240,6 +240,28 @@ class SignupStep2APIView(AuthMixin, GenericAPIView):
 
         if ser.is_valid():
             user = ser.save()
+
+            request_body = {
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'email': user.email,
+                'phone': user.phone,
+            }
+
+            dw = DwollaApi()
+
+            try:
+                id = dw.create_customer(request_body)
+            except Exception as e:
+                return Response(e, status=400)
+
+            Customer = apps.get_model('bank', 'Customer')
+
+            customer = Customer.objects.create(user=user)
+            customer.dwolla_id = id
+            customer.save()
+
+            user.signup()
             return Response(ser.data, status=200)
 
         return Response(ser.errors, status=400)

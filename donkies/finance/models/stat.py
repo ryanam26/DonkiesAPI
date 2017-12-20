@@ -140,9 +140,14 @@ class StatManager(models.Manager):
             if "balance" in i['_links'].keys():
                 balance_url = i['_links']['balance']['href']
 
-        balance = dw.token.get(balance_url)
+        try:
+            balance = dw.token.get(balance_url)
+            balance_value = balance.body['balance']['value']
 
-        return balance.body['balance']['value']
+        except AttributeError:
+            balance_value = 0
+
+        return balance_value
 
     def get_applied_funds(self, user_id):
         User = apps.get_model('web', 'User')

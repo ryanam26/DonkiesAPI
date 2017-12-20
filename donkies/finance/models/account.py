@@ -499,9 +499,6 @@ class AccountAdmin(admin.ModelAdmin):
         'updated_at'
     )
 
-    def has_delete_permission(self, request, obj=None):
-        return False
-
     def show_account_number(self, obj):
         print(obj.account_number)
         if obj.account_number:

@@ -22,11 +22,11 @@ def pull():
 
     with cd(PROJECT_PATH):
         if confirm('Stash?', default=False):
-            run('git stash --all')
+            run('git stash')
             run('git pull --rebase')
             run('git stash pop')
         else:
-            run('git pull --no-commit')
+            run('git pull')
 
         print(green('Getting files from github completed'))
 

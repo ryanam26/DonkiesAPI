@@ -79,6 +79,7 @@ class ItemManager(ActiveManager):
                 pa = PlaidApi()
                 pa.delete_item(item.access_token)
         self.change_active(item.id, False)
+        item.delete()
 
     @transaction.atomic
     def change_active(self, item_id, is_active):
@@ -139,6 +140,16 @@ class Item(ActiveModel):
         if not self.pk:
             self.guid = uuid.uuid4().hex
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        from finance.services.dwolla_api import DwollaAPI
+
+        d = DwollaAPI()
+        d.app_token.post(
+            self.funding_items.first().funding_sources_url,
+            {"removed": True}
+        )
 
 
 @admin.register(Item)

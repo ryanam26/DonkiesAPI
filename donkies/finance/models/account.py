@@ -73,6 +73,10 @@ class AccountManager(ActiveManager):
                 )
 
                 acc.is_funding_source_for_transfer = True
+
+        if context['account_id'] == data['account_id']:
+            acc.is_primary = True
+
         acc.save()
 
         return acc

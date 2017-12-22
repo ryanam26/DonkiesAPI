@@ -262,7 +262,7 @@ class SignupStep2APIView(AuthMixin, GenericAPIView):
             customer.save()
 
             user.signup()
-            return Response(ser.data, status=200)
+            return Response(sers.UserSerializer(user).data, status=200)
 
         return Response(ser.errors, status=400)
 

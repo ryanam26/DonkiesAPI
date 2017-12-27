@@ -19,6 +19,7 @@ class AccountManager(ActiveManager):
         """
         Item = apps.get_model('finance', 'Item')
         pa = PlaidApi()
+
         try:
             api_data = pa.get_accounts(context['access_token'])
         except Exception as e:
@@ -27,8 +28,11 @@ class AccountManager(ActiveManager):
         accounts = api_data['accounts']
 
         for d in accounts:
-            res = self.create_or_update_account(context['access_token'], d, user, context)
-
+            try:
+                self.create_or_update_account(
+                    context['access_token'], d, user, context)
+            except Exception as e:
+                print(e)
 
     def create_or_update_account(self, access_token, data, user, context):
         """
@@ -502,6 +506,10 @@ class AccountAdmin(admin.ModelAdmin):
         'created_at',
         'updated_at'
     )
+
+    def get_queryset(self, request):
+        qs = super(AccountAdmin, self).get_queryset(request)
+        return qs.filter(is_active=True)
 
     def show_account_number(self, obj):
         print(obj.account_number)

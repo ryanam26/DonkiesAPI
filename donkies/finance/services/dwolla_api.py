@@ -12,9 +12,23 @@ class DwollaAPI:
         if env not in ['production', 'development', 'sandbox']:
             raise ValueError('Incorrect value for DWOLLA_ENV in settings.')
 
-        self.client = dwollav2.Client(id=settings.DWOLLA_ID_SANDBOX,
-                                      secret=settings.DWOLLA_SECRET_SANDBOX,
-                                      environment=env)
+        dwolla_id = None
+        dwolla_secret = None
+
+        if env == 'sandbox':
+            dwolla_id = settings.DWOLLA_ID_SANDBOX
+            dwolla_secret = settings.DWOLLA_SECRET_SANDBOX
+        elif env == 'production':
+            dwolla_id = settings.DWOLLA_ID_PROD
+            dwolla_secret = settings.DWOLLA_SECRET_PROD
+        else:
+            raise ValueError('Incorrect value for DWOLLA_ENV in settings.')
+
+        self.client = dwollav2.Client(
+            id=dwolla_id,
+            secret=dwolla_secret,
+            environment=env
+        )
         self.app_token = self.client.Auth.client()
 
     def get_api_url(self):

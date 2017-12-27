@@ -45,9 +45,11 @@ DATABASES = {
 }
 
 DONKIES_MODE = 'development'
+
 PLAID_ENV = 'sandbox'
-DWOLLA_ENV = 'sandbox'
 # PLAID_ENV = 'development'
+DWOLLA_ENV = 'sandbox'
+# DWOLLA_ENV = 'production'
 
 EMAIL_HOST = 'smtp.mailgun.org'
 EMAIL_PORT = 587

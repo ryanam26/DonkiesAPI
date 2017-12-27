@@ -176,3 +176,7 @@ class ItemAdmin(admin.ModelAdmin):
         'created_at',
         'updated_at',
     )
+
+    def get_queryset(self, request):
+        qs = super(ItemAdmin, self).get_queryset(request)
+        return qs.filter(is_active=True)
